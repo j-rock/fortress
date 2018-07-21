@@ -8,6 +8,7 @@ gl = "0.10"
 glm = "0.2"
 liquidfun = { path = "../liquidfun" }
 lodepng = "2.1"
+notify = "4.0"
 sdl2 = "0.31"
 serde = "1.0"
 serde_json = "1.0"

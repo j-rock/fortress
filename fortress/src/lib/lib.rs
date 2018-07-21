@@ -1,6 +1,7 @@
 extern crate gl;
 extern crate glm;
 extern crate lodepng;
+extern crate notify;
 extern crate sdl2;
 // extern crate serde;
 // extern crate serde_json;

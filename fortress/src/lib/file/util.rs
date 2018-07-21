@@ -30,6 +30,10 @@ pub fn buffered_writer_for<P: AsRef<Path>>(path: P) -> std::io::Result<BufWriter
     Ok(BufWriter::new(file))
 }
 
+pub fn resource_base() -> &'static str {
+    "D:\\Programming\\IntelliJ\\Fortress\\fortress\\src\\res"
+}
+
 pub fn resource_path(parent_folder: &'static str, resource_name: &'static str) -> String {
-    format!("D:\\Programming\\IntelliJ\\Fortress\\fortress\\src\\res\\{}\\{}", parent_folder, resource_name)
+    format!("{}\\{}\\{}", resource_base(), parent_folder, resource_name)
 }
