@@ -1,5 +1,6 @@
 extern crate gl;
 extern crate glm;
+#[macro_use] extern crate lazy_static;
 extern crate lodepng;
 extern crate sdl2;
 // extern crate serde;

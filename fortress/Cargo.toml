@@ -6,6 +6,7 @@ authors = ["Joseph <wax818@gmail.com>"]
 [dependencies]
 gl = "0.10"
 glm = "0.2"
+lazy_static = "1.0"
 liquidfun = { path = "../liquidfun" }
 lodepng = "2.1"
 sdl2 = "0.31"

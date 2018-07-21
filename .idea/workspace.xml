@@ -12,7 +12,44 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="util.rs" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/fortress/src/lib/file/util.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="390">
+              <caret line="56" column="18" selection-start-line="56" selection-start-column="18" selection-end-line="56" selection-end-column="18" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="status.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fortress/src/lib/app/status.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="52">
+              <caret line="2" selection-start-line="2" selection-end-line="2" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="g_buffer.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fortress/src/lib/render/g_buffer.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="416">
+              <caret line="39" column="81" lean-forward="true" selection-start-line="39" selection-start-column="81" selection-end-line="39" selection-end-column="81" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="shader_program.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fortress/src/lib/render/shader_program.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="520">
+              <caret line="99" column="25" selection-start-line="99" selection-start-column="25" selection-end-line="99" selection-end-column="25" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -24,6 +61,7 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>k</find>
+      <find>kj</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -34,7 +72,6 @@
         <option value="$PROJECT_DIR$/src/lib/lib.rs" />
         <option value="$PROJECT_DIR$/src/bin/mains/app.rs" />
         <option value="$PROJECT_DIR$/Cargo.toml" />
-        <option value="$PROJECT_DIR$/fortress/Cargo.toml" />
         <option value="$PROJECT_DIR$/liquidfun/Cargo.toml" />
         <option value="$PROJECT_DIR$/liquidfun/src/box2d/collision/shapes/polygon_shape.rs" />
         <option value="$PROJECT_DIR$/liquidfun/src/box2d/dynamics/body.rs" />
@@ -43,15 +80,12 @@
         <option value="$PROJECT_DIR$/liquidfun/src/box2d/particle/particle_color.rs" />
         <option value="$PROJECT_DIR$/liquidfun/src/box2d/particle/particle_system.rs" />
         <option value="$PROJECT_DIR$/liquidfun/src/box2d/particle/particle_group.rs" />
-        <option value="$PROJECT_DIR$/fortress/src/lib/file/util.rs" />
         <option value="$PROJECT_DIR$/liquidfun/src/build.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/app/app_state.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/world/mod.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/render/render_state.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/render/mod.rs" />
-        <option value="$PROJECT_DIR$/fortress/src/lib/render/g_buffer.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/app/mod.rs" />
-        <option value="$PROJECT_DIR$/fortress/src/lib/lib.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/app/app_context.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/controls/control_events.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/dimensions/mod.rs" />
@@ -62,6 +96,11 @@
         <option value="$PROJECT_DIR$/fortress/src/lib/world/world_state.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/world/camera.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/controls/controller.rs" />
+        <option value="$PROJECT_DIR$/fortress/Cargo.toml" />
+        <option value="$PROJECT_DIR$/fortress/src/lib/lib.rs" />
+        <option value="$PROJECT_DIR$/fortress/src/lib/render/g_buffer.rs" />
+        <option value="$PROJECT_DIR$/fortress/src/lib/render/shader_program.rs" />
+        <option value="$PROJECT_DIR$/fortress/src/lib/file/util.rs" />
       </list>
     </option>
   </component>
@@ -94,21 +133,6 @@
               <item name="fortress" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="lib" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="lib" type="462c0819:PsiDirectoryNode" />
-              <item name="file" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
@@ -121,9 +145,9 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Programming\IntelliJ\Fortress" />
       <recent name="D:\Programming\IntelliJ\Fortress\fortress\src\lib\render" />
       <recent name="D:\Programming\IntelliJ\Fortress\fortress\src\lib\world" />
-      <recent name="D:\Programming\IntelliJ\Fortress" />
       <recent name="D:\Programming\IntelliJ\Fortress\fortress" />
     </key>
   </component>
@@ -203,13 +227,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/fortress/Cargo.toml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="10" column="12" selection-start-line="10" selection-start-column="12" selection-end-line="10" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/fortress/src/lib/lib.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="286">
@@ -253,10 +270,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="653">
           <caret line="33" column="60" selection-start-line="33" selection-start-column="60" selection-end-line="33" selection-end-column="60" />
-          <folding>
-            <element signature="e#810#811#0" expanded="true" />
-            <element signature="e#874#875#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -337,13 +350,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fortress/Cargo.toml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="208">
-          <caret line="8" column="13" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/liquidfun/src/box2d/collision/shapes/polygon_shape.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="286">
@@ -414,9 +420,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fortress/src/lib/file/util.rs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/fortress/src/lib/file/mod.rs">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -424,13 +427,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="104">
           <caret line="4" selection-start-line="4" selection-end-line="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fortress/src/lib/render/shader_program.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="104">
-          <caret line="171" selection-start-line="171" selection-end-line="171" />
         </state>
       </provider>
     </entry>
@@ -443,25 +439,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fortress/src/lib/render/g_buffer.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="312">
-          <caret line="12" column="18" selection-start-line="12" selection-start-column="18" selection-end-line="12" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/fortress/src/lib/app/app_state.rs" />
     <entry file="file://$PROJECT_DIR$/fortress/src/lib/app/mod.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="26">
           <caret line="1" selection-start-line="1" selection-end-line="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fortress/src/lib/lib.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="416">
-          <caret line="16" lean-forward="true" selection-start-line="16" selection-end-line="16" />
         </state>
       </provider>
     </entry>
@@ -543,6 +525,48 @@
             <element signature="e#352#353#0" expanded="true" />
             <element signature="e#391#392#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fortress/Cargo.toml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="208">
+          <caret line="8" column="18" selection-start-line="8" selection-start-column="18" selection-end-line="8" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fortress/src/lib/lib.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="52">
+          <caret line="2" column="12" selection-start-line="2" selection-start-column="12" selection-end-line="2" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fortress/src/lib/app/status.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="52">
+          <caret line="2" selection-start-line="2" selection-end-line="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fortress/src/lib/render/g_buffer.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="416">
+          <caret line="39" column="81" lean-forward="true" selection-start-line="39" selection-start-column="81" selection-end-line="39" selection-end-column="81" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fortress/src/lib/render/shader_program.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="520">
+          <caret line="99" column="25" selection-start-line="99" selection-start-column="25" selection-end-line="99" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fortress/src/lib/file/util.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="390">
+          <caret line="56" column="18" selection-start-line="56" selection-start-column="18" selection-end-line="56" selection-end-column="18" />
         </state>
       </provider>
     </entry>

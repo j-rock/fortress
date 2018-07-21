@@ -37,8 +37,7 @@ impl GBuffer {
             depth_render_buffer: 0,
             quad_vao: 0,
             quad_vbo: 0,
-            lighting_pass_shader: ShaderProgram::from_short_pipeline(
-                vert_path.as_str(), frag_path.as_str())?
+            lighting_pass_shader: ShaderProgram::from_short_pipeline(&vert_path, &frag_path)?
         };
         g_buffer.resize(window_size.0, window_size.1)?;
         Ok(g_buffer)
