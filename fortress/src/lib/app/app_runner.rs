@@ -3,7 +3,7 @@ use app::{
     Clock,
     StatusOr,
 };
-use controls::KeyboardControls;
+use controls::Controller;
 use gl;
 use render::GBuffer;
 use sdl2::{
@@ -20,7 +20,7 @@ pub struct AppRunner {
     clock: Clock,
     g_buffer: GBuffer,
     world: WorldState,
-    keyboard: KeyboardControls,
+    controller: Controller,
 }
 
 impl AppRunner {
@@ -31,7 +31,7 @@ impl AppRunner {
             clock: Clock::start(),
             g_buffer: GBuffer::new(&window_size)?,
             world: WorldState::new(),
-            keyboard: KeyboardControls::new(),
+            controller: Controller::new(),
         })
     }
 
@@ -67,8 +67,8 @@ impl AppRunner {
 
     fn update(&mut self) {
         let dt = self.clock.restart();
-        self.keyboard.update(&self.context.events);
-        self.world.update(&self.keyboard, dt);
+        self.controller.update(&self.context.events);
+        self.world.update(&self.controller, dt);
     }
 
     fn draw(&self) {

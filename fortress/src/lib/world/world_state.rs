@@ -1,4 +1,4 @@
-use controls::KeyboardControls;
+use controls::Controller;
 use dimensions::time::DeltaTime;
 use world::Camera;
 
@@ -13,8 +13,8 @@ impl WorldState {
         }
     }
 
-    pub fn update(&mut self, keyboard: &KeyboardControls, dt: DeltaTime) {
-        self.camera.update(keyboard, dt);
+    pub fn update(&mut self, controller: &Controller, dt: DeltaTime) {
+        self.camera.update(controller, dt);
     }
 
     pub fn draw_geometry(&self) {
