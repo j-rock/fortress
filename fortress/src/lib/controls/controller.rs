@@ -1,5 +1,8 @@
-use controls::ControlEvent;
-use controls::KeyboardControls;
+use controls::{
+    ControlEvent,
+    KeyboardControls
+};
+use dimensions::Direction;
 use sdl2::{
     EventPump,
     keyboard::Scancode

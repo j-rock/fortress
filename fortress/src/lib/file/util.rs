@@ -1,39 +1,61 @@
+use app::StatusOr;
 use std::{
-    convert::AsRef,
-    fs::File,
+    ffi::OsString,
+    fs::{
+        File,
+        self
+    },
     io::{
         BufReader,
-        BufWriter,
-        Lines,
-        prelude::*,
+        Read,
     },
-    path::Path,
-    self,
+    path::{
+        Path,
+        PathBuf
+    },
 };
 
-pub fn slurp_file<P: AsRef<Path>>(path: P) -> std::io::Result<String> {
-    let file = File::open(path)?;
+lazy_static! {
+  static ref RESOURCE_BASE: PathBuf = try_find_resource_base().unwrap();
+}
+
+pub fn slurp_file(path: &PathBuf) -> StatusOr<String> {
+    let file = File::open(path)
+        .map_err(|e| format!("Error opening file {:?}: {}", path, e))?;
     let mut buf_reader = BufReader::new(file);
     let mut contents = String::new();
-    buf_reader.read_to_string(&mut contents)?;
+    buf_reader.read_to_string(&mut contents)
+        .map_err(|e| format!("Error reading to string from slurp_file {:?}: {}", path, e))?;
     Ok(contents)
 }
 
-pub fn lines<P: AsRef<Path>>(path: P) -> std::io::Result<Lines<BufReader<File>>> {
-    let file = File::open(path)?;
-    let buf_reader = BufReader::new(file);
-    Ok(buf_reader.lines())
+pub fn resource_path(parent_folder: &'static str, resource_name: &'static str) -> PathBuf {
+    let mut path_buf = RESOURCE_BASE.to_path_buf();
+    [parent_folder, resource_name].iter().for_each(|p| path_buf.push(p));
+    path_buf
 }
 
-pub fn buffered_writer_for<P: AsRef<Path>>(path: P) -> std::io::Result<BufWriter<File>> {
-    let file = File::create(path)?;
-    Ok(BufWriter::new(file))
+fn dir_contains_res(path: &Path) -> StatusOr<bool> {
+    for entry in fs::read_dir(path)
+        .map_err(|e| format!("Couldn't read dir {:?}: {}", path, e))? {
+        let entry = entry
+            .map_err(|e| format!("Couldn't read entry in {:?}: {}", path, e))?;
+        if entry.file_name() == OsString::from("res") {
+            return Ok(true)
+        }
+    }
+    Ok(false)
 }
 
-pub fn resource_base() -> &'static str {
-    "D:\\Programming\\IntelliJ\\Fortress\\fortress\\src\\res"
-}
+fn try_find_resource_base() -> StatusOr<PathBuf> {
+    let mut path_buf = PathBuf::from(".").canonicalize()
+        .map_err(|e| format! ("Couldn't canonicalize CWD: {}", e))?;
 
-pub fn resource_path(parent_folder: &'static str, resource_name: &'static str) -> String {
-    format!("{}\\{}\\{}", resource_base(), parent_folder, resource_name)
+    // TODO: Apply this call recursively instead of stopping.
+    if dir_contains_res(path_buf.as_path())? {
+        path_buf.push("res");
+        Ok(path_buf)
+    } else {
+       Err(String::from("Could not find resource folder!"))
+    }
 }

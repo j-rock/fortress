@@ -7,15 +7,16 @@ use gl::{
 use glm;
 use std::{
     ffi::CString,
+    path::PathBuf,
     self,
 };
 
-fn compile_shader(path: &str, shader_type: GLenum) -> StatusOr<GLuint> {
+fn compile_shader(path: &PathBuf, shader_type: GLenum) -> StatusOr<GLuint> {
     let slurped_shader_code = file::util::slurp_file(path)
-        .map_err(|err| format!("Error reading shader ({}), code: {}", path, err))?;
+        .map_err(|err| format!("Error reading shader ({:?}), code: {}", path, err))?;
     let shader_c_str =
         CString::new(slurped_shader_code.as_str())
-            .map_err(|err| format!("Couldn't turn shader {} into a C string. Reason: {}", path, err))?;
+            .map_err(|err| format!("Couldn't turn shader {:?} into a C string. Reason: {}", path, err))?;
     unsafe {
         let shader_id = gl::CreateShader(shader_type);
         gl::ShaderSource(shader_id, 1, &shader_c_str.as_ptr(), std::ptr::null());
@@ -33,7 +34,7 @@ fn compile_shader(path: &str, shader_type: GLenum) -> StatusOr<GLuint> {
             gl::GetShaderInfoLog(shader_id, info_log_len, std::ptr::null_mut(), info_log.as_mut_ptr() as *mut GLchar);
             let err_string = String::from_utf8(info_log)
                     .map_err(|_err|
-                        format!("Shader failed to compile. Explanation was invalid UTF-8. Shader: {}", path))?;
+                        format!("Shader failed to compile. Explanation was invalid UTF-8. Shader: {:?}", path))?;
             Err(err_string)
         }
     }
@@ -69,7 +70,7 @@ pub struct ShaderProgram {
 }
 
 impl ShaderProgram {
-    pub fn from_short_pipeline(vertex_filepath: &str, fragment_filepath: &str) -> StatusOr<ShaderProgram> {
+    pub fn from_short_pipeline(vertex_filepath: &PathBuf, fragment_filepath: &PathBuf) -> StatusOr<ShaderProgram> {
         let vertex = compile_shader(vertex_filepath, gl::VERTEX_SHADER)?;
         let fragment = compile_shader(fragment_filepath, gl::FRAGMENT_SHADER)?;
         let shader_program = ShaderProgram {
@@ -82,9 +83,9 @@ impl ShaderProgram {
         Ok(shader_program)
     }
 
-    pub fn from_long_pipeline(vertex_filepath: &str,
-                              geometry_filepath: &str,
-                              fragment_filepath: &str) -> StatusOr<ShaderProgram> {
+    pub fn from_long_pipeline(vertex_filepath: &PathBuf,
+                              geometry_filepath: &PathBuf,
+                              fragment_filepath: &PathBuf) -> StatusOr<ShaderProgram> {
         let vertex = compile_shader(vertex_filepath, gl::VERTEX_SHADER)?;
         let geometry = compile_shader(geometry_filepath, gl::GEOMETRY_SHADER)?;
         let fragment = compile_shader(fragment_filepath, gl::FRAGMENT_SHADER)?;

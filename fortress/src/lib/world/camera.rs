@@ -16,7 +16,6 @@ pub struct Camera {
     position: Vec3,
     lookat: Vec3,
     up: Vec3,
-    zoom: f32,
 }
 
 impl Camera {
@@ -27,7 +26,6 @@ impl Camera {
             position: glm::vec3(0.0, 0.0, 0.0),
             lookat,
             up,
-            zoom: 45.0,
         }
     }
 
