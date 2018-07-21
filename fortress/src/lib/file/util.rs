@@ -19,6 +19,16 @@ lazy_static! {
   static ref RESOURCE_BASE: PathBuf = try_find_resource_base().unwrap();
 }
 
+pub fn resource_base() -> PathBuf {
+    RESOURCE_BASE.to_path_buf()
+}
+
+pub fn reader(path: &PathBuf) -> StatusOr<BufReader<File>> {
+    let file = File::open(path)
+        .map_err(|e| format!("Error opening file {:?}: {}", path, e))?;
+    Ok(BufReader::new(file))
+}
+
 pub fn slurp_file(path: &PathBuf) -> StatusOr<String> {
     let file = File::open(path)
         .map_err(|e| format!("Error opening file {:?}: {}", path, e))?;
@@ -30,7 +40,7 @@ pub fn slurp_file(path: &PathBuf) -> StatusOr<String> {
 }
 
 pub fn resource_path(parent_folder: &'static str, resource_name: &'static str) -> PathBuf {
-    let mut path_buf = RESOURCE_BASE.to_path_buf();
+    let mut path_buf = resource_base();
     [parent_folder, resource_name].iter().for_each(|p| path_buf.push(p));
     path_buf
 }

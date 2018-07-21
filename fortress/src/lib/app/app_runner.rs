@@ -4,6 +4,7 @@ use app::{
     StatusOr,
 };
 use controls::Controller;
+use file::ConfigWatcher;
 use gl;
 use render::GBuffer;
 use sdl2::{
@@ -18,9 +19,10 @@ use world::WorldState;
 pub struct AppRunner {
     context: AppContext,
     clock: Clock,
+    config_watcher: ConfigWatcher,
+    controller: Controller,
     g_buffer: GBuffer,
     world: WorldState,
-    controller: Controller,
 }
 
 impl AppRunner {
@@ -29,9 +31,10 @@ impl AppRunner {
         Ok(AppRunner {
             context: AppContext::new(&window_size)?,
             clock: Clock::start(),
+            config_watcher: ConfigWatcher::new()?,
+            controller: Controller::new(),
             g_buffer: GBuffer::new(&window_size)?,
             world: WorldState::new(),
-            controller: Controller::new(),
         })
     }
 
@@ -67,6 +70,7 @@ impl AppRunner {
 
     fn update(&mut self) {
         let dt = self.clock.restart();
+        self.config_watcher.update();
         self.controller.update(&self.context.events);
         self.world.update(&self.controller, dt);
     }
