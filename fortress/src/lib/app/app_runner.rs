@@ -1,79 +1,36 @@
 use app::{
+    AppContext,
     Clock,
     StatusOr,
 };
 use controls::KeyboardControls;
 use gl;
-use render::RenderState;
+use render::GBuffer;
 use sdl2::{
     event::{
         Event,
         WindowEvent,
     },
     keyboard::Keycode,
-    render::WindowCanvas,
-    self,
 };
-
-fn find_sdl_gl_driver() -> StatusOr<u32> {
-    for (index, item) in sdl2::render::drivers().enumerate() {
-        if item.name == "opengl" {
-            return Ok(index as u32);
-        }
-    }
-    Err(String::from("Could not find SDL GL driver."))
-}
+use world::WorldState;
 
 pub struct AppRunner {
-    _sdl_context: sdl2::Sdl,
-    _gl_context: sdl2::video::GLContext,
-    _video_subsystem: sdl2::VideoSubsystem,
-    canvas: WindowCanvas,
-    events: sdl2::EventPump,
+    context: AppContext,
     clock: Clock,
-    render: RenderState,
+    g_buffer: GBuffer,
+    world: WorldState,
     keyboard: KeyboardControls,
 }
 
 impl AppRunner {
     pub fn new() -> StatusOr<AppRunner> {
-        let sdl_context = sdl2::init()?;
-        let video_subsystem = sdl_context.video()?;
-        {
-            let gl_attr = video_subsystem.gl_attr();
-            gl_attr.set_depth_size(24);
-            gl_attr.set_context_version(4, 5);
-            gl_attr.set_context_profile(sdl2::video::GLProfile::Core);
-        }
-
         let window_size: (i32, i32) = (1200, 670);
-        let window = video_subsystem.window("App", window_size.0 as u32, window_size.1 as u32)
-            .opengl()
-            .build()
-            .map_err(|err| format!("Error initializing window: {}", err))?;
-
-        let gl_context = window.gl_create_context()?;
-        gl::load_with(|name| video_subsystem.gl_get_proc_address(name) as *const _);
-        video_subsystem.gl_set_swap_interval(1);
-
-        let canvas = window
-            .into_canvas()
-            .index(find_sdl_gl_driver()?)
-            .build()
-            .map_err(|err| format!("Error initializing canvas: {}", err))?;
-        canvas.window().gl_set_context_to_current()?;
-
-        let render = RenderState::new(window_size.0, window_size.1)?;
-
-        let events = sdl_context.event_pump()?;
         Ok(AppRunner {
-            _sdl_context: sdl_context,
-            _gl_context: gl_context,
-            _video_subsystem: video_subsystem,
-            canvas,
-            events,
+            context: AppContext::new(&window_size)?,
             clock: Clock::start(),
-            render,
+            g_buffer: GBuffer::new(&window_size)?,
+            world: WorldState::new(),
             keyboard: KeyboardControls::new(),
         })
     }
@@ -87,6 +44,7 @@ impl AppRunner {
                 _ => {
                     self.update();
                     self.draw();
+                    self.context.canvas.present();
                 }
             }
         }
@@ -94,11 +52,13 @@ impl AppRunner {
 
     // Return false on quit.
     fn process_events(&mut self) -> StatusOr<bool> {
-        for event in self.events.poll_iter() {
+        for event in self.context.events.poll_iter() {
            match event {
                Event::Quit { .. } | Event::KeyDown {keycode: Some(Keycode::Q), ..} => return Ok(false),
-               Event::Window { win_event: WindowEvent::Resized(width, height), .. } =>
-                   self.render.resize(width, height)?,
+               Event::Window { win_event: WindowEvent::Resized(width, height), .. } => {
+                   unsafe { gl::Viewport(0, 0, width, height); }
+                   self.g_buffer.resize(width, height)?
+               },
                _ => ()
            }
         }
@@ -107,11 +67,23 @@ impl AppRunner {
 
     fn update(&mut self) {
         let dt = self.clock.restart();
-        self.keyboard.update(&self.events);
-        self.render.update(&self.keyboard, dt);
+        self.keyboard.update(&self.context.events);
+        self.world.update(&self.keyboard, dt);
     }
 
-    fn draw(&mut self) {
-        self.render.draw(&mut self.canvas);
+    fn draw(&self) {
+        unsafe {
+            gl::ClearColor(0.0177, 0.0177, 0.0477, 1.0);
+            gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
+        }
+
+        // 1. Draw all geometry.
+        self.g_buffer.geometry_pass();
+        self.world.draw_geometry();
+
+        // 2. Lighting pass
+        self.g_buffer.lighting_pass();
+
+        // 3. Non-geometric superimposed draw calls.
     }
 }

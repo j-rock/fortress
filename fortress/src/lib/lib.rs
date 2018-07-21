@@ -13,4 +13,4 @@ pub mod dimensions;
 pub mod file;
 pub mod image;
 pub mod render;
-pub mod shader;
+pub mod world;

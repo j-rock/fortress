@@ -4,7 +4,7 @@ use gl::{
     types::*,
 };
 use file;
-use shader::ShaderProgram;
+use render::ShaderProgram;
 use std;
 
 // Used for glTexImage2D() call.
@@ -26,10 +26,10 @@ pub struct GBuffer {
 }
 
 impl GBuffer {
-    pub fn new() -> StatusOr<GBuffer> {
+    pub fn new(window_size: &(i32, i32)) -> StatusOr<GBuffer> {
         let vert_path = file::util::resource_path("shaders", "deferred_lighting_vert.glsl");
         let frag_path = file::util::resource_path("shaders", "deferred_lighting_frag.glsl");
-        let g_buffer = GBuffer {
+        let mut g_buffer = GBuffer {
             frame_buffer: 0,
             position_texture: 0,
             normal_texture: 0,
@@ -40,11 +40,12 @@ impl GBuffer {
             lighting_pass_shader: ShaderProgram::from_short_pipeline(
                 vert_path.as_str(), frag_path.as_str())?
         };
+        g_buffer.resize(window_size.0, window_size.1)?;
         Ok(g_buffer)
     }
 
-    pub fn gl_init(&mut self, width: GLsizei, height: GLsizei) -> StatusOr<()> {
-        self.clear();
+    pub fn resize(&mut self, width: GLsizei, height: GLsizei) -> StatusOr<()> {
+        self.clear_buffers();
         unsafe {
             gl::GenFramebuffers(1, &mut self.frame_buffer);
             gl::BindFramebuffer(gl::FRAMEBUFFER, self.frame_buffer);
@@ -158,7 +159,7 @@ impl GBuffer {
         }
     }
 
-    fn clear(&mut self) {
+    fn clear_buffers(&mut self) {
         unsafe {
             if self.frame_buffer != 0 {
                 gl::DeleteFramebuffers(1, &self.frame_buffer);
@@ -194,6 +195,6 @@ impl GBuffer {
 
 impl Drop for GBuffer {
     fn drop(&mut self) {
-        self.clear();
+        self.clear_buffers();
     }
 }
