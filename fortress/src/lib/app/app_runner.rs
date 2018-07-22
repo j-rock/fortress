@@ -28,13 +28,16 @@ pub struct AppRunner {
 impl AppRunner {
     pub fn new() -> StatusOr<AppRunner> {
         let window_size: (i32, i32) = (1200, 670);
+        let mut config_watcher = ConfigWatcher::new()?;
+        let world = WorldState::new(&mut config_watcher)?;
+
         Ok(AppRunner {
             context: AppContext::new(&window_size)?,
             clock: Clock::start(),
-            config_watcher: ConfigWatcher::new()?,
+            config_watcher,
             controller: Controller::new(),
             g_buffer: GBuffer::new(&window_size)?,
-            world: WorldState::new(),
+            world,
         })
     }
 

@@ -36,15 +36,15 @@ impl DirtyBit {
     pub fn is_dirty(&self) -> bool { *self.is_dirty.borrow()}
 }
 
-pub struct Config<T> {
+pub struct ConfigLoader<T> {
     dirty: DirtyBit,
     path: PathBuf,
     _phantom: PhantomData<T>,
 }
 
-impl<T> Config<T> {
-    fn new(dirty: DirtyBit, path: PathBuf) -> Config<T> {
-        Config {
+impl<T> ConfigLoader<T> {
+    fn new(dirty: DirtyBit, path: PathBuf) -> ConfigLoader<T> {
+        ConfigLoader {
             dirty,
             path,
             _phantom: PhantomData
@@ -52,17 +52,22 @@ impl<T> Config<T> {
     }
 }
 
-impl<T: DeserializeOwned> Config<T> {
+impl<T: DeserializeOwned> ConfigLoader<T> {
     pub fn try_load(&mut self) -> StatusOr<Option<T>> {
         if self.dirty.is_dirty() {
-            let reader = file::util::reader(&self.path)?;
-            let parsed = serde_json::from_reader(reader)
-                .map_err(|e| format!("Couldn't parse config {:?}: {}", self.path, e))?;
-            self.dirty.set_clean();
+            let parsed = self.force_load()?;
             Ok(Some(parsed))
         } else {
             Ok(None)
         }
+    }
+
+    pub fn force_load(&mut self) -> StatusOr<T> {
+        self.dirty.set_clean();
+        let reader = file::util::reader(&self.path)?;
+        let parsed = serde_json::from_reader(reader)
+            .map_err(|e| format!("Couldn't parse config {:?}: {}", self.path, e))?;
+        Ok(parsed)
     }
 }
 
@@ -87,7 +92,7 @@ impl ConfigWatcher {
         })
     }
 
-    pub fn watch<T>(&mut self, path: PathBuf) -> StatusOr<Config<T>> {
+    pub fn watch<T>(&mut self, path: PathBuf) -> StatusOr<ConfigLoader<T>> {
         if !path.exists() {
             return Err(String::from(format!("Cannot watch path because it doesn't exist: {:?}", path)));
         }
@@ -95,7 +100,7 @@ impl ConfigWatcher {
         let dirty_bit = DirtyBit::new();
         let dirty_bit_copy = DirtyBit { is_dirty: Rc::clone(&dirty_bit.is_dirty) };
         self.children.insert(path.clone(), dirty_bit);
-        Ok(Config::new(dirty_bit_copy, path))
+        Ok(ConfigLoader::new(dirty_bit_copy, path))
     }
 
     pub fn update(&self) {
