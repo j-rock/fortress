@@ -12,6 +12,7 @@ extern {
     fn b2World_CreateBody(world: *mut B2World, bd: *const BodyDef) -> *mut B2Body;
     fn b2World_CreateParticleSystem(world: *mut B2World, def: *const ParticleSystemDef) -> *mut B2ParticleSystem;
     fn b2World_Delete(world: *mut B2World);
+    fn b2World_DestroyBody(world: *mut B2World, bd: *mut B2Body);
     fn b2World_GetBodyCount(world: *const B2World) -> Int32;
     fn b2World_GetJointCount(world: *const B2World) -> Int32;
     fn b2World_GetBodyList(world: *const B2World) -> *mut B2Body;
@@ -65,6 +66,12 @@ impl World {
     pub fn create_body(&mut self, def: &BodyDef) -> Body {
         unsafe {
             Body { ptr: b2World_CreateBody(self.ptr, def) }
+        }
+    }
+
+    pub fn destroy_body(&mut self, body: &mut Body) {
+        unsafe {
+            b2World_DestroyBody(self.ptr, body.ptr);
         }
     }
 

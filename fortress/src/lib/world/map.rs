@@ -1,9 +1,11 @@
 use app::StatusOr;
 use file::{
-    ConfigLoader,
     ConfigWatcher,
+    ConfigLoader,
     self,
 };
+use liquidfun;
+use world::PhysicsSimulation;
 use std;
 
 #[derive(Deserialize)]
@@ -21,29 +23,52 @@ struct MapData {
 
 pub struct Map {
     config_loader: ConfigLoader<MapData>,
-    map_data: MapData
+    platform_body: liquidfun::box2d::dynamics::body::Body,
 }
 
 impl Map {
-    pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<Map> {
+    pub fn new(config_watcher: &mut ConfigWatcher, physics_sim: &mut PhysicsSimulation) -> StatusOr<Map> {
         let map_config = file::util::resource_path("config", "map.conf");
-        let mut config_loader = config_watcher.watch(map_config)?;
+        let mut config_loader: ConfigLoader<MapData> = ConfigWatcher::watch(config_watcher, map_config)?;
         let map_data = config_loader.force_load()?;
+        let platform_body = Self::create_body_from_platforms(map_data.platforms, physics_sim.get_world_mut());
         Ok(Map {
             config_loader,
-            map_data
+            platform_body
         })
     }
 
     pub fn update(&mut self) {
-        let reload_map = self.config_loader.try_load();
-        match reload_map {
+        let reloaded = self.config_loader.try_load();
+        match reloaded {
             Err(message) => println!("Error reloading map.conf: {}", message),
             Ok(None) => {},
             Ok(Some(map_data)) => {
-                println!("Replacing map!");
-                std::mem::replace(&mut self.map_data, map_data);
+                println!("REDEPLOYING!");
+                self.redeploy_platforms(map_data.platforms);
             }
         }
+    }
+
+    fn redeploy_platforms(&mut self, platforms: Vec<Platform>) {
+        let mut world = self.platform_body.get_world();
+        let new_body = Self::create_body_from_platforms(platforms, &mut world);
+        let mut old_body = std::mem::replace(&mut self.platform_body, new_body);
+        world.destroy_body(&mut old_body);
+    }
+
+    fn create_body_from_platforms(platforms: Vec<Platform>, world: &mut liquidfun::box2d::dynamics::world::World) -> liquidfun::box2d::dynamics::body::Body {
+        let mut body_def = liquidfun::box2d::dynamics::body::BodyDef::default();
+        let platform_body = world.create_body(&body_def);
+        let mut poly_shape = liquidfun::box2d::collision::shapes::polygon_shape::PolygonShape::new();
+        for platform in platforms.iter() {
+            let (hx, hy) = (platform.width as f32 / 2.0, platform.height as f32 / 2.0);
+            poly_shape.set_as_box(hx, hy);
+            body_def.position.x = platform.top_left_x as f32 + hx;
+            body_def.position.y = platform.top_left_y as f32 + hy;
+            let fixture_def = liquidfun::box2d::dynamics::fixture::FixtureDef::new(&poly_shape);
+            platform_body.create_fixture(&fixture_def);
+        }
+        platform_body
     }
 }

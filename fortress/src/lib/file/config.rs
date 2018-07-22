@@ -14,6 +14,7 @@ use std::{
     sync::mpsc,
     time::Duration,
     rc::Rc,
+    self,
 };
 
 struct DirtyBit {
@@ -96,7 +97,6 @@ impl ConfigWatcher {
         if !path.exists() {
             return Err(String::from(format!("Cannot watch path because it doesn't exist: {:?}", path)));
         }
-
         let dirty_bit = DirtyBit::new();
         let dirty_bit_copy = DirtyBit { is_dirty: Rc::clone(&dirty_bit.is_dirty) };
         self.children.insert(path.clone(), dirty_bit);
@@ -118,3 +118,39 @@ impl ConfigWatcher {
         }
     }
 }
+
+pub struct SimpleConfigManager<T> {
+    config_file_name: &'static str,
+    config_loader: ConfigLoader<T>,
+    config: T
+}
+
+impl<T: DeserializeOwned> SimpleConfigManager<T> {
+    pub fn new(config_watcher: &mut ConfigWatcher, config_file_name: &'static str) -> StatusOr<SimpleConfigManager<T>> {
+        let config_path = file::util::resource_path("config", config_file_name);
+        let mut config_loader = config_watcher.watch(config_path)?;
+        let config = config_loader.force_load()?;
+        Ok(SimpleConfigManager {
+            config_file_name,
+            config_loader,
+            config
+        })
+    }
+
+    pub fn update(&mut self) {
+        let reloaded = self.config_loader.try_load();
+        match reloaded {
+            Err(message) => println!("Error reloading {}: {}", self.config_file_name, message),
+            Ok(None) => {},
+            Ok(Some(config)) => {
+                println!("Reloading {}", self.config_file_name);
+                std::mem::replace(&mut self.config, config);
+            }
+        }
+    }
+
+    pub fn get(&self) -> &T {
+        &self.config
+    }
+}
+
