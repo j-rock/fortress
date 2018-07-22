@@ -18,6 +18,7 @@ pub struct Map {
 
 impl Map {
     pub fn new(config: MapConfig) -> Map {
-        
+       Map {
+       }
     }
 }
