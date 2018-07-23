@@ -12,35 +12,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="map.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/fortress/src/lib/world/map.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="416">
-              <caret line="58" column="4" selection-start-line="58" selection-start-column="4" selection-end-line="58" selection-end-column="4" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="physics.rs" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/fortress/src/lib/world/physics.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="364">
-              <caret line="43" column="29" selection-start-line="43" selection-start-column="29" selection-end-line="43" selection-end-column="29" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="map.conf" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/res/config/map.conf">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="78">
-              <caret line="3" column="23" selection-start-line="3" selection-start-column="23" selection-end-line="3" selection-end-column="23" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -90,21 +62,21 @@
         <option value="$PROJECT_DIR$/fortress/src/lib/lib.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/world/mod.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/file/mod.rs" />
-        <option value="$PROJECT_DIR$/res/config/physics_sim.conf" />
-        <option value="$PROJECT_DIR$/liquidfun/liquidfun-c/Box2D/Dynamics/c_b2World.cpp" />
         <option value="$PROJECT_DIR$/fortress/src/lib/world/world_state.rs" />
-        <option value="$PROJECT_DIR$/liquidfun/liquidfun-c/Box2D/Dynamics/c_b2World.h" />
         <option value="$PROJECT_DIR$/liquidfun/liquidfun-cpp/Box2D/Collision/b2BroadPhase.cpp" />
         <option value="$PROJECT_DIR$/fortress/src/lib/file/config.rs" />
         <option value="$PROJECT_DIR$/liquidfun/liquidfun-cpp/Box2D/Dynamics/b2World.cpp" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/liquidfun/src/box2d/dynamics/fixture.rs" />
         <option value="$PROJECT_DIR$/liquidfun/liquidfun-cpp/Box2D/Dynamics/b2Body.cpp" />
-        <option value="$PROJECT_DIR$/fortress/src/lib/world/map.rs" />
-        <option value="$PROJECT_DIR$/res/config/map.conf" />
         <option value="$PROJECT_DIR$/liquidfun/src/box2d/dynamics/body.rs" />
+        <option value="$PROJECT_DIR$/fortress/src/lib/world/map.rs" />
+        <option value="$PROJECT_DIR$/liquidfun/liquidfun-c/Box2D/Dynamics/c_b2World.h" />
+        <option value="$PROJECT_DIR$/liquidfun/liquidfun-c/Box2D/Dynamics/c_b2World.cpp" />
         <option value="$PROJECT_DIR$/liquidfun/src/box2d/dynamics/world.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/world/physics.rs" />
+        <option value="$PROJECT_DIR$/res/config/physics_sim.conf" />
+        <option value="$PROJECT_DIR$/res/config/map.conf" />
       </list>
     </option>
   </component>
@@ -126,69 +98,6 @@
             <path>
               <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
               <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="fortress" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="lib" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="lib" type="462c0819:PsiDirectoryNode" />
-              <item name="world" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="liquidfun" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="liquidfun" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="liquidfun" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="box2d" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="liquidfun" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="box2d" type="462c0819:PsiDirectoryNode" />
-              <item name="dynamics" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="res" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="res" type="462c0819:PsiDirectoryNode" />
-              <item name="config" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -261,16 +170,15 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Designer" order="2" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.20260416" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.20260416" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="right" id="Cargo" order="3" />
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32901832" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32901832" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Favorites" order="2" side_tool="true" />
@@ -473,34 +381,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-cpp/Box2D/Dynamics/b2World.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="416">
-          <caret line="80" column="8" selection-start-line="80" selection-start-column="8" selection-end-line="80" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-c/Box2D/Dynamics/c_b2World.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="41" selection-start-line="41" selection-end-line="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-c/Box2D/Dynamics/c_b2World.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="676">
-          <caret line="40" selection-start-line="40" selection-end-line="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/res/config/physics_sim.conf">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="104">
-          <caret line="4" column="20" selection-start-line="4" selection-start-column="20" selection-end-line="4" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/fortress/src/lib/app/opengl.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="156">
@@ -540,13 +420,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="182">
           <caret line="36" column="41" selection-start-line="36" selection-start-column="41" selection-end-line="36" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-cpp/Box2D/Dynamics/b2World.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
-          <caret line="101" column="4" selection-start-line="101" selection-start-column="4" selection-end-line="101" selection-end-column="4" />
         </state>
       </provider>
     </entry>
@@ -591,17 +464,59 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/liquidfun/src/box2d/dynamics/world.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="416">
-          <caret line="176" column="11" selection-start-line="176" selection-start-column="11" selection-end-line="176" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/liquidfun/src/box2d/dynamics/body.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <caret line="186" column="25" selection-start-line="186" selection-start-column="25" selection-end-line="186" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fortress/src/lib/world/map.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="520">
+          <caret line="71" selection-start-line="71" selection-end-line="71" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-c/Box2D/Dynamics/c_b2World.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="364">
+          <caret line="32" column="33" selection-start-line="32" selection-start-column="33" selection-end-line="32" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-cpp/Box2D/Dynamics/b2World.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="312">
+          <caret line="405" selection-start-line="405" selection-end-line="405" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-cpp/Box2D/Dynamics/b2World.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="182">
+          <caret line="24" column="33" selection-start-line="24" selection-start-column="33" selection-end-line="24" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/liquidfun/src/box2d/dynamics/world.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="260">
+          <caret line="172" column="19" selection-start-line="172" selection-start-column="19" selection-end-line="172" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-c/Box2D/Dynamics/c_b2World.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="338">
+          <caret line="13" column="4" selection-start-line="13" selection-start-column="4" selection-end-line="13" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/res/config/physics_sim.conf">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="104">
+          <caret line="4" column="19" selection-start-line="4" selection-start-column="19" selection-end-line="4" selection-end-column="19" />
         </state>
       </provider>
     </entry>
@@ -612,17 +527,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fortress/src/lib/world/map.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="416">
-          <caret line="58" column="4" selection-start-line="58" selection-start-column="4" selection-end-line="58" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/fortress/src/lib/world/physics.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="364">
-          <caret line="43" column="29" selection-start-line="43" selection-start-column="29" selection-end-line="43" selection-end-column="29" />
+        <state relative-caret-position="286">
+          <caret line="43" column="53" selection-start-line="43" selection-start-column="53" selection-end-line="43" selection-end-column="53" />
         </state>
       </provider>
     </entry>

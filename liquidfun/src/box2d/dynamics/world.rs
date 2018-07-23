@@ -17,6 +17,7 @@ extern {
     fn b2World_GetJointCount(world: *const B2World) -> Int32;
     fn b2World_GetBodyList(world: *const B2World) -> *mut B2Body;
     fn b2World_GetGravity(world: *mut B2World) -> Vec2;
+    fn b2World_SetGravity(world: *mut B2World, gravity: *const Vec2);
     fn b2World_GetParticleSystemList(world: *const B2World) -> *mut B2ParticleSystem;
     fn b2World_New(gravity: *const Vec2) -> *mut B2World;
     fn b2World_Step(this: *mut B2World, timeStep: Float32, velocityIterations: Int32, positionIterations: Int32);
@@ -167,6 +168,12 @@ impl World {
     	unsafe {
     		b2World_GetGravity(self.ptr)
     	}
+    }
+
+    pub fn set_gravity(&mut self, gravity: &Vec2) {
+        unsafe {
+            b2World_SetGravity(self.ptr, gravity);
+        }
     }
 
     /// Take a time step. This performs collision detection, integration,

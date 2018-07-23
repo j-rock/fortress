@@ -40,7 +40,8 @@ impl PhysicsSimulation {
     pub fn update(&mut self, dt: DeltaTime) {
         self.config.update();
         let config = self.config.get();
-        // TODO: update gravity
+        let gravity = Vec2::new(config.gravity_x, config.gravity_y);
+        self.wrapped_world.world.set_gravity(&gravity);
         self.wrapped_world.world.step(dt.as_f32_seconds(), config.velocity_iterations, config.position_iterations);
     }
 

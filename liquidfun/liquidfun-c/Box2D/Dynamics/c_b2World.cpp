@@ -29,6 +29,10 @@ extern "C" {
         return *cast(&tmp);
     }
 
+	void b2World_SetGravity(b2World* self, const b2Vec2* gravity) {
+        self->SetGravity(*gravity);
+	}
+
     b2ParticleSystem* b2World_GetParticleSystemList(b2World* self) {
         return self->GetParticleSystemList();
     }
