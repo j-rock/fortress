@@ -43,17 +43,16 @@ impl Map {
             Err(message) => println!("Error reloading map.conf: {}", message),
             Ok(None) => {},
             Ok(Some(map_data)) => {
-                println!("REDEPLOYING!");
                 self.redeploy_platforms(map_data.platforms);
             }
         }
     }
 
-    fn redeploy_platforms(&mut self, platforms: Vec<Platform>) {
+    fn redeploy_platforms(&mut self, _platforms: Vec<Platform>) {
         let mut world = self.platform_body.get_world();
         // Invalidates self.platform_body. Must quickly reset platform_body.
-        world.destroy_body(&mut self.platform_body);
-        self.platform_body = Self::create_body_from_platforms(platforms, &mut world);
+        world.destroy_body(&self.platform_body);
+        // self.platform_body = Self::create_body_from_platforms(platforms, &mut world);
     }
 
     fn create_body_from_platforms(platforms: Vec<Platform>, world: &mut liquidfun::box2d::dynamics::world::World) -> liquidfun::box2d::dynamics::body::Body {
