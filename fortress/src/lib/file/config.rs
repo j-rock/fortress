@@ -14,7 +14,6 @@ use std::{
     sync::mpsc,
     time::Duration,
     rc::Rc,
-    self,
 };
 
 struct DirtyBit {
@@ -144,7 +143,7 @@ impl<T: DeserializeOwned> SimpleConfigManager<T> {
             Ok(None) => {},
             Ok(Some(config)) => {
                 println!("Reloading {}", self.config_file_name);
-                std::mem::replace(&mut self.config, config);
+                self.config = config;
             }
         }
     }

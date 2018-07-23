@@ -6,9 +6,8 @@ use file::{
 };
 use liquidfun;
 use world::PhysicsSimulation;
-use std;
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 struct Platform {
     top_left_x: i32,
     top_left_y: i32,
@@ -52,9 +51,9 @@ impl Map {
 
     fn redeploy_platforms(&mut self, platforms: Vec<Platform>) {
         let mut world = self.platform_body.get_world();
-        let new_body = Self::create_body_from_platforms(platforms, &mut world);
-        let mut old_body = std::mem::replace(&mut self.platform_body, new_body);
-        world.destroy_body(&mut old_body);
+        // Invalidates self.platform_body. Must quickly reset platform_body.
+        world.destroy_body(&mut self.platform_body);
+        self.platform_body = Self::create_body_from_platforms(platforms, &mut world);
     }
 
     fn create_body_from_platforms(platforms: Vec<Platform>, world: &mut liquidfun::box2d::dynamics::world::World) -> liquidfun::box2d::dynamics::body::Body {
@@ -65,7 +64,7 @@ impl Map {
             let (hx, hy) = (platform.width as f32 / 2.0, platform.height as f32 / 2.0);
             poly_shape.set_as_box(hx, hy);
             body_def.position.x = platform.top_left_x as f32 + hx;
-            body_def.position.y = platform.top_left_y as f32 + hy;
+            body_def.position.y = platform.top_left_y as f32 - hy;
             let fixture_def = liquidfun::box2d::dynamics::fixture::FixtureDef::new(&poly_shape);
             platform_body.create_fixture(&fixture_def);
         }

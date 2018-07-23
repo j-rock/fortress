@@ -12,7 +12,17 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="map.rs" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/fortress/src/lib/world/map.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="364">
+              <caret line="68" column="54" selection-start-line="68" selection-start-column="54" selection-end-line="68" selection-end-column="54" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -58,10 +68,8 @@
         <option value="$PROJECT_DIR$/fortress/src/lib/dimensions/direction.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/world/camera.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/controls/controller.rs" />
-        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/fortress/Cargo.toml" />
         <option value="$PROJECT_DIR$/fortress/src/lib/app/app_runner.rs" />
-        <option value="$PROJECT_DIR$/res/config/map.conf" />
         <option value="$PROJECT_DIR$/fortress/src/lib/lib.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/world/mod.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/file/mod.rs" />
@@ -69,10 +77,14 @@
         <option value="$PROJECT_DIR$/liquidfun/liquidfun-c/Box2D/Dynamics/c_b2World.cpp" />
         <option value="$PROJECT_DIR$/liquidfun/src/box2d/dynamics/world.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/world/world_state.rs" />
-        <option value="$PROJECT_DIR$/fortress/src/lib/world/map.rs" />
-        <option value="$PROJECT_DIR$/fortress/src/lib/file/config.rs" />
         <option value="$PROJECT_DIR$/fortress/src/lib/world/physics.rs" />
         <option value="$PROJECT_DIR$/liquidfun/liquidfun-c/Box2D/Dynamics/c_b2World.h" />
+        <option value="$PROJECT_DIR$/liquidfun/liquidfun-cpp/Box2D/Collision/b2BroadPhase.cpp" />
+        <option value="$PROJECT_DIR$/fortress/src/lib/file/config.rs" />
+        <option value="$PROJECT_DIR$/liquidfun/liquidfun-cpp/Box2D/Dynamics/b2World.cpp" />
+        <option value="$PROJECT_DIR$/fortress/src/lib/world/map.rs" />
+        <option value="$PROJECT_DIR$/res/config/map.conf" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -86,6 +98,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -94,37 +107,10 @@
               <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
               <item name="Fortress" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="liquidfun" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="liquidfun" type="462c0819:PsiDirectoryNode" />
-              <item name="liquidfun-c" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="liquidfun" type="462c0819:PsiDirectoryNode" />
-              <item name="liquidfun-c" type="462c0819:PsiDirectoryNode" />
-              <item name="Box2D" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Fortress" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Fortress" type="462c0819:PsiDirectoryNode" />
-              <item name="liquidfun" type="462c0819:PsiDirectoryNode" />
-              <item name="liquidfun-c" type="462c0819:PsiDirectoryNode" />
-              <item name="Box2D" type="462c0819:PsiDirectoryNode" />
-              <item name="Dynamics" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -192,15 +178,16 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Designer" order="2" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.20260416" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.20260416" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="right" id="Cargo" order="3" />
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32901832" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32901832" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Favorites" order="2" side_tool="true" />
@@ -221,44 +208,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/fortress/src/bin/main.rs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fortress/src/lib/image/png.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="364">
-          <caret line="14" column="11" selection-start-line="14" selection-start-column="11" selection-end-line="14" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fortress/src/bin/mains/app.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="11" selection-start-column="11" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fortress/src/bin/main.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="130">
-          <caret line="7" selection-start-line="7" selection-end-line="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Cargo.toml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="104">
-          <caret line="4" selection-start-line="4" selection-end-line="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/liquidfun/src/box2d/collision/shapes/polygon_shape.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
-          <caret line="51" column="27" selection-start-line="51" selection-start-column="27" selection-end-line="51" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/liquidfun/src/box2d/dynamics/body.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="260">
@@ -409,13 +358,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="3" selection-start-column="3" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/fortress/src/lib/file/util.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="78">
@@ -434,13 +376,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="130">
           <caret line="31" column="57" selection-start-line="31" selection-start-column="57" selection-end-line="31" selection-end-column="57" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/res/config/map.conf">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="78">
-          <caret line="3" column="23" selection-start-line="3" selection-start-column="23" selection-end-line="3" selection-end-column="23" />
         </state>
       </provider>
     </entry>
@@ -485,34 +420,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/res/config/physics_sim.conf">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="104">
-          <caret line="4" column="20" selection-start-line="4" selection-start-column="20" selection-end-line="4" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-c/Box2D/Dynamics/c_b2World.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="40" column="8" selection-start-line="40" selection-start-column="8" selection-end-line="40" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fortress/src/lib/file/config.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="338">
-          <caret line="145" column="23" selection-start-line="145" selection-start-column="23" selection-end-line="145" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/liquidfun/src/box2d/dynamics/world.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="130">
-          <caret line="65" column="57" selection-start-line="65" selection-start-column="57" selection-end-line="65" selection-end-column="57" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/fortress/src/lib/world/world_state.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="364">
@@ -520,31 +427,115 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fortress/src/lib/world/map.rs">
+    <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-c/Box2D/Dynamics/c_b2Body.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="42" column="13" selection-start-line="42" selection-start-column="13" selection-end-line="42" selection-end-column="13" />
+        <state relative-caret-position="130">
+          <caret line="5" selection-start-line="5" selection-end-line="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-c/Box2D/Dynamics/c_b2Body.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="364">
+          <caret line="14" selection-start-line="14" selection-end-line="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/liquidfun/src/box2d/dynamics/world.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="260">
+          <caret line="14" column="41" selection-start-line="14" selection-start-column="41" selection-end-line="14" selection-end-column="41" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-cpp/Box2D/Dynamics/b2World.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="364">
-          <caret line="453" column="21" selection-start-line="453" selection-start-column="21" selection-end-line="453" selection-end-column="21" />
+        <state relative-caret-position="416">
+          <caret line="80" column="8" selection-start-line="80" selection-start-column="8" selection-end-line="80" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-c/Box2D/Dynamics/c_b2World.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="41" selection-start-line="41" selection-end-line="41" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-c/Box2D/Dynamics/c_b2World.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="182">
-          <caret line="13" column="49" selection-start-line="13" selection-start-column="49" selection-end-line="13" selection-end-column="49" />
+        <state relative-caret-position="676">
+          <caret line="40" selection-start-line="40" selection-end-line="40" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/fortress/src/lib/world/physics.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="416">
-          <caret line="41" column="30" selection-start-line="41" selection-start-column="30" selection-end-line="41" selection-end-column="30" />
+        <state relative-caret-position="234">
+          <caret line="27" column="21" selection-start-line="27" selection-start-column="21" selection-end-line="27" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/res/config/physics_sim.conf">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="104">
+          <caret line="4" column="20" selection-start-line="4" selection-start-column="20" selection-end-line="4" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fortress/src/lib/app/opengl.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="156">
+          <caret line="6" selection-start-line="6" selection-end-line="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-cpp/Box2D/Collision/b2BroadPhase.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="286">
+          <caret line="192" column="25" selection-start-line="192" selection-start-column="25" selection-end-line="192" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-cpp/Box2D/Collision/b2BroadPhase.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="338">
+          <caret line="81" lean-forward="true" selection-start-line="81" selection-end-line="81" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fortress/src/lib/file/config.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="260">
+          <caret line="16" selection-start-line="16" selection-end-line="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="26">
+          <caret line="1" selection-start-line="1" selection-end-line="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/res/config/map.conf">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="78">
+          <caret line="3" column="23" selection-start-line="3" selection-start-column="23" selection-end-line="3" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/liquidfun/liquidfun-cpp/Box2D/Dynamics/b2World.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="113" column="13" selection-start-line="113" selection-start-column="13" selection-end-line="113" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fortress/src/lib/world/map.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="364">
+          <caret line="68" column="54" selection-start-line="68" selection-start-column="54" selection-end-line="68" selection-end-column="54" />
         </state>
       </provider>
     </entry>
