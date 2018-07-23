@@ -182,10 +182,25 @@ impl World {
 
 }
 
-impl Drop for World {
+// Wrapper around World that cleans up on Drop.
+pub struct WrappedWorld {
+    pub world: World
+}
+
+impl WrappedWorld {
+    pub fn new(gravity: &Vec2) -> WrappedWorld {
+        unsafe {
+            WrappedWorld {
+                world: World { ptr: b2World_New(gravity) }
+            }
+        }
+    }
+}
+
+impl Drop for WrappedWorld {
     fn drop(&mut self) {
         unsafe {
-            b2World_Delete(self.ptr);
+            b2World_Delete(self.world.ptr);
         }
     }
 }

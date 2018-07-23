@@ -7,6 +7,7 @@ use file::{
 use liquidfun::box2d::{
     common::math::Vec2,
     dynamics::world::World,
+    dynamics::world::WrappedWorld,
 };
 
 #[derive(Deserialize)]
@@ -18,7 +19,7 @@ struct SimulationConfig {
 }
 
 pub struct PhysicsSimulation {
-    world: World,
+    wrapped_world: WrappedWorld,
     config: SimpleConfigManager<SimulationConfig>
 }
 
@@ -29,9 +30,9 @@ impl PhysicsSimulation {
             let config_data = config.get();
             Vec2::new(config_data.gravity_x, config_data.gravity_y)
         };
-        let world = World::new(&gravity);
+        let wrapped_world = WrappedWorld::new(&gravity);
         Ok(PhysicsSimulation {
-            world,
+            wrapped_world,
             config
         })
     }
@@ -40,10 +41,10 @@ impl PhysicsSimulation {
         self.config.update();
         let config = self.config.get();
         // TODO: update gravity
-        self.world.step(dt.as_f32_seconds(), config.velocity_iterations, config.position_iterations);
+        self.wrapped_world.world.step(dt.as_f32_seconds(), config.velocity_iterations, config.position_iterations);
     }
 
     pub fn get_world_mut(&mut self) -> &mut World {
-        &mut self.world
+        &mut self.wrapped_world.world
     }
 }

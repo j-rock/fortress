@@ -48,11 +48,11 @@ impl Map {
         }
     }
 
-    fn redeploy_platforms(&mut self, _platforms: Vec<Platform>) {
+    fn redeploy_platforms(&mut self, platforms: Vec<Platform>) {
         let mut world = self.platform_body.get_world();
         // Invalidates self.platform_body. Must quickly reset platform_body.
         world.destroy_body(&self.platform_body);
-        // self.platform_body = Self::create_body_from_platforms(platforms, &mut world);
+        self.platform_body = Self::create_body_from_platforms(platforms, &mut world);
     }
 
     fn create_body_from_platforms(platforms: Vec<Platform>, world: &mut liquidfun::box2d::dynamics::world::World) -> liquidfun::box2d::dynamics::body::Body {
