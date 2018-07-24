@@ -19,7 +19,7 @@ impl WorldState {
         let mut physics_sim = PhysicsSimulation::new(config_watcher)?;
         let map = Map::new(config_watcher, &mut physics_sim)?;
         Ok(WorldState {
-            camera: Camera::new(),
+            camera: Camera::new(config_watcher)?,
             physics_sim,
             map
         })
@@ -31,7 +31,8 @@ impl WorldState {
         self.physics_sim.update(dt);
     }
 
-    pub fn draw_geometry(&self) {
-        // let projection_view = self.camera.ortho() * self.camera.view();
+    pub fn draw_geometry(&mut self) {
+        let projection_view = self.camera.projection() * self.camera.view();
+        self.map.draw(&projection_view);
     }
 }

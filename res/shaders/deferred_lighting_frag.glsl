@@ -17,7 +17,7 @@ void main()
 	float specular_color = diffuse_specular.a;
 
 	vec3 light_color = vec3(1.0);
-	vec3 light_position = vec3(1.0, 22.5, 130.0);
+	vec3 light_position = vec3(32.5, 9, 0.0);
 	float light_constant = 1.0;
 	float light_linear = 0.05;
 	float light_quadratic = 0.0004;

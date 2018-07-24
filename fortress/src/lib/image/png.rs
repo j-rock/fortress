@@ -1,43 +1,15 @@
+use app::StatusOr;
 use color::Rgba;
 use dimensions::Pixels;
 use lodepng;
-use std;
-
-pub struct ImageRect {
-    top_left_row: Pixels,
-    top_left_column: Pixels,
-    width: Pixels,
-    height: Pixels,
-}
-
-impl ImageRect {
-    pub fn new(top_left_row: Pixels, top_left_column: Pixels, width: Pixels, height: Pixels) -> ImageRect {
-        ImageRect {
-            top_left_row,
-            top_left_column,
-            width,
-            height
-        }
-    }
-}
+use std::path::PathBuf;
 
 pub struct Png {
     pub img: Vec<Vec<Rgba>>,
 }
 
 impl Png {
-    pub fn new(width: Pixels, height: Pixels, color: &Rgba) -> Png {
-        let mut img = Vec::with_capacity(height);
-        let row: Vec<Rgba> = vec![color.clone(); width];
-        for _ in 0..height {
-            img.push(row.clone());
-        }
-        Png {
-            img
-        }
-    }
-
-    pub fn from_file(path: &str) -> std::result::Result<Png, String> {
+    pub fn from_file(path: &str) -> StatusOr<Png> {
         let bitmap = lodepng::decode32_file(path)
             .map_err(|err| format!("Failed to open PNG path {}: {}", path, err))?;
 
@@ -52,17 +24,6 @@ impl Png {
             img.push(row);
         }
         Ok(Png { img })
-    }
-
-    pub fn copy_sub_image(&self, irect: ImageRect) -> Png {
-        let black = Rgba::new(0.0, 0.0, 0.0, 1.0);
-        let mut out = Png::new(irect.width, irect.height, &black);
-        for r in irect.top_left_row..(irect.top_left_row + irect.height) {
-            for c in irect.top_left_column..(irect.top_left_column + irect.width) {
-                out.img[r - irect.top_left_row][c - irect.top_left_column] = self.img[r][c];
-            }
-        }
-        out
     }
 
     pub fn flattened_copy(&self) -> Vec<Rgba> {
@@ -88,11 +49,11 @@ impl Png {
         out
     }
 
-    pub fn save(&self, path: &'static str) -> std::result::Result<(), String> {
+    pub fn save(&self, path: &PathBuf) -> StatusOr<()> {
         let (width, height) = self.size();
         let flat_rgba = self.flattened_copy();
         lodepng::encode32_file(path, flat_rgba.as_slice(), width, height)
-            .map_err(|err| format!("Problem saving png to {}: {}", path, err))
+            .map_err(|err| format!("Problem saving png to {:?}: {}", path, err))
     }
 
     pub fn size(&self) -> (Pixels, Pixels) {

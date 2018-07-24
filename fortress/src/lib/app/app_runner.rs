@@ -78,7 +78,7 @@ impl AppRunner {
         self.world.update(&self.controller, dt);
     }
 
-    fn draw(&self) {
+    fn draw(&mut self) {
         unsafe {
             gl::ClearColor(0.0177, 0.0177, 0.0477, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);

@@ -175,6 +175,12 @@ impl ShaderProgram {
             gl::UseProgram(self.program);
         }
     }
+
+    pub fn deactivate(&self) {
+        unsafe {
+            gl::UseProgram(0);
+        }
+    }
 }
 
 impl Drop for ShaderProgram {
@@ -186,4 +192,3 @@ impl Drop for ShaderProgram {
        }
    }
 }
-
