@@ -1,4 +1,5 @@
 use app::StatusOr;
+use controls::Controller;
 use dimensions::time::DeltaTime;
 use file::{
     ConfigWatcher,
@@ -38,11 +39,11 @@ impl WorldState {
         })
     }
 
-    pub fn update(&mut self, dt: DeltaTime) {
+    pub fn update(&mut self, controller: &Controller, dt: DeltaTime) {
         self.config_manager.update();
         self.camera.update();
         self.map.update();
-        self.player.update();
+        self.player.update(controller);
 
         // Physics simulation must update last.
         self.physics_sim.update(dt);

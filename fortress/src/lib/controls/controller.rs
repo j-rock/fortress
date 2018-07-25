@@ -2,6 +2,7 @@ use controls::{
     ControlEvent,
     KeyboardControls
 };
+use dimensions::LrDirection;
 use sdl2::{
     EventPump,
     keyboard::Scancode
@@ -36,7 +37,9 @@ impl Controller {
 
     fn control_event_to_scancode(&self, event: ControlEvent) -> Scancode {
         match event {
-            _ => Scancode::A
+            ControlEvent::PlayerMove(LrDirection::Left) => Scancode::A,
+            ControlEvent::PlayerMove(LrDirection::Right) => Scancode::D,
+            ControlEvent::PlayerRespawn => Scancode::R
         }
     }
 }

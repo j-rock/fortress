@@ -88,7 +88,7 @@ impl AppRunner {
         let dt = self.clock.restart();
         self.config_watcher.update();
         self.controller.update(&self.context.events);
-        self.world.update(dt);
+        self.world.update(&self.controller, dt);
     }
 
     fn draw(&mut self) {

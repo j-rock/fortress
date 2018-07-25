@@ -105,12 +105,17 @@ extern {
     fn b2Body_CreateFixture_FromShape(this: *mut B2Body, shape: *const B2Shape, density: Float32) -> *mut B2Fixture;
     fn b2Body_CreateFixture(this: *mut B2Body, def: *mut FixtureDef) -> *mut B2Fixture;
     fn b2Body_GetAngle(this: *mut B2Body) -> Float32;
+    fn b2Body_GetMass(this: *mut B2Body) -> Float32;
     fn b2Body_GetFixtureList(this: *mut B2Body) -> *mut B2Fixture;
     fn b2Body_GetNext(this: *mut B2Body) -> *mut B2Body;
     fn b2Body_GetPosition(this: &B2Body) -> &Vec2;
+    fn b2Body_GetWorldCenter(this: &B2Body) -> &Vec2;
+    fn b2Body_GetLinearVelocity(this: &B2Body) -> &Vec2;
     fn b2Body_GetUserData(this: *const B2Body) -> usize;
     fn b2Body_GetWorld(this: *const B2Body) -> *mut B2World;
     fn b2Body_GetLocalPoint(this: *const B2Body, worldPoint: &Vec2) -> Vec2;
+    fn b2Body_SetLinearVelocity(this: *mut B2Body, velocity: *const Vec2);
+    fn b2Body_ApplyLinearImpulse(this: *mut B2Body, impulse: *const Vec2, point: *const Vec2, wake: bool);
 }
 
 /// A rigid body. These are created via b2World::CreateBody.
@@ -155,6 +160,12 @@ impl Body {
         }
     }
 
+    pub fn get_mass(&self) -> f32 {
+        unsafe {
+            b2Body_GetMass(self.ptr)
+        }
+    }
+
     /// Get the list of all fixtures attached to this body.
     pub fn get_fixture_list(&self) -> Option<Fixture> {
         let ptr;
@@ -192,6 +203,18 @@ impl Body {
         }
     }
 
+    pub fn get_world_center(&self) -> &Vec2 {
+        unsafe {
+            b2Body_GetWorldCenter(&*self.ptr)
+        }
+    }
+
+    pub fn get_linear_velocity(&self) -> &Vec2 {
+        unsafe {
+            b2Body_GetLinearVelocity(&*self.ptr)
+        }
+    }
+
     /// Get the user data pointer that was provided in the body definition.
     pub fn get_user_data(&self) -> usize {
         unsafe {
@@ -209,6 +232,18 @@ impl Body {
     pub fn get_local_point(&self, world_point: &Vec2) -> Vec2 {
         unsafe {
             b2Body_GetLocalPoint(self.ptr, world_point)
+        }
+    }
+
+    pub fn set_linear_velocity(&mut self, velocity: &Vec2) {
+        unsafe {
+            b2Body_SetLinearVelocity(self.ptr, velocity);
+        }
+    }
+
+    pub fn apply_linear_impulse(&mut self, impulse: &Vec2, point: &Vec2, wake: bool) {
+        unsafe {
+            b2Body_ApplyLinearImpulse(self.ptr, impulse, point, wake);
         }
     }
 

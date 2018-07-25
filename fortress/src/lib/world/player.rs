@@ -1,4 +1,10 @@
 use app::StatusOr;
+use controls::{
+    Controller,
+    ControlEvent::PlayerMove,
+    ControlEvent::PlayerRespawn,
+};
+use dimensions::LrDirection;
 use file::{
     ConfigWatcher,
     SimpleConfigManager,
@@ -21,7 +27,8 @@ use world::PhysicsSimulation;
 #[derive(Deserialize)]
 struct PlayerConfig {
     size: (i32, i32),
-    spawn_location: (i32, i32)
+    spawn_location: (i32, i32),
+    player_speed: f32
 }
 
 #[repr(C)]
@@ -67,10 +74,24 @@ impl Player {
         })
     }
 
-    pub fn update(&mut self) {
-        if self.config_manager.update() {
+    pub fn update(&mut self, controller: &Controller) {
+        if self.config_manager.update() || controller.just_released(PlayerRespawn) {
             self.redeploy_player_body();
         }
+
+        let desired_horizontal_velocity = if controller.is_pressed(PlayerMove(LrDirection::Left)) {
+            -self.config_manager.get().player_speed
+        } else if controller.is_pressed(PlayerMove(LrDirection::Right)) {
+            self.config_manager.get().player_speed
+        } else {
+            0.0
+        };
+
+        let actual_body_velocity = *self.player_body.get_linear_velocity();
+        let mass = self.player_body.get_mass();
+        let impulse = liquidfun::box2d::common::math::Vec2::new(mass * (desired_horizontal_velocity - actual_body_velocity.x), 0.0);
+        let body_center = *self.player_body.get_world_center();
+        self.player_body.apply_linear_impulse(&impulse, &body_center, true);
     }
 
     fn redeploy_player_body(&mut self) {

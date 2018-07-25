@@ -13,7 +13,11 @@ extern "C" {
 	
 	float32 b2Body_GetAngle(const b2Body* self) {
 	    return self->GetAngle();
-	}	
+	}
+
+	float32 b2Body_GetMass(const b2Body* self) {
+	    return self->GetMass();
+	}
 
 	b2Fixture* b2Body_GetFixtureList(b2Body* self) {
 		return self->GetFixtureList();
@@ -27,6 +31,14 @@ extern "C" {
 	    return self->GetPosition();
 	}
 
+	const b2Vec2& b2Body_GetWorldCenter(const b2Body* self) {
+	    return self->GetWorldCenter();
+	}
+
+	const b2Vec2& b2Body_GetLinearVelocity(const b2Body* self) {
+	    return self->GetLinearVelocity();
+	}
+
 	void* b2Body_GetUserData(const b2Body* self) {
 		return self->GetUserData();
 	}
@@ -37,6 +49,14 @@ extern "C" {
 
 	b2Vec2 b2Body_GetLocalPoint(const b2Body* self, const b2Vec2& worldPoint) {
 		return self->GetLocalPoint(worldPoint);
+	}
+
+	void b2Body_SetLinearVelocity(b2Body* self, const b2Vec2* velocity) {
+	    self->SetLinearVelocity(*velocity);
+	}
+
+	void b2Body_ApplyLinearImpulse(b2Body* self, const b2Vec2* impulse, const b2Vec2* point, bool wake) {
+	    self->ApplyLinearImpulse(*impulse, *point, wake);
 	}
 
 } // extern C
