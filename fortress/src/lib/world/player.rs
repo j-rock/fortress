@@ -28,7 +28,9 @@ use world::PhysicsSimulation;
 struct PlayerConfig {
     size: (i32, i32),
     spawn_location: (i32, i32),
-    player_speed: f32
+    player_speed: f32,
+    // Between [0, 1]
+    restitution: f32,
 }
 
 #[repr(C)]
@@ -112,7 +114,8 @@ impl Player {
         let (hx, hy) = (config.size.0 as f32 / 2.0, config.size.1 as f32 / 2.0);
         poly_shape.set_as_box(hx, hy);
 
-        let fixture_def = liquidfun::box2d::dynamics::fixture::FixtureDef::new(&poly_shape);
+        let mut fixture_def = liquidfun::box2d::dynamics::fixture::FixtureDef::new(&poly_shape);
+        fixture_def.restitution = config.restitution;
         player_body.create_fixture(&fixture_def);
         player_body
     }
