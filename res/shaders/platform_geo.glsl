@@ -21,7 +21,7 @@ void EmitQuad(in PlatformAttr platform) {
 	v4 = vec4(platform.bottom_left.x, platform.top_right.y, 0.0, 1.0);
 	gl_Position = projection_view * v4;
 	gs_out.world_space_position = v4.xyz;
-	gs_out.color = vec3(0.3, 0.0, 4.0);
+	gs_out.color = vec3(0.3, 0.0, 0.4);
 	EmitVertex();
 
 	v4 = vec4(platform.bottom_left, 0.0, 1.0);

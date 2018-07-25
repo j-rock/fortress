@@ -140,7 +140,7 @@ impl<T: DeserializeOwned> SimpleConfigManager<T> {
         })
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self) -> bool {
         let reloaded = self.config_loader.try_load();
         match reloaded {
             Err(message) => println!("Error reloading {}: {}", self.config_file_name, message),
@@ -148,8 +148,10 @@ impl<T: DeserializeOwned> SimpleConfigManager<T> {
             Ok(Some(config)) => {
                 println!("Reloading {}", self.config_file_name);
                 self.config = config;
+                return true;
             }
         }
+        return false;
     }
 
     pub fn get(&self) -> &T {
