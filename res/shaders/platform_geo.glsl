@@ -8,8 +8,6 @@ struct PlatformAttr {
     vec2 top_right;
 };
 
-in PlatformAttr vs_in[];
-
 out GS_OUT {
   vec3 world_space_position;
   vec3 color;
@@ -48,5 +46,8 @@ void EmitQuad(in PlatformAttr platform) {
 }
 
 void main() {
-  EmitQuad(vs_in[0]);
+  PlatformAttr platform;
+  platform.bottom_left = gl_in[0].gl_Position.xy;
+  platform.top_right = gl_in[0].gl_Position.zw;
+  EmitQuad(platform);
 }

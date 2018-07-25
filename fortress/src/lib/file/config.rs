@@ -53,6 +53,17 @@ impl<T> ConfigLoader<T> {
 }
 
 impl<T: DeserializeOwned> ConfigLoader<T> {
+    pub fn read_config_file(path_buf: &PathBuf) -> StatusOr<T> {
+        let reader = file::util::reader(path_buf)?;
+        serde_json::from_reader(reader)
+            .map_err(|e| format!("Couldn't parse config {:?}: {}", path_buf, e))
+    }
+
+    pub fn force_load(&mut self) -> StatusOr<T> {
+        self.dirty.set_clean();
+        Self::read_config_file(&self.path)
+    }
+
     pub fn try_load(&mut self) -> StatusOr<Option<T>> {
         if self.dirty.is_dirty() {
             let parsed = self.force_load()?;
@@ -62,13 +73,6 @@ impl<T: DeserializeOwned> ConfigLoader<T> {
         }
     }
 
-    pub fn force_load(&mut self) -> StatusOr<T> {
-        self.dirty.set_clean();
-        let reader = file::util::reader(&self.path)?;
-        let parsed = serde_json::from_reader(reader)
-            .map_err(|e| format!("Couldn't parse config {:?}: {}", self.path, e))?;
-        Ok(parsed)
-    }
 }
 
 pub struct ConfigWatcher {

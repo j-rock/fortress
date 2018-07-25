@@ -4,7 +4,11 @@ use app::{
     StatusOr,
 };
 use controls::Controller;
-use file::ConfigWatcher;
+use file::{
+    ConfigLoader,
+    ConfigWatcher,
+    self
+};
 use gl;
 use render::GBuffer;
 use sdl2::{
@@ -16,10 +20,15 @@ use sdl2::{
 };
 use world::WorldState;
 
+#[derive(Deserialize)]
+struct AppRunnerConfig {
+    window_size: (i32, i32)
+}
+
 pub struct AppRunner {
+    config_watcher: ConfigWatcher,
     context: AppContext,
     clock: Clock,
-    config_watcher: ConfigWatcher,
     controller: Controller,
     g_buffer: GBuffer,
     world: WorldState,
@@ -27,16 +36,20 @@ pub struct AppRunner {
 
 impl AppRunner {
     pub fn new() -> StatusOr<AppRunner> {
-        let window_size: (i32, i32) = (1200, 670);
         let mut config_watcher = ConfigWatcher::new()?;
+
+        let config_path = file::util::resource_path("config", "app.conf");
+        let config = ConfigLoader::<AppRunnerConfig>::read_config_file(&config_path)?;
+
+        let context = AppContext::new(&config.window_size)?;
         let world = WorldState::new(&mut config_watcher)?;
 
         Ok(AppRunner {
-            context: AppContext::new(&window_size)?,
-            clock: Clock::start(),
             config_watcher,
+            context,
+            clock: Clock::start(),
             controller: Controller::new(),
-            g_buffer: GBuffer::new(&window_size)?,
+            g_buffer: GBuffer::new(&config.window_size)?,
             world,
         })
     }
@@ -63,7 +76,7 @@ impl AppRunner {
                Event::Quit { .. } | Event::KeyDown {keycode: Some(Keycode::Q), ..} => return Ok(false),
                Event::Window { win_event: WindowEvent::Resized(width, height), .. } => {
                    unsafe { gl::Viewport(0, 0, width, height); }
-                   self.g_buffer.resize(width, height)?
+                   self.g_buffer.resize(width, height)?;
                },
                _ => ()
            }
@@ -75,12 +88,13 @@ impl AppRunner {
         let dt = self.clock.restart();
         self.config_watcher.update();
         self.controller.update(&self.context.events);
-        self.world.update(&self.controller, dt);
+        self.world.update(dt);
     }
 
     fn draw(&mut self) {
+        let color = self.world.clear_color();
         unsafe {
-            gl::ClearColor(0.0177, 0.0177, 0.0477, 1.0);
+            gl::ClearColor(color.0, color.1, color.2, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         }
 

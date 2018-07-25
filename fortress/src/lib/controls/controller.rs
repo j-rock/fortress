@@ -2,7 +2,6 @@ use controls::{
     ControlEvent,
     KeyboardControls
 };
-use dimensions::Direction;
 use sdl2::{
     EventPump,
     keyboard::Scancode
@@ -37,12 +36,7 @@ impl Controller {
 
     fn control_event_to_scancode(&self, event: ControlEvent) -> Scancode {
         match event {
-            ControlEvent::CameraMove(Direction::Up) => Scancode::W,
-            ControlEvent::CameraMove(Direction::Down) => Scancode::S,
-            ControlEvent::CameraMove(Direction::Left) => Scancode::A,
-            ControlEvent::CameraMove(Direction::Right) => Scancode::D,
-            ControlEvent::CameraMove(Direction::Backward) => Scancode::F,
-            ControlEvent::CameraMove(Direction::Forward) => Scancode::R,
+            _ => Scancode::A
         }
     }
 }

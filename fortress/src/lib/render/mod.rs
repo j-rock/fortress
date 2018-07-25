@@ -1,7 +1,8 @@
 pub mod attribute;
 pub mod g_buffer;
-pub mod texture;
+pub mod opengl;
 pub mod shader;
+pub mod texture;
 
 pub use self::attribute::Attribute;
 pub use self::attribute::AttributeProgram;
