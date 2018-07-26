@@ -43,10 +43,8 @@ impl World {
         }
     }
 
-    pub fn set_contact_listener<C: ContactListener>(&mut self, listener: &mut C) {
-        let mut glue = ContactListenerGlue::new();
+    pub fn set_contact_listener<C: ContactListener>(&mut self, listener: &mut C, glue: &mut ContactListenerGlue) {
         glue.use_with(listener);
-
         unsafe { b2World_SetContactListener(self.ptr, glue.ptr) }
     }
 
