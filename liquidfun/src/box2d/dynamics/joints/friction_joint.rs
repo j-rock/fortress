@@ -100,8 +100,8 @@ extern {
 		maxTorque: Float32
 	) -> *mut B2FrictionJoint;
 
-    fn b2FrictionJoint_GetLocalAnchorA(this: *const B2FrictionJoint) -> &Vec2;
-    fn b2FrictionJoint_GetLocalAnchorB(this: *const B2FrictionJoint) -> &Vec2;
+    fn b2FrictionJoint_GetLocalAnchorA(this: &B2FrictionJoint) -> &Vec2;
+    fn b2FrictionJoint_GetLocalAnchorB(this: &B2FrictionJoint) -> &Vec2;
     fn b2FrictionJoint_SetLength(this: *const B2FrictionJoint, length: Float32);
     fn b2FrictionJoint_GetLength(this: *const B2FrictionJoint) -> Float32;
     fn b2FrictionJoint_SetFrequency(this: *const B2FrictionJoint, hz: Float32);
@@ -117,11 +117,11 @@ pub struct FrictionJoint {
 
 impl FrictionJoint {
     pub fn get_local_anchor_a(&self) -> &Vec2 {
-        unsafe { b2FrictionJoint_GetLocalAnchorA(self.ptr) }
+        unsafe { b2FrictionJoint_GetLocalAnchorA(&*self.ptr) }
     }
 
     pub fn get_local_anchor_b(&self) -> &Vec2 {
-        unsafe { b2FrictionJoint_GetLocalAnchorB(self.ptr) }
+        unsafe { b2FrictionJoint_GetLocalAnchorB(&*self.ptr) }
     }
 
     pub fn set_length(&self, length: Float32) {

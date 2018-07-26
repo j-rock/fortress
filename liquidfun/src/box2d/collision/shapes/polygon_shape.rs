@@ -1,4 +1,7 @@
-use std::slice;
+use std::{
+    self,
+    slice,
+};
 use super::shape::*;
 use super::super::super::common::settings::*;
 use super::super::super::common::math::*;
@@ -7,7 +10,7 @@ enum B2PolygonShape {}
 
 extern {
     fn b2PolygonShape_Delete(ptr: *mut B2PolygonShape);
-    fn b2PolygonShape_GetVertex(ptr: *mut B2PolygonShape, index: Int32) -> &Vec2;
+    fn b2PolygonShape_GetVertex(ptr: &mut B2PolygonShape, index: Int32) -> &Vec2;
     fn b2PolygonShape_GetVertexCount(ptr: *const B2PolygonShape) -> Int32;
     fn b2PolygonShape_New() -> *mut B2PolygonShape;
     fn b2PolygonShape_Set(ptr: *mut B2PolygonShape, points: *const Vec2, count: Int32);
@@ -52,7 +55,7 @@ impl PolygonShape {
     /// Get a vertex by index.
     pub fn get_vertex(&self, index: i32) -> &Vec2 {
         unsafe {
-            b2PolygonShape_GetVertex(self.ptr, index)
+            b2PolygonShape_GetVertex(std::mem::transmute(self.ptr), index)
         }
     }
 

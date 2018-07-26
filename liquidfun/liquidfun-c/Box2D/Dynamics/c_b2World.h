@@ -9,6 +9,7 @@ extern "C" {
 	void b2World_Delete(b2World* self);
 	void b2World_SetContactListener(b2World* self, b2ContactListener* listener);
 	b2Body* b2World_CreateBody(b2World* self, const b2BodyDef* bd);
+	void b2World_DestroyBody(b2World* self, b2Body* body);
 	const b2Body* b2World_GetBodyList(b2World* self);
 	b2ParticleSystem* b2World_GetParticleSystemList(b2World* self);
 	void b2World_DestroyBody(b2World* self, b2Body* body);

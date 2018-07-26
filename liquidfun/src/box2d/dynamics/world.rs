@@ -12,6 +12,7 @@ extern {
     fn b2World_Delete(world: *mut B2World);
     fn b2World_SetContactListener(this: *mut B2World, listener: *mut B2ContactListener);
     fn b2World_CreateBody(world: *mut B2World, bd: *const BodyDef) -> *mut B2Body;
+    fn b2World_DestroyBody(world: *mut B2World, body: *mut B2Body);
     fn b2World_CreateParticleSystem(world: *mut B2World, def: *const ParticleSystemDef) -> *mut B2ParticleSystem;
     fn b2World_GetBodyCount(world: *const B2World) -> Int32;
     fn b2World_GetJointCount(world: *const B2World) -> Int32;
@@ -55,6 +56,12 @@ impl World {
     pub fn create_body(&mut self, def: &BodyDef) -> Body {
         unsafe {
             Body { ptr: b2World_CreateBody(self.ptr, def) }
+        }
+    }
+
+    pub fn destroy_body(&mut self, body: &mut Body) {
+        unsafe {
+            b2World_DestroyBody(self.ptr, body.ptr);
         }
     }
 
@@ -185,10 +192,26 @@ impl World {
 
 }
 
-impl Drop for World {
-    fn drop(&mut self) {
+// Wrapper around World that cleans up on Drop.
+pub struct WrappedWorld {
+    pub world: World
+}
+
+impl WrappedWorld {
+    pub fn new(gravity: &Vec2) -> WrappedWorld {
         unsafe {
-            b2World_Delete(self.ptr);
+            WrappedWorld {
+                world: World { ptr: b2World_New(gravity) }
+            }
         }
     }
 }
+
+impl Drop for WrappedWorld {
+    fn drop(&mut self) {
+        unsafe {
+            b2World_Delete(self.world.ptr);
+        }
+    }
+}
+

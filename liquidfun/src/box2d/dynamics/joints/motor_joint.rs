@@ -111,8 +111,8 @@ extern {
 		correctionFactor: Float32
 	) -> *mut B2MotorJoint;
 
-    fn b2MotorJoint_GetLocalAnchorA(this: *const B2MotorJoint) -> &Vec2;
-    fn b2MotorJoint_GetLocalAnchorB(this: *const B2MotorJoint) -> &Vec2;
+    fn b2MotorJoint_GetLocalAnchorA(this: &B2MotorJoint) -> &Vec2;
+    fn b2MotorJoint_GetLocalAnchorB(this: &B2MotorJoint) -> &Vec2;
     fn b2MotorJoint_SetLength(this: *const B2MotorJoint, length: Float32);
     fn b2MotorJoint_GetLength(this: *const B2MotorJoint) -> Float32;
     fn b2MotorJoint_SetFrequency(this: *const B2MotorJoint, hz: Float32);
@@ -128,11 +128,11 @@ pub struct MotorJoint {
 
 impl MotorJoint {
     pub fn get_local_anchor_a(&self) -> &Vec2 {
-        unsafe { b2MotorJoint_GetLocalAnchorA(self.ptr) }
+        unsafe { b2MotorJoint_GetLocalAnchorA(&*self.ptr) }
     }
 
     pub fn get_local_anchor_b(&self) -> &Vec2 {
-        unsafe { b2MotorJoint_GetLocalAnchorB(self.ptr) }
+        unsafe { b2MotorJoint_GetLocalAnchorB(&*self.ptr) }
     }
 
     pub fn set_length(&self, length: Float32) {

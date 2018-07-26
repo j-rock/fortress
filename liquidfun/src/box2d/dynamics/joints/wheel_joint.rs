@@ -118,9 +118,9 @@ extern {
 		dampingRatio: Float32,
 	) -> *mut B2WheelJoint;
 
-	fn b2WheelJoint_GetLocalAnchorA(this: *const B2WheelJoint) -> &Vec2;
-	fn b2WheelJoint_GetLocalAnchorB(this: *const B2WheelJoint) -> &Vec2;
-	fn b2WheelJoint_GetLocalAxisA(this: *const B2WheelJoint) -> &Vec2;
+	fn b2WheelJoint_GetLocalAnchorA(this: &B2WheelJoint) -> &Vec2;
+	fn b2WheelJoint_GetLocalAnchorB(this: &B2WheelJoint) -> &Vec2;
+	fn b2WheelJoint_GetLocalAxisA(this: &B2WheelJoint) -> &Vec2;
 	fn b2WheelJoint_GetJointTranslation(this: *const B2WheelJoint) -> Float32;
 	fn b2WheelJoint_GetJointSpeed(this: *const B2WheelJoint) -> Float32;
 	fn b2WheelJoint_IsMotorEnabled(this: *const B2WheelJoint) -> bool;
@@ -143,15 +143,15 @@ pub struct WheelJoint {
 
 impl WheelJoint {
 	pub fn get_local_anchor_a(&self) -> &Vec2 {
-		unsafe { b2WheelJoint_GetLocalAnchorA(self.ptr) }
+		unsafe { b2WheelJoint_GetLocalAnchorA(&*self.ptr) }
 	}
 
 	pub fn get_local_anchor_b(&self) -> &Vec2 {
-		unsafe { b2WheelJoint_GetLocalAnchorB(self.ptr) }
+		unsafe { b2WheelJoint_GetLocalAnchorB(&*self.ptr) }
 	}
 
 	pub fn get_local_axis_a(&self) -> &Vec2 {
-		unsafe { b2WheelJoint_GetLocalAxisA(self.ptr) }
+		unsafe { b2WheelJoint_GetLocalAxisA(&*self.ptr) }
 	}
 
 	pub fn get_joint_translation(&self) -> Float32 {

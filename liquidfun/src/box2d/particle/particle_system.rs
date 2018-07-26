@@ -15,7 +15,7 @@ extern {
 	fn b2ParticleContact_GetIndexA(this: *const B2ParticleContact) -> Int32;
 	fn b2ParticleContact_GetIndexB(this: *const B2ParticleContact) -> Int32;
 	fn b2ParticleContact_GetWeight(this: *const B2ParticleContact) -> Float32;
-	fn b2ParticleContact_GetNormal(this: *const B2ParticleContact) -> &Vec2;
+	fn b2ParticleContact_GetNormal(this: &B2ParticleContact) -> &Vec2;
 	fn b2ParticleContact_GetFlags(this: *const B2ParticleContact) -> UInt32;
 	fn b2ParticleContact_ApproximatelyEqual(this: *const B2ParticleContact, rhs: *const B2ParticleContact) -> bool;
 }
@@ -55,7 +55,7 @@ impl ParticleContact {
     }
 
     pub fn get_normal(&self) -> &Vec2 {
-        unsafe { b2ParticleContact_GetNormal(self.ptr) }
+        unsafe { b2ParticleContact_GetNormal(&*self.ptr) }
     }
 
     pub fn get_flags(&self) -> UInt32 {

@@ -81,7 +81,7 @@ impl Map {
 
     fn redeploy_platforms(&mut self) {
         let mut world = self.platform_body.get_world();
-        world.destroy_body(&self.platform_body);
+        world.destroy_body(&mut self.platform_body);
         self.platform_body = Self::create_body_from_platforms(self.config_manager.get(), &mut world);
     }
 

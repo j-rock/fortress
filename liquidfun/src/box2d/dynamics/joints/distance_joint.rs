@@ -107,8 +107,8 @@ extern {
     	dampingRatio: Float32
 	) -> *mut B2DistanceJoint;
 
-    fn b2DistanceJoint_GetLocalAnchorA(this: *const B2DistanceJoint) -> &Vec2;
-    fn b2DistanceJoint_GetLocalAnchorB(this: *const B2DistanceJoint) -> &Vec2;
+    fn b2DistanceJoint_GetLocalAnchorA(this: &B2DistanceJoint) -> &Vec2;
+    fn b2DistanceJoint_GetLocalAnchorB(this: &B2DistanceJoint) -> &Vec2;
     fn b2DistanceJoint_SetLength(this: *const B2DistanceJoint, length: Float32);
     fn b2DistanceJoint_GetLength(this: *const B2DistanceJoint) -> Float32;
     fn b2DistanceJoint_SetFrequency(this: *const B2DistanceJoint, hz: Float32);
@@ -124,11 +124,11 @@ pub struct DistanceJoint {
 
 impl DistanceJoint {
     pub fn get_local_anchor_a(&self) -> &Vec2 {
-        unsafe { b2DistanceJoint_GetLocalAnchorA(self.ptr) }
+        unsafe { b2DistanceJoint_GetLocalAnchorA(&*self.ptr) }
     }
 
     pub fn get_local_anchor_b(&self) -> &Vec2 {
-        unsafe { b2DistanceJoint_GetLocalAnchorB(self.ptr) }
+        unsafe { b2DistanceJoint_GetLocalAnchorB(&*self.ptr) }
     }
 
     pub fn set_length(&self, length: Float32) {

@@ -109,13 +109,13 @@ extern {
 	fn b2Body_CreateFixture_FromShape(this: *const B2Body, shape: *const B2Shape, density: Float32) -> *mut B2Fixture;
 	fn b2Body_DestroyFixture(this: *const B2Body, fixture: *mut B2Fixture);
 	fn b2Body_SetTransform(this: *const B2Body, position: &Vec2, angle: Float32);
-	fn b2Body_GetTransform(this: *const B2Body) -> &Transform;
-	fn b2Body_GetPosition(this: *const B2Body) -> &Vec2;
+	fn b2Body_GetTransform(this: &B2Body) -> &Transform;
+	fn b2Body_GetPosition(this: &B2Body) -> &Vec2;
 	fn b2Body_GetAngle(this: *const B2Body) -> Float32;
-	fn b2Body_GetWorldCenter(this: *const B2Body) -> &Vec2;
-	fn b2Body_GetLocalCenter(this: *const B2Body) -> &Vec2;
+	fn b2Body_GetWorldCenter(this: &B2Body) -> &Vec2;
+	fn b2Body_GetLocalCenter(this: &B2Body) -> &Vec2;
 	fn b2Body_SetLinearVelocity(this: *const B2Body, v: &Vec2);
-	fn b2Body_GetLinearVelocity(this: *const B2Body) -> &Vec2;
+	fn b2Body_GetLinearVelocity(this: &B2Body) -> &Vec2;
 	fn b2Body_SetAngularVelocity(this: *const B2Body, omega: Float32);
 	fn b2Body_GetAngularVelocity(this: *const B2Body) -> Float32;
 	fn b2Body_ApplyForce(this: *const B2Body, force: &Vec2, point: &Vec2, wake: bool);
@@ -209,7 +209,7 @@ impl Body {
 
 	pub fn get_transform(&self) -> &Transform {
 		unsafe {
-			b2Body_GetTransform(self.ptr)
+			b2Body_GetTransform(&*self.ptr)
 		}
 	}
 
@@ -217,7 +217,7 @@ impl Body {
     /// @return the world position of the body's origin.
     pub fn get_position(&self) -> &Vec2 {
         unsafe {
-            b2Body_GetPosition(self.ptr)
+            b2Body_GetPosition(&*self.ptr)
         }
     }
 
@@ -231,13 +231,13 @@ impl Body {
 
 	pub fn get_world_center(&self) -> &Vec2 {
 		unsafe {
-			b2Body_GetWorldCenter(self.ptr)
+			b2Body_GetWorldCenter(&*self.ptr)
 		}
 	}
 
 	pub fn get_local_center(&self) -> &Vec2 {
 		unsafe {
-			b2Body_GetLocalCenter(self.ptr)
+			b2Body_GetLocalCenter(&*self.ptr)
 		}
 	}
 
@@ -249,7 +249,7 @@ impl Body {
 
 	pub fn get_linear_velocity(&self) -> &Vec2 {
 		unsafe {
-			b2Body_GetLinearVelocity(self.ptr)
+			b2Body_GetLinearVelocity(&*self.ptr)
 		}
 	}
 

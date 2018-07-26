@@ -97,8 +97,8 @@ extern {
 		dampingRatio: Float32
 	) -> *mut B2MouseJoint;
 
-	fn b2MouseJoint_SetTarget(this: *const B2MouseJoint, target: &Vec2);
-	fn b2MouseJoint_GetTarget(this: *const B2MouseJoint) -> &Vec2;
+	fn b2MouseJoint_SetTarget(this: &B2MouseJoint, target: &Vec2);
+	fn b2MouseJoint_GetTarget(this: &B2MouseJoint) -> &Vec2;
 	fn b2MouseJoint_SetMaxForce(this: *const B2MouseJoint, force: Float32);
 	fn b2MouseJoint_GetMaxForce(this: *const B2MouseJoint) -> Float32;
 	fn b2MouseJoint_SetFrequency(this: *const B2MouseJoint, hz: Float32);
@@ -114,11 +114,11 @@ pub struct MouseJoint {
 
 impl MouseJoint {
 	pub fn set_target(&self, target: &Vec2) {
-		unsafe { b2MouseJoint_SetTarget(self.ptr, target) }
+		unsafe { b2MouseJoint_SetTarget(&*self.ptr, target) }
 	}
 
 	pub fn get_target(&self) -> &Vec2 {
-		unsafe { b2MouseJoint_GetTarget(self.ptr) }
+		unsafe { b2MouseJoint_GetTarget(&*self.ptr) }
 	}
 
 	pub fn set_max_force(&self, force: Float32) {

@@ -130,7 +130,7 @@ extern {
 		motorSpeed: Float32,
 	) -> *mut B2PrismaticJoint;
 
-	fn b2PrismaticJoint_GetLocalAxisA(this: *const B2PrismaticJoint) -> &Vec2;
+	fn b2PrismaticJoint_GetLocalAxisA(this: &B2PrismaticJoint) -> &Vec2;
 	fn b2PrismaticJoint_GetReferenceAngle(this: *const B2PrismaticJoint) -> Float32;
 	fn b2PrismaticJoint_GetJointTranslation(this: *const B2PrismaticJoint) -> Float32;
 	fn b2PrismaticJoint_GetJointSpeed(this: *const B2PrismaticJoint) -> Float32;
@@ -155,7 +155,7 @@ pub struct PrismaticJoint {
 
 impl PrismaticJoint {
 	pub fn get_local_axis_a(&self) -> &Vec2 {
-		unsafe { b2PrismaticJoint_GetLocalAxisA(self.ptr) }
+		unsafe { b2PrismaticJoint_GetLocalAxisA(&*self.ptr) }
 	}
 
 	pub fn get_reference_angle(&self) -> Float32 {

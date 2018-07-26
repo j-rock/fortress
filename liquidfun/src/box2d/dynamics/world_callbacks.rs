@@ -211,7 +211,7 @@ pub trait ContactListener {
 
     /// Called when two particles start touching if
 	/// b2_particleContactFilterParticle flag is set on either particle.
-    fn begin_particle_particle(&mut self, particle_system: ParticleSystem, particleContact: ParticleContact);
+    fn begin_particle_particle(&mut self, particle_system: ParticleSystem, particle_contact: ParticleContact);
 
     /// Called when two particles start touching if
 	/// b2_particleContactFilterParticle flag is set on either particle.

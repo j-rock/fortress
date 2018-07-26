@@ -101,8 +101,8 @@ extern {
     	dampingRatio: Float32
 	) -> *mut B2WeldJoint;
 
-	fn b2WeldJoint_GetLocalAnchorA(this: *const B2WeldJoint) -> &Vec2;
-	fn b2WeldJoint_GetLocalAnchorB(this: *const B2WeldJoint) -> &Vec2;
+	fn b2WeldJoint_GetLocalAnchorA(this: &B2WeldJoint) -> &Vec2;
+	fn b2WeldJoint_GetLocalAnchorB(this: &B2WeldJoint) -> &Vec2;
 	fn b2WeldJoint_GetReferenceAngle(this: *const B2WeldJoint) -> Float32;
 	fn b2WeldJoint_SetFrequency(this: *const B2WeldJoint, hz: Float32);
 	fn b2WeldJoint_GetFrequency(this: *const B2WeldJoint) -> Float32;
@@ -117,11 +117,11 @@ pub struct WeldJoint {
 
 impl WeldJoint {
 	pub fn get_local_anchor_a(&self) -> &Vec2 {
-		unsafe { b2WeldJoint_GetLocalAnchorA(self.ptr) }
+		unsafe { b2WeldJoint_GetLocalAnchorA(&*self.ptr) }
 	}
 
 	pub fn get_local_anchor_b(&self) -> &Vec2 {
-		unsafe { b2WeldJoint_GetLocalAnchorB(self.ptr) }
+		unsafe { b2WeldJoint_GetLocalAnchorB(&*self.ptr) }
 	}
 
 	pub fn get_reference_angle(&self) -> Float32 {

@@ -90,8 +90,8 @@ extern {
 		maxLength: Float32
 	) -> *mut B2RopeJoint;
 
-	fn b2RopeJoint_GetLocalAnchorA(this: *const B2RopeJoint) -> &Vec2;
-	fn b2RopeJoint_GetLocalAnchorB(this: *const B2RopeJoint) -> &Vec2;
+	fn b2RopeJoint_GetLocalAnchorA(this: &B2RopeJoint) -> &Vec2;
+	fn b2RopeJoint_GetLocalAnchorB(this: &B2RopeJoint) -> &Vec2;
 	fn b2RopeJoint_SetMaxLength(this: *const B2RopeJoint, length: Float32);
 	fn b2RopeJoint_GetMaxLength(this: *const B2RopeJoint) -> Float32;
 	fn b2RopeJoint_GetLimitState(this: *const B2RopeJoint) -> LimitState;
@@ -104,11 +104,11 @@ pub struct RopeJoint {
 
 impl RopeJoint {
 	pub fn get_local_anchor_a(&self) -> &Vec2 {
-		unsafe { b2RopeJoint_GetLocalAnchorA(self.ptr) }
+		unsafe { b2RopeJoint_GetLocalAnchorA(&*self.ptr) }
 	}
 
 	pub fn get_local_anchor_b(&self) -> &Vec2 {
-		unsafe { b2RopeJoint_GetLocalAnchorB(self.ptr) }
+		unsafe { b2RopeJoint_GetLocalAnchorB(&*self.ptr) }
 	}
 
 	pub fn set_max_length(&self, length: Float32) {

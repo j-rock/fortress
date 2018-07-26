@@ -98,7 +98,7 @@ impl Player {
 
     fn redeploy_player_body(&mut self) {
         let mut world = self.player_body.get_world();
-        world.destroy_body(&self.player_body);
+        world.destroy_body(&mut self.player_body);
         self.player_body = Self::create_body_from_config(self.config_manager.get(), &mut world);
     }
 
