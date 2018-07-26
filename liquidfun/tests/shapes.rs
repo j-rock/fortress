@@ -16,7 +16,7 @@ fn create_chain() {
 	];
 
 	let mut chain = ChainShape::new();
-	chain.create_chain(&vs, vs.len() as i32);
+	chain.create_chain(&vs);
 	assert_eq!(chain.get_vertex_count(), 4);
 
 	let vertices = chain.get_vertices();

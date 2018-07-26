@@ -4,9 +4,9 @@ use std::env;
 use std::path::{Path};
 
 fn main() {
-    let mut build = gcc::Build::new();
+    let mut config = gcc::Config::new();
 
-    build.cpp(true)
+    config.cpp(true)
 	    .file("liquidfun-c/c_box2d.cpp")
 	    .include("liquidfun-cpp");
 
@@ -16,7 +16,7 @@ fn main() {
     	Ok(ref target) if target == "arm-linux-androideabi" => {
 			match env::var("NDK_HOME") {
 				Ok(ndk_home) => {
-					build.include(Path::new(&ndk_home).join("sources/cxx-stl/stlport/stlport"));
+					config.include(Path::new(&ndk_home).join("sources/cxx-stl/stlport/stlport"));
 				}
 				_ => panic!("Please set NDK_HOME environment variable to Android Native Development Kit path when targeting {:?}.", target)
 			}
@@ -24,5 +24,5 @@ fn main() {
 	    _ => {}
 	}
 
-   	build.compile("libliquidfun.a");
+   	config.compile("libliquidfun.a");
 }

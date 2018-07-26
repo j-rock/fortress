@@ -1,10 +1,107 @@
 use super::*;
+use super::super::dynamics::fixture::*;
+use super::super::dynamics::body::*;
 use super::super::common::math::*;
 use super::super::common::settings::*;
 use std::slice;
 
+pub enum B2ParticleContact {}
+
+extern {
+    fn b2ParticleContact_SetIndices(this: *const B2ParticleContact, a: Int32, b: Int32);
+	fn b2ParticleContact_SetWeight(this: *const B2ParticleContact, w: Float32);
+	fn b2ParticleContact_SetNormal(this: *const B2ParticleContact, n: &Vec2);
+	fn b2ParticleContact_SetFlags(this: *const B2ParticleContact, f: UInt32);
+	fn b2ParticleContact_GetIndexA(this: *const B2ParticleContact) -> Int32;
+	fn b2ParticleContact_GetIndexB(this: *const B2ParticleContact) -> Int32;
+	fn b2ParticleContact_GetWeight(this: *const B2ParticleContact) -> Float32;
+	fn b2ParticleContact_GetNormal(this: *const B2ParticleContact) -> &Vec2;
+	fn b2ParticleContact_GetFlags(this: *const B2ParticleContact) -> UInt32;
+	fn b2ParticleContact_ApproximatelyEqual(this: *const B2ParticleContact, rhs: *const B2ParticleContact) -> bool;
+}
+
+#[derive(Clone, Debug)]
+pub struct ParticleContact {
+    pub ptr: *mut B2ParticleContact,
+}
+
+impl ParticleContact {
+    pub fn set_indices(&self, a: Int32, b: Int32) {
+        unsafe { b2ParticleContact_SetIndices(self.ptr, a, b) }
+    }
+
+    pub fn set_weight(&self, w: Float32) {
+        unsafe { b2ParticleContact_SetWeight(self.ptr, w) }
+    }
+
+    pub fn set_normal(&self, n: &Vec2) {
+        unsafe { b2ParticleContact_SetNormal(self.ptr, n) }
+    }
+
+    pub fn set_flags(&self, f: UInt32) {
+        unsafe { b2ParticleContact_SetFlags(self.ptr, f) }
+    }
+
+    pub fn get_index_a(&self) -> Int32 {
+        unsafe { b2ParticleContact_GetIndexA(self.ptr) }
+    }
+
+    pub fn get_index_b(&self) -> Int32 {
+        unsafe { b2ParticleContact_GetIndexB(self.ptr) }
+    }
+
+    pub fn get_weight(&self) -> Float32 {
+        unsafe { b2ParticleContact_GetWeight(self.ptr) }
+    }
+
+    pub fn get_normal(&self) -> &Vec2 {
+        unsafe { b2ParticleContact_GetNormal(self.ptr) }
+    }
+
+    pub fn get_flags(&self) -> UInt32 {
+        unsafe { b2ParticleContact_GetFlags(self.ptr) }
+    }
+
+    pub fn approximately_equal(&self, rhs: &Self) -> bool {
+        unsafe { b2ParticleContact_ApproximatelyEqual(self.ptr, rhs.ptr) }
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
-#[derive(Debug)]
+pub struct ParticleBodyContact
+{
+	/// Index of the particle making contact.
+	pub index: Int32,
+
+	/// The body making contact.
+	body: *mut B2Body,
+
+	/// The specific fixture making contact
+	fixture: *mut B2Fixture,
+
+	/// Weight of the contact. A value between 0.0f and 1.0f.
+	pub weight: Float32,
+
+	/// The normalized direction from the particle to the body.
+	pub normal: Vec2,
+
+	/// The effective mass used in calculating force.
+	pub mass: Float32,
+}
+
+impl ParticleBodyContact {
+    pub fn body(&self) -> Body {
+        Body { ptr: self.body }
+    }
+
+    pub fn fixture(&self) -> Fixture {
+        Fixture { ptr: self.fixture }
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+#[repr(C)]
 pub struct ParticleSystemDef {
     /// Enable strict Particle/Body contact check.
     /// See SetStrictContactCheck for details.
@@ -142,9 +239,9 @@ extern {
     fn b2ParticleSystem_GetPositionBuffer(ps: *mut B2ParticleSystem) -> *mut Vec2;
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ParticleSystem {
-    pub ptr: *mut B2ParticleSystem
+    pub ptr: *mut B2ParticleSystem,
 }
 
 impl ParticleSystem {
@@ -183,12 +280,12 @@ impl ParticleSystem {
         unsafe {
             ParticleFlags::from_bits(b2ParticleSystem_GetParticleFlags(self.ptr, index))
         }
-    }    
+    }
 
     /// Get the next particle-system in the world's particle-system list.
     pub fn get_next(&self) -> Option<ParticleSystem> {
         let ptr: *mut B2ParticleSystem;
-        
+
         unsafe {
             ptr = b2ParticleSystem_GetNext(self.ptr);
         }

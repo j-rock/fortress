@@ -23,7 +23,7 @@ extern {
 /// WARNING: The chain will not collide properly if there are self-intersections.
 pub struct ChainShape {
     ptr: *mut B2ChainShape,
-    owned: bool,    
+    owned: bool,
 }
 
 /// Cast a ChainShape from a B2Shape.
@@ -52,12 +52,12 @@ impl ChainShape {
 	/// Create a chain with isolated end vertices.
 	/// @param vertices an array of vertices, these are copied
 	/// @param count the vertex count
-    pub fn create_chain(&mut self, vertices: &[Vec2], count: i32) {
+    pub fn create_chain(&mut self, vertices: &[Vec2]) {
     	unsafe {
-    		b2ChainShape_CreateChain(self.ptr, vertices.as_ptr(), count);
+    		b2ChainShape_CreateChain(self.ptr, vertices.as_ptr(), vertices.len() as _);
     	}
     }
-	
+
 	/// @see b2Shape::GetChildCount
     pub fn get_child_count(&self) -> i32 {
         unsafe {

@@ -1,3 +1,4 @@
+use std::slice;
 use super::shape::*;
 use super::super::super::common::settings::*;
 use super::super::super::common::math::*;
@@ -6,12 +7,14 @@ enum B2PolygonShape {}
 
 extern {
     fn b2PolygonShape_Delete(ptr: *mut B2PolygonShape);
-    fn b2PolygonShape_GetVertex(ptr: &B2PolygonShape, index: Int32) -> &Vec2;
+    fn b2PolygonShape_GetVertex(ptr: *mut B2PolygonShape, index: Int32) -> &Vec2;
     fn b2PolygonShape_GetVertexCount(ptr: *const B2PolygonShape) -> Int32;
     fn b2PolygonShape_New() -> *mut B2PolygonShape;
+    fn b2PolygonShape_Set(ptr: *mut B2PolygonShape, points: *const Vec2, count: Int32);
     fn b2PolygonShape_SetAsBox(ptr: *mut B2PolygonShape, hx: Float32, hy: Float32);
     fn b2PolygonShape_SetAsBox_Oriented(ptr: *mut B2PolygonShape, hx: Float32, hy: Float32, center: &Vec2, angle: Float32);
     fn b2PolygonShape_Upcast(ptr: *mut B2PolygonShape) -> *mut B2Shape;
+    fn b2PolygonShape_m_vertices(ptr: *mut B2PolygonShape) -> *const Vec2;
 }
 
 /// A convex polygon. It is assumed that the interior of the polygon is to
@@ -20,7 +23,7 @@ extern {
 /// In most cases you should not need many vertices for a convex polygon.
 pub struct PolygonShape {
     ptr: *mut B2PolygonShape,
-    owned: bool,    
+    owned: bool,
 }
 
 /// Cast a PolygonShape from a B2Shape.
@@ -49,7 +52,7 @@ impl PolygonShape {
     /// Get a vertex by index.
     pub fn get_vertex(&self, index: i32) -> &Vec2 {
         unsafe {
-            b2PolygonShape_GetVertex(&*self.ptr, index)
+            b2PolygonShape_GetVertex(self.ptr, index)
         }
     }
 
@@ -57,6 +60,13 @@ impl PolygonShape {
     pub fn get_vertex_count(&self) -> i32 {
         unsafe {
             b2PolygonShape_GetVertexCount(self.ptr)
+        }
+    }
+
+    pub fn set(&mut self, points: &[Vec2])
+    {
+        unsafe {
+            b2PolygonShape_Set(self.ptr, points.as_ptr(), points.len() as _);
         }
     }
 
@@ -77,6 +87,13 @@ impl PolygonShape {
     pub fn set_as_box_oriented(&mut self, hx: f32, hy: f32, center: &Vec2, angle: f32) {
         unsafe {
             b2PolygonShape_SetAsBox_Oriented(self.ptr, hx, hy, center, angle);
+        }
+    }
+
+	/// The vertices. Owned by this class.
+ 	pub fn get_vertices(&self) -> &[Vec2] {
+        unsafe {
+			slice::from_raw_parts(b2PolygonShape_m_vertices(self.ptr), self.get_vertex_count() as usize)
         }
     }
 }
