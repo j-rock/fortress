@@ -1,7 +1,5 @@
-pub mod entity;
-pub mod entity_types;
+pub mod contact_listener;
 pub mod simulation;
 
-pub use self::entity::EntityRegistrar;
-pub use self::entity_types::EntityType;
+pub use self::contact_listener::PhysicsContactListener;
 pub use self::simulation::PhysicsSimulation;

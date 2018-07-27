@@ -1,40 +1,11 @@
 use liquidfun;
-use physics::EntityType;
-use std::{
-    self,
-    collections::HashMap,
+use entity::{
+    Entity,
+    EntityType,
 };
+use std::collections::HashMap;
 
 static HIGHEST_BIT_USIZE: usize = 1 << 63;
-
-struct Void {
-}
-
-pub struct Entity {
-    etype: EntityType,
-    data: *const Void,
-}
-
-impl Entity {
-    fn new<T>(etype: EntityType, t: &T) -> Entity {
-        unsafe {
-            Entity {
-                etype,
-                data: std::mem::transmute(t)
-            }
-        }
-    }
-
-    pub fn etype(&self) -> &EntityType {
-        &self.etype
-    }
-
-    pub fn resolve<T>(&self) -> &mut T {
-        unsafe {
-            std::mem::transmute(self.data)
-        }
-    }
-}
 
 pub struct EntityRegistrar {
     registrar: HashMap<usize, Entity>,
@@ -64,7 +35,7 @@ impl EntityRegistrar {
     }
 
     pub fn resolve(&self, encoded: usize) -> Option<&Entity> {
-       Self::decode(encoded).and_then(|decoded_idx| self.registrar.get(&decoded_idx))
+        Self::decode(encoded).and_then(|decoded_idx| self.registrar.get(&decoded_idx))
     }
 
     fn encode(val: usize) -> usize {

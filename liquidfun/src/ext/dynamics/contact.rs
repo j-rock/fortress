@@ -7,7 +7,13 @@ pub struct ContactIterator {
 impl Contact {
     /// Get a world contact iterator.
     pub fn iter(&self) -> ContactIterator {
-        ContactIterator { contact: Some(self.clone()) }
+        ContactIterator  {
+            contact: if self.ptr.is_null() {
+                None
+            } else {
+                Some(self.clone())
+            }
+        }
     }
 }
 
