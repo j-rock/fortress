@@ -16,13 +16,13 @@ use gl::{
 };
 use glm;
 use liquidfun;
+use physics::PhysicsSimulation;
 use render::{
     attribute,
     Attribute,
     AttributeProgram,
     ShaderProgram,
 };
-use world::PhysicsSimulation;
 
 #[derive(Deserialize)]
 struct PlayerConfig {
@@ -77,7 +77,7 @@ impl Player {
     }
 
     pub fn update(&mut self, controller: &Controller) {
-        if self.config_manager.update() || controller.just_released(PlayerRespawn) {
+        if self.config_manager.update() || controller.just_pressed(PlayerRespawn) {
             self.redeploy_player_body();
         }
 

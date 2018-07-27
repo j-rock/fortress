@@ -5,10 +5,10 @@ use file::{
     ConfigWatcher,
     SimpleConfigManager,
 };
+use physics::PhysicsSimulation;
 use world::{
     Camera,
     Map,
-    PhysicsSimulation,
     Player,
 };
 

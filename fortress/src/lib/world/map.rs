@@ -10,13 +10,13 @@ use gl::{
 };
 use glm;
 use liquidfun;
+use physics::PhysicsSimulation;
 use render::{
     attribute,
     AttributeProgram,
     Attribute,
     ShaderProgram,
 };
-use world::PhysicsSimulation;
 
 #[derive(Debug, Deserialize)]
 struct Platform {

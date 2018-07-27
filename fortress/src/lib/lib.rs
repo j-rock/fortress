@@ -15,5 +15,6 @@ pub mod controls;
 pub mod dimensions;
 pub mod file;
 pub mod image;
+pub mod physics;
 pub mod render;
 pub mod world;
