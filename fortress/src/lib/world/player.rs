@@ -96,6 +96,10 @@ impl Player {
         self.player_body.apply_linear_impulse(&impulse, &body_center, true);
     }
 
+    pub fn touch_ground(&mut self) {
+        println!("I touched the ground!");
+    }
+
     fn redeploy_player_body(&mut self) {
         let mut world = self.player_body.get_world();
         world.destroy_body(&mut self.player_body);
@@ -117,6 +121,7 @@ impl Player {
         let mut fixture_def = liquidfun::box2d::dynamics::fixture::FixtureDef::new(&poly_shape);
         fixture_def.restitution = config.restitution;
         player_body.create_fixture(&fixture_def);
+
         player_body
     }
 

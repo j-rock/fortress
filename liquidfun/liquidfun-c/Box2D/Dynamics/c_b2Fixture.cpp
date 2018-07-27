@@ -11,6 +11,10 @@ extern "C" {
 		return self->GetShape();
 	}
 
+	b2Body* b2Fixture_GetBody(b2Fixture* self) {
+	    return self->GetBody();
+	}
+
 	b2Shape::Type b2Fixture_GetType(b2Fixture* self) {
 		return self->GetType();
 	}
