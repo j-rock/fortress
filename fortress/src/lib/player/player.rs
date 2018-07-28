@@ -1,10 +1,14 @@
 use app::StatusOr;
 use controls::{
     Controller,
+    ControlEvent::PlayerJump,
     ControlEvent::PlayerMove,
     ControlEvent::PlayerRespawn,
 };
-use dimensions::LrDirection;
+use dimensions::{
+    LrDirection,
+    time::DeltaTime,
+};
 use file::{
     ConfigWatcher,
     SimpleConfigManager,
@@ -17,21 +21,16 @@ use gl::{
 use glm;
 use liquidfun;
 use physics::PhysicsSimulation;
+use player::{
+    JumpTracker,
+    PlayerConfig,
+};
 use render::{
     attribute,
     Attribute,
     AttributeProgram,
     ShaderProgram,
 };
-
-#[derive(Deserialize)]
-struct PlayerConfig {
-    size: (i32, i32),
-    spawn_location: (i32, i32),
-    player_speed: f32,
-    // Between [0, 1]
-    restitution: f32,
-}
 
 #[repr(C)]
 struct PlayerAttr {
@@ -48,6 +47,7 @@ impl attribute::KnownComponent for PlayerAttr {
 pub struct Player {
     config_manager: SimpleConfigManager<PlayerConfig>,
     player_body: liquidfun::box2d::dynamics::body::Body,
+    jump_tracker: JumpTracker,
 
     shader_program: ShaderProgram,
     attribute_program: AttributeProgram,
@@ -57,7 +57,12 @@ pub struct Player {
 impl Player {
     pub fn new(config_watcher: &mut ConfigWatcher, physics_sim: &mut PhysicsSimulation) -> StatusOr<Player> {
         let config_manager = SimpleConfigManager::new(config_watcher, "player.conf")?;
-        let player_body = Self::create_body_from_config(config_manager.get(), physics_sim.get_world_mut());
+        let (player_body, jump_tracker) = {
+            let config = config_manager.get();
+            let player_body = Self::create_body_from_config(config, physics_sim.get_world_mut());
+            let jump_tracker = JumpTracker::new(config);
+            (player_body, jump_tracker)
+        };
 
         let vertex = file::util::resource_path("shaders", "player_vert.glsl");
         let geometry = file::util::resource_path("shaders", "player_geo.glsl");
@@ -70,23 +75,39 @@ impl Player {
         Ok(Player {
             config_manager,
             player_body,
+            jump_tracker,
             shader_program,
             attribute_program,
             player_attribute
         })
     }
 
-    pub fn update(&mut self, controller: &Controller) {
+    pub fn update(&mut self, controller: &Controller, dt: DeltaTime) {
         if self.config_manager.update() || controller.just_pressed(PlayerRespawn) {
             self.redeploy_player_body();
         }
 
-        let desired_horizontal_velocity = if controller.is_pressed(PlayerMove(LrDirection::Left)) {
-            -self.config_manager.get().player_speed
+        self.jump_tracker.update(dt);
+
+        if controller.is_pressed(PlayerMove(LrDirection::Left)) {
+            self.move_horizontal(Some(LrDirection::Left));
         } else if controller.is_pressed(PlayerMove(LrDirection::Right)) {
-            self.config_manager.get().player_speed
+            self.move_horizontal(Some(LrDirection::Right));
         } else {
-            0.0
+            self.move_horizontal(None)
+        }
+
+        if controller.just_pressed(PlayerJump) {
+           self.jump();
+        }
+    }
+
+    fn move_horizontal(&mut self, dir: Option<LrDirection>) {
+        let player_speed = self.config_manager.get().player_speed;
+        let desired_horizontal_velocity = player_speed * match dir {
+            None => 0.0,
+            Some(LrDirection::Left) => -1.0,
+            Some(LrDirection::Right) => 1.0
         };
 
         let actual_body_velocity = *self.player_body.get_linear_velocity();
@@ -96,14 +117,21 @@ impl Player {
         self.player_body.apply_linear_impulse(&impulse, &body_center, true);
     }
 
-    pub fn touch_ground(&mut self) {
-        println!("I touched the ground!");
+    fn jump(&mut self) {
+        self.jump_tracker.try_jump(&self.player_body);
+    }
+
+    pub fn make_foot_contact(&mut self) {
+        self.jump_tracker.make_foot_contact();
     }
 
     fn redeploy_player_body(&mut self) {
         let mut world = self.player_body.get_world();
         world.destroy_body(&mut self.player_body);
-        self.player_body = Self::create_body_from_config(self.config_manager.get(), &mut world);
+
+        let config = self.config_manager.get();
+        self.player_body = Self::create_body_from_config(config, &mut world);
+        self.jump_tracker = JumpTracker::new(config);
     }
 
     fn create_body_from_config(config: &PlayerConfig, world: &mut liquidfun::box2d::dynamics::world::World) -> liquidfun::box2d::dynamics::body::Body {

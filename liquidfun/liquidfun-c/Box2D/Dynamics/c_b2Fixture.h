@@ -8,6 +8,7 @@ extern "C" {
 	b2Fixture* b2Fixture_GetNext(b2Fixture* self);
 	b2Shape* b2Fixture_GetShape(b2Fixture* self);
 	b2Body* b2Fixture_GetBody(b2Fixture* self);
+	void* b2Fixture_GetUserData(b2Fixture* self);
 	b2Shape::Type b2Fixture_GetType(b2Fixture* self);
 
 #ifdef __cplusplus

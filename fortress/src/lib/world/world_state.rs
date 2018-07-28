@@ -6,10 +6,10 @@ use file::{
     SimpleConfigManager,
 };
 use physics::PhysicsSimulation;
+use player::Player;
 use world::{
     Camera,
     Map,
-    Player,
 };
 
 #[derive(Deserialize)]
@@ -43,7 +43,7 @@ impl WorldState {
         self.config_manager.update();
         self.camera.update();
         self.map.update();
-        self.player.update(controller);
+        self.player.update(controller, dt);
 
         // Physics simulation must update last.
         self.physics_sim.update(dt);

@@ -15,6 +15,10 @@ extern "C" {
 	    return self->GetBody();
 	}
 
+	void* b2Fixture_GetUserData(b2Fixture* self) {
+	    return self->GetUserData();
+	}
+
 	b2Shape::Type b2Fixture_GetType(b2Fixture* self) {
 		return self->GetType();
 	}

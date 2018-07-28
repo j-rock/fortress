@@ -21,11 +21,11 @@ use liquidfun::box2d::{
         ParticleSystem
     },
 };
+use player;
 use std::{
     cell::RefCell,
     rc::Rc,
 };
-use world;
 
 pub struct PhysicsContactListener {
     contacts: Vec<(usize, usize)>
@@ -43,9 +43,9 @@ impl PhysicsContactListener {
             match (registrar.borrow().resolve(*user_data1), registrar.borrow().resolve(*user_data2)) {
                 (Some(entity1), Some(entity2)) => {
                     match (entity1.etype(), entity2.etype()) {
-                        (EntityType::PLAYER, EntityType::GROUND) => {
-                            let player: &mut world::Player = entity1.resolve();
-                            player.touch_ground();
+                        (EntityType::Ground, EntityType::PlayerFootSensor)  => {
+                            let player: &mut player::Player = entity2.resolve();
+                            player.make_foot_contact();
                         },
                         _ => {}
                     }
@@ -55,20 +55,37 @@ impl PhysicsContactListener {
         }
         self.contacts.clear();
     }
+
+    fn get_user_data(fixture: &Fixture) -> Option<usize> {
+        let fixture_user_data = fixture.get_user_data();
+        if fixture_user_data != 0 {
+            return Some(fixture_user_data);
+        }
+
+        match fixture.get_body().get_user_data() {
+            0 => None,
+            any => Some(any)
+        }
+    }
 }
 
 impl ContactListener for PhysicsContactListener {
     fn begin_fixture_fixture(&mut self, contact: Contact) {
         for contact in contact.iter() {
-            let user_data_a = contact.get_fixture_a().get_body().get_user_data();
-            let user_data_b = contact.get_fixture_b().get_body().get_user_data();
-            // Sort each pair for canonicalization.
-            let contact_data = if user_data_a < user_data_b {
-                (user_data_a, user_data_b)
-            } else {
-                (user_data_b, user_data_a)
-            };
-            self.contacts.push(contact_data);
+            let user_data_a = Self::get_user_data(&contact.get_fixture_a());
+            let user_data_b = Self::get_user_data(&contact.get_fixture_b());
+            match (user_data_a, user_data_b) {
+                (Some(data_a), Some(data_b)) => {
+                    // Sort each pair for canonicalization.
+                    let contact_data = if data_a < data_b {
+                        (data_a, data_b)
+                    } else {
+                        (data_b, data_a)
+                    };
+                    self.contacts.push(contact_data);
+                },
+                _ => {}
+           }
         }
     }
 

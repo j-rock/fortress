@@ -17,5 +17,6 @@ pub mod entity;
 pub mod file;
 pub mod image;
 pub mod physics;
+pub mod player;
 pub mod render;
 pub mod world;

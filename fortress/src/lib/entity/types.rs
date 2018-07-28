@@ -1,4 +1,5 @@
 pub enum EntityType {
-    PLAYER,
-    GROUND,
+    Ground,
+    Player,
+    PlayerFootSensor,
 }

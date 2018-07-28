@@ -5,6 +5,7 @@ use super::super::dynamics::body::{
 };
 use super::super::collision::shapes::shape;
 use super::super::common::settings::*;
+use std;
 
 /// This holds contact filtering data.
 #[repr(C)]
@@ -81,6 +82,7 @@ extern {
     fn b2Fixture_GetNext(this: *mut B2Fixture) -> *mut B2Fixture;
     fn b2Fixture_GetShape(this: *mut B2Fixture) -> *mut shape::B2Shape;
     fn b2Fixture_GetBody(this: *mut B2Fixture) -> *mut B2Body;
+    fn b2Fixture_GetUserData(this: *mut B2Fixture) -> *mut std::os::raw::c_void;
     fn b2Fixture_GetType(this: *mut B2Fixture) -> shape::Type;
 }
 
@@ -95,7 +97,6 @@ pub struct Fixture {
 }
 
 impl Fixture {
-
     /// Get the type of the child shape. You can use this to down cast to the concrete shape.
     /// @return the shape type.
     pub fn get_type(&self) -> shape::Type {
@@ -118,6 +119,12 @@ impl Fixture {
             Body {
                 ptr: b2Fixture_GetBody(self.ptr)
             }
+        }
+    }
+
+    pub fn get_user_data(&self) -> usize {
+        unsafe {
+            std::mem::transmute(b2Fixture_GetUserData(self.ptr))
         }
     }
 
