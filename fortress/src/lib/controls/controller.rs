@@ -37,6 +37,7 @@ impl Controller {
 
     fn control_event_to_scancode(&self, event: ControlEvent) -> Scancode {
         match event {
+            ControlEvent::PlayerJump => Scancode::Space,
             ControlEvent::PlayerMove(LrDirection::Left) => Scancode::A,
             ControlEvent::PlayerMove(LrDirection::Right) => Scancode::D,
             ControlEvent::PlayerRespawn => Scancode::R

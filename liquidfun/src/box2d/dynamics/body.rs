@@ -508,29 +508,15 @@ impl Body {
     }
 
     /// Get the user data pointer that was provided in the body definition.
-    pub fn get_user_data<T>(&self) -> Option<&mut T> {
+    pub fn get_user_data(&self) -> usize {
         unsafe {
-            let tmp = b2Body_GetUserData(self.ptr) as *mut T;
-
-			if tmp.is_null() {
-				None
-			}
-			else {
-				Some(&mut *tmp)
-			}
+            mem::transmute(b2Body_GetUserData(self.ptr))
         }
     }
 
-	pub fn set_user_data<T>(&self, data: Option<&mut T>) {
+	pub fn set_user_data(&self, data: usize) {
 		unsafe {
-			b2Body_SetUserData(self.ptr,
-				if let Some(data) = data {
-					data as *mut T as *mut c_void
-				}
-				else {
-					ptr::null_mut()
-				}
-			)
+			b2Body_SetUserData(self.ptr, mem::transmute(data));
 		}
 	}
 

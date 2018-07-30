@@ -62,6 +62,7 @@
 #include "Box2D/Dynamics/c_b2Fixture.cpp"
 #include "Box2D/Dynamics/c_b2World.cpp"
 #include "Box2D/Dynamics/c_b2WorldCallbacks.cpp"
+#include "Box2D/Dynamics/Contacts/c_b2Contact.cpp"
 #include "Box2D/Dynamics/Joints/c_b2DistanceJoint.cpp"
 #include "Box2D/Dynamics/Joints/c_b2FrictionJoint.cpp"
 #include "Box2D/Dynamics/Joints/c_b2GearJoint.cpp"

@@ -71,6 +71,7 @@ extern {
 	fn b2Contact_GetTangentSpeed(this: *const B2Contact) -> Float32;
 }
 
+#[derive(Clone, Debug)]
 pub struct Contact {
 	pub ptr: *mut B2Contact,
 }
@@ -97,8 +98,17 @@ impl Contact {
         unsafe { b2Contact_IsEnabled(self.ptr) }
     }
 
-    pub fn get_next(&self) -> Contact {
-        unsafe { Contact { ptr: b2Contact_GetNext(self.ptr) } }
+    pub fn get_next(&self) -> Option<Contact> {
+        let ptr: *mut B2Contact;
+        unsafe {
+            ptr = b2Contact_GetNext(self.ptr);
+        }
+
+        if ptr.is_null() {
+            None
+        } else {
+            Some(Contact { ptr })
+        }
     }
 
     pub fn get_fixture_a(&self) -> Fixture {
