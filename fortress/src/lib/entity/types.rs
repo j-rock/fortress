@@ -1,5 +1,6 @@
+#[derive(Copy, Clone)]
 pub enum EntityType {
-    Ground,
+    Platform,
     Player,
     PlayerFootSensor,
 }

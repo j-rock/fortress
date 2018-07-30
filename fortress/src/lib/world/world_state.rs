@@ -42,8 +42,12 @@ impl WorldState {
     pub fn update(&mut self, controller: &Controller, dt: DeltaTime) {
         self.config_manager.update();
         self.camera.update();
-        self.map.update();
-        self.player.update(controller, dt);
+
+        {
+            let registrar = self.physics_sim.registrar_mut();
+            self.map.update(registrar);
+            self.player.update(registrar, controller, dt);
+        }
 
         // Physics simulation must update last.
         self.physics_sim.update(dt);

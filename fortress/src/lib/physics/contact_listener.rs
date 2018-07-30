@@ -22,10 +22,6 @@ use liquidfun::box2d::{
     },
 };
 use player;
-use std::{
-    cell::RefCell,
-    rc::Rc,
-};
 
 pub struct PhysicsContactListener {
     contacts: Vec<(usize, usize)>
@@ -38,12 +34,12 @@ impl PhysicsContactListener {
         }
     }
 
-    pub fn process_contacts(&mut self, registrar: &Rc<RefCell<EntityRegistrar>>) {
+    pub fn process_contacts(&mut self, registrar: &mut EntityRegistrar) {
         for (user_data1, user_data2) in self.contacts.iter() {
-            match (registrar.borrow().resolve(*user_data1), registrar.borrow().resolve(*user_data2)) {
+            match (registrar.resolve(*user_data1), registrar.resolve(*user_data2)) {
                 (Some(entity1), Some(entity2)) => {
                     match (entity1.etype(), entity2.etype()) {
-                        (EntityType::Ground, EntityType::PlayerFootSensor)  => {
+                        (EntityType::Platform, EntityType::PlayerFootSensor)  => {
                             let player: &mut player::Player = entity2.resolve();
                             player.make_foot_contact();
                         },

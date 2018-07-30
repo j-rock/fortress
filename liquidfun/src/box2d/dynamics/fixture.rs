@@ -83,6 +83,7 @@ extern {
     fn b2Fixture_GetShape(this: *mut B2Fixture) -> *mut shape::B2Shape;
     fn b2Fixture_GetBody(this: *mut B2Fixture) -> *mut B2Body;
     fn b2Fixture_GetUserData(this: *mut B2Fixture) -> *mut std::os::raw::c_void;
+    fn b2Fixture_SetUserData(this: *mut B2Fixture, data: *mut std::os::raw::c_void);
     fn b2Fixture_GetType(this: *mut B2Fixture) -> shape::Type;
 }
 
@@ -125,6 +126,12 @@ impl Fixture {
     pub fn get_user_data(&self) -> usize {
         unsafe {
             std::mem::transmute(b2Fixture_GetUserData(self.ptr))
+        }
+    }
+
+    pub fn set_user_data(&self, data: usize) {
+        unsafe {
+            b2Fixture_SetUserData(self.ptr, std::mem::transmute(data));
         }
     }
 

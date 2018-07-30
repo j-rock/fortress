@@ -1,4 +1,9 @@
 use app::StatusOr;
+use entity::{
+    EntityRegistrar,
+    EntityType,
+    Registered,
+};
 use file::{
     ConfigWatcher,
     SimpleConfigManager,
@@ -45,7 +50,7 @@ struct MapConfig {
 
 pub struct Map {
     config_manager: SimpleConfigManager<MapConfig>,
-    platform_body: liquidfun::box2d::dynamics::body::Body,
+    platform_body: Registered<liquidfun::box2d::dynamics::body::Body>,
     shader_program: ShaderProgram,
     attribute_program: AttributeProgram,
     platform_attribute: Attribute<PlatformAttr>,
@@ -55,6 +60,7 @@ impl Map {
     pub fn new(config_watcher: &mut ConfigWatcher, physics_sim: &mut PhysicsSimulation) -> StatusOr<Map> {
         let config_manager = SimpleConfigManager::new(config_watcher, "map.conf")?;
         let platform_body = Self::create_body_from_platforms(config_manager.get(), physics_sim.get_world_mut());
+        let platform_body = Registered::new(platform_body, EntityType::Platform);
 
         let vertex = file::util::resource_path("shaders", "platform_vert.glsl");
         let geometry = file::util::resource_path("shaders", "platform_geo.glsl");
@@ -73,16 +79,20 @@ impl Map {
         })
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, registrar: &mut EntityRegistrar) {
         if self.config_manager.update() {
-            self.redeploy_platforms();
+            self.redeploy_platforms(registrar);
         }
+        let data: *const Map = self as *const Map;
+        self.platform_body.register::<Map>(registrar, data);
     }
 
-    fn redeploy_platforms(&mut self) {
-        let mut world = self.platform_body.get_world();
-        world.destroy_body(&mut self.platform_body);
-        self.platform_body = Self::create_body_from_platforms(self.config_manager.get(), &mut world);
+    fn redeploy_platforms(&mut self, registrar: &mut EntityRegistrar) {
+        self.platform_body.unregister(registrar);
+        let mut world = self.platform_body.data.get_world();
+        world.destroy_body(&mut self.platform_body.data);
+        let platform_body = Self::create_body_from_platforms(self.config_manager.get(), &mut world);
+        self.platform_body = Registered::new(platform_body, EntityType::Platform);
     }
 
     fn create_body_from_platforms(config: &MapConfig, world: &mut liquidfun::box2d::dynamics::world::World) -> liquidfun::box2d::dynamics::body::Body {
@@ -101,7 +111,7 @@ impl Map {
 
     pub fn draw(&mut self, projection_view: &glm::Mat4) {
         // Need to add platform_body fixtures to platform_attribute.data.
-        self.platform_attribute.data = self.platform_body.get_fixture_iterator().map(|fixture| -> PlatformAttr {
+        self.platform_attribute.data = self.platform_body.data.get_fixture_iterator().map(|fixture| -> PlatformAttr {
             let mut polygon =  liquidfun::box2d::collision::shapes::polygon_shape::from_shape(fixture.get_shape());
             let vertices: Vec<liquidfun::box2d::common::math::Vec2> = polygon.get_vertex_iterator().collect();
             let (min_vertex, max_vertex) = (vertices[0], vertices[2]);

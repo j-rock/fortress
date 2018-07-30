@@ -10,7 +10,7 @@ pub struct Entity {
 }
 
 impl Entity {
-    pub fn new<T>(etype: EntityType, t: &T) -> Entity {
+    pub fn new<T>(etype: EntityType, t: *const T) -> Entity {
         unsafe {
             Entity {
                 etype,
@@ -25,7 +25,7 @@ impl Entity {
 
     pub fn resolve<T>(&self) -> &mut T {
         unsafe {
-            std::mem::transmute(self.data)
+            &mut *(self.data as *mut T)
         }
     }
 }

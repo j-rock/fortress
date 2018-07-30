@@ -16,10 +16,6 @@ use liquidfun::box2d::{
     }
 };
 use physics::PhysicsContactListener;
-use std::{
-    cell::RefCell,
-    rc::Rc,
-};
 
 #[derive(Deserialize)]
 struct SimulationConfig {
@@ -34,7 +30,7 @@ pub struct PhysicsSimulation {
     wrapped_world: WrappedWorld,
     contact_listener: Box<PhysicsContactListener>,
     contact_listener_glue: ContactListenerGlue,
-    registrar: Rc<RefCell<EntityRegistrar>>,
+    registrar: EntityRegistrar,
 }
 
 impl PhysicsSimulation {
@@ -50,7 +46,7 @@ impl PhysicsSimulation {
             wrapped_world: WrappedWorld::new(&gravity),
             contact_listener: Box::new(PhysicsContactListener::new()),
             contact_listener_glue: ContactListenerGlue::new(),
-            registrar: Rc::new(RefCell::new(EntityRegistrar::new())),
+            registrar: EntityRegistrar::new(),
         };
 
         sim.wrapped_world.world.set_contact_listener(sim.contact_listener.as_mut(), &mut sim.contact_listener_glue);
@@ -64,15 +60,15 @@ impl PhysicsSimulation {
         let gravity = Vec2::new(config.gravity_x, config.gravity_y);
         self.wrapped_world.world.set_gravity(&gravity);
         self.wrapped_world.world.step(dt.as_f32_seconds(), config.velocity_iterations, config.position_iterations);
-        self.contact_listener.process_contacts(&self.registrar);
+        self.contact_listener.process_contacts(&mut self.registrar);
     }
 
     pub fn get_world_mut(&mut self) -> &mut World {
         &mut self.wrapped_world.world
     }
 
-    pub fn registrar(&self) -> Rc<RefCell<EntityRegistrar>> {
-        Rc::clone(&self.registrar)
+    pub fn registrar_mut(&mut self) -> &mut EntityRegistrar {
+        &mut self.registrar
     }
 }
 
