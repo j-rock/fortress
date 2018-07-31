@@ -9,11 +9,7 @@ use dimensions::{
     LrDirection,
     time::DeltaTime,
 };
-use entity::{
-    EntityRegistrar,
-    EntityType,
-    Registered,
-};
+use entity::EntityRegistrar;
 use file::{
     ConfigWatcher,
     SimpleConfigManager,
@@ -24,11 +20,10 @@ use gl::{
     types::*,
 };
 use glm;
-use liquidfun;
 use physics::PhysicsSimulation;
 use player::{
-    JumpTracker,
     PlayerConfig,
+    PlayerPhysics,
 };
 use render::{
     attribute,
@@ -51,9 +46,7 @@ impl attribute::KnownComponent for PlayerAttr {
 
 pub struct Player {
     config_manager: SimpleConfigManager<PlayerConfig>,
-    player_body: liquidfun::box2d::dynamics::body::Body,
-    foot_sensor: Registered<liquidfun::box2d::dynamics::fixture::Fixture>,
-    jump_tracker: JumpTracker,
+    player_physics: PlayerPhysics,
 
     shader_program: ShaderProgram,
     attribute_program: AttributeProgram,
@@ -63,13 +56,7 @@ pub struct Player {
 impl Player {
     pub fn new(config_watcher: &mut ConfigWatcher, physics_sim: &mut PhysicsSimulation) -> StatusOr<Player> {
         let config_manager = SimpleConfigManager::new(config_watcher, "player.conf")?;
-        let (player_body, foot_sensor, jump_tracker) = {
-            let config = config_manager.get();
-            let (player_body, foot_sensor) = Self::create_body_from_config(config, physics_sim.get_world_mut());
-            let foot_sensor = Registered::new(foot_sensor, EntityType::PlayerFootSensor);
-            let jump_tracker = JumpTracker::new(config);
-            (player_body, foot_sensor, jump_tracker)
-        };
+        let player_physics = PlayerPhysics::new(config_manager.get(), physics_sim);
 
         let vertex = file::util::resource_path("shaders", "player_vert.glsl");
         let geometry = file::util::resource_path("shaders", "player_geo.glsl");
@@ -81,9 +68,7 @@ impl Player {
 
         Ok(Player {
             config_manager,
-            player_body,
-            foot_sensor,
-            jump_tracker,
+            player_physics,
             shader_program,
             attribute_program,
             player_attribute
@@ -92,96 +77,37 @@ impl Player {
 
     pub fn update(&mut self, registrar: &mut EntityRegistrar, controller: &Controller, dt: DeltaTime) {
         if self.config_manager.update() || controller.just_pressed(PlayerRespawn) {
-            self.redeploy_player_body(registrar);
+            self.redeploy_physics(registrar);
         }
 
         let data: *const Player = self as *const Player;
-        self.foot_sensor.register::<Player>(registrar, data);
+        self.player_physics.update(dt, registrar, data);
 
-        self.jump_tracker.update(dt);
-
+        let speed = self.config_manager.get().player_speed;
         if controller.is_pressed(PlayerMove(LrDirection::Left)) {
-            self.move_horizontal(Some(LrDirection::Left));
+            self.player_physics.move_horizontal(speed, Some(LrDirection::Left));
         } else if controller.is_pressed(PlayerMove(LrDirection::Right)) {
-            self.move_horizontal(Some(LrDirection::Right));
+            self.player_physics.move_horizontal(speed, Some(LrDirection::Right));
         } else {
-            self.move_horizontal(None)
+            self.player_physics.move_horizontal(speed, None)
         }
 
         if controller.just_pressed(PlayerJump) {
-           self.jump();
+           self.player_physics.jump();
         }
     }
 
-    fn move_horizontal(&mut self, dir: Option<LrDirection>) {
-        let player_speed = self.config_manager.get().player_speed;
-        let desired_horizontal_velocity = player_speed * match dir {
-            None => 0.0,
-            Some(LrDirection::Left) => -1.0,
-            Some(LrDirection::Right) => 1.0
-        };
-
-        let actual_body_velocity = *self.player_body.get_linear_velocity();
-        let mass = self.player_body.get_mass();
-        let impulse = liquidfun::box2d::common::math::Vec2::new(mass * (desired_horizontal_velocity - actual_body_velocity.x), 0.0);
-        let body_center = *self.player_body.get_world_center();
-        self.player_body.apply_linear_impulse(&impulse, &body_center, true);
-    }
-
-    fn jump(&mut self) {
-        self.jump_tracker.try_jump(&self.player_body);
-    }
-
     pub fn make_foot_contact(&mut self) {
-        self.jump_tracker.make_foot_contact();
+        self.player_physics.make_foot_contact();
     }
 
-    fn redeploy_player_body(&mut self, registrar: &mut EntityRegistrar) {
-        self.foot_sensor.unregister(registrar);
-
-        let mut world = self.player_body.get_world();
-        world.destroy_body(&mut self.player_body);
-
+    fn redeploy_physics(&mut self, registrar: &mut EntityRegistrar) {
         let config = self.config_manager.get();
-        let (player_body, foot_sensor_fixture) = Self::create_body_from_config(config, &mut world);
-        self.player_body = player_body;
-        self.foot_sensor = Registered::new(foot_sensor_fixture, EntityType::PlayerFootSensor);
-        self.jump_tracker = JumpTracker::new(config);
-    }
-
-    fn create_body_from_config(config: &PlayerConfig, world: &mut liquidfun::box2d::dynamics::world::World)
-        -> (liquidfun::box2d::dynamics::body::Body, liquidfun::box2d::dynamics::fixture::Fixture) {
-        let mut body_def = liquidfun::box2d::dynamics::body::BodyDef::default();
-        body_def.body_type = liquidfun::box2d::dynamics::body::BodyType::DynamicBody;
-        body_def.position = liquidfun::box2d::common::math::Vec2::new(config.spawn_location.0 as f32, config.spawn_location.1 as f32);
-        body_def.fixed_rotation = true;
-
-        let player_body = world.create_body(&body_def);
-
-        // Player body fixture
-        let mut poly_shape = liquidfun::box2d::collision::shapes::polygon_shape::PolygonShape::new();
-        let (hx, hy) = (config.size.0 as f32 / 2.0, config.size.1 as f32 / 2.0);
-        poly_shape.set_as_box(hx, hy);
-
-        let mut fixture_def = liquidfun::box2d::dynamics::fixture::FixtureDef::new(&poly_shape);
-        fixture_def.restitution = config.restitution;
-        fixture_def.filter.category_bits = 0x0002;
-        player_body.create_fixture(&fixture_def);
-
-        // Foot sensor fixture
-        let (hx, hy) = (config.foot_sensor_size.0 / 2.0, config.foot_sensor_size.1 / 2.0);
-        let sensor_center = liquidfun::box2d::common::math::Vec2::new(config.foot_sensor_center.0, config.foot_sensor_center.1);
-        poly_shape.set_as_box_oriented(hx, hy, &sensor_center, 0.0);
-        fixture_def.filter.category_bits = 0x0001;
-        fixture_def.filter.mask_bits = 0xFFFF & !0x0002; // Ignore player body.
-        fixture_def.is_sensor = true;
-        let foot_sensor = player_body.create_fixture(&fixture_def);
-
-        (player_body, foot_sensor)
+        self.player_physics.redeploy(config, registrar);
     }
 
     pub fn draw(&mut self, projection_view: &glm::Mat4) {
-        let position = self.player_body.get_position();
+        let position = self.player_physics.get_position();
         let size = self.config_manager.get().size;
         self.player_attribute.data =
             vec!(PlayerAttr {
