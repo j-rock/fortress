@@ -16,6 +16,7 @@ pub mod dimensions;
 pub mod entity;
 pub mod file;
 pub mod image;
+pub mod map;
 pub mod physics;
 pub mod player;
 pub mod render;

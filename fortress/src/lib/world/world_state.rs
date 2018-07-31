@@ -5,12 +5,10 @@ use file::{
     ConfigWatcher,
     SimpleConfigManager,
 };
+use map::Map;
 use physics::PhysicsSimulation;
 use player::Player;
-use world::{
-    Camera,
-    Map,
-};
+use world::Camera;
 
 #[derive(Deserialize)]
 struct WorldConfig {
