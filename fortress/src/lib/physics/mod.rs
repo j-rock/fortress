@@ -1,3 +1,4 @@
+pub mod collision_category;
 pub mod contact_listener;
 pub mod simulation;
 

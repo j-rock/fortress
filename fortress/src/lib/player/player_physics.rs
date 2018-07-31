@@ -23,7 +23,10 @@ use liquidfun::box2d::{
         world::World,
     },
 };
-use physics::PhysicsSimulation;
+use physics::{
+    collision_category,
+    PhysicsSimulation,
+};
 use player::{
     Player,
     PlayerConfig,
@@ -111,15 +114,15 @@ impl PlayerPhysics {
 
         let mut fixture_def = FixtureDef::new(&poly_shape);
         fixture_def.restitution = config.restitution;
-        fixture_def.filter.category_bits = 0x0002;
+        fixture_def.filter.category_bits = collision_category::PLAYER_BODY;
         player_body.create_fixture(&fixture_def);
 
         // Foot sensor fixture
         let (hx, hy) = (config.foot_sensor_size.0 / 2.0, config.foot_sensor_size.1 / 2.0);
         let sensor_center = Vec2::new(config.foot_sensor_center.0, config.foot_sensor_center.1);
         poly_shape.set_as_box_oriented(hx, hy, &sensor_center, 0.0);
-        fixture_def.filter.category_bits = 0x0001;
-        fixture_def.filter.mask_bits = 0xFFFF & !0x0002; // Ignore player body.
+        fixture_def.filter.category_bits = collision_category::COLLIDE_ALL;
+        fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL & !collision_category::PLAYER_BODY;
         fixture_def.is_sensor = true;
         let foot_sensor = player_body.create_fixture(&fixture_def);
 
