@@ -3,7 +3,7 @@ use app::{
     Clock,
     StatusOr,
 };
-use controls::Controller;
+use control::Controller;
 use file::{
     ConfigLoader,
     ConfigWatcher,

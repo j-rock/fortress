@@ -1,5 +1,5 @@
 use app::StatusOr;
-use controls::{
+use control::{
     Controller,
     ControlEvent::PlayerJump,
     ControlEvent::PlayerMove,

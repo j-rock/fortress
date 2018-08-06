@@ -1,4 +1,4 @@
-use controls::{
+use control::{
     ControlEvent,
     KeyboardControls
 };

@@ -1,5 +1,5 @@
 use app::StatusOr;
-use controls::Controller;
+use control::Controller;
 use dimensions::time::DeltaTime;
 use file::{
     ConfigWatcher,
