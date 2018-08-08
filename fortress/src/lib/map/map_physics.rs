@@ -1,4 +1,5 @@
 use entity::{
+    Entity,
     EntityRegistrar,
     EntityType,
     Registered
@@ -27,32 +28,30 @@ pub struct MapPhysics {
 }
 
 impl MapPhysics {
-    pub fn new(config: &MapConfig, physics_sim: &mut PhysicsSimulation) -> MapPhysics {
+    pub fn new(config: &MapConfig, registrar: EntityRegistrar, physics_sim: &mut PhysicsSimulation) -> MapPhysics {
         let platform_body = Self::create_body_from_platforms(config, physics_sim.get_world_mut());
 
         MapPhysics {
-            platform_body: Self::registered_platform(platform_body)
+            platform_body: Registered::new(platform_body, registrar, None)
         }
     }
 
-    pub fn update(&mut self, registrar: &mut EntityRegistrar, map: *const Map) {
-        self.platform_body.register(registrar, map);
+    pub fn register(&mut self, map: *const Map) {
+        let platform_entity = Entity::new(EntityType::Platform, map);
+        self.platform_body.register(platform_entity);
     }
 
     pub fn get_platform_body_mut(&mut self) -> &mut Body {
-        &mut self.platform_body.data
+        &mut self.platform_body.data_setter
     }
 
-    pub fn redeploy(&mut self, config: &MapConfig, registrar: &mut EntityRegistrar) {
-        self.platform_body.unregister(registrar);
-        let mut world = self.platform_body.data.get_world();
-        world.destroy_body(&mut self.platform_body.data);
+    pub fn redeploy(&mut self, config: &MapConfig) {
+        let mut world = self.platform_body.data_setter.get_world();
+        world.destroy_body(&mut self.platform_body.data_setter);
+
         let platform_body = Self::create_body_from_platforms(config, &mut world);
-        self.platform_body = Self::registered_platform(platform_body);
-    }
-
-    fn registered_platform(body: Body) -> Registered<Body> {
-        Registered::new(body, EntityType::Platform)
+        let platform_entity = self.platform_body.entity;
+        self.platform_body = Registered::new(platform_body, self.platform_body.registrar.clone(), platform_entity);
     }
 
     fn create_body_from_platforms(config: &MapConfig, world: &mut World) -> Body {

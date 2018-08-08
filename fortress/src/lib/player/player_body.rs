@@ -1,4 +1,10 @@
 use dimensions::LrDirection;
+use entity::{
+    Entity,
+    EntityType,
+    EntityRegistrar,
+    Registered,
+};
 use liquidfun::box2d::{
     collision::shapes::polygon_shape::PolygonShape,
     common::math::Vec2,
@@ -8,47 +14,64 @@ use liquidfun::box2d::{
             BodyDef,
             BodyType,
         },
-        fixture::FixtureDef,
-        world::World,
+        fixture::{
+            Fixture,
+            FixtureDef
+        },
     },
 };
 use physics::{
     collision_category,
     PhysicsSimulation,
 };
-
-#[derive(Copy, Clone)]
-pub struct PlayerBodyConfig {
-    spawn_location: (f32, f32),
-    body_size: (i32, i32),
-    restitution: f32,
-}
+use player::{
+    Player,
+    PlayerConfig,
+};
 
 pub struct PlayerBody {
-    body: Body
+    body: Body,
+    foot_sensor: Registered<Fixture>,
 }
 
 impl PlayerBody {
-    pub fn new(config: &PlayerBodyConfig, physics_sim: &mut PhysicsSimulation) -> PlayerBody {
+    pub fn new(config: &PlayerConfig, registrar: EntityRegistrar, physics_sim: &mut PhysicsSimulation, player: *const Player) -> PlayerBody {
         let mut body_def = BodyDef::default();
         body_def.body_type = BodyType::DynamicBody;
-        body_def.position = Vec2::new(config.spawn_location.0, config.spawn_location.1);
+        body_def.position = Vec2::new(config.spawn_location.0 as f32, config.spawn_location.1 as f32);
         body_def.fixed_rotation = true;
 
         let body = physics_sim.get_world_mut().create_body(&body_def);
 
         // Player body fixture
         let mut poly_shape = PolygonShape::new();
-        let (hx, hy) = (config.body_size.0 as f32 / 2.0, config.body_size.1 as f32 / 2.0);
-        poly_shape.set_as_box(hx, hy);
+        {
+            let (hx, hy) = (config.size.0 as f32 / 2.0, config.size.1 as f32 / 2.0);
+            poly_shape.set_as_box(hx, hy);
+
+            let mut fixture_def = FixtureDef::new(&poly_shape);
+            fixture_def.restitution = config.restitution;
+            fixture_def.filter.category_bits = collision_category::PLAYER_BODY;
+            body.create_fixture(&fixture_def);
+        }
+
+        // Foot sensor
+        let (hx, hy) = (config.foot_sensor_size.0 / 2.0, config.foot_sensor_size.1 / 2.0);
+        let sensor_center = Vec2::new(config.foot_sensor_center.0, config.foot_sensor_center.1);
+        poly_shape.set_as_box_oriented(hx, hy, &sensor_center, 0.0);
 
         let mut fixture_def = FixtureDef::new(&poly_shape);
-        fixture_def.restitution = config.restitution;
-        fixture_def.filter.category_bits = collision_category::PLAYER_BODY;
-        body.create_fixture(&fixture_def);
+        fixture_def.filter.category_bits = collision_category::COLLIDE_ALL;
+        fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL & !collision_category::PLAYER_BODY;
+        fixture_def.is_sensor = true;
+
+        let foot_sensor_fixture = body.create_fixture(&fixture_def);
+        let foot_sensor_entity = Entity::new(EntityType::PlayerFootSensor, player);
+        let foot_sensor = Registered::new(foot_sensor_fixture, registrar, Some(foot_sensor_entity));
 
         PlayerBody {
-            body
+            body,
+            foot_sensor
         }
     }
 

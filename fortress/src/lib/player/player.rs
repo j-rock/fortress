@@ -83,7 +83,7 @@ impl Player {
         let data: *const Player = self as *const Player;
         self.player_physics.update(dt, registrar, data);
 
-        let speed = self.config_manager.get().player_speed;
+        let speed = self.config_manager.get().move_speed;
         if controller.is_pressed(PlayerMove(LrDirection::Left)) {
             self.player_physics.move_horizontal(speed, Some(LrDirection::Left));
         } else if controller.is_pressed(PlayerMove(LrDirection::Right)) {

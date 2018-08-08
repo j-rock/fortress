@@ -67,8 +67,8 @@ impl PhysicsSimulation {
         &mut self.wrapped_world.world
     }
 
-    pub fn registrar_mut(&mut self) -> &mut EntityRegistrar {
-        &mut self.registrar
+    pub fn registrar(&self) -> EntityRegistrar {
+        self.registrar.clone()
     }
 }
 

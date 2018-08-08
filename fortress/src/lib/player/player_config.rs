@@ -2,7 +2,7 @@
 pub struct PlayerConfig {
     pub size: (i32, i32),
     pub spawn_location: (i32, i32),
-    pub player_speed: f32,
+    pub move_speed: f32,
     pub restitution: f32, // Between [0, 1]
 
     pub jump_strength: f32,

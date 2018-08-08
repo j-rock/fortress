@@ -28,7 +28,6 @@ pub struct PlayerJumpConfig {
 
 pub struct PlayerJump {
     player_body: PlayerBody,
-    foot_sensor: Registered<Fixture>,
 
     jump_strength: f32,
     jumps_left: i32,
@@ -85,17 +84,5 @@ impl PlayerJump {
     }
 
     fn create_foot_sensor(config: &FootSensorConfig, player_body: &PlayerBody) -> Registered<Fixture> {
-        let (hx, hy) = (config.foot_sensor_size.0 / 2.0, config.foot_sensor_size.1 / 2.0);
-        let sensor_center = Vec2::new(config.foot_sensor_center.0, config.foot_sensor_center.1);
-        let mut poly_shape = PolygonShape::new();
-        poly_shape.set_as_box_oriented(hx, hy, &sensor_center, 0.0);
-
-        let mut fixture_def = FixtureDef::new(&poly_shape);
-        fixture_def.filter.category_bits = collision_category::COLLIDE_ALL;
-        fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL & !collision_category::PLAYER_BODY;
-        fixture_def.is_sensor = true;
-
-        let fixture = player_body.body().create_fixture(&fixture_def);
-        Registered::new(fixture, EntityType::PlayerFootSensor)
     }
 }

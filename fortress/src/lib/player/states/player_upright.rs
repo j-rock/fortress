@@ -6,18 +6,11 @@ use dimensions::{
     LrDirection,
     time::DeltaTime,
 };
-use entity::EntityRegistrar;
-use physics::PhysicsSimulation;
 use player::{
     PlayerBody,
-    PlayerBodyConfig,
+    PlayerConfig,
     states::PlayerState
 };
-
-#[derive(Copy, Clone)]
-pub struct PlayerUprightConfig {
-    move_speed: f32,
-}
 
 pub struct PlayerUpright {
     player_body: PlayerBody,
@@ -25,7 +18,7 @@ pub struct PlayerUpright {
 }
 
 impl PlayerState for PlayerUpright {
-    fn update(mut self, controller: &Controller, _registrar: &mut EntityRegistrar, _dt: DeltaTime) -> Box<dyn PlayerState> {
+    fn update(mut self, controller: &Controller, _dt: DeltaTime) -> Box<dyn PlayerState> {
         let move_dir = if controller.is_pressed(PlayerMove(LrDirection::Left)) {
             Some(LrDirection::Left)
         } else if controller.is_pressed(PlayerMove(LrDirection::Right)) {
@@ -40,14 +33,7 @@ impl PlayerState for PlayerUpright {
 }
 
 impl PlayerUpright {
-    pub fn brand_new(upright_config: PlayerUprightConfig, body_config: &PlayerBodyConfig, physics_sim: &mut PhysicsSimulation) -> PlayerUpright {
-        PlayerUpright {
-            player_body: PlayerBody::new(body_config, physics_sim),
-            move_speed: config.move_speed,
-        }
-    }
-
-    pub fn new(config: &PlayerUprightConfig, body: PlayerBody) -> PlayerUpright {
+    pub fn new(config: &PlayerConfig, body: PlayerBody) -> PlayerUpright {
         PlayerUpright {
             player_body: body,
             move_speed: config.move_speed,

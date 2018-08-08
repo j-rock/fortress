@@ -53,7 +53,7 @@ impl PlayerPhysics {
     }
 
     pub fn update(&mut self, dt: DeltaTime, registrar: &mut EntityRegistrar, player: *const Player) {
-        self.foot_sensor.register(registrar, player);
+        // self.foot_sensor.register(registrar, player);
         self.jump_tracker.update(dt);
     }
 
@@ -84,7 +84,7 @@ impl PlayerPhysics {
     }
 
     pub fn redeploy(&mut self, config: &PlayerConfig, registrar: &mut EntityRegistrar) {
-        self.foot_sensor.unregister(registrar);
+        // self.foot_sensor.unregister(registrar);
 
         let mut world = self.player_body.get_world();
         world.destroy_body(&mut self.player_body);
@@ -96,7 +96,7 @@ impl PlayerPhysics {
     }
 
     fn registered_foot_sensor(fixture: Fixture) -> Registered<Fixture> {
-        Registered::new(fixture, EntityType::PlayerFootSensor)
+        Registered::new(fixture, EntityRegistrar::new(), None)
     }
 
     fn create_body_from_config(config: &PlayerConfig, world: &mut World) -> (Body, Fixture) {

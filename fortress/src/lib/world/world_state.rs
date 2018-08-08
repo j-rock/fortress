@@ -26,7 +26,7 @@ pub struct WorldState {
 impl WorldState {
     pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<WorldState> {
         let mut physics_sim = PhysicsSimulation::new(config_watcher)?;
-        let map = Map::new(config_watcher, &mut physics_sim)?;
+        let map = Map::new(config_watcher, physics_sim.registrar(), &mut physics_sim)?;
         let player = Player::new(config_watcher, &mut physics_sim)?;
         Ok(WorldState {
             config_manager: SimpleConfigManager::new(config_watcher, "world.conf")?,
@@ -37,14 +37,17 @@ impl WorldState {
         })
     }
 
+    pub fn register(&mut self) {
+        self.map.register();
+    }
+
     pub fn update(&mut self, controller: &Controller, dt: DeltaTime) {
         self.config_manager.update();
         self.camera.update();
 
         {
-            let registrar = self.physics_sim.registrar_mut();
-            self.map.update(registrar);
-            self.player.update(registrar, controller, dt);
+            self.map.update();
+            self.player.update(controller, dt);
         }
 
         // Physics simulation must update last.

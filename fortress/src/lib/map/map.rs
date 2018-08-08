@@ -44,9 +44,9 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(config_watcher: &mut ConfigWatcher, physics_sim: &mut PhysicsSimulation) -> StatusOr<Map> {
+    pub fn new(config_watcher: &mut ConfigWatcher, registrar: EntityRegistrar, physics_sim: &mut PhysicsSimulation) -> StatusOr<Map> {
         let config_manager = SimpleConfigManager::new(config_watcher, "map.conf")?;
-        let map_physics = MapPhysics::new(config_manager.get(), physics_sim);
+        let map_physics = MapPhysics::new(config_manager.get(), registrar, physics_sim);
 
         let vertex = file::util::resource_path("shaders", "platform_vert.glsl");
         let geometry = file::util::resource_path("shaders", "platform_geo.glsl");
@@ -65,16 +65,15 @@ impl Map {
         })
     }
 
-    pub fn update(&mut self, registrar: &mut EntityRegistrar) {
-        if self.config_manager.update() {
-            self.redeploy_physics(registrar);
-        }
+    pub fn register(&mut self) {
         let data: *const Map = self as *const Map;
-        self.map_physics.update(registrar, data);
+        self.map_physics.register(data);
     }
 
-    pub fn redeploy_physics(&mut self, registrar: &mut EntityRegistrar) {
-        self.map_physics.redeploy(self.config_manager.get(), registrar);
+    pub fn update(&mut self) {
+        if self.config_manager.update() {
+            self.map_physics.redeploy(self.config_manager.get());
+        }
     }
 
     pub fn draw(&mut self, projection_view: &glm::Mat4) {
