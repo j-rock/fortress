@@ -1,24 +1,26 @@
 use control::{
     Controller,
-    events::ControlEvent::PlayerMove,
+    events::ControlEvent::{
+        PlayerJump,
+        PlayerMove,
+    },
 };
 use dimensions::{
     LrDirection,
     time::DeltaTime,
 };
 use player::{
-    PlayerBody,
-    PlayerConfig,
-    states::PlayerState
+    PlayerState,
+    states::{
+        PlayerStateMachine,
+        PlayerJumping,
+    },
 };
 
-pub struct PlayerUpright {
-    player_body: PlayerBody,
-    move_speed: f32,
-}
+pub struct PlayerUpright {}
 
-impl PlayerState for PlayerUpright {
-    fn update(mut self, controller: &Controller, _dt: DeltaTime) -> Box<dyn PlayerState> {
+impl PlayerStateMachine for PlayerUpright {
+    fn pre_update(&mut self, player_state: &mut PlayerState, controller: &Controller, _dt: DeltaTime) -> Option<Box<dyn PlayerStateMachine>> {
         let move_dir = if controller.is_pressed(PlayerMove(LrDirection::Left)) {
             Some(LrDirection::Left)
         } else if controller.is_pressed(PlayerMove(LrDirection::Right)) {
@@ -26,17 +28,18 @@ impl PlayerState for PlayerUpright {
         } else {
             None
         };
-        self.player_body.move_horizontal(self.move_speed, move_dir);
+        player_state.body.move_horizontal(player_state.config.move_speed, move_dir);
 
-        Box::new(self)
+        if controller.just_pressed(PlayerJump) {
+            return Some(Box::new(PlayerJumping::new(player_state)));
+        }
+
+        None
     }
 }
 
 impl PlayerUpright {
-    pub fn new(config: &PlayerConfig, body: PlayerBody) -> PlayerUpright {
-        PlayerUpright {
-            player_body: body,
-            move_speed: config.move_speed,
-        }
+    pub fn new() -> PlayerUpright {
+        PlayerUpright {}
     }
 }

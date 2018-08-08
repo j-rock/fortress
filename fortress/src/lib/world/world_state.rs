@@ -18,15 +18,17 @@ struct WorldConfig {
 pub struct WorldState {
     config_manager: SimpleConfigManager<WorldConfig>,
     camera: Camera,
-    physics_sim: PhysicsSimulation,
     map: Map,
     player: Player,
+
+    // Declare physics simulation last so it is dropped last.
+    physics_sim: PhysicsSimulation,
 }
 
 impl WorldState {
     pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<WorldState> {
         let mut physics_sim = PhysicsSimulation::new(config_watcher)?;
-        let map = Map::new(config_watcher, physics_sim.registrar(), &mut physics_sim)?;
+        let map = Map::new(config_watcher, &mut physics_sim)?;
         let player = Player::new(config_watcher, &mut physics_sim)?;
         Ok(WorldState {
             config_manager: SimpleConfigManager::new(config_watcher, "world.conf")?,
@@ -39,6 +41,7 @@ impl WorldState {
 
     pub fn register(&mut self) {
         self.map.register();
+        self.player.register();
     }
 
     pub fn update(&mut self, controller: &Controller, dt: DeltaTime) {
@@ -47,11 +50,14 @@ impl WorldState {
 
         {
             self.map.update();
-            self.player.update(controller, dt);
+            self.player.pre_update(controller, dt);
         }
 
-        // Physics simulation must update last.
         self.physics_sim.update(dt);
+
+        {
+            self.player.post_update();
+        }
     }
 
     pub fn clear_color(&self) -> (f32, f32, f32) {

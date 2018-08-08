@@ -32,7 +32,7 @@ impl MapPhysics {
         let platform_body = Self::create_body_from_platforms(config, physics_sim.get_world_mut());
 
         MapPhysics {
-            platform_body: Registered::new(platform_body, registrar, None)
+            platform_body: Registered::new(platform_body, registrar, None),
         }
     }
 

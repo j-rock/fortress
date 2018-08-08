@@ -45,8 +45,8 @@ impl EntityRegistrar {
         }
     }
 
-    pub fn resolve(&self, encoded: usize) -> Option<&Entity> {
-        self.raw.borrow_mut().resolve(encoded)
+    pub fn resolve(&self, encoded: usize) -> Option<Entity> {
+        self.raw.borrow_mut().resolve(encoded).cloned()
     }
 
     pub fn register<UserData: DataSetter>(&mut self, entity: Entity, user_data_owner: &UserData) {
@@ -109,15 +109,17 @@ pub struct Registered<T: DataSetter> {
 
 impl <T: DataSetter> Registered<T> {
     pub fn new(data_setter: T, registrar: EntityRegistrar, entity: Option<Entity>) -> Registered<T> {
-        if let Some(entity) = entity {
-            registrar.register(entity, &data_setter);
-        }
-
-        Registered {
+        let mut registered = Registered {
             data_setter,
             entity,
             registrar
+        };
+
+        if let Some(entity) = registered.entity {
+            registered.registrar.register(entity, &registered.data_setter);
         }
+
+        registered
     }
 
     pub fn register(&mut self, entity: Entity) {

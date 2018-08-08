@@ -4,7 +4,7 @@ use std;
 struct Void {
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Entity {
     etype: EntityType,
     data: *const Void,

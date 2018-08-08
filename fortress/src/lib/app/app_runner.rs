@@ -26,12 +26,14 @@ struct AppRunnerConfig {
 }
 
 pub struct AppRunner {
-    config_watcher: ConfigWatcher,
-    context: AppContext,
     clock: Clock,
     controller: Controller,
     g_buffer: GBuffer,
     world: WorldState,
+    config_watcher: ConfigWatcher,
+
+    // Declare AppContext last so its dropped last.
+    context: AppContext,
 }
 
 impl AppRunner {
@@ -55,6 +57,7 @@ impl AppRunner {
     }
 
     pub fn run(&mut self) -> StatusOr<()> {
+        self.world.register();
         let _ = self.clock.restart();
         loop {
             match self.process_events() {

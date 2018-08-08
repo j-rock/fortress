@@ -1,5 +1,4 @@
 use app::StatusOr;
-use entity::EntityRegistrar;
 use file::{
     ConfigWatcher,
     SimpleConfigManager,
@@ -44,9 +43,9 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(config_watcher: &mut ConfigWatcher, registrar: EntityRegistrar, physics_sim: &mut PhysicsSimulation) -> StatusOr<Map> {
+    pub fn new(config_watcher: &mut ConfigWatcher, physics_sim: &mut PhysicsSimulation) -> StatusOr<Map> {
         let config_manager = SimpleConfigManager::new(config_watcher, "map.conf")?;
-        let map_physics = MapPhysics::new(config_manager.get(), registrar, physics_sim);
+        let map_physics = MapPhysics::new(config_manager.get(), physics_sim.registrar(), physics_sim);
 
         let vertex = file::util::resource_path("shaders", "platform_vert.glsl");
         let geometry = file::util::resource_path("shaders", "platform_geo.glsl");

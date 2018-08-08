@@ -1,4 +1,4 @@
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct PlayerConfig {
     pub size: (i32, i32),
     pub spawn_location: (i32, i32),
