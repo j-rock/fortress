@@ -117,12 +117,16 @@ impl Player {
     }
 
     pub fn draw(&mut self, projection_view: &glm::Mat4) {
-        let position = self.player_state.body.body.get_position();
-        let size = self.player_state.config.size;
-        self.player_attribute.data =
-            vec!(PlayerAttr {
-                position: glm::vec2(position.x, position.y),
-                half_size: glm::vec2(size.0 as f32 / 2.0, size.1 as f32 / 2.0)
+        let (body_position, body_size) = (self.player_state.get_body_position(), self.player_state.config.size);
+        let (sword_position, sword_size) = (self.player_state.get_sword_position(), self.player_state.config.sword_sensor_size);
+        self.player_attribute.data = vec!(
+            PlayerAttr {
+                position: glm::vec2(body_position.x, body_position.y),
+                half_size: glm::vec2(body_size.0 as f32 / 2.0, body_size.1 as f32 / 2.0)
+            },
+            PlayerAttr {
+                position: glm::vec2(sword_position.x, sword_position.y),
+                half_size: glm::vec2(sword_size.0 as f32 / 2.0, sword_size.1 as f32 / 2.0)
             });
 
         self.shader_program.activate();

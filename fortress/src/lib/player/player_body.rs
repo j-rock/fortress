@@ -30,6 +30,12 @@ use player::{
 pub struct PlayerBody {
     pub body: Body,
     pub foot_sensor: Registered<Fixture>,
+
+    pub sword_size: Vec2,
+    pub sword_offset_from_body: Vec2,
+    pub sword_sensor: Registered<Fixture>,
+
+    pub facing_dir: LrDirection,
 }
 
 impl PlayerBody {
@@ -49,35 +55,60 @@ impl PlayerBody {
 
             let mut fixture_def = FixtureDef::new(&poly_shape);
             fixture_def.restitution = config.restitution;
-            fixture_def.filter.category_bits = collision_category::PLAYER_BODY;
+            fixture_def.filter.category_bits = collision_category::COLLIDE_ALL;
+            fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL;
             body.create_fixture(&fixture_def);
         }
 
-        // Foot sensor
-        let (hx, hy) = (config.foot_sensor_size.0 / 2.0, config.foot_sensor_size.1 / 2.0);
-        let sensor_center = Vec2::new(config.foot_sensor_center.0, config.foot_sensor_center.1);
-        poly_shape.set_as_box_oriented(hx, hy, &sensor_center, 0.0);
+        let foot_sensor = {
+            let (hx, hy) = (config.foot_sensor_size.0 / 2.0, config.foot_sensor_size.1 / 2.0);
+            let sensor_center = Vec2::new(config.foot_sensor_center.0, config.foot_sensor_center.1);
+            poly_shape.set_as_box_oriented(hx, hy, &sensor_center, 0.0);
 
-        let mut fixture_def = FixtureDef::new(&poly_shape);
-        fixture_def.filter.category_bits = collision_category::COLLIDE_ALL;
-        fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL & !collision_category::PLAYER_BODY;
-        fixture_def.is_sensor = true;
+            let mut fixture_def = FixtureDef::new(&poly_shape);
+            fixture_def.filter.category_bits = collision_category::COLLIDE_ALL;
+            fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL;
+            fixture_def.is_sensor = true;
 
-        let foot_sensor_fixture = body.create_fixture(&fixture_def);
-        let foot_sensor = Registered::new(foot_sensor_fixture, registrar, None);
+            let foot_sensor_fixture = body.create_fixture(&fixture_def);
+            Registered::new(foot_sensor_fixture, registrar.clone(), None)
+        };
+
+        let (sword_size, sword_offset_from_body, sword_sensor) = {
+            let sword_size = Vec2 {
+                x: config.sword_sensor_size.0,
+                y: config.sword_sensor_size.1,
+            };
+            let sensor_center = Vec2::new(config.sword_sensor_center.0, config.sword_sensor_center.1);
+            let sword_sensor_fixture = Self::create_sword_sensor_fixture(sword_size, sensor_center, &body);
+            let sword_sensor = Registered::new(sword_sensor_fixture, registrar.clone(), None);
+
+            (sword_size, sensor_center, sword_sensor)
+        };
 
         PlayerBody {
             body,
             foot_sensor,
+            sword_size,
+            sword_offset_from_body,
+            sword_sensor,
+            facing_dir: LrDirection::Right,
         }
     }
 
     pub fn register(&mut self, player: *const Player) {
         let foot_sensor_entity = Entity::new(EntityType::PlayerFootSensor, player);
         self.foot_sensor.register(foot_sensor_entity);
+
+        let sword_sensor_entity = Entity::new(EntityType::PlayerSwordSensor, player);
+        self.sword_sensor.register(sword_sensor_entity);
     }
 
     pub fn move_horizontal(&mut self, speed: f32, dir: Option<LrDirection>) {
+        if let Some(dir) = dir {
+            self.turn_face(dir);
+        }
+
         let desired_horizontal_velocity = speed * match dir {
             None => 0.0,
             Some(LrDirection::Left) => -1.0,
@@ -93,6 +124,34 @@ impl PlayerBody {
 
     pub fn body(&self) -> &Body {
         &self.body
+    }
+
+    pub fn turn_face(&mut self, direction: LrDirection) {
+        if self.facing_dir != direction {
+            self.facing_dir = direction;
+
+            self.sword_offset_from_body = Vec2 {
+                x: -self.sword_offset_from_body.x,
+                y: self.sword_offset_from_body.y
+            };
+
+            let registrar = self.sword_sensor.registrar.clone();
+            let entity = self.sword_sensor.entity.clone();
+            let sword_sensor_fixture = Self::create_sword_sensor_fixture(self.sword_size, self.sword_offset_from_body, &self.body);
+            self.sword_sensor = Registered::new(sword_sensor_fixture, registrar, entity);
+        }
+    }
+
+    fn create_sword_sensor_fixture(size: Vec2, body_position_offset: Vec2, body: &Body) -> Fixture {
+        let mut poly_shape = PolygonShape::new();
+        poly_shape.set_as_box_oriented(size.x / 2.0, size.y / 2.0, &body_position_offset, 0.0);
+
+        let mut fixture_def = FixtureDef::new(&poly_shape);
+        fixture_def.filter.category_bits = collision_category::COLLIDE_ALL;
+        fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL;
+        fixture_def.is_sensor = true;
+
+        body.create_fixture(&fixture_def)
     }
 }
 

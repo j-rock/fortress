@@ -3,4 +3,5 @@ pub enum EntityType {
     Platform,
     Player,
     PlayerFootSensor,
+    PlayerSwordSensor,
 }

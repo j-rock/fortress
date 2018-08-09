@@ -10,6 +10,9 @@ pub struct PlayerConfig {
     pub jump_delay_ms: i64,
 
     pub foot_sensor_size: (f32, f32),
-    pub foot_sensor_center: (f32, f32)
+    pub foot_sensor_center: (f32, f32),
+
+    pub sword_sensor_size: (f32, f32),
+    pub sword_sensor_center: (f32, f32)
 }
 
