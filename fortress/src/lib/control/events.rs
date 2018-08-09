@@ -4,4 +4,5 @@ pub enum ControlEvent {
     PlayerJump,
     PlayerMove(LrDirection),
     PlayerRespawn,
+    PlayerSlash,
 }

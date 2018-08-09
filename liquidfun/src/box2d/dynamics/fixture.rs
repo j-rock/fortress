@@ -85,6 +85,7 @@ extern {
     fn b2Fixture_GetUserData(this: *mut B2Fixture) -> *mut std::os::raw::c_void;
     fn b2Fixture_SetUserData(this: *mut B2Fixture, data: *mut std::os::raw::c_void);
     fn b2Fixture_GetType(this: *mut B2Fixture) -> shape::Type;
+    fn b2Fixture_SetFilterData(this: *mut B2Fixture, data: *mut Filter);
 }
 
 /// A fixture is used to attach a shape to a body for collision detection. A fixture
@@ -132,6 +133,12 @@ impl Fixture {
     pub fn set_user_data(&self, data: usize) {
         unsafe {
             b2Fixture_SetUserData(self.ptr, std::mem::transmute(data));
+        }
+    }
+
+    pub fn set_filter_data(&self, data: &Filter) {
+        unsafe {
+            b2Fixture_SetFilterData(self.ptr, std::mem::transmute(data));
         }
     }
 

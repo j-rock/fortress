@@ -13,6 +13,8 @@ pub struct PlayerConfig {
     pub foot_sensor_center: (f32, f32),
 
     pub sword_sensor_size: (f32, f32),
-    pub sword_sensor_center: (f32, f32)
+    pub sword_sensor_center: (f32, f32),
+
+    pub slash_period_ms: i64,
 }
 

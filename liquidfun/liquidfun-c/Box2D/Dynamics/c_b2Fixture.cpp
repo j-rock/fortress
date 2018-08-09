@@ -23,6 +23,10 @@ extern "C" {
 	    self->SetUserData(data);
 	}
 
+    void b2Fixture_SetFilterData(b2Fixture* self, b2Filter* filter) {
+        self->SetFilterData(*filter);
+    }
+
 	b2Shape::Type b2Fixture_GetType(b2Fixture* self) {
 		return self->GetType();
 	}

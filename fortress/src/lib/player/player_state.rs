@@ -1,8 +1,8 @@
 use liquidfun::box2d::common::math::Vec2;
 use player::{
     Player,
-    PlayerBody,
     PlayerConfig,
+    states::PlayerBody,
 };
 
 pub struct PlayerState {

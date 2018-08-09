@@ -18,3 +18,4 @@ pub const CAT_15: UInt16 = 1 << 14;
 pub const CAT_16: UInt16 = 1 << 15;
 
 pub const MASK_ALLOW_ALL: UInt16 = 0xFFFF;
+pub const MASK_ALLOW_NONE: UInt16 = 0x0;

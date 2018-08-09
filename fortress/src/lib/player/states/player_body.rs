@@ -15,6 +15,7 @@ use liquidfun::box2d::{
             BodyType,
         },
         fixture::{
+            Filter,
             Fixture,
             FixtureDef
         },
@@ -142,16 +143,33 @@ impl PlayerBody {
         }
     }
 
+    pub fn enable_sword_collision(&mut self) {
+        let mut collision_filter = Self::disabled_sword_collision_filter();
+        collision_filter.mask_bits = collision_category::MASK_ALLOW_ALL;
+        self.sword_sensor.data_setter.set_filter_data(&collision_filter);
+    }
+
+    pub fn disable_sword_collision(&mut self) {
+        let collision_filter = Self::disabled_sword_collision_filter();
+        self.sword_sensor.data_setter.set_filter_data(&collision_filter);
+    }
+
     fn create_sword_sensor_fixture(size: Vec2, body_position_offset: Vec2, body: &Body) -> Fixture {
         let mut poly_shape = PolygonShape::new();
         poly_shape.set_as_box_oriented(size.x / 2.0, size.y / 2.0, &body_position_offset, 0.0);
 
         let mut fixture_def = FixtureDef::new(&poly_shape);
-        fixture_def.filter.category_bits = collision_category::COLLIDE_ALL;
-        fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL;
+        fixture_def.filter = Self::disabled_sword_collision_filter();
         fixture_def.is_sensor = true;
 
         body.create_fixture(&fixture_def)
+    }
+
+    fn disabled_sword_collision_filter() -> Filter {
+        let mut filter = Filter::default();
+        filter.category_bits = collision_category::COLLIDE_ALL;
+        filter.mask_bits = collision_category::MASK_ALLOW_NONE;
+        filter
     }
 }
 

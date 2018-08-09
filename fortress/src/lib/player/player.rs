@@ -16,12 +16,13 @@ use gl::{
 use glm;
 use physics::PhysicsSimulation;
 use player::{
-    PlayerBody,
     PlayerConfig,
     PlayerState,
     states::{
+        PlayerBody,
         PlayerStateMachine,
         PlayerUpright,
+        SlashState,
     }
 };
 use render::{
@@ -57,9 +58,15 @@ impl Player {
     pub fn new(config_watcher: &mut ConfigWatcher, physics_sim: &mut PhysicsSimulation) -> StatusOr<Player> {
         let config_manager = SimpleConfigManager::new(config_watcher, "player.conf")?;
 
-        let player_body = PlayerBody::new(config_manager.get(), physics_sim.registrar(), physics_sim.get_world_mut());
-        let player_state = PlayerState::new(config_manager.get().clone(), player_body);
-        let player_state_machine = Box::new(PlayerUpright::new());
+        let (player_state, player_state_machine) = {
+            let config = config_manager.get();
+            let player_body = PlayerBody::new(config, physics_sim.registrar(), physics_sim.get_world_mut());
+            let player_state = PlayerState::new(config.clone(), player_body);
+            let slash_state = SlashState::new(config);
+            let player_state_machine = Box::new(PlayerUpright::new(slash_state));
+
+            (player_state, player_state_machine)
+        };
 
         let vertex = file::util::resource_path("shaders", "player_vert.glsl");
         let geometry = file::util::resource_path("shaders", "player_geo.glsl");
@@ -109,8 +116,9 @@ impl Player {
             let config = self.config_manager.get();
             let mut world = self.player_state.body.body.get_world();
             let player_body = PlayerBody::new(config, self.player_state.body.foot_sensor.registrar.clone(), &mut world);
+            let slash_state = SlashState::new(config);
             self.player_state = PlayerState::new(config.clone(), player_body);
-            self.player_state_machine = Box::new(PlayerUpright::new());
+            self.player_state_machine = Box::new(PlayerUpright::new(slash_state));
         }
 
         self.register();
