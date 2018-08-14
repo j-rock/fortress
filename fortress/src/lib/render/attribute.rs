@@ -100,6 +100,10 @@ impl <T> AttributeProgram<T> {
         }
     }
 
+    pub fn attributes_mut(&mut self) -> &mut T {
+        &mut self.attributes
+    }
+
     pub fn activate(&self) {
         unsafe {
             gl::BindVertexArray(self.vao);

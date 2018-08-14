@@ -63,6 +63,10 @@ impl <T> ShaderProgram<T> {
         }
     }
 
+    pub fn attributes_mut(&mut self) -> &mut T {
+        &mut self.attribute_program.attributes_mut()
+    }
+
     unsafe fn get_uniform_location(&self, name: &'static str) -> GLint {
         let c_str = CString::new(name)
             .map_err(|err| format!("Couldn't uniform name {} into a C string. Reason: {}", name, err)).unwrap();
