@@ -72,9 +72,9 @@ impl Player {
         let geometry = file::util::resource_path("shaders", "player_geo.glsl");
         let fragment = file::util::resource_path("shaders", "player_frag.glsl");
         let shader_program = ShaderProgram::from_long_pipeline(&vertex, &geometry, &fragment)?;
-        let mut attribute_program = AttributeProgram::new();
-        let player_attribute = attribute_program.add_attribute();
-        attribute_program.done_adding_attributes();
+        let mut attribute_program_builder = AttributeProgram::new();
+        let player_attribute = attribute_program_builder.add_attribute();
+        let attribute_program = attribute_program_builder.build();
 
         Ok(Player {
             config_manager,

@@ -6,6 +6,7 @@ pub mod texture;
 
 pub use self::attribute::Attribute;
 pub use self::attribute::AttributeProgram;
+pub use self::attribute::AttributeProgramBuilder;
 pub use self::g_buffer::GBuffer;
 pub use self::shader::ShaderProgram;
 pub use self::texture::Texture;

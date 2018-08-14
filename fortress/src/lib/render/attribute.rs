@@ -39,28 +39,16 @@ impl ComponentType {
     }
 }
 
-pub struct AttributeProgram {
-    vao: GLuint,
-    num_attributes: GLuint,
-}
-
 pub trait KnownComponent {
     fn component() -> (NumComponents, ComponentType);
 }
 
-impl AttributeProgram {
-    pub fn new() -> AttributeProgram {
-        let mut vao = 0;
-        unsafe {
-            gl::GenVertexArrays(1, &mut vao);
-            gl::BindVertexArray(vao);
-        }
-        AttributeProgram {
-            vao,
-            num_attributes: 0
-        }
-    }
+pub struct AttributeProgramBuilder {
+    vao: GLuint,
+    num_attributes: GLuint,
+}
 
+impl AttributeProgramBuilder {
     pub fn add_attribute<T: KnownComponent>(&mut self) -> Attribute<T> {
         let mut attribute = Attribute::<T>::new();
         unsafe {
@@ -81,11 +69,33 @@ impl AttributeProgram {
         attribute
     }
 
-    pub fn done_adding_attributes(&self) {
+    pub fn build(self) -> AttributeProgram {
         unsafe {
             gl::BindBuffer(gl::ARRAY_BUFFER, 0);
         }
-        self.deactivate();
+        let attr_prgm = AttributeProgram {
+            vao: self.vao,
+        };
+        attr_prgm.deactivate();
+        attr_prgm
+    }
+}
+
+pub struct AttributeProgram {
+    vao: GLuint,
+}
+
+impl AttributeProgram {
+    pub fn new() -> AttributeProgramBuilder {
+        let mut vao = 0;
+        unsafe {
+            gl::GenVertexArrays(1, &mut vao);
+            gl::BindVertexArray(vao);
+        }
+        AttributeProgramBuilder {
+            vao,
+            num_attributes: 0
+        }
     }
 
     pub fn activate(&self) {
@@ -146,4 +156,3 @@ impl<T> Drop for Attribute<T> {
        }
    }
 }
-
