@@ -1,5 +1,8 @@
 use control::Controller;
-use dimensions::time::DeltaTime;
+use dimensions::{
+    LrDirection,
+    time::DeltaTime,
+};
 use wraith::WraithState;
 
 pub trait WraithStateMachine {
@@ -10,4 +13,6 @@ pub trait WraithStateMachine {
     fn post_update(&mut self) -> Option<Box<dyn WraithStateMachine>> {
         None
     }
+
+    fn take_slashing(&mut self, _wraith_state: &mut WraithState, _dir: LrDirection) {}
 }

@@ -4,4 +4,5 @@ pub enum EntityType {
     Player,
     PlayerFootSensor,
     PlayerSwordSensor,
+    Wraith,
 }

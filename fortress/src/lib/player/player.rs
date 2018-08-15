@@ -3,7 +3,10 @@ use control::{
     Controller,
     ControlEvent::RespawnEntities,
 };
-use dimensions::time::DeltaTime;
+use dimensions::{
+    LrDirection,
+    time::DeltaTime
+};
 use file::{
     ConfigWatcher,
     SimpleConfigManager,
@@ -109,6 +112,10 @@ impl Player {
 
     pub fn make_foot_contact(&mut self) {
         self.player_state_machine.make_foot_contact();
+    }
+
+    pub fn get_facing_direction(&self) -> LrDirection {
+        self.player_state.body.facing_dir
     }
 
     fn redeploy(&mut self) {

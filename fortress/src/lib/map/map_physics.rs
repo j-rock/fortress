@@ -62,7 +62,8 @@ impl MapPhysics {
             let (hx, hy) = (platform.width as f32 / 2.0, platform.height as f32 / 2.0);
             let center = Vec2::new(platform.top_left_x as f32 + hx, platform.top_left_y as f32 - hy);
             poly_shape.set_as_box_oriented(hx, hy, &center, 0.0);
-            let fixture_def = FixtureDef::new(&poly_shape);
+            let mut fixture_def = FixtureDef::new(&poly_shape);
+            fixture_def.friction = config.friction;
             platform_body.create_fixture(&fixture_def);
         }
         platform_body

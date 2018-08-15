@@ -22,6 +22,7 @@ use liquidfun::box2d::{
     },
 };
 use player;
+use wraith;
 
 pub struct PhysicsContactListener {
     contacts: Vec<(usize, usize)>
@@ -43,6 +44,12 @@ impl PhysicsContactListener {
                             let player: &mut player::Player = entity2.resolve();
                             player.make_foot_contact();
                         },
+                        (EntityType::PlayerSwordSensor, EntityType::Wraith)  => {
+                            let player: &player::Player = entity1.resolve();
+                            let wraith: &mut wraith::Wraith = entity2.resolve();
+                            wraith.take_slashing(player.get_facing_direction());
+                        },
+
                         _ => {}
                     }
                 },

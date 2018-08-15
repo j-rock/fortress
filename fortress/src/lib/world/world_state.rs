@@ -47,6 +47,7 @@ impl WorldState {
     pub fn register(&mut self) {
         self.map.register();
         self.player.register();
+        self.wraith.register();
     }
 
     pub fn update(&mut self, controller: &Controller, dt: DeltaTime) {

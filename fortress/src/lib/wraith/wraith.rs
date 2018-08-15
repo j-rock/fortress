@@ -3,7 +3,10 @@ use control::{
     Controller,
     ControlEvent,
 };
-use dimensions::time::DeltaTime;
+use dimensions::{
+    LrDirection,
+    time::DeltaTime
+};
 use file::{
     ConfigWatcher,
     SimpleConfigManager,
@@ -59,7 +62,7 @@ impl Wraith {
 
         let (wraith_state, wraith_state_machine) = {
             let config = config_manager.get();
-            let wraith_body = WraithBody::new(config, physics_sim.get_world_mut());
+            let wraith_body = WraithBody::new(config, physics_sim.registrar(), physics_sim.get_world_mut());
             let wraith_state = WraithState::new(config.clone(), wraith_body);
             let wraith_state_machine = Box::new(WraithUpright::new());
 
@@ -84,6 +87,11 @@ impl Wraith {
         })
     }
 
+    pub fn register(&mut self) {
+        let wraith: *const Wraith = self as *const Wraith;
+        self.wraith_state.register(wraith);
+    }
+
     pub fn pre_update(&mut self, controller: &Controller, dt: DeltaTime) {
         if self.config_manager.update() || controller.just_pressed(ControlEvent::RespawnEntities) {
             self.redeploy();
@@ -101,11 +109,18 @@ impl Wraith {
     }
 
     fn redeploy(&mut self) {
-        let config = self.config_manager.get();
-        let mut world = self.wraith_state.body.body.get_world();
-        let wraith_body = WraithBody::new(config, &mut world);
-        self.wraith_state = WraithState::new(config.clone(), wraith_body);
-        self.wraith_state_machine = Box::new(WraithUpright::new());
+        {
+            let config = self.config_manager.get();
+            let mut world = self.wraith_state.body.body.data_setter.get_world();
+            let wraith_body = WraithBody::new(config, self.wraith_state.body.body.registrar.clone(), &mut world);
+            self.wraith_state = WraithState::new(config.clone(), wraith_body);
+            self.wraith_state_machine = Box::new(WraithUpright::new());
+        }
+        self.register();
+    }
+
+    pub fn take_slashing(&mut self, dir: LrDirection) {
+        self.wraith_state_machine.take_slashing(&mut self.wraith_state, dir);
     }
 
     pub fn draw(&mut self, projection_view: &glm::Mat4) {
