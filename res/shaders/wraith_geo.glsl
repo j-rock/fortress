@@ -27,25 +27,25 @@ void EmitQuad(in WraithAttr wraith) {
 	v4 = vec4(left, top, 0.0, 1.0);
 	gl_Position = projection_view * v4;
 	gs_out.world_space_position = v4.xyz;
-	gs_out.color = vec3(0.8, 0.1, 0.1);
+	gs_out.color = vec3(1.0, 0.0, 0.0);
 	EmitVertex();
 
 	v4 = vec4(left, bottom, 0.0, 1.0);
 	gl_Position = projection_view * v4;
 	gs_out.world_space_position = v4.xyz;
-	gs_out.color = vec3(1.0, 0.0, 0.1);
+	gs_out.color = vec3(1.0, 0.0, 0.0);
 	EmitVertex();
 
 	v4 = vec4(right, top, 0.0, 1.0);
 	gl_Position = projection_view * v4;
 	gs_out.world_space_position = v4.xyz;
-	gs_out.color = vec3(1.0, 0.1, 0.1);
+	gs_out.color = vec3(1.0, 0.0, 0.2);
 	EmitVertex();
 
 	v4 = vec4(right, bottom, 0.0, 1.0);
 	gl_Position = projection_view * v4;
 	gs_out.world_space_position = v4.xyz;
-	gs_out.color = vec3(0.5, 0.0, 0.0);
+	gs_out.color = vec3(1.0, 0.05, 0.0);
 	EmitVertex();
 
 	EndPrimitive();
