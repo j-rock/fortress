@@ -2,7 +2,7 @@ use liquidfun::box2d::common::math::Vec2;
 use player::{
     Player,
     PlayerConfig,
-    states::PlayerBody,
+    state::PlayerBody,
 };
 
 pub struct PlayerState {

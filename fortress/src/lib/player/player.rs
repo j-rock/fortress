@@ -1,7 +1,7 @@
 use app::StatusOr;
 use control::{
     Controller,
-    ControlEvent::PlayerRespawn,
+    ControlEvent::RespawnEntities,
 };
 use dimensions::time::DeltaTime;
 use file::{
@@ -18,7 +18,7 @@ use physics::PhysicsSimulation;
 use player::{
     PlayerConfig,
     PlayerState,
-    states::{
+    state::{
         PlayerBody,
         PlayerStateMachine,
         PlayerUpright,
@@ -92,7 +92,7 @@ impl Player {
     }
 
     pub fn pre_update(&mut self, controller: &Controller, dt: DeltaTime) {
-        if self.config_manager.update() || controller.just_pressed(PlayerRespawn) {
+        if self.config_manager.update() || controller.just_pressed(RespawnEntities) {
             self.redeploy();
         }
 

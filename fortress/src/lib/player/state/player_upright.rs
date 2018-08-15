@@ -11,7 +11,7 @@ use dimensions::{
 };
 use player::{
     PlayerState,
-    states::{
+    state::{
         PlayerStateMachine,
         PlayerJumping,
         SlashState,

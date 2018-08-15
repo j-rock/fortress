@@ -15,7 +15,7 @@ use dimensions::{
 use liquidfun::box2d::common::math::Vec2;
 use player::{
     PlayerState,
-    states::{
+    state::{
         PlayerStateMachine,
         PlayerUpright,
         SlashState,

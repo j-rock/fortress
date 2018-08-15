@@ -40,8 +40,8 @@ impl Controller {
             ControlEvent::PlayerJump => Scancode::Space,
             ControlEvent::PlayerMove(LrDirection::Left) => Scancode::A,
             ControlEvent::PlayerMove(LrDirection::Right) => Scancode::D,
-            ControlEvent::PlayerRespawn => Scancode::R,
-            ControlEvent::PlayerSlash => Scancode::F,
+            ControlEvent::RespawnEntities => Scancode::R,
+            ControlEvent::PlayerSlash => Scancode::J,
         }
     }
 }
