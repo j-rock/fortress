@@ -29,10 +29,7 @@ use render::{
     attribute,
     Attribute,
     AttributeProgram,
-    FragmentShader,
-    GeometryShader,
     ShaderProgram,
-    VertexShader,
 };
 
 #[repr(C)]
@@ -51,7 +48,10 @@ pub struct Player {
     config_manager: SimpleConfigManager<PlayerConfig>,
     player_state: PlayerState,
     player_state_machine: Box<dyn PlayerStateMachine>,
-    shader_program: ShaderProgram<Attribute<PlayerAttr>>,
+
+    shader_program: ShaderProgram,
+    attribute_program: AttributeProgram,
+    player_attribute: Attribute<PlayerAttr>,
 }
 
 impl Player {
@@ -68,20 +68,21 @@ impl Player {
             (player_state, player_state_machine)
         };
 
+        let vertex = file::util::resource_path("shaders", "player_vert.glsl");
+        let geometry = file::util::resource_path("shaders", "player_geo.glsl");
+        let fragment = file::util::resource_path("shaders", "player_frag.glsl");
+        let shader_program = ShaderProgram::from_long_pipeline(&vertex, &geometry, &fragment)?;
         let mut attribute_program_builder = AttributeProgram::new();
         let player_attribute = attribute_program_builder.add_attribute();
-        let attribute_program = attribute_program_builder.build(player_attribute);
-
-        let vertex = VertexShader::new(&file::util::resource_path("shaders", "player_vert.glsl"))?;
-        let geometry = GeometryShader::new(&file::util::resource_path("shaders", "player_geo.glsl"))?;
-        let fragment = FragmentShader::new(&file::util::resource_path("shaders", "player_frag.glsl"))?;
-        let shader_program = ShaderProgram::from_long_pipeline(attribute_program, &vertex, &geometry, &fragment)?;
+        let attribute_program = attribute_program_builder.build();
 
         Ok(Player {
             config_manager,
             player_state,
             player_state_machine,
             shader_program,
+            attribute_program,
+            player_attribute
         })
     }
 
@@ -124,27 +125,26 @@ impl Player {
     }
 
     pub fn draw(&mut self, projection_view: &glm::Mat4) {
+        let (body_position, body_size) = (self.player_state.get_body_position(), self.player_state.config.size);
+        let (sword_position, sword_size) = (self.player_state.get_sword_position(), self.player_state.config.sword_sensor_size);
+        self.player_attribute.data = vec!(
+            PlayerAttr {
+                position: glm::vec2(body_position.x, body_position.y),
+                half_size: glm::vec2(body_size.0 as f32 / 2.0, body_size.1 as f32 / 2.0)
+            },
+            PlayerAttr {
+                position: glm::vec2(sword_position.x, sword_position.y),
+                half_size: glm::vec2(sword_size.0 as f32 / 2.0, sword_size.1 as f32 / 2.0)
+            });
+
         self.shader_program.activate();
         self.shader_program.set_mat4("projection_view", projection_view);
-        {
-            let (body_position, body_size) = (self.player_state.get_body_position(), self.player_state.config.size);
-            let (sword_position, sword_size) = (self.player_state.get_sword_position(), self.player_state.config.sword_sensor_size);
-            let attributes = self.shader_program.attributes_mut();
-            attributes.data = vec!(
-                PlayerAttr {
-                    position: glm::vec2(body_position.x, body_position.y),
-                    half_size: glm::vec2(body_size.0 as f32 / 2.0, body_size.1 as f32 / 2.0)
-                },
-                PlayerAttr {
-                    position: glm::vec2(sword_position.x, sword_position.y),
-                    half_size: glm::vec2(sword_size.0 as f32 / 2.0, sword_size.1 as f32 / 2.0)
-                });
-
-            attributes.prepare_buffer();
-        }
+        self.attribute_program.activate();
+        self.player_attribute.prepare_buffer();
         unsafe {
             gl::DrawArraysInstanced(gl::POINTS, 0, 4, self.player_attribute.data.len() as GLsizei);
         }
+        self.attribute_program.deactivate();
         self.shader_program.deactivate();
     }
 }

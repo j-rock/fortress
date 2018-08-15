@@ -84,6 +84,12 @@ impl <T: ShaderType> Shader<T> {
     }
 }
 
+impl <T> Shader<T> {
+    pub fn unsafe_coerce<U>(self) -> Shader<U> {
+        self
+    }
+}
+
 impl <T> Drop for Shader<T> {
     fn drop(&mut self) {
         if self.shader_id != 0 {

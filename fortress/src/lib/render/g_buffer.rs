@@ -22,7 +22,7 @@ pub struct GBuffer {
     depth_render_buffer: GLuint,
     quad_vao: GLuint,
     quad_vbo: GLuint,
-    lighting_pass_shader: ShaderProgram<()>,
+    lighting_pass_shader: ShaderProgram,
 }
 
 impl GBuffer {
