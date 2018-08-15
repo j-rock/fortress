@@ -69,25 +69,23 @@ impl AttributeProgramBuilder {
         attribute
     }
 
-    pub fn build<T>(self, attributes: T) -> AttributeProgram<T> {
+    pub fn build(self) -> AttributeProgram {
         unsafe {
             gl::BindBuffer(gl::ARRAY_BUFFER, 0);
         }
         let attr_prgm = AttributeProgram {
             vao: self.vao,
-            attributes
         };
         attr_prgm.deactivate();
         attr_prgm
     }
 }
 
-pub struct AttributeProgram<T> {
+pub struct AttributeProgram {
     vao: GLuint,
-    attributes: T,
 }
 
-impl <T> AttributeProgram<T> {
+impl AttributeProgram {
     pub fn new() -> AttributeProgramBuilder {
         let mut vao = 0;
         unsafe {
@@ -113,7 +111,7 @@ impl <T> AttributeProgram<T> {
     }
 }
 
-impl <T> Drop for AttributeProgram<T> {
+impl Drop for AttributeProgram {
     fn drop(&mut self) {
         unsafe {
             if self.vao != 0 {
