@@ -15,7 +15,10 @@ use liquidfun::box2d::{
         world_callbacks::ContactListenerGlue
     }
 };
-use physics::PhysicsContactListener;
+use physics::{
+    CollisionMatcher,
+    PhysicsContactListener
+};
 
 #[derive(Deserialize)]
 struct SimulationConfig {
@@ -65,6 +68,10 @@ impl PhysicsSimulation {
 
     pub fn get_world_mut(&mut self) -> &mut World {
         &mut self.wrapped_world.world
+    }
+
+    pub fn add_collision_matchers(&mut self, matchers: Vec<CollisionMatcher>) {
+        self.contact_listener.add_collision_matchers(matchers);
     }
 
     pub fn registrar(&self) -> EntityRegistrar {

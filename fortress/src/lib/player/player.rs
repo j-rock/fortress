@@ -4,9 +4,9 @@ use control::{
     ControlEvent::RespawnEntities,
 };
 use dimensions::{
-    LrDirection,
     time::DeltaTime
 };
+use entity::EntityType;
 use file::{
     ConfigWatcher,
     SimpleConfigManager,
@@ -17,7 +17,10 @@ use gl::{
     types::*,
 };
 use glm;
-use physics::PhysicsSimulation;
+use physics::{
+    CollisionMatcher,
+    PhysicsSimulation,
+};
 use player::{
     PlayerConfig,
     PlayerState,
@@ -34,6 +37,7 @@ use render::{
     AttributeProgram,
     ShaderProgram,
 };
+use wraith::Wraith;
 
 #[repr(C)]
 struct PlayerAttr {
@@ -110,14 +114,6 @@ impl Player {
         }
     }
 
-    pub fn make_foot_contact(&mut self) {
-        self.player_state_machine.make_foot_contact();
-    }
-
-    pub fn get_facing_direction(&self) -> LrDirection {
-        self.player_state.body.facing_dir
-    }
-
     fn redeploy(&mut self) {
         {
             let config = self.config_manager.get();
@@ -153,5 +149,20 @@ impl Player {
         }
         self.attribute_program.deactivate();
         self.shader_program.deactivate();
+    }
+
+    pub fn foot_sensor_hit_something() -> CollisionMatcher {
+        CollisionMatcher::match_one(EntityType::PlayerFootSensor, Box::new(|entity| {
+            let player: &mut Self = entity.resolve();
+            player.player_state_machine.make_foot_contact();
+        }))
+    }
+
+    pub fn slash_wraith() -> CollisionMatcher {
+        CollisionMatcher::match_two(EntityType::PlayerSwordSensor, EntityType::Wraith, Box::new(|sword_ent, wraith_ent| {
+            let player: &Self = sword_ent.resolve();
+            let wraith: &mut Wraith = wraith_ent.resolve();
+            wraith.take_slashing(player.player_state.body.facing_dir);
+        }))
     }
 }

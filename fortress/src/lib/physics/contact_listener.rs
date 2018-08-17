@@ -1,7 +1,4 @@
-use entity::{
-    EntityType,
-    EntityRegistrar,
-};
+use entity::EntityRegistrar;
 use liquidfun::box2d::{
     collision::Manifold,
     common::{
@@ -21,36 +18,32 @@ use liquidfun::box2d::{
         ParticleSystem
     },
 };
-use player;
-use wraith;
+use physics::CollisionMatcher;
 
 pub struct PhysicsContactListener {
-    contacts: Vec<(usize, usize)>
+    contacts: Vec<(usize, usize)>,
+    collision_matchers: Vec<CollisionMatcher>
 }
 
 impl PhysicsContactListener {
     pub fn new() -> PhysicsContactListener {
         PhysicsContactListener {
             contacts: vec!(),
+            collision_matchers: vec!(),
         }
+    }
+
+    pub fn add_collision_matchers(&mut self, matchers: Vec<CollisionMatcher>) {
+        let mut matcher_vec = matchers;
+        self.collision_matchers.append(&mut matcher_vec);
     }
 
     pub fn process_contacts(&mut self, registrar: &mut EntityRegistrar) {
         for (user_data1, user_data2) in self.contacts.iter() {
             match (registrar.resolve(*user_data1), registrar.resolve(*user_data2)) {
                 (Some(entity1), Some(entity2)) => {
-                    match (entity1.etype(), entity2.etype()) {
-                        (EntityType::Platform, EntityType::PlayerFootSensor)  => {
-                            let player: &mut player::Player = entity2.resolve();
-                            player.make_foot_contact();
-                        },
-                        (EntityType::PlayerSwordSensor, EntityType::Wraith)  => {
-                            let player: &player::Player = entity1.resolve();
-                            let wraith: &mut wraith::Wraith = entity2.resolve();
-                            wraith.take_slashing(player.get_facing_direction());
-                        },
-
-                        _ => {}
+                    for matcher in self.collision_matchers.iter() {
+                        matcher.try_apply(entity1, entity2);
                     }
                 },
                 _ => {}

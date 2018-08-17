@@ -20,8 +20,8 @@ impl Entity {
         }
     }
 
-    pub fn etype(&self) -> &EntityType {
-        &self.etype
+    pub fn etype(&self) -> EntityType {
+        self.etype
     }
 
     pub fn resolve<T>(&self) -> &mut T {

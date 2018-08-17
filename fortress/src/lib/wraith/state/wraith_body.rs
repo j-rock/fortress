@@ -47,7 +47,7 @@ impl WraithBody {
             let mut fixture_def = FixtureDef::new(&poly_shape);
             fixture_def.density = config.density;
             fixture_def.friction = config.friction;
-            fixture_def.filter.category_bits = collision_category::COLLIDE_ALL;
+            fixture_def.filter.category_bits = collision_category::WRAITH;
             fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL;
             body.create_fixture(&fixture_def);
         }

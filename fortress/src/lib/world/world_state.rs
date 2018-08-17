@@ -34,6 +34,10 @@ impl WorldState {
         let player = Player::new(config_watcher, &mut physics_sim)?;
         let wraith = Wraith::new(config_watcher, &mut physics_sim)?;
 
+        physics_sim.add_collision_matchers(vec!(
+            Player::foot_sensor_hit_something(),
+            Player::slash_wraith()));
+
         Ok(WorldState {
             config_manager: SimpleConfigManager::new(config_watcher, "world.conf")?,
             camera: Camera::new(config_watcher)?,

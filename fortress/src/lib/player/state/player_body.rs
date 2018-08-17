@@ -56,8 +56,8 @@ impl PlayerBody {
 
             let mut fixture_def = FixtureDef::new(&poly_shape);
             fixture_def.restitution = config.restitution;
-            fixture_def.filter.category_bits = collision_category::COLLIDE_ALL;
-            fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL;
+            fixture_def.filter.category_bits = collision_category::PLAYER_BODY;
+            fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL & !collision_category::WRAITH;
             body.create_fixture(&fixture_def);
         }
 
@@ -145,7 +145,7 @@ impl PlayerBody {
 
     pub fn enable_sword_collision(&mut self) {
         let mut collision_filter = Self::disabled_sword_collision_filter();
-        collision_filter.mask_bits = collision_category::MASK_ALLOW_ALL;
+        collision_filter.mask_bits = collision_category::WRAITH;
         self.sword_sensor.data_setter.set_filter_data(&collision_filter);
     }
 
