@@ -68,7 +68,7 @@ impl PlayerBody {
 
             let mut fixture_def = FixtureDef::new(&poly_shape);
             fixture_def.filter.category_bits = collision_category::COLLIDE_ALL;
-            fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL;
+            fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL & !collision_category::WRAITH;
             fixture_def.is_sensor = true;
 
             let foot_sensor_fixture = body.create_fixture(&fixture_def);

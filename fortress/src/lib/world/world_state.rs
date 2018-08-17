@@ -59,7 +59,7 @@ impl WorldState {
         self.camera.update();
 
         {
-            self.map.update();
+            self.map.pre_update(controller, dt);
             self.player.pre_update(controller, dt);
             self.wraith.pre_update(controller, dt);
         }
