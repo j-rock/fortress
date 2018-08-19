@@ -28,7 +28,6 @@ use player::{
         PlayerBody,
         PlayerStateMachine,
         PlayerUpright,
-        SlashState,
     }
 };
 use render::{
@@ -69,8 +68,7 @@ impl Player {
             let config = config_manager.get();
             let player_body = PlayerBody::new(config, physics_sim.registrar(), physics_sim.get_world_mut());
             let player_state = PlayerState::new(config.clone(), player_body);
-            let slash_state = SlashState::new(config);
-            let player_state_machine = Box::new(PlayerUpright::new(slash_state));
+            let player_state_machine = Box::new(PlayerUpright::new());
 
             (player_state, player_state_machine)
         };
@@ -103,6 +101,8 @@ impl Player {
             self.redeploy();
         }
 
+        self.player_state.pre_update(dt);
+
         if let Some(player_state_machine) = self.player_state_machine.pre_update(&mut self.player_state, controller, dt) {
             self.player_state_machine = player_state_machine;
         }
@@ -119,9 +119,8 @@ impl Player {
             let config = self.config_manager.get();
             let mut world = self.player_state.body.body.get_world();
             let player_body = PlayerBody::new(config, self.player_state.body.foot_sensor.registrar.clone(), &mut world);
-            let slash_state = SlashState::new(config);
             self.player_state = PlayerState::new(config.clone(), player_body);
-            self.player_state_machine = Box::new(PlayerUpright::new(slash_state));
+            self.player_state_machine = Box::new(PlayerUpright::new());
         }
 
         self.register();

@@ -3,6 +3,7 @@ use control::{
     events::ControlEvent::{
         PlayerJump,
         PlayerMove,
+        PlayerSlash,
     },
 };
 use dimensions::{
@@ -14,16 +15,13 @@ use player::{
     state::{
         PlayerStateMachine,
         PlayerJumping,
-        SlashState,
     },
 };
 
-pub struct PlayerUpright {
-    slash_state: SlashState,
-}
+pub struct PlayerUpright;
 
 impl PlayerStateMachine for PlayerUpright {
-    fn pre_update(&mut self, player_state: &mut PlayerState, controller: &Controller, dt: DeltaTime) -> Option<Box<dyn PlayerStateMachine>> {
+    fn pre_update(&mut self, player_state: &mut PlayerState, controller: &Controller, _dt: DeltaTime) -> Option<Box<dyn PlayerStateMachine>> {
         let move_dir = if controller.is_pressed(PlayerMove(LrDirection::Left)) {
             Some(LrDirection::Left)
         } else if controller.is_pressed(PlayerMove(LrDirection::Right)) {
@@ -33,10 +31,12 @@ impl PlayerStateMachine for PlayerUpright {
         };
         player_state.body.move_horizontal(player_state.config.move_speed, move_dir);
 
-        self.slash_state.update(player_state, controller, dt);
+        if controller.is_pressed(PlayerSlash) {
+            player_state.try_slash();
+        }
 
         if controller.just_pressed(PlayerJump) {
-            return Some(Box::new(PlayerJumping::new(player_state, self.slash_state)));
+            return Some(Box::new(PlayerJumping::new(player_state)));
         }
 
         None
@@ -44,9 +44,8 @@ impl PlayerStateMachine for PlayerUpright {
 }
 
 impl PlayerUpright {
-    pub fn new(slash_state: SlashState) -> PlayerUpright {
+    pub fn new() -> PlayerUpright {
         PlayerUpright {
-            slash_state
         }
     }
 }

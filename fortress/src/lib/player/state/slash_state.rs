@@ -1,7 +1,3 @@
-use control::{
-    Controller,
-    ControlEvent::PlayerSlash
-};
 use dimensions::{
     time::{
         DeltaTime,
@@ -10,7 +6,7 @@ use dimensions::{
 };
 use player::{
     PlayerConfig,
-    PlayerState,
+    state::PlayerBody,
 };
 
 #[derive(Copy, Clone)]
@@ -40,15 +36,7 @@ impl SlashState {
         }
     }
 
-    pub fn update(&mut self, player_state: &mut PlayerState, controller: &Controller, dt: DeltaTime) {
-        self.try_elapsing_current_slash(player_state, dt);
-
-        if controller.just_pressed(PlayerSlash) {
-            self.try_slash(player_state);
-        }
-    }
-
-    fn try_elapsing_current_slash(&mut self, player_state: &mut PlayerState, dt: DeltaTime) {
+    pub fn pre_update(&mut self, player_body: &mut PlayerBody, dt: DeltaTime) {
         if let Some(mut current_slash) = self.current_slash {
             current_slash.time_left -= dt.as_microseconds();
 
@@ -57,14 +45,14 @@ impl SlashState {
                 return;
             }
 
-            player_state.body.disable_sword_collision();
+            player_body.disable_sword_collision();
             self.current_slash = None;
         }
     }
 
-    fn try_slash(&mut self, player_state: &mut PlayerState) {
+    pub fn try_slash(&mut self, body: &mut PlayerBody) {
         if let None = self.current_slash {
-            player_state.body.enable_sword_collision();
+            body.enable_sword_collision();
             self.current_slash = Some(CurrentSlash::new(self.slash_period));
         }
     }
