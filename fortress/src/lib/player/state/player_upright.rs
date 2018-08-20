@@ -1,6 +1,7 @@
 use control::{
     Controller,
     events::ControlEvent::{
+        PlayerFire,
         PlayerJump,
         PlayerMove,
         PlayerSlash,
@@ -31,7 +32,9 @@ impl PlayerStateMachine for PlayerUpright {
         };
         player_state.body.move_horizontal(player_state.config.move_speed, move_dir);
 
-        if controller.is_pressed(PlayerSlash) {
+        if controller.is_pressed(PlayerFire) {
+            player_state.try_fire();
+        } else if controller.is_pressed(PlayerSlash) {
             player_state.try_slash();
         }
 

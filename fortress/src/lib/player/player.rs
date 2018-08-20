@@ -117,8 +117,9 @@ impl Player {
                 rgba_bl: glm::vec4(0.2, 0.2, 1.0, 0.0),
                 rgba_br: glm::vec4(1.0, 0.0, 0.1, 0.0),
             });
-
         box_renderer.queue(boxes.as_slice());
+
+        self.player_state.crossbow.draw(box_renderer);
     }
 
     pub fn foot_sensor_hit_something() -> CollisionMatcher {

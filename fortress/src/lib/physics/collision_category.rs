@@ -3,7 +3,7 @@ use liquidfun::box2d::common::settings::UInt16;
 pub const COLLIDE_ALL: UInt16  = 1 << 0;
 pub const PLAYER_BODY: UInt16  = 1 << 1;
 pub const WRAITH: UInt16  = 1 << 2;
-pub const CAT_4: UInt16  = 1 << 3;
+pub const PLAYER_WEAPON: UInt16  = 1 << 3;
 pub const CAT_5: UInt16  = 1 << 4;
 pub const CAT_6: UInt16  = 1 << 5;
 pub const CAT_7: UInt16  = 1 << 6;

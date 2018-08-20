@@ -67,7 +67,7 @@ impl PlayerBody {
             poly_shape.set_as_box_oriented(hx, hy, &sensor_center, 0.0);
 
             let mut fixture_def = FixtureDef::new(&poly_shape);
-            fixture_def.filter.category_bits = collision_category::COLLIDE_ALL;
+            fixture_def.filter.category_bits = collision_category::PLAYER_BODY;
             fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL & !collision_category::WRAITH;
             fixture_def.is_sensor = true;
 
@@ -167,7 +167,7 @@ impl PlayerBody {
 
     fn disabled_sword_collision_filter() -> Filter {
         let mut filter = Filter::default();
-        filter.category_bits = collision_category::COLLIDE_ALL;
+        filter.category_bits = collision_category::PLAYER_WEAPON;
         filter.mask_bits = collision_category::MASK_ALLOW_NONE;
         filter
     }
