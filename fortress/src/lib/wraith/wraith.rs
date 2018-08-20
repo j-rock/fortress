@@ -10,11 +10,6 @@ use dimensions::{
 use file::{
     ConfigWatcher,
     SimpleConfigManager,
-    self,
-};
-use gl::{
-    self,
-    types::*,
 };
 use glm;
 use physics::PhysicsSimulation;
@@ -28,32 +23,14 @@ use wraith::{
     }
 };
 use render::{
-    attribute,
-    Attribute,
-    AttributeProgram,
-    ShaderProgram,
+    BoxData,
+    BoxRenderer,
 };
-
-#[repr(C)]
-struct WraithAttr {
-    position: glm::Vec2,
-    half_size: glm::Vec2,
-}
-
-impl attribute::KnownComponent for WraithAttr {
-    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
-        (attribute::NumComponents::S4, attribute::ComponentType::FLOAT)
-    }
-}
 
 pub struct Wraith {
     config_manager: SimpleConfigManager<WraithConfig>,
     wraith_state: WraithState,
     wraith_state_machine: Box<dyn WraithStateMachine>,
-
-    shader_program: ShaderProgram,
-    attribute_program: AttributeProgram,
-    wraith_attribute: Attribute<WraithAttr>,
 }
 
 impl Wraith {
@@ -69,21 +46,10 @@ impl Wraith {
             (wraith_state, wraith_state_machine)
         };
 
-        let vertex = file::util::resource_path("shaders", "wraith_vert.glsl");
-        let geometry = file::util::resource_path("shaders", "wraith_geo.glsl");
-        let fragment = file::util::resource_path("shaders", "wraith_frag.glsl");
-        let shader_program = ShaderProgram::from_long_pipeline(&vertex, &geometry, &fragment)?;
-        let mut attribute_program_builder = AttributeProgram::new();
-        let wraith_attribute = attribute_program_builder.add_attribute();
-        let attribute_program = attribute_program_builder.build();
-
         Ok(Wraith {
             config_manager,
             wraith_state,
             wraith_state_machine,
-            shader_program,
-            attribute_program,
-            wraith_attribute
         })
     }
 
@@ -123,22 +89,18 @@ impl Wraith {
         self.wraith_state_machine.take_slashing(&mut self.wraith_state, dir);
     }
 
-    pub fn draw(&mut self, projection_view: &glm::Mat4) {
+    pub fn draw(&self, box_renderer: &mut BoxRenderer) {
         let (body_position, body_size) = (self.wraith_state.get_body_position(), self.wraith_state.config.size);
-        self.wraith_attribute.data = vec!(
-            WraithAttr {
+        let boxes = vec!(
+            BoxData {
                 position: glm::vec2(body_position.x, body_position.y),
-                half_size: glm::vec2(body_size.0 as f32 / 2.0, body_size.1 as f32 / 2.0)
+                half_size: glm::vec2(body_size.0 as f32 / 2.0, body_size.1 as f32 / 2.0),
+                rgba_tl: glm::vec4(1.0, 0.0, 0.0, 0.0),
+                rgba_tr: glm::vec4(1.0, 0.0, 0.0, 0.0),
+                rgba_bl: glm::vec4(1.0, 0.0, 0.2, 0.0),
+                rgba_br: glm::vec4(1.0, 0.05, 0.0, 0.0),
             });
 
-        self.shader_program.activate();
-        self.shader_program.set_mat4("projection_view", projection_view);
-        self.attribute_program.activate();
-        self.wraith_attribute.prepare_buffer();
-        unsafe {
-            gl::DrawArraysInstanced(gl::POINTS, 0, 4, self.wraith_attribute.data.len() as GLsizei);
-        }
-        self.attribute_program.deactivate();
-        self.shader_program.deactivate();
+        box_renderer.queue(boxes.as_slice());
     }
 }

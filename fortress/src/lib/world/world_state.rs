@@ -9,6 +9,7 @@ use file::{
 use map::Map;
 use physics::PhysicsSimulation;
 use player::Player;
+use render::BoxRenderer;
 use wraith::Wraith;
 use world::Camera;
 
@@ -24,6 +25,7 @@ pub struct WorldState {
     player: Player,
     wraith: Wraith,
 
+    box_renderer: BoxRenderer,
     // Declare physics simulation last so it is dropped last.
     physics_sim: PhysicsSimulation,
 }
@@ -47,6 +49,7 @@ impl WorldState {
             map,
             player,
             wraith,
+            box_renderer: BoxRenderer::new()?,
             physics_sim
         })
     }
@@ -80,9 +83,11 @@ impl WorldState {
     }
 
     pub fn draw_geometry(&mut self) {
+        self.map.draw(&mut self.box_renderer);
+        self.player.draw(&mut self.box_renderer);
+        self.wraith.draw(&mut self.box_renderer);
+
         let projection_view = self.camera.projection() * self.camera.view();
-        self.map.draw(&projection_view);
-        self.player.draw(&projection_view);
-        self.wraith.draw(&projection_view);
+        self.box_renderer.draw(&projection_view);
     }
 }

@@ -4,11 +4,6 @@ use dimensions::time::DeltaTime;
 use file::{
     ConfigWatcher,
     SimpleConfigManager,
-    self,
-};
-use gl::{
-    self,
-    types::*,
 };
 use glm;
 use liquidfun;
@@ -19,31 +14,13 @@ use map::{
 };
 use physics::PhysicsSimulation;
 use render::{
-    attribute,
-    AttributeProgram,
-    Attribute,
-    ShaderProgram,
+    BoxData,
+    BoxRenderer,
 };
-
-#[repr(C)]
-struct PlatformAttr {
-    bottom_left: glm::Vec2,
-    top_right: glm::Vec2,
-}
-
-impl attribute::KnownComponent for PlatformAttr {
-    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
-        (attribute::NumComponents::S4, attribute::ComponentType::FLOAT)
-    }
-}
 
 pub struct Map {
     config_manager: SimpleConfigManager<MapConfig>,
     state: MapState,
-
-    shader_program: ShaderProgram,
-    attribute_program: AttributeProgram,
-    platform_attribute: Attribute<PlatformAttr>,
 }
 
 impl Map {
@@ -56,20 +33,9 @@ impl Map {
             MapState::new(config.clone(), map_body)
         };
 
-        let vertex = file::util::resource_path("shaders", "platform_vert.glsl");
-        let geometry = file::util::resource_path("shaders", "platform_geo.glsl");
-        let fragment = file::util::resource_path("shaders", "platform_frag.glsl");
-        let shader_program = ShaderProgram::from_long_pipeline(&vertex, &geometry, &fragment)?;
-        let mut attribute_program_builder = AttributeProgram::new();
-        let platform_attribute = attribute_program_builder.add_attribute();
-        let attribute_program = attribute_program_builder.build();
-
         Ok(Map {
             config_manager,
             state,
-            shader_program,
-            attribute_program,
-            platform_attribute
         })
     }
 
@@ -94,24 +60,24 @@ impl Map {
         self.register();
     }
 
-    pub fn draw(&mut self, projection_view: &glm::Mat4) {
-        self.platform_attribute.data = self.state.body.platform_body.data_setter.get_fixture_iterator().map(|fixture| -> PlatformAttr {
+    pub fn draw(&mut self, box_renderer: &mut BoxRenderer) {
+        let boxes: Vec<BoxData> = self.state.body.platform_body.data_setter.get_fixture_iterator().map(|fixture| -> BoxData {
             let mut polygon =  liquidfun::box2d::collision::shapes::polygon_shape::from_shape(fixture.get_shape());
             let vertices: Vec<liquidfun::box2d::common::math::Vec2> = polygon.get_vertex_iterator().collect();
             let (min_vertex, max_vertex) = (vertices[0], vertices[2]);
-            PlatformAttr {
-                bottom_left: glm::vec2(min_vertex.x, min_vertex.y),
-                top_right: glm::vec2(max_vertex.x, max_vertex.y)
+
+            let half_size = glm::vec2((max_vertex.x - min_vertex.x) / 2.0, (max_vertex.y - min_vertex.y) / 2.0);
+            let position = glm::vec2(half_size.x + min_vertex.x, half_size.y + min_vertex.y);
+
+            BoxData {
+                position,
+                half_size,
+                rgba_tl: glm::vec4(0.3, 0.0, 0.4, 0.0),
+                rgba_tr: glm::vec4(0.0, 0.8, 0.0, 0.0),
+                rgba_bl: glm::vec4(0.5, 0.5, 1.0, 0.0),
+                rgba_br: glm::vec4(1.0, 0.5, 0.0, 0.0),
             }}).collect();
 
-        self.shader_program.activate();
-        self.shader_program.set_mat4("projection_view", projection_view);
-        self.attribute_program.activate();
-        self.platform_attribute.prepare_buffer();
-        unsafe {
-            gl::DrawArraysInstanced(gl::POINTS, 0, 4, self.platform_attribute.data.len() as GLsizei);
-        }
-        self.attribute_program.deactivate();
-        self.shader_program.deactivate();
+        box_renderer.queue(boxes.as_slice());
     }
 }
