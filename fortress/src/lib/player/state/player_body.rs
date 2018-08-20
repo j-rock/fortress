@@ -1,8 +1,8 @@
 use dimensions::LrDirection;
 use entity::{
     Entity,
-    EntityType,
     EntityRegistrar,
+    EntityType,
     Registered,
 };
 use liquidfun::box2d::{
@@ -19,7 +19,7 @@ use liquidfun::box2d::{
             Fixture,
             FixtureDef
         },
-        world::World,
+        world::World
     },
 };
 use physics::collision_category;
@@ -40,7 +40,7 @@ pub struct PlayerBody {
 }
 
 impl PlayerBody {
-    pub fn new(config: &PlayerConfig, registrar: EntityRegistrar, world: &mut World) -> PlayerBody {
+    pub fn new(config: &PlayerConfig, registrar: &EntityRegistrar, world: &mut World) -> PlayerBody {
         let mut body_def = BodyDef::default();
         body_def.body_type = BodyType::DynamicBody;
         body_def.position = Vec2::new(config.spawn_location.0 as f32, config.spawn_location.1 as f32);

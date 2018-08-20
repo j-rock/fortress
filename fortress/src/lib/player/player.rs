@@ -6,7 +6,10 @@ use control::{
 use dimensions::{
     time::DeltaTime
 };
-use entity::EntityType;
+use entity::{
+    EntityType,
+    EntityRegistrar,
+};
 use file::{
     ConfigWatcher,
     SimpleConfigManager,
@@ -25,7 +28,6 @@ use player::{
     PlayerConfig,
     PlayerState,
     state::{
-        PlayerBody,
         PlayerStateMachine,
         PlayerUpright,
     }
@@ -52,6 +54,8 @@ impl attribute::KnownComponent for PlayerAttr {
 
 pub struct Player {
     config_manager: SimpleConfigManager<PlayerConfig>,
+    registrar: EntityRegistrar,
+
     player_state: PlayerState,
     player_state_machine: Box<dyn PlayerStateMachine>,
 
@@ -63,11 +67,11 @@ pub struct Player {
 impl Player {
     pub fn new(config_watcher: &mut ConfigWatcher, physics_sim: &mut PhysicsSimulation) -> StatusOr<Player> {
         let config_manager = SimpleConfigManager::new(config_watcher, "player.conf")?;
+        let registrar = physics_sim.registrar();
 
         let (player_state, player_state_machine) = {
-            let config = config_manager.get();
-            let player_body = PlayerBody::new(config, physics_sim.registrar(), physics_sim.get_world_mut());
-            let player_state = PlayerState::new(config.clone(), player_body);
+            let config: &PlayerConfig = config_manager.get();
+            let player_state = PlayerState::new(config.clone(), &registrar, physics_sim.get_world_mut());
             let player_state_machine = Box::new(PlayerUpright::new());
 
             (player_state, player_state_machine)
@@ -83,6 +87,7 @@ impl Player {
 
         Ok(Player {
             config_manager,
+            registrar,
             player_state,
             player_state_machine,
             shader_program,
@@ -118,8 +123,7 @@ impl Player {
         {
             let config = self.config_manager.get();
             let mut world = self.player_state.body.body.get_world();
-            let player_body = PlayerBody::new(config, self.player_state.body.foot_sensor.registrar.clone(), &mut world);
-            self.player_state = PlayerState::new(config.clone(), player_body);
+            self.player_state = PlayerState::new(config.clone(), &self.registrar, &mut world);
             self.player_state_machine = Box::new(PlayerUpright::new());
         }
 

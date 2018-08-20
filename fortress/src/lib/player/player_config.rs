@@ -16,5 +16,10 @@ pub struct PlayerConfig {
     pub sword_sensor_center: (f32, f32),
 
     pub slash_period_ms: i64,
+
+    pub crossbow_body_offset: (f32, f32),
+    pub arrow_box_size: (f32, f32),
+    pub arrow_speed: (f32, f32),
+    pub firing_period_ms: i64
 }
 

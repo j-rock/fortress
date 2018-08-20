@@ -29,6 +29,7 @@ extern {
 /// The world class manages all physics entities, dynamic simulation,
 /// and asynchronous queries. The world also contains efficient memory
 /// management facilities.
+#[derive(Copy, Clone)]
 pub struct World {
 	pub ptr: *mut B2World,
 }

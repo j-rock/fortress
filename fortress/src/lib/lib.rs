@@ -12,6 +12,7 @@ extern crate serde_json;
 pub mod app;
 pub mod color;
 pub mod control;
+pub mod crossbow;
 pub mod dimensions;
 pub mod entity;
 pub mod file;

@@ -1,5 +1,10 @@
+use crossbow::Crossbow;
 use dimensions::time::DeltaTime;
-use liquidfun::box2d::common::math::Vec2;
+use entity::EntityRegistrar;
+use liquidfun::box2d::{
+    common::math::Vec2,
+    dynamics::world::World,
+};
 use player::{
     Player,
     PlayerConfig,
@@ -13,15 +18,19 @@ pub struct PlayerState {
     pub config: PlayerConfig,
     pub body: PlayerBody,
     pub slash: SlashState,
+    pub crossbow: Crossbow,
 }
 
 impl PlayerState {
-    pub fn new(config: PlayerConfig, body: PlayerBody) -> PlayerState {
+    pub fn new(config: PlayerConfig, registrar: &EntityRegistrar, world: &mut World) -> PlayerState {
+        let body = PlayerBody::new(&config, registrar, world);
         let slash = SlashState::new(&config);
+        let crossbow = Crossbow::new(&config, registrar, world);
         PlayerState {
             config,
             body,
             slash,
+            crossbow,
         }
     }
 

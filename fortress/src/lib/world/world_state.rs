@@ -1,5 +1,6 @@
 use app::StatusOr;
 use control::Controller;
+use crossbow::Crossbow;
 use dimensions::time::DeltaTime;
 use file::{
     ConfigWatcher,
@@ -36,7 +37,9 @@ impl WorldState {
 
         physics_sim.add_collision_matchers(vec!(
             Player::foot_sensor_hit_something(),
-            Player::slash_wraith()));
+            Player::slash_wraith(),
+            Crossbow::arrow_hit(),
+        ));
 
         Ok(WorldState {
             config_manager: SimpleConfigManager::new(config_watcher, "world.conf")?,
