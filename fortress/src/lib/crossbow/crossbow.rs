@@ -121,7 +121,6 @@ impl Crossbow {
             }
         }), Box::new(|entity| {
             let crossbow: &mut Self = entity.resolve();
-            println!("Hit!");
             if let EntityType::CrossbowArrow(x) = entity.etype() {
                 crossbow.remove_arrow(x);
             }
