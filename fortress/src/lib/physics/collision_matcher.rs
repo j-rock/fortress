@@ -5,7 +5,7 @@ use entity::{
 
 pub enum CollisionMatcher {
     MatchOne(Box<Fn(EntityType) -> bool>, Box<Fn(Entity)>),
-    MatchTwo(EntityType, EntityType, Box<Fn(Entity, Entity)>),
+    MatchTwo(Box<Fn(EntityType) -> bool>, Box<Fn(EntityType) -> bool>, Box<Fn(Entity,Entity)>)
 }
 
 impl CollisionMatcher {
@@ -14,11 +14,19 @@ impl CollisionMatcher {
     }
 
     pub fn match_two(etype1: EntityType, etype2: EntityType, closure: Box<Fn(Entity, Entity)>) -> CollisionMatcher {
-        CollisionMatcher::MatchTwo(etype1, etype2, closure)
+        let pred1 = Box::new(move |arg| { arg == etype1});
+        let pred2 = Box::new(move |arg| { arg == etype2});
+        CollisionMatcher::MatchTwo(pred1, pred2, closure)
     }
 
     pub fn fuzzy_match_one(predicate: Box<Fn(EntityType) -> bool>, closure: Box<Fn(Entity)>) -> CollisionMatcher {
         CollisionMatcher::MatchOne(predicate, closure)
+    }
+
+    pub fn fuzzy_match_two(pred1: Box<Fn(EntityType) -> bool>,
+                           pred2: Box<Fn(EntityType) -> bool>,
+                           closure: Box<Fn(Entity, Entity)>) -> CollisionMatcher {
+        CollisionMatcher::MatchTwo(pred1, pred2, closure)
     }
 
     pub fn try_apply(&self, entity1: Entity, entity2: Entity) {
@@ -31,10 +39,10 @@ impl CollisionMatcher {
                     closure(entity2);
                 }
             },
-            CollisionMatcher::MatchTwo(ref etype1, ref etype2, ref closure) => {
-                if *etype1 == entity1.etype() && *etype2 == entity2.etype() {
+            CollisionMatcher::MatchTwo(ref pred1, ref pred2, ref closure) => {
+                if pred1(entity1.etype()) && pred2(entity2.etype()) {
                     closure(entity1, entity2);
-                } else if *etype1 == entity2.etype() && *etype2 == entity1.etype() {
+                } else if pred1(entity2.etype()) && pred2(entity1.etype()) {
                     closure(entity2, entity1);
                 }
             },

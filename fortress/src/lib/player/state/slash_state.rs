@@ -1,4 +1,5 @@
 use dimensions::{
+    Damage,
     time::{
         DeltaTime,
         self,
@@ -24,6 +25,8 @@ impl CurrentSlash {
 
 #[derive(Copy, Clone)]
 pub struct SlashState {
+    sword_knockback_strength: f32,
+    sword_damage: Damage,
     slash_period: time::Microseconds,
     current_slash: Option<CurrentSlash>,
 }
@@ -32,6 +35,8 @@ impl SlashState {
     pub fn new(config: &PlayerConfig) -> SlashState {
         SlashState {
             slash_period: time::milliseconds(config.slash_period_ms),
+            sword_damage: config.sword_damage,
+            sword_knockback_strength: config.sword_knockback_strength,
             current_slash: None,
         }
     }
@@ -55,5 +60,13 @@ impl SlashState {
             body.enable_sword_collision();
             self.current_slash = Some(CurrentSlash::new(self.slash_period));
         }
+    }
+
+    pub fn get_sword_knockback_strength(&self) -> f32 {
+        self.sword_knockback_strength
+    }
+
+    pub fn get_sword_damage(&self) -> Damage {
+        self.sword_damage
     }
 }

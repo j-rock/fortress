@@ -1,3 +1,4 @@
+use dimensions::Health;
 use liquidfun::box2d::common::math::Vec2;
 use wraith::{
     Wraith,
@@ -8,13 +9,16 @@ use wraith::{
 pub struct WraithState {
     pub config: WraithConfig,
     pub body: WraithBody,
+    pub health: Health,
 }
 
 impl WraithState {
     pub fn new(config: WraithConfig, body: WraithBody) -> WraithState {
+        let health = config.starting_health;
         WraithState {
             config,
-            body
+            body,
+            health,
         }
     }
 

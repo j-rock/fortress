@@ -1,6 +1,5 @@
 use app::StatusOr;
 use control::Controller;
-use crossbow::Crossbow;
 use dimensions::time::DeltaTime;
 use file::{
     ConfigWatcher,
@@ -10,8 +9,9 @@ use map::Map;
 use physics::PhysicsSimulation;
 use player::Player;
 use render::BoxRenderer;
-use wraith::Wraith;
+use weapon::Crossbow;
 use world::Camera;
+use wraith::Wraith;
 
 #[derive(Deserialize)]
 struct WorldConfig {

@@ -4,6 +4,7 @@ use control::{
     ControlEvent::RespawnEntities,
 };
 use dimensions::{
+    Attack,
     time::DeltaTime
 };
 use entity::{
@@ -133,7 +134,12 @@ impl Player {
         CollisionMatcher::match_two(EntityType::PlayerSwordSensor, EntityType::Wraith, Box::new(|sword_ent, wraith_ent| {
             let player: &Self = sword_ent.resolve();
             let wraith: &mut Wraith = wraith_ent.resolve();
-            wraith.take_slashing(player.player_state.body.facing_dir);
+            let attack = Attack {
+                damage: player.player_state.get_sword_damage(),
+                knockback_strength: player.player_state.get_sword_knockback_strength(),
+                knockback_dir: player.player_state.body.facing_dir
+            };
+            wraith.take_attack(attack);
         }))
     }
 }

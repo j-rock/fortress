@@ -4,5 +4,5 @@ pub struct WraithConfig {
     pub spawn_location: (f32, f32),
     pub density: f32,
     pub friction: f32,
-    pub slashed_speed: f32,
+    pub starting_health: i64,
 }

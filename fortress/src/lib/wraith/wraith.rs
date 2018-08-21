@@ -4,7 +4,7 @@ use control::{
     ControlEvent,
 };
 use dimensions::{
-    LrDirection,
+    Attack,
     time::DeltaTime
 };
 use file::{
@@ -13,6 +13,10 @@ use file::{
 };
 use glm;
 use physics::PhysicsSimulation;
+use render::{
+    BoxData,
+    BoxRenderer,
+};
 use wraith::{
     WraithConfig,
     WraithState,
@@ -21,10 +25,6 @@ use wraith::{
         WraithStateMachine,
         WraithUpright,
     }
-};
-use render::{
-    BoxData,
-    BoxRenderer,
 };
 
 pub struct Wraith {
@@ -72,6 +72,10 @@ impl Wraith {
         if let Some(wraith_state_machine) = self.wraith_state_machine.post_update() {
             self.wraith_state_machine = wraith_state_machine;
         }
+
+        if self.wraith_state.health <= 0 {
+            self.redeploy();
+        }
     }
 
     fn redeploy(&mut self) {
@@ -85,8 +89,9 @@ impl Wraith {
         self.register();
     }
 
-    pub fn take_slashing(&mut self, dir: LrDirection) {
-        self.wraith_state_machine.take_slashing(&mut self.wraith_state, dir);
+    pub fn take_attack(&mut self, attack: Attack) {
+        self.wraith_state.health -= attack.damage;
+        self.wraith_state.body.move_horizontal(attack.knockback_strength, Some(attack.knockback_dir));
     }
 
     pub fn draw(&self, box_renderer: &mut BoxRenderer) {

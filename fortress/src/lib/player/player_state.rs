@@ -1,5 +1,5 @@
-use crossbow::Crossbow;
 use dimensions::{
+    Damage,
     LrDirection,
     time::DeltaTime
 };
@@ -16,6 +16,7 @@ use player::{
         SlashState,
     },
 };
+use weapon::Crossbow;
 
 pub struct PlayerState {
     pub config: PlayerConfig,
@@ -60,6 +61,14 @@ impl PlayerState {
         };
 
         self.crossbow.try_fire(start_position, curr_dir);
+    }
+
+    pub fn get_sword_knockback_strength(&self) -> f32 {
+        self.slash.get_sword_knockback_strength()
+    }
+
+    pub fn get_sword_damage(&self) -> Damage {
+        self.slash.get_sword_damage()
     }
 
     pub fn get_facing_dir(&self) -> LrDirection {

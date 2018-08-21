@@ -1,4 +1,6 @@
 use dimensions::{
+    Attack,
+    Damage,
     LrDirection,
     time::{
         self,
@@ -37,6 +39,7 @@ use render::{
     BoxRenderer
 };
 use std::collections::HashMap;
+use wraith::Wraith;
 
 type ArrowId = usize;
 
@@ -45,33 +48,33 @@ struct Arrow {
 }
 
 pub struct Crossbow {
-    world: World,
+    arrow_counter: usize,
+    arrows: HashMap<ArrowId, Arrow>,
 
     arrow_speed: Vec2,
-    arrow_box_size: Vec2,
-    arrows: HashMap<ArrowId, Arrow>,
-    arrow_counter: usize,
-
+    arrow_damage: Damage,
+    arrow_knockback_strength: f32,
     firing_period: time::Microseconds,
     current_delay: Option<time::Microseconds>,
+    arrow_box_size: Vec2,
 
     registrar: EntityRegistrar,
+    world: World,
 }
 
 impl Crossbow {
     pub fn new(config: &PlayerConfig, registrar: &EntityRegistrar, world: &mut World) -> Crossbow {
         Crossbow {
-            world: world.clone(),
-
-            arrow_speed: Vec2::new(config.arrow_speed.0, config.arrow_speed.1),
-            arrow_box_size: Vec2::new(config.arrow_box_size.0, config.arrow_box_size.1),
-            arrows: HashMap::new(),
             arrow_counter: 0,
-
+            arrows: HashMap::new(),
+            arrow_speed: Vec2::new(config.arrow_speed.0, config.arrow_speed.1),
+            arrow_damage: config.arrow_damage,
+            arrow_knockback_strength: config.arrow_knockback_strength,
             firing_period: time::milliseconds(config.firing_period_ms),
             current_delay: None,
-
+            arrow_box_size: Vec2::new(config.arrow_box_size.0, config.arrow_box_size.1),
             registrar: registrar.clone(),
+            world: world.clone(),
         }
     }
 
@@ -106,6 +109,22 @@ impl Crossbow {
         }
     }
 
+    pub fn get_attack(&self, arrow_id: ArrowId) -> Attack {
+        let arrow = self.arrows.get(&arrow_id).expect("Crossbow had bad arrow.");
+        let arrow_velocity = arrow.body.data_setter.get_linear_velocity();
+        let arrow_dir = if arrow_velocity.x <= 0.0 {
+            LrDirection::Left
+        } else {
+            LrDirection::Right
+        };
+
+        Attack {
+            damage: self.arrow_damage,
+            knockback_strength: self.arrow_knockback_strength,
+            knockback_dir: arrow_dir
+        }
+    }
+
     pub fn remove_arrow(&mut self, arrow_id: ArrowId) {
         if let Some(mut arrow) = self.arrows.remove(&arrow_id) {
             self.world.destroy_body(&mut arrow.body.data_setter);
@@ -113,17 +132,31 @@ impl Crossbow {
     }
 
     pub fn arrow_hit() -> CollisionMatcher {
-        CollisionMatcher::fuzzy_match_one(Box::new(|etype| {
+        CollisionMatcher::fuzzy_match_two(Box::new(|etype| {
             if let EntityType::CrossbowArrow(_x) = etype {
                 true
             } else {
                 false
             }
-        }), Box::new(|entity| {
-            let crossbow: &mut Self = entity.resolve();
-            if let EntityType::CrossbowArrow(x) = entity.etype() {
-                crossbow.remove_arrow(x);
+        }), Box::new(|_etype| {
+            true
+        }), Box::new(|crossbow_entity, other_entity| {
+            let arrow_id = if let EntityType::CrossbowArrow(x) = crossbow_entity.etype() {
+                x
+            } else {
+                panic!("Crossbow collision matcher is broken.");
+            };
+
+            let crossbow: &mut Self = crossbow_entity.resolve();
+
+            if other_entity.etype() == EntityType::Wraith {
+                let wraith: &mut Wraith = other_entity.resolve();
+
+                let arrow_attack = crossbow.get_attack(arrow_id);
+                wraith.take_attack(arrow_attack);
             }
+
+            crossbow.remove_arrow(arrow_id);
         }))
     }
 
