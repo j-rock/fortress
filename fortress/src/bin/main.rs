@@ -1,3 +1,4 @@
+#![windows_subsystem = "windows"]
 extern crate fortress;
 
 mod mains;
