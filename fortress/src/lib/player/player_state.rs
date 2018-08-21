@@ -11,29 +11,29 @@ use liquidfun::box2d::{
 use player::{
     Player,
     PlayerConfig,
-    state::{
-        PlayerBody,
-        SlashState,
-    },
+    state::PlayerBody
 };
-use weapon::Crossbow;
+use weapon::{
+    Crossbow,
+    Sword
+};
 
 pub struct PlayerState {
     pub config: PlayerConfig,
     pub body: PlayerBody,
-    pub slash: SlashState,
+    pub sword: Sword,
     pub crossbow: Crossbow,
 }
 
 impl PlayerState {
     pub fn new(config: PlayerConfig, registrar: &EntityRegistrar, world: &mut World) -> PlayerState {
         let body = PlayerBody::new(&config, registrar, world);
-        let slash = SlashState::new(&config);
+        let sword = Sword::new(&config);
         let crossbow = Crossbow::new(&config, registrar, world);
         PlayerState {
             config,
             body,
-            slash,
+            sword,
             crossbow,
         }
     }
@@ -43,12 +43,12 @@ impl PlayerState {
     }
 
     pub fn pre_update(&mut self, dt: DeltaTime) {
-        self.slash.pre_update(&mut self.body, dt);
+        self.sword.pre_update(&mut self.body, dt);
         self.crossbow.pre_update(dt);
     }
 
     pub fn try_slash(&mut self) {
-        self.slash.try_slash(&mut self.body);
+        self.sword.try_slash(&mut self.body);
     }
 
     pub fn try_fire(&mut self) {
@@ -64,11 +64,11 @@ impl PlayerState {
     }
 
     pub fn get_sword_knockback_strength(&self) -> f32 {
-        self.slash.get_sword_knockback_strength()
+        self.sword.get_knockback_strength()
     }
 
     pub fn get_sword_damage(&self) -> Damage {
-        self.slash.get_sword_damage()
+        self.sword.get_damage()
     }
 
     pub fn get_facing_dir(&self) -> LrDirection {

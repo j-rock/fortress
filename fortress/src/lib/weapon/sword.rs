@@ -24,19 +24,19 @@ impl CurrentSlash {
 }
 
 #[derive(Copy, Clone)]
-pub struct SlashState {
-    sword_knockback_strength: f32,
-    sword_damage: Damage,
+pub struct Sword {
+    slash_knockback_strength: f32,
+    slash_damage: Damage,
     slash_period: time::Microseconds,
     current_slash: Option<CurrentSlash>,
 }
 
-impl SlashState {
-    pub fn new(config: &PlayerConfig) -> SlashState {
-        SlashState {
+impl Sword {
+    pub fn new(config: &PlayerConfig) -> Sword {
+        Sword {
             slash_period: time::milliseconds(config.slash_period_ms),
-            sword_damage: config.sword_damage,
-            sword_knockback_strength: config.sword_knockback_strength,
+            slash_damage: config.sword_damage,
+            slash_knockback_strength: config.sword_knockback_strength,
             current_slash: None,
         }
     }
@@ -62,11 +62,11 @@ impl SlashState {
         }
     }
 
-    pub fn get_sword_knockback_strength(&self) -> f32 {
-        self.sword_knockback_strength
+    pub fn get_knockback_strength(&self) -> f32 {
+        self.slash_knockback_strength
     }
 
-    pub fn get_sword_damage(&self) -> Damage {
-        self.sword_damage
+    pub fn get_damage(&self) -> Damage {
+        self.slash_damage
     }
 }
