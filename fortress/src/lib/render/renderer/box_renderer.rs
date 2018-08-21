@@ -141,7 +141,6 @@ impl attribute::KnownComponent for BoxTopLeftAttr {
     }
 }
 
-
 impl attribute::KnownComponent for BoxTopRightAttr {
     fn component() -> (attribute::NumComponents, attribute::ComponentType) {
         (attribute::NumComponents::S4, attribute::ComponentType::FLOAT)
