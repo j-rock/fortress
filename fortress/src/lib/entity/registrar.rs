@@ -1,8 +1,8 @@
 use liquidfun;
 use entity::Entity;
+use slab::Slab;
 use std::{
     cell::RefCell,
-    collections::HashMap,
     rc::Rc,
 };
 
@@ -59,20 +59,18 @@ impl EntityRegistrar {
 }
 
 struct RawEntityRegistrar {
-    registrar: HashMap<usize, Entity>,
-    registration_counter: usize
+    registrar: Slab<Entity>,
 }
 
 impl RawEntityRegistrar {
     pub fn new() -> RawEntityRegistrar {
         RawEntityRegistrar {
-            registrar: HashMap::new(),
-            registration_counter: 0
+            registrar: Slab::new(),
         }
     }
 
     pub fn resolve(&self, encoded: usize) -> Option<&Entity> {
-        Self::decode(encoded).and_then(|decoded_idx| self.registrar.get(&decoded_idx))
+        Self::decode(encoded).and_then(|decoded_idx| self.registrar.get(decoded_idx))
     }
 
     fn encode(val: usize) -> usize {
@@ -88,15 +86,13 @@ impl RawEntityRegistrar {
     }
 
     pub fn register<UserData: DataSetter>(&mut self, entity: Entity, user_data_owner: &UserData) {
-        self.registration_counter += 1;
-        self.registrar.insert(self.registration_counter, entity);
-        let user_data = Self::encode(self.registration_counter);
+        let user_data = Self::encode(self.registrar.insert(entity));
         user_data_owner.set_data(user_data);
     }
 
     pub fn unregister<UserData: DataSetter>(&mut self, user_data_owner: &UserData) {
         if let Some(idx) = Self::decode(user_data_owner.get_data()) {
-            self.registrar.remove(&idx);
+            self.registrar.remove(idx);
         }
     }
 }
