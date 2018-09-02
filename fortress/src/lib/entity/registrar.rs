@@ -107,8 +107,8 @@ impl <T: DataSetter> Registered<T> {
     pub fn new(data_setter: T, registrar: EntityRegistrar, entity: Option<Entity>) -> Registered<T> {
         let mut registered = Registered {
             data_setter,
-            entity,
-            registrar
+            registrar,
+            entity
         };
 
         if let Some(entity) = registered.entity {

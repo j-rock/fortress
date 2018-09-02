@@ -27,6 +27,7 @@ use player::{
     Player,
     PlayerConfig,
 };
+use std;
 
 pub struct PlayerBody {
     pub body: Body,
@@ -139,7 +140,8 @@ impl PlayerBody {
             let registrar = self.sword_sensor.registrar.clone();
             let entity = self.sword_sensor.entity.clone();
             let sword_sensor_fixture = Self::create_sword_sensor_fixture(self.sword_size, self.sword_offset_from_body, &self.body);
-            self.sword_sensor = Registered::new(sword_sensor_fixture, registrar, entity);
+            let mut old_sword = std::mem::replace(&mut self.sword_sensor, Registered::new(sword_sensor_fixture, registrar, entity));
+            self.body.destroy_fixture(&mut old_sword.data_setter);
         }
     }
 
