@@ -38,7 +38,7 @@ use render::{
     BoxData,
     BoxRenderer
 };
-use std::collections::HashMap;
+use slab::Slab;
 use wraith::Wraith;
 
 type ArrowId = usize;
@@ -48,8 +48,7 @@ struct Arrow {
 }
 
 pub struct Crossbow {
-    arrow_counter: usize,
-    arrows: HashMap<ArrowId, Arrow>,
+    arrows: Slab<Arrow>,
 
     arrow_speed: Vec2,
     arrow_damage: Damage,
@@ -65,8 +64,7 @@ pub struct Crossbow {
 impl Crossbow {
     pub fn new(config: &PlayerConfig, registrar: &EntityRegistrar, world: &mut World) -> Crossbow {
         Crossbow {
-            arrow_counter: 0,
-            arrows: HashMap::new(),
+            arrows: Slab::new(),
             arrow_speed: Vec2::new(config.arrow_speed.0, config.arrow_speed.1),
             arrow_damage: config.arrow_damage,
             arrow_knockback_strength: config.arrow_knockback_strength,
@@ -91,9 +89,10 @@ impl Crossbow {
 
     pub fn try_fire(&mut self, start_position: Vec2, direction: LrDirection) {
         if let None = self.current_delay {
-            self.arrow_counter += 1;
-
-            let next_arrow_id = self.arrow_counter;
+            // Dirty trick to get next arrow id. Create vacant entry, read its key, drop it.
+            let next_arrow_id = {
+                self.arrows.vacant_entry().key()
+            };
             let etype = EntityType::CrossbowArrow(next_arrow_id);
             let crossbow: *const Crossbow = self as *const Crossbow;
             let entity = Entity::new(etype, crossbow);
@@ -103,14 +102,13 @@ impl Crossbow {
                 body: Registered::new(arrow_body, self.registrar.clone(), Some(entity))
             };
 
-            self.arrows.insert(next_arrow_id, arrow);
-
+            self.arrows.vacant_entry().insert(arrow);
             self.current_delay = Some(self.firing_period);
         }
     }
 
     pub fn get_attack(&self, arrow_id: ArrowId) -> Attack {
-        let arrow = self.arrows.get(&arrow_id).expect("Crossbow had bad arrow.");
+        let arrow = self.arrows.get(arrow_id).expect("Crossbow had bad arrow.");
         let arrow_velocity = arrow.body.data_setter.get_linear_velocity();
         let arrow_dir = if arrow_velocity.x <= 0.0 {
             LrDirection::Left
@@ -126,9 +124,8 @@ impl Crossbow {
     }
 
     pub fn remove_arrow(&mut self, arrow_id: ArrowId) {
-        if let Some(mut arrow) = self.arrows.remove(&arrow_id) {
-            self.world.destroy_body(&mut arrow.body.data_setter);
-        }
+        let mut arrow = self.arrows.remove(arrow_id);
+        self.world.destroy_body(&mut arrow.body.data_setter);
     }
 
     pub fn arrow_hit() -> CollisionMatcher {
@@ -190,8 +187,8 @@ impl Crossbow {
     }
 
     pub fn draw(&self, box_renderer: &mut BoxRenderer) {
-        let boxes: Vec<BoxData> = self.arrows.values().map(|arrow| -> BoxData {
-            let body_position = arrow.body.data_setter.get_position();
+        let boxes: Vec<BoxData> = self.arrows.iter().map(|arrow| -> BoxData {
+            let body_position = arrow.1.body.data_setter.get_position();
             let body_size = self.arrow_box_size;
             BoxData {
                 position: glm::vec2(body_position.x, body_position.y),
