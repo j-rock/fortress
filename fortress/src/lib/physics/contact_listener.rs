@@ -72,13 +72,7 @@ impl ContactListener for PhysicsContactListener {
             let user_data_b = Self::get_user_data(&contact.get_fixture_b());
             match (user_data_a, user_data_b) {
                 (Some(data_a), Some(data_b)) => {
-                    // Sort each pair for canonicalization.
-                    let contact_data = if data_a < data_b {
-                        (data_a, data_b)
-                    } else {
-                        (data_b, data_a)
-                    };
-                    self.contacts.push(contact_data);
+                    self.contacts.push((data_a, data_b));
                 },
                 _ => {}
            }
