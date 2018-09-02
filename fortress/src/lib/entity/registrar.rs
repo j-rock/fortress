@@ -46,7 +46,7 @@ impl EntityRegistrar {
     }
 
     pub fn resolve(&self, encoded: usize) -> Option<Entity> {
-        self.raw.borrow_mut().resolve(encoded).cloned()
+        self.raw.borrow().resolve(encoded).cloned()
     }
 
     pub fn register<UserData: DataSetter>(&mut self, entity: Entity, user_data_owner: &UserData) {
