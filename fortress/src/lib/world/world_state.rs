@@ -1,4 +1,5 @@
 use app::StatusOr;
+use camera::Camera;
 use control::Controller;
 use dimensions::time::DeltaTime;
 use file::{
@@ -10,7 +11,6 @@ use physics::PhysicsSimulation;
 use player::Player;
 use render::BoxRenderer;
 use weapon::Crossbow;
-use world::Camera;
 use wraith::Wraith;
 
 #[derive(Deserialize)]
@@ -76,6 +76,8 @@ impl WorldState {
             self.player.post_update();
             self.wraith.post_update();
         }
+
+        self.camera.recenter(self.player.get_position());
     }
 
     pub fn clear_color(&self) -> (f32, f32, f32) {

@@ -86,6 +86,11 @@ impl Player {
         }
     }
 
+    pub fn get_position(&self) -> (f32, f32) {
+        let body_pos = self.player_state.get_body_position();
+        (body_pos.x, body_pos.y)
+    }
+
     fn redeploy(&mut self) {
         {
             let config = self.config_manager.get();
