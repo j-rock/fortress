@@ -1,20 +1,11 @@
-use app::StatusOr;
 use control::{
     Controller,
-    ControlEvent::RespawnEntities,
 };
 use dimensions::{
     Attack,
     time::DeltaTime
 };
-use entity::{
-    EntityType,
-    EntityRegistrar,
-};
-use file::{
-    ConfigWatcher,
-    SimpleConfigManager,
-};
+use entity::EntityType;
 use glm;
 use physics::{
     CollisionMatcher,
@@ -35,32 +26,20 @@ use render::{
 use wraith::Wraith;
 
 pub struct Player {
-    config_manager: SimpleConfigManager<PlayerConfig>,
-    registrar: EntityRegistrar,
-
     player_state: PlayerState,
     player_state_machine: Box<dyn PlayerStateMachine>,
 }
 
 impl Player {
-    pub fn new(config_watcher: &mut ConfigWatcher, physics_sim: &mut PhysicsSimulation) -> StatusOr<Player> {
-        let config_manager = SimpleConfigManager::new(config_watcher, "player.conf")?;
+    pub fn new(config: &PlayerConfig, physics_sim: &mut PhysicsSimulation) -> Player {
         let registrar = physics_sim.registrar();
+        let player_state = PlayerState::new(config.clone(), &registrar, physics_sim.get_world_mut());
+        let player_state_machine = Box::new(PlayerUpright::new());
 
-        let (player_state, player_state_machine) = {
-            let config: &PlayerConfig = config_manager.get();
-            let player_state = PlayerState::new(config.clone(), &registrar, physics_sim.get_world_mut());
-            let player_state_machine = Box::new(PlayerUpright::new());
-
-            (player_state, player_state_machine)
-        };
-
-        Ok(Player {
-            config_manager,
-            registrar,
+        Player {
             player_state,
             player_state_machine,
-        })
+        }
     }
 
     pub fn register(&mut self) {
@@ -69,10 +48,6 @@ impl Player {
     }
 
     pub fn pre_update(&mut self, controller: &Controller, dt: DeltaTime) {
-        if self.config_manager.update() || controller.just_pressed(RespawnEntities) {
-            self.redeploy();
-        }
-
         self.player_state.pre_update(dt);
 
         if let Some(player_state_machine) = self.player_state_machine.pre_update(&mut self.player_state, controller, dt) {
@@ -91,13 +66,10 @@ impl Player {
         (body_pos.x, body_pos.y)
     }
 
-    fn redeploy(&mut self) {
-        {
-            let config = self.config_manager.get();
-            let mut world = self.player_state.body.body.get_world();
-            self.player_state = PlayerState::new(config.clone(), &self.registrar, &mut world);
-            self.player_state_machine = Box::new(PlayerUpright::new());
-        }
+    pub fn redeploy(&mut self, config: &PlayerConfig, physics_sim: &mut PhysicsSimulation) {
+        let registrar = physics_sim.registrar();
+        self.player_state = PlayerState::new(config.clone(), &registrar, physics_sim.get_world_mut());
+        self.player_state_machine = Box::new(PlayerUpright::new());
 
         self.register();
     }

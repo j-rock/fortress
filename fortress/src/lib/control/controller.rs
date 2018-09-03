@@ -35,6 +35,10 @@ impl Controller {
         self.keyboard.just_released(self.control_event_to_scancode(event))
     }
 
+    pub fn keyboard_used_first_time(&self) -> bool {
+        self.keyboard.used_first_time()
+    }
+
     fn control_event_to_scancode(&self, event: ControlEvent) -> Scancode {
         match event {
             ControlEvent::PlayerFire => Scancode::I,

@@ -4,7 +4,33 @@ use sdl2::{
 };
 use std::collections::HashSet;
 
+struct FirstTimeUsed {
+    pub has_been_used: bool,
+    pub first_time_used: bool,
+}
+
+impl FirstTimeUsed {
+    pub fn new() -> FirstTimeUsed {
+        FirstTimeUsed {
+            has_been_used: false,
+            first_time_used: false,
+        }
+    }
+
+    pub fn touch(&mut self, cond: bool) {
+        if cond {
+            self.first_time_used = !self.has_been_used;
+            self.has_been_used = true;
+        }
+    }
+
+    pub fn is_first(&self) -> bool {
+        self.first_time_used
+    }
+}
+
 pub struct KeyboardControls {
+    first_time_used: FirstTimeUsed,
     currently_pressed: HashSet<Scancode>,
     just_pressed: HashSet<Scancode>,
     just_released: HashSet<Scancode>,
@@ -13,6 +39,7 @@ pub struct KeyboardControls {
 impl KeyboardControls {
     pub fn new() -> KeyboardControls {
         KeyboardControls {
+            first_time_used: FirstTimeUsed::new(),
             currently_pressed: HashSet::new(),
             just_pressed: HashSet::new(),
             just_released: HashSet::new(),
@@ -21,6 +48,7 @@ impl KeyboardControls {
 
     pub fn update(&mut self, e: &EventPump) {
         let currently_pressed: HashSet<_> = e.keyboard_state().pressed_scancodes().collect();
+        self.first_time_used.touch(currently_pressed.len() > 0);
         self.just_pressed.clear();
         for scancode in currently_pressed.difference(&self.currently_pressed) {
             self.just_pressed.insert(scancode.clone());
@@ -44,5 +72,9 @@ impl KeyboardControls {
 
     pub fn just_released(&self, scancode: Scancode) -> bool {
         self.just_released.contains(&scancode)
+    }
+
+    pub fn used_first_time(&self) -> bool {
+        self.first_time_used.is_first()
     }
 }

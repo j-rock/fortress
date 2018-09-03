@@ -8,7 +8,10 @@ use file::{
 };
 use map::Map;
 use physics::PhysicsSimulation;
-use player::Player;
+use player::{
+    Player,
+    PlayerSystem
+};
 use render::BoxRenderer;
 use weapon::Crossbow;
 use wraith::Wraith;
@@ -22,7 +25,7 @@ pub struct WorldState {
     config_manager: SimpleConfigManager<WorldConfig>,
     camera: Camera,
     map: Map,
-    player: Player,
+    players: PlayerSystem,
     wraith: Wraith,
 
     box_renderer: BoxRenderer,
@@ -34,7 +37,6 @@ impl WorldState {
     pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<WorldState> {
         let mut physics_sim = PhysicsSimulation::new(config_watcher)?;
         let map = Map::new(config_watcher, &mut physics_sim)?;
-        let player = Player::new(config_watcher, &mut physics_sim)?;
         let wraith = Wraith::new(config_watcher, &mut physics_sim)?;
 
         physics_sim.add_collision_matchers(vec!(
@@ -47,7 +49,7 @@ impl WorldState {
             config_manager: SimpleConfigManager::new(config_watcher, "world.conf")?,
             camera: Camera::new(config_watcher)?,
             map,
-            player,
+            players: PlayerSystem::new(config_watcher)?,
             wraith,
             box_renderer: BoxRenderer::new()?,
             physics_sim
@@ -56,7 +58,6 @@ impl WorldState {
 
     pub fn register(&mut self) {
         self.map.register();
-        self.player.register();
         self.wraith.register();
     }
 
@@ -66,14 +67,14 @@ impl WorldState {
 
         {
             self.map.pre_update(controller, dt);
-            self.player.pre_update(controller, dt);
+            self.players.pre_update(controller, &mut self.physics_sim, dt);
             self.wraith.pre_update(controller, dt);
         }
 
         self.physics_sim.update(dt);
 
         {
-            self.player.post_update();
+            self.players.post_update();
             self.wraith.post_update();
         }
     }
@@ -84,10 +85,11 @@ impl WorldState {
 
     pub fn draw_geometry(&mut self) {
         self.map.draw(&mut self.box_renderer);
-        self.player.draw(&mut self.box_renderer);
+        self.players.draw(&mut self.box_renderer);
         self.wraith.draw(&mut self.box_renderer);
 
-        let projection_view = self.camera.projection() * self.camera.view(self.player.get_position());
+        let player1_pos = self.players.get_player1_pos();
+        let projection_view = self.camera.projection() * self.camera.view(player1_pos);
         self.box_renderer.draw(&projection_view);
     }
 }
