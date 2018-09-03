@@ -76,8 +76,6 @@ impl WorldState {
             self.player.post_update();
             self.wraith.post_update();
         }
-
-        self.camera.recenter(self.player.get_position());
     }
 
     pub fn clear_color(&self) -> (f32, f32, f32) {
@@ -89,7 +87,7 @@ impl WorldState {
         self.player.draw(&mut self.box_renderer);
         self.wraith.draw(&mut self.box_renderer);
 
-        let projection_view = self.camera.projection() * self.camera.view();
+        let projection_view = self.camera.projection() * self.camera.view(self.player.get_position());
         self.box_renderer.draw(&projection_view);
     }
 }

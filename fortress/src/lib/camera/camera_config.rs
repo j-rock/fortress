@@ -6,6 +6,5 @@ pub struct CameraConfig {
     pub top: f32,
     pub z_near: f32,
     pub z_far: f32,
-    pub position: (f32, f32),
 }
 
