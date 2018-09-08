@@ -8,13 +8,17 @@ use file::{
     ConfigWatcher,
     SimpleConfigManager,
 };
+use glm;
 use physics::PhysicsSimulation;
 use player::{
     Player,
     PlayerConfig,
     PlayerId,
 };
-use render::BoxRenderer;
+use render::{
+    BoxRenderer,
+    Viewport,
+};
 use slab::Slab;
 
 pub struct PlayerSystem {
@@ -52,16 +56,16 @@ impl PlayerSystem {
     }
 
     pub fn draw(&self, box_renderer: &mut BoxRenderer) {
-        for (_i, mut player) in self.players.iter() {
+        for (_i, player) in self.players.iter() {
             player.draw(box_renderer);
         }
     }
 
-    pub fn get_player1_pos(&self) -> (f32, f32) {
-        if let Some(player1) = self.players.get(0) {
-            player1.get_position()
-        } else {
-            (4.0, 0.0)
+    pub fn get_views(&self, screen_size: &glm::IVec2) -> Vec<(glm::Vec2, Viewport)> {
+        let player_positions: Vec<glm::Vec2> = self.players.iter().map(|(_, player)| player.get_position()).collect();
+        match player_positions.len() {
+            1 => vec!((player_positions[0], Viewport::default(screen_size))),
+            _ => vec!((glm::vec2(4.0, 0.0), Viewport::default(screen_size))),
         }
     }
 

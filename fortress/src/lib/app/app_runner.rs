@@ -10,6 +10,7 @@ use file::{
     self
 };
 use gl;
+use glm;
 use render::GBuffer;
 use sdl2::{
     event::{
@@ -95,6 +96,7 @@ impl AppRunner {
     }
 
     fn draw(&mut self) {
+        let screen_size = self.screen_size();
         let color = self.world.clear_color();
         unsafe {
             gl::ClearColor(color.0, color.1, color.2, 1.0);
@@ -103,11 +105,16 @@ impl AppRunner {
 
         // 1. Draw all geometry.
         self.g_buffer.geometry_pass();
-        self.world.draw_geometry();
+        self.world.draw_geometry(screen_size);
 
         // 2. Lighting pass
         self.g_buffer.lighting_pass();
 
         // 3. Non-geometric superimposed draw calls.
+    }
+
+    fn screen_size(&self) -> glm::IVec2 {
+        let (x, y) = self.context.canvas.window().size();
+        glm::ivec2(x as i32, y as i32)
     }
 }

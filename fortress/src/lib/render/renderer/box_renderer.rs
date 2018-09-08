@@ -9,7 +9,7 @@ use render::{
     attribute,
     Attribute,
     AttributeProgram,
-    ShaderProgram
+    ShaderProgram,
 };
 
 pub struct BoxData {
@@ -78,20 +78,25 @@ impl BoxRenderer {
         }
     }
 
-    pub fn draw(&mut self, projection_view: &glm::Mat4) {
+    pub fn draw_begin(&mut self) {
         self.shader_program.activate();
-        self.shader_program.set_mat4("projection_view", projection_view);
         self.attribute_program.activate();
         self.attr_pos.prepare_buffer();
         self.attr_tl.prepare_buffer();
         self.attr_tr.prepare_buffer();
         self.attr_bl.prepare_buffer();
         self.attr_br.prepare_buffer();
+    }
+
+    pub fn draw(&mut self, projection_view: &glm::Mat4) {
+        self.shader_program.set_mat4("projection_view", projection_view);
 
         unsafe {
             gl::DrawArraysInstanced(gl::POINTS, 0, 4, self.attr_pos.data.len() as GLsizei);
         }
+    }
 
+    pub fn draw_end(&mut self) {
         self.attribute_program.deactivate();
         self.shader_program.deactivate();
 

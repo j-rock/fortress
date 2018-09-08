@@ -6,13 +6,17 @@ use file::{
     ConfigWatcher,
     SimpleConfigManager,
 };
+use glm;
 use map::Map;
 use physics::PhysicsSimulation;
 use player::{
     Player,
     PlayerSystem
 };
-use render::BoxRenderer;
+use render::{
+    BoxRenderer,
+    Viewport,
+};
 use weapon::Crossbow;
 use wraith::Wraith;
 
@@ -83,13 +87,21 @@ impl WorldState {
        self.config_manager.get().clear_color
     }
 
-    pub fn draw_geometry(&mut self) {
+    pub fn draw_geometry(&mut self, screen_size: glm::IVec2) {
         self.map.draw(&mut self.box_renderer);
         self.players.draw(&mut self.box_renderer);
         self.wraith.draw(&mut self.box_renderer);
 
-        let player1_pos = self.players.get_player1_pos();
-        let projection_view = self.camera.projection() * self.camera.view(player1_pos);
-        self.box_renderer.draw(&projection_view);
+        self.box_renderer.draw_begin();
+        {
+            for (player_pos, viewport) in self.players.get_views(&screen_size).into_iter() {
+                viewport.set();
+                let projection_view = self.camera.projection() * self.camera.view(player_pos);
+                self.box_renderer.draw(&projection_view);
+            }
+        }
+        self.box_renderer.draw_end();
+
+        Viewport::default(&screen_size).set();
     }
 }

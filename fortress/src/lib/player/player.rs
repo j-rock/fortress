@@ -61,9 +61,9 @@ impl Player {
         }
     }
 
-    pub fn get_position(&self) -> (f32, f32) {
+    pub fn get_position(&self) -> glm::Vec2 {
         let body_pos = self.player_state.get_body_position();
-        (body_pos.x, body_pos.y)
+        glm::vec2(body_pos.x, body_pos.y)
     }
 
     pub fn redeploy(&mut self, config: &PlayerConfig, physics_sim: &mut PhysicsSimulation) {

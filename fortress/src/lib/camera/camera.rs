@@ -35,8 +35,8 @@ impl Camera {
             glm::vec4(-(right + left) / rml, -(top + bottom) / tmb, -(z_far + z_near) / fmn, 1.0))
     }
 
-    pub fn view(&self, position: (f32, f32)) -> glm::Mat4 {
-        let pos3d = glm::Vec3::new(position.0, position.1, 0.0);
+    pub fn view(&self, position: glm::Vec2) -> glm::Mat4 {
+        let pos3d = glm::Vec3::new(position.x, position.y, 0.0);
         glm::ext::look_at(pos3d, pos3d + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0))
     }
 
