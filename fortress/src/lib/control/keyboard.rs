@@ -4,31 +4,6 @@ use sdl2::{
 };
 use std::collections::HashSet;
 
-struct FirstTimeUsed {
-    pub has_been_used: bool,
-    pub first_time_used: bool,
-}
-
-impl FirstTimeUsed {
-    pub fn new() -> FirstTimeUsed {
-        FirstTimeUsed {
-            has_been_used: false,
-            first_time_used: false,
-        }
-    }
-
-    pub fn touch(&mut self, cond: bool) {
-        if cond {
-            self.first_time_used = !self.has_been_used;
-            self.has_been_used = true;
-        }
-    }
-
-    pub fn is_first(&self) -> bool {
-        self.first_time_used
-    }
-}
-
 pub struct KeyboardControls {
     first_time_used: FirstTimeUsed,
     currently_pressed: HashSet<Scancode>,
@@ -76,5 +51,30 @@ impl KeyboardControls {
 
     pub fn used_first_time(&self) -> bool {
         self.first_time_used.is_first()
+    }
+}
+
+struct FirstTimeUsed {
+    pub has_been_used: bool,
+    pub first_time_used: bool,
+}
+
+impl FirstTimeUsed {
+    pub fn new() -> FirstTimeUsed {
+        FirstTimeUsed {
+            has_been_used: false,
+            first_time_used: false,
+        }
+    }
+
+    pub fn touch(&mut self, cond: bool) {
+        if cond {
+            self.first_time_used = !self.has_been_used;
+            self.has_been_used = true;
+        }
+    }
+
+    pub fn is_first(&self) -> bool {
+        self.first_time_used
     }
 }

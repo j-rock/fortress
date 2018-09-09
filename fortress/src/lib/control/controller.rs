@@ -1,5 +1,7 @@
+use app::StatusOr;
 use control::{
     ControlEvent,
+    GamepadControls,
     KeyboardControls
 };
 use dimensions::LrDirection;
@@ -10,17 +12,20 @@ use sdl2::{
 
 pub struct Controller {
     keyboard: KeyboardControls,
+    gamepad: GamepadControls,
 }
 
 impl Controller {
-    pub fn new() -> Controller {
-        Controller {
-            keyboard: KeyboardControls::new()
-        }
+    pub fn new() -> StatusOr<Controller> {
+        Ok(Controller {
+            keyboard: KeyboardControls::new(),
+            gamepad: GamepadControls::new()?,
+        })
     }
 
     pub fn update(&mut self, e: &EventPump) {
         self.keyboard.update(e);
+        self.gamepad.update();
     }
 
     pub fn is_pressed(&self, event: ControlEvent) -> bool {

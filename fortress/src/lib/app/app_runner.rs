@@ -51,7 +51,7 @@ impl AppRunner {
             config_watcher,
             context,
             clock: Clock::start(),
-            controller: Controller::new(),
+            controller: Controller::new()?,
             g_buffer: GBuffer::new(&config.window_size)?,
             world,
         })
