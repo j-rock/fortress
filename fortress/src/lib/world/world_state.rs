@@ -94,9 +94,10 @@ impl WorldState {
 
         self.box_renderer.draw_begin();
         {
+            let projection = self.camera.projection();
             for (player_pos, viewport) in self.players.get_views(&screen_size).into_iter() {
                 viewport.set();
-                let projection_view = self.camera.projection() * self.camera.view(player_pos);
+                let projection_view = projection * self.camera.view(player_pos);
                 self.box_renderer.draw(&projection_view);
             }
         }
