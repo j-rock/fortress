@@ -1,4 +1,3 @@
-extern crate gilrs;
 extern crate gl;
 extern crate glm;
 #[macro_use] extern crate lazy_static;

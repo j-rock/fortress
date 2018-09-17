@@ -51,7 +51,7 @@ impl AppRunner {
             config_watcher,
             context,
             clock: Clock::start(),
-            controller: Controller::new()?,
+            controller: Controller::new(),
             g_buffer: GBuffer::new(&config.window_size)?,
             world,
         })
@@ -75,16 +75,26 @@ impl AppRunner {
 
     // Return false on quit.
     fn process_events(&mut self) -> StatusOr<bool> {
+        let mut gamepad_events = Vec::new();
         for event in self.context.events.poll_iter() {
-           match event {
-               Event::Quit { .. } | Event::KeyDown {keycode: Some(Keycode::Q), ..} => return Ok(false),
-               Event::Window { win_event: WindowEvent::Resized(width, height), .. } => {
-                   unsafe { gl::Viewport(0, 0, width, height); }
-                   self.g_buffer.resize(width, height)?;
-               },
-               _ => ()
+            match event {
+                Event::Quit { .. } | Event::KeyDown {keycode: Some(Keycode::Q), ..} => return Ok(false),
+                Event::Window { win_event: WindowEvent::Resized(width, height), .. } => {
+                    unsafe { gl::Viewport(0, 0, width, height); }
+                    self.g_buffer.resize(width, height)?;
+                },
+                  Event::ControllerDeviceAdded {..}
+                | Event::ControllerDeviceRemoved {..}
+                | Event::ControllerAxisMotion {..}
+                | Event::ControllerButtonDown {..}
+                | Event::ControllerButtonUp {..}
+                | Event::ControllerDeviceRemapped {..} => {
+                      gamepad_events.push(event);
+                  },
+                _ => {}
            }
         }
+        self.controller.ingest_gamepad_events(&self.context.controller_subsystem, gamepad_events);
         Ok(true)
     }
 

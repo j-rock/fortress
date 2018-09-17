@@ -10,3 +10,5 @@ pub use self::player_config::PlayerConfig;
 pub use self::player_id::PlayerId;
 pub use self::player_state::PlayerState;
 pub use self::player_system::PlayerSystem;
+
+pub const MAX_PLAYERS: usize = 4;

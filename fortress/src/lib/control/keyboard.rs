@@ -49,7 +49,7 @@ impl KeyboardControls {
         self.just_released.contains(&scancode)
     }
 
-    pub fn used_first_time(&self) -> bool {
+    pub fn just_joined(&self) -> bool {
         self.first_time_used.is_first()
     }
 }

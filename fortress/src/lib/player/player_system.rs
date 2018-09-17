@@ -1,7 +1,9 @@
 use app::StatusOr;
 use control::{
     Controller,
+    ControllerId,
     ControlEvent,
+    ControllerEvent,
 };
 use dimensions::time::DeltaTime;
 use file::{
@@ -14,6 +16,7 @@ use player::{
     Player,
     PlayerConfig,
     PlayerId,
+    self,
 };
 use render::{
     BoxRenderer,
@@ -24,6 +27,7 @@ use slab::Slab;
 pub struct PlayerSystem {
     config_manager: SimpleConfigManager<PlayerConfig>,
     players: Slab<Player>,
+    player_to_controller: Vec<ControllerId>,
 }
 
 impl PlayerSystem {
@@ -31,7 +35,8 @@ impl PlayerSystem {
         let config_manager = SimpleConfigManager::new(config_watcher, "player.conf")?;
         Ok(PlayerSystem {
             config_manager,
-            players: Slab::with_capacity(4),
+            players: Slab::with_capacity(player::MAX_PLAYERS),
+            player_to_controller: Vec::with_capacity(player::MAX_PLAYERS),
         })
     }
 
@@ -40,8 +45,15 @@ impl PlayerSystem {
             self.redeploy(physics_sim);
         }
 
-        if controller.keyboard_used_first_time() {
-            self.new_player(physics_sim);
+        for controller_event in controller.controller_events().into_iter() {
+            match controller_event {
+                ControllerEvent::KeyboardUsed => {
+                    self.new_player(ControllerId::Keyboard, physics_sim);
+                }
+                ControllerEvent::GamepadConnected(gamepad_id) => {
+                    self.new_player(ControllerId::Gamepad(gamepad_id), physics_sim);
+                },
+            }
         }
 
         for (_i, player) in self.players.iter_mut() {
@@ -76,21 +88,22 @@ impl PlayerSystem {
         }
     }
 
-    fn new_player(&mut self, physics_sim: &mut PhysicsSimulation) {
+    fn new_player(&mut self, controller_id: ControllerId, physics_sim: &mut PhysicsSimulation) {
         let player_id = {
             let player_entry = self.players.vacant_entry();
-            let player_id = PlayerId::from(player_entry.key());
-            if player_id.is_some() {
+            let player_id = PlayerId::from_usize(player_entry.key());
+            if let Some(player_id) = player_id {
                 let config = self.config_manager.get();
-                let player = Player::new(config, physics_sim);
+                let player = Player::new(config, player_id, physics_sim);
                 player_entry.insert(player);
             }
             player_id
         };
 
         if let Some(player_id) = player_id {
-            let key = player_id.as_usize();
-            self.players.get_mut(key).expect("PlayerSystem has bad key!").register();
+            let raw_player_id = player_id.as_usize();
+            self.players.get_mut(raw_player_id).expect("PlayerSystem has bad key!").register();
+            self.player_to_controller.push(controller_id);
         }
     }
 }

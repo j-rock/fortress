@@ -4,7 +4,6 @@ version = "0.1.0"
 authors = ["Joseph <wax818@gmail.com>"]
 
 [dependencies]
-gilrs = "0.6"
 gl = "0.10"
 glm = "0.2"
 lazy_static = "1.0"

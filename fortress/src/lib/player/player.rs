@@ -1,6 +1,4 @@
-use control::{
-    Controller,
-};
+use control::Controller;
 use dimensions::{
     Attack,
     time::DeltaTime
@@ -13,6 +11,7 @@ use physics::{
 };
 use player::{
     PlayerConfig,
+    PlayerId,
     PlayerState,
     state::{
         PlayerStateMachine,
@@ -31,9 +30,9 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(config: &PlayerConfig, physics_sim: &mut PhysicsSimulation) -> Player {
+    pub fn new(config: &PlayerConfig, player_id: PlayerId, physics_sim: &mut PhysicsSimulation) -> Player {
         let registrar = physics_sim.registrar();
-        let player_state = PlayerState::new(config.clone(), &registrar, physics_sim.get_world_mut());
+        let player_state = PlayerState::new(player_id, config.clone(), &registrar, physics_sim.get_world_mut());
         let player_state_machine = Box::new(PlayerUpright::new());
 
         Player {
@@ -68,7 +67,7 @@ impl Player {
 
     pub fn redeploy(&mut self, config: &PlayerConfig, physics_sim: &mut PhysicsSimulation) {
         let registrar = physics_sim.registrar();
-        self.player_state = PlayerState::new(config.clone(), &registrar, physics_sim.get_world_mut());
+        self.player_state = PlayerState::new(self.player_state.player_id, config.clone(), &registrar, physics_sim.get_world_mut());
         self.player_state_machine = Box::new(PlayerUpright::new());
 
         self.register();

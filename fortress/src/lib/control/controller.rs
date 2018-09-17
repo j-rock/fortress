@@ -1,13 +1,14 @@
-use app::StatusOr;
 use control::{
     ControlEvent,
+    ControllerEvent,
     GamepadControls,
     KeyboardControls
 };
 use dimensions::LrDirection;
 use sdl2::{
     EventPump,
-    keyboard::Scancode
+    keyboard::Scancode,
+    self,
 };
 
 pub struct Controller {
@@ -16,16 +17,19 @@ pub struct Controller {
 }
 
 impl Controller {
-    pub fn new() -> StatusOr<Controller> {
-        Ok(Controller {
+    pub fn new() -> Controller {
+        Controller {
             keyboard: KeyboardControls::new(),
-            gamepad: GamepadControls::new()?,
-        })
+            gamepad: GamepadControls::new(),
+        }
+    }
+
+    pub fn ingest_gamepad_events(&mut self, controller_subsystem: &sdl2::GameControllerSubsystem, gamepad_events: Vec<sdl2::event::Event>) {
+        self.gamepad.ingest_gamepad_events(controller_subsystem, gamepad_events);
     }
 
     pub fn update(&mut self, e: &EventPump) {
         self.keyboard.update(e);
-        self.gamepad.update();
     }
 
     pub fn is_pressed(&self, event: ControlEvent) -> bool {
@@ -40,8 +44,13 @@ impl Controller {
         self.keyboard.just_released(self.control_event_to_scancode(event))
     }
 
-    pub fn keyboard_used_first_time(&self) -> bool {
-        self.keyboard.used_first_time()
+    pub fn controller_events(&self) -> Vec<ControllerEvent> {
+        let mut controller_events = self.gamepad.controller_events().clone();
+        if self.keyboard.just_joined() {
+            controller_events.push(ControllerEvent::KeyboardUsed);
+        }
+
+        controller_events
     }
 
     fn control_event_to_scancode(&self, event: ControlEvent) -> Scancode {

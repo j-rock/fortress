@@ -1,3 +1,4 @@
+#[derive(Copy, Clone)]
 pub enum PlayerId {
     Player1,
     Player2,
@@ -6,7 +7,7 @@ pub enum PlayerId {
 }
 
 impl PlayerId {
-    pub fn from(i: usize) -> Option<PlayerId> {
+    pub fn from_usize(i: usize) -> Option<PlayerId> {
         match i {
             0 => Some(PlayerId::Player1),
             1 => Some(PlayerId::Player2),

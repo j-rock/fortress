@@ -14,6 +14,7 @@ pub struct AppContext {
     _sdl_context: sdl2::Sdl,
     _gl_context: sdl2::video::GLContext,
     _video_subsystem: sdl2::VideoSubsystem,
+    pub controller_subsystem: sdl2::GameControllerSubsystem,
     pub canvas: sdl2::render::WindowCanvas,
     pub events: sdl2::EventPump,
 }
@@ -49,12 +50,16 @@ impl AppContext {
             gl::Viewport(0, 0, window_size.0, window_size.1);
         }
 
+        let controller_subsystem = sdl_context.game_controller()?;
+        controller_subsystem.set_event_state(true);
+
         let events = sdl_context.event_pump()?;
 
         Ok(AppContext {
             _sdl_context: sdl_context,
             _gl_context: gl_context,
             _video_subsystem: video_subsystem,
+            controller_subsystem,
             canvas,
             events
         })

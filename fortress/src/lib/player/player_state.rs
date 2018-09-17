@@ -10,6 +10,7 @@ use liquidfun::box2d::{
 };
 use player::{
     Player,
+    PlayerId,
     PlayerConfig,
     state::PlayerBody
 };
@@ -19,6 +20,7 @@ use weapon::{
 };
 
 pub struct PlayerState {
+    pub player_id: PlayerId,
     pub config: PlayerConfig,
     pub body: PlayerBody,
     pub sword: Sword,
@@ -26,11 +28,12 @@ pub struct PlayerState {
 }
 
 impl PlayerState {
-    pub fn new(config: PlayerConfig, registrar: &EntityRegistrar, world: &mut World) -> PlayerState {
+    pub fn new(player_id: PlayerId, config: PlayerConfig, registrar: &EntityRegistrar, world: &mut World) -> PlayerState {
         let body = PlayerBody::new(&config, registrar, world);
         let sword = Sword::new(&config);
         let crossbow = Crossbow::new(&config, registrar, world);
         PlayerState {
+            player_id,
             config,
             body,
             sword,
