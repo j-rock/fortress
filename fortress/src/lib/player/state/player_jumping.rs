@@ -1,5 +1,6 @@
 use control::{
     Controller,
+    ControllerId,
     ControlEvent::{
         PlayerFire,
         PlayerJump,
@@ -30,28 +31,28 @@ pub struct PlayerJumping {
 }
 
 impl PlayerStateMachine for PlayerJumping {
-    fn pre_update(&mut self, player_state: &mut PlayerState, controller: &Controller, dt: DeltaTime) -> Option<Box<dyn PlayerStateMachine>> {
+    fn pre_update(&mut self, player_state: &mut PlayerState, controller_id: ControllerId, controller: &Controller, dt: DeltaTime) -> Option<Box<dyn PlayerStateMachine>> {
         self.current_delay -= dt.as_microseconds();
         if self.current_delay < 0 {
             self.current_delay = 0;
         }
 
-        let move_dir = if controller.is_pressed(PlayerMove(LrDirection::Left)) {
+        let move_dir = if controller.is_pressed(controller_id, PlayerMove(LrDirection::Left)) {
             Some(LrDirection::Left)
-        } else if controller.is_pressed(PlayerMove(LrDirection::Right)) {
+        } else if controller.is_pressed(controller_id, PlayerMove(LrDirection::Right)) {
             Some(LrDirection::Right)
         } else {
             None
         };
         player_state.body.move_horizontal(player_state.config.move_speed, move_dir);
 
-        if controller.is_pressed(PlayerFire) {
+        if controller.is_pressed(controller_id, PlayerFire) {
             player_state.try_fire();
-        } else if controller.is_pressed(PlayerSlash) {
+        } else if controller.is_pressed(controller_id, PlayerSlash) {
             player_state.try_slash();
         }
 
-        if controller.just_pressed(PlayerJump) {
+        if controller.just_pressed(controller_id, PlayerJump) {
             self.try_jump(player_state);
         }
 

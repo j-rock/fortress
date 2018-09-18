@@ -41,7 +41,7 @@ impl PlayerSystem {
     }
 
     pub fn pre_update(&mut self, controller: &Controller, physics_sim: &mut PhysicsSimulation, dt: DeltaTime) {
-        if self.config_manager.update() || controller.just_pressed(ControlEvent::RespawnEntities) {
+        if self.config_manager.update() || controller.just_pressed(ControllerId::Keyboard, ControlEvent::RespawnEntities) {
             self.redeploy(physics_sim);
         }
 
@@ -56,8 +56,9 @@ impl PlayerSystem {
             }
         }
 
-        for (_i, player) in self.players.iter_mut() {
-            player.pre_update(controller, dt);
+        for (player_idx, player) in self.players.iter_mut() {
+            let controller_id = self.player_to_controller[player_idx];
+            player.pre_update(controller_id, controller, dt);
         }
     }
 

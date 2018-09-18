@@ -9,16 +9,16 @@ use sdl2::{
 };
 use std::collections::{
     HashMap,
-    HashSet
+    HashSet,
 };
 
 pub struct GamepadControls {
     controller_events: Vec<ControllerEvent>,
     gamepads: HashMap<GamepadId, GameController>,
-
-    currently_pressed: HashSet<ButtonState>,
-    just_pressed: HashSet<ButtonState>,
-    just_released: HashSet<ButtonState>,
+    axes: HashMap<GamepadAxis, f32>,
+    currently_pressed: HashSet<GamepadButton>,
+    just_pressed: HashSet<GamepadButton>,
+    just_released: HashSet<GamepadButton>,
 }
 
 impl GamepadControls {
@@ -26,22 +26,23 @@ impl GamepadControls {
         GamepadControls {
             controller_events: Vec::new(),
             gamepads: HashMap::new(),
+            axes: HashMap::new(),
             currently_pressed: HashSet::new(),
             just_pressed: HashSet::new(),
             just_released: HashSet::new(),
         }
     }
 
-    pub fn is_pressed(&self, button_state: ButtonState) -> bool {
-        self.currently_pressed.contains(&button_state)
+    pub fn is_pressed(&self, gamepad_button: GamepadButton) -> bool {
+        self.currently_pressed.contains(&gamepad_button)
     }
 
-    pub fn just_pressed(&self, button_state: ButtonState) -> bool {
-        self.just_pressed.contains(&button_state)
+    pub fn just_pressed(&self, gamepad_button: GamepadButton) -> bool {
+        self.just_pressed.contains(&gamepad_button)
     }
 
-    pub fn just_released(&self, button_state: ButtonState) -> bool {
-        self.just_released.contains(&button_state)
+    pub fn just_released(&self, gamepad_button: GamepadButton) -> bool {
+        self.just_released.contains(&gamepad_button)
     }
 
     pub fn controller_events(&self) -> &Vec<ControllerEvent> {
@@ -70,23 +71,31 @@ impl GamepadControls {
                 },
                 Event::ControllerButtonDown { which, button, .. } => {
                     let gamepad_id = GamepadId::from_u32(which as u32);
-                    let button_state = ButtonState {
+                    let gamepad_button = GamepadButton {
                         gamepad_id,
                         button
                     };
-                    self.currently_pressed.insert(button_state);
-                    self.just_pressed.insert(button_state);
+                    self.currently_pressed.insert(gamepad_button);
+                    self.just_pressed.insert(gamepad_button);
                 },
                 Event::ControllerButtonUp { which, button, .. } => {
                     let gamepad_id = GamepadId::from_u32(which as u32);
-                    let button_state = ButtonState {
+                    let gamepad_button = GamepadButton {
                         gamepad_id,
                         button
                     };
-                    self.currently_pressed.remove(&button_state);
-                    self.just_released.insert(button_state);
+                    self.currently_pressed.remove(&gamepad_button);
+                    self.just_released.insert(gamepad_button);
                 },
-                Event::ControllerAxisMotion { .. } => {},
+                Event::ControllerAxisMotion { which, axis, value, .. } => {
+                    let gamepad_id = GamepadId::from_u32(which as u32);
+                    let gamepad_axis = GamepadAxis {
+                        gamepad_id,
+                        axis
+                    };
+                    let normalized_value = value as f32  / i16::max_value() as f32;
+                    self.axes.insert(gamepad_axis, normalized_value);
+                }
                 _ => {}
             }
         }
@@ -94,7 +103,13 @@ impl GamepadControls {
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct ButtonState {
+pub struct GamepadButton {
     gamepad_id: GamepadId,
     button: sdl2::controller::Button,
+}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+pub struct GamepadAxis {
+    gamepad_id: GamepadId,
+    axis: sdl2::controller::Axis,
 }

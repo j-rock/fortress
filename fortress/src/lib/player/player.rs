@@ -1,4 +1,7 @@
-use control::Controller;
+use control::{
+    Controller,
+    ControllerId,
+};
 use dimensions::{
     Attack,
     time::DeltaTime
@@ -46,10 +49,10 @@ impl Player {
         self.player_state.register(player);
     }
 
-    pub fn pre_update(&mut self, controller: &Controller, dt: DeltaTime) {
+    pub fn pre_update(&mut self, controller_id: ControllerId, controller: &Controller, dt: DeltaTime) {
         self.player_state.pre_update(dt);
 
-        if let Some(player_state_machine) = self.player_state_machine.pre_update(&mut self.player_state, controller, dt) {
+        if let Some(player_state_machine) = self.player_state_machine.pre_update(&mut self.player_state, controller_id, controller, dt) {
             self.player_state_machine = player_state_machine;
         }
     }

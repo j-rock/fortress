@@ -1,5 +1,6 @@
 use control::{
     ControlEvent,
+    ControllerId,
     ControllerEvent,
     GamepadControls,
     KeyboardControls
@@ -32,16 +33,31 @@ impl Controller {
         self.keyboard.update(e);
     }
 
-    pub fn is_pressed(&self, event: ControlEvent) -> bool {
-        self.keyboard.is_pressed(self.control_event_to_scancode(event))
+    pub fn is_pressed(&self, controller_id: ControllerId, event: ControlEvent) -> bool {
+        match controller_id {
+            ControllerId::Keyboard => {
+                self.keyboard.is_pressed(self.control_event_to_scancode(event))
+            },
+            _ => false
+        }
     }
 
-    pub fn just_pressed(&self, event: ControlEvent) -> bool {
-        self.keyboard.just_pressed(self.control_event_to_scancode(event))
+    pub fn just_pressed(&self, controller_id: ControllerId, event: ControlEvent) -> bool {
+        match controller_id {
+            ControllerId::Keyboard => {
+                self.keyboard.just_pressed(self.control_event_to_scancode(event))
+            },
+            _ => false
+        }
     }
 
-    pub fn just_released(&self, event: ControlEvent) -> bool {
-        self.keyboard.just_released(self.control_event_to_scancode(event))
+    pub fn just_released(&self, controller_id: ControllerId, event: ControlEvent) -> bool {
+        match controller_id {
+            ControllerId::Keyboard => {
+                self.keyboard.just_released(self.control_event_to_scancode(event))
+            },
+            _ => false
+        }
     }
 
     pub fn controller_events(&self) -> Vec<ControllerEvent> {

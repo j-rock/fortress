@@ -1,6 +1,7 @@
 use app::StatusOr;
 use control::{
     Controller,
+    ControllerId,
     ControlEvent,
 };
 use dimensions::{
@@ -59,7 +60,7 @@ impl Wraith {
     }
 
     pub fn pre_update(&mut self, controller: &Controller, dt: DeltaTime) {
-        if self.config_manager.update() || controller.just_pressed(ControlEvent::RespawnEntities) {
+        if self.config_manager.update() || controller.just_pressed(ControllerId::Keyboard, ControlEvent::RespawnEntities) {
             self.redeploy();
         }
 
