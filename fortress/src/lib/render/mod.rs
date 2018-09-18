@@ -1,4 +1,7 @@
 pub mod attribute;
+pub mod camera;
+pub mod camera_config;
+pub mod camera_view;
 pub mod g_buffer;
 pub mod opengl;
 pub mod renderer;
@@ -9,6 +12,9 @@ pub mod viewport;
 pub use self::attribute::Attribute;
 pub use self::attribute::AttributeProgram;
 pub use self::attribute::AttributeProgramBuilder;
+pub use self::camera::Camera;
+pub use self::camera_config::CameraConfig;
+pub use self::camera_view::CameraView;
 pub use self::g_buffer::GBuffer;
 pub use self::renderer::BoxData;
 pub use self::renderer::BoxRenderer;

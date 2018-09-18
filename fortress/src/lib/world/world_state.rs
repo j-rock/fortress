@@ -1,5 +1,4 @@
 use app::StatusOr;
-use camera::Camera;
 use control::Controller;
 use dimensions::time::DeltaTime;
 use file::{
@@ -15,6 +14,7 @@ use player::{
 };
 use render::{
     BoxRenderer,
+    Camera,
     Viewport,
 };
 use weapon::Crossbow;
@@ -94,10 +94,9 @@ impl WorldState {
 
         self.box_renderer.draw_begin();
         {
-            let projection = self.camera.projection();
-            for (player_pos, viewport) in self.players.get_views(&screen_size).into_iter() {
-                viewport.set();
-                let projection_view = projection * self.camera.view(player_pos);
+            for camera_view in self.players.get_views(&screen_size).into_iter() {
+                camera_view.viewport.set();
+                let projection_view = self.camera.projection(camera_view.scale) * self.camera.view(camera_view.eye);
                 self.box_renderer.draw(&projection_view);
             }
         }

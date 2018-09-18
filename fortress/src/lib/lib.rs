@@ -11,7 +11,6 @@ extern crate serde_json;
 extern crate slab;
 
 pub mod app;
-pub mod camera;
 pub mod color;
 pub mod control;
 pub mod dimensions;

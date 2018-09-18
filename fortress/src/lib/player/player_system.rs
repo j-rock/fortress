@@ -20,6 +20,7 @@ use player::{
 };
 use render::{
     BoxRenderer,
+    CameraView,
     Viewport,
 };
 use slab::Slab;
@@ -74,11 +75,46 @@ impl PlayerSystem {
         }
     }
 
-    pub fn get_views(&self, screen_size: &glm::IVec2) -> Vec<(glm::Vec2, Viewport)> {
+    pub fn get_views(&self, screen_size: &glm::IVec2) -> Vec<CameraView> {
         let player_positions: Vec<glm::Vec2> = self.players.iter().map(|(_, player)| player.get_position()).collect();
         match player_positions.len() {
-            1 => vec!((player_positions[0], Viewport::default(screen_size))),
-            _ => vec!((glm::vec2(4.0, 0.0), Viewport::default(screen_size))),
+            1 => {
+                vec!(CameraView {
+                    eye: player_positions[0],
+                    scale: glm::vec2(1.0, 1.0),
+                    viewport: Viewport::default(screen_size),
+                })
+            },
+            2 => {
+                let middle_x = screen_size.x / 2;
+                vec!(
+                    CameraView {
+                        eye: player_positions[0],
+                        scale: glm::vec2(0.5, 1.0),
+                        viewport: Viewport {
+                            bottom_left: glm::ivec2(0, 0),
+                            viewport_size: glm::ivec2(middle_x, screen_size.y),
+                        }
+                    },
+                    CameraView {
+                        eye: player_positions[1],
+                        scale: glm::vec2(0.5, 1.0),
+                        viewport: Viewport {
+                            bottom_left: glm::ivec2(middle_x, 0),
+                            viewport_size: glm::ivec2(screen_size.x - middle_x, screen_size.y),
+                        }
+                    }
+                )
+            },
+            _ => {
+                vec!(
+                    CameraView {
+                        eye: glm::vec2(4.0, 0.0),
+                        scale: glm::vec2(1.0, 1.0),
+                        viewport: Viewport::default(screen_size),
+                    }
+                )
+            }
         }
     }
 
