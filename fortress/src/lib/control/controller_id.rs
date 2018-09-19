@@ -1,6 +1,6 @@
 use control::GamepadId;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum ControllerId {
     Keyboard,
     Gamepad(GamepadId),

@@ -5,6 +5,7 @@ use dimensions::LrDirection;
 pub enum ControllerEvent {
     KeyboardUsed,
     GamepadConnected(GamepadId),
+    GamepadDisconnected(GamepadId),
 }
 
 pub enum ControlEvent {

@@ -24,11 +24,14 @@ use render::{
     Viewport,
 };
 use slab::Slab;
+use std::collections::HashMap;
 
 pub struct PlayerSystem {
     config_manager: SimpleConfigManager<PlayerConfig>,
     players: Slab<Player>,
+    player_needs_controller: Vec<PlayerId>,
     player_to_controller: Vec<ControllerId>,
+    controller_to_player: HashMap<ControllerId, PlayerId>,
 }
 
 impl PlayerSystem {
@@ -37,7 +40,9 @@ impl PlayerSystem {
         Ok(PlayerSystem {
             config_manager,
             players: Slab::with_capacity(player::MAX_PLAYERS),
+            player_needs_controller: Vec::with_capacity(player::MAX_PLAYERS),
             player_to_controller: Vec::with_capacity(player::MAX_PLAYERS),
+            controller_to_player: HashMap::new()
         })
     }
 
@@ -49,11 +54,39 @@ impl PlayerSystem {
         for controller_event in controller.controller_events().into_iter() {
             match controller_event {
                 ControllerEvent::KeyboardUsed => {
-                    self.new_player(ControllerId::Keyboard, physics_sim);
+                    let controller_id = ControllerId::Keyboard;
+
+                    if let Some(player_id) = self.player_needs_controller.pop() {
+                        self.player_to_controller[player_id.as_usize()] = controller_id;
+                        self.controller_to_player.insert(controller_id, player_id);
+                    } else {
+                        self.new_player(controller_id, physics_sim);
+                    }
                 }
                 ControllerEvent::GamepadConnected(gamepad_id) => {
-                    self.new_player(ControllerId::Gamepad(gamepad_id), physics_sim);
+                    let controller_id = ControllerId::Gamepad(gamepad_id);
+
+                    if let Some(player_id) = self.player_needs_controller.pop() {
+                        self.player_to_controller[player_id.as_usize()] = controller_id;
+                        self.controller_to_player.insert(controller_id, player_id);
+                    } else {
+                        self.new_player(controller_id, physics_sim);
+                    }
                 },
+                ControllerEvent::GamepadDisconnected(gamepad_id) => {
+                    let controller_id = ControllerId::Gamepad(gamepad_id);
+
+                    let delete_controller_id = if let Some(player_id) = self.controller_to_player.get(&controller_id) {
+                        self.player_needs_controller.push(*player_id);
+                        true
+                    } else {
+                        false
+                    };
+
+                    if delete_controller_id {
+                        self.controller_to_player.remove(&controller_id);
+                    }
+                }
             }
         }
 
@@ -171,6 +204,7 @@ impl PlayerSystem {
             let raw_player_id = player_id.as_usize();
             self.players.get_mut(raw_player_id).expect("PlayerSystem has bad key!").register();
             self.player_to_controller.push(controller_id);
+            self.controller_to_player.insert(controller_id, player_id);
         }
     }
 }
