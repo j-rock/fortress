@@ -1,7 +1,9 @@
 use control::{
+    ControlEvent,
     ControllerEvent,
     GamepadId
 };
+use dimensions::LrDirection;
 use sdl2::{
     controller::GameController,
     event::Event,
@@ -33,15 +35,18 @@ impl GamepadControls {
         }
     }
 
-    pub fn is_pressed(&self, gamepad_button: GamepadButton) -> bool {
+    pub fn is_pressed(&self, gamepad_id: GamepadId, event: ControlEvent) -> bool {
+        let gamepad_button = Self::control_event_to_button(gamepad_id, event);
         self.currently_pressed.contains(&gamepad_button)
     }
 
-    pub fn just_pressed(&self, gamepad_button: GamepadButton) -> bool {
+    pub fn just_pressed(&self, gamepad_id: GamepadId, event: ControlEvent) -> bool {
+        let gamepad_button = Self::control_event_to_button(gamepad_id, event);
         self.just_pressed.contains(&gamepad_button)
     }
 
-    pub fn just_released(&self, gamepad_button: GamepadButton) -> bool {
+    pub fn just_released(&self, gamepad_id: GamepadId, event: ControlEvent) -> bool {
+        let gamepad_button = Self::control_event_to_button(gamepad_id, event);
         self.just_released.contains(&gamepad_button)
     }
 
@@ -98,6 +103,22 @@ impl GamepadControls {
                 }
                 _ => {}
             }
+        }
+        println!("{:?}", self.currently_pressed);
+    }
+
+    fn control_event_to_button(gamepad_id: GamepadId, event: ControlEvent) -> GamepadButton {
+        let button = match event {
+            ControlEvent::PlayerFire => sdl2::controller::Button::RightShoulder,
+            ControlEvent::PlayerJump => sdl2::controller::Button::A,
+            ControlEvent::PlayerMove(LrDirection::Left) => sdl2::controller::Button::DPadLeft,
+            ControlEvent::PlayerMove(LrDirection::Right) => sdl2::controller::Button::DPadRight,
+            ControlEvent::PlayerSlash => sdl2::controller::Button::X,
+            ControlEvent::RespawnEntities => sdl2::controller::Button::Back,
+        };
+        GamepadButton {
+            gamepad_id,
+            button
         }
     }
 }

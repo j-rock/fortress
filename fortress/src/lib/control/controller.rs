@@ -5,10 +5,8 @@ use control::{
     GamepadControls,
     KeyboardControls
 };
-use dimensions::LrDirection;
 use sdl2::{
     EventPump,
-    keyboard::Scancode,
     self,
 };
 
@@ -36,27 +34,33 @@ impl Controller {
     pub fn is_pressed(&self, controller_id: ControllerId, event: ControlEvent) -> bool {
         match controller_id {
             ControllerId::Keyboard => {
-                self.keyboard.is_pressed(self.control_event_to_scancode(event))
+                self.keyboard.is_pressed(event)
             },
-            _ => false
+            ControllerId::Gamepad(gamepad_id) => {
+                self.gamepad.is_pressed(gamepad_id, event)
+            }
         }
     }
 
     pub fn just_pressed(&self, controller_id: ControllerId, event: ControlEvent) -> bool {
         match controller_id {
             ControllerId::Keyboard => {
-                self.keyboard.just_pressed(self.control_event_to_scancode(event))
+                self.keyboard.just_pressed(event)
             },
-            _ => false
+            ControllerId::Gamepad(gamepad_id) => {
+                self.gamepad.just_pressed(gamepad_id, event)
+            }
         }
     }
 
     pub fn just_released(&self, controller_id: ControllerId, event: ControlEvent) -> bool {
         match controller_id {
             ControllerId::Keyboard => {
-                self.keyboard.just_released(self.control_event_to_scancode(event))
+                self.keyboard.just_released(event)
             },
-            _ => false
+            ControllerId::Gamepad(gamepad_id) => {
+                self.gamepad.just_released(gamepad_id, event)
+            }
         }
     }
 
@@ -67,16 +71,5 @@ impl Controller {
         }
 
         controller_events
-    }
-
-    fn control_event_to_scancode(&self, event: ControlEvent) -> Scancode {
-        match event {
-            ControlEvent::PlayerFire => Scancode::I,
-            ControlEvent::PlayerJump => Scancode::Space,
-            ControlEvent::PlayerMove(LrDirection::Left) => Scancode::A,
-            ControlEvent::PlayerMove(LrDirection::Right) => Scancode::D,
-            ControlEvent::PlayerSlash => Scancode::J,
-            ControlEvent::RespawnEntities => Scancode::R,
-        }
     }
 }

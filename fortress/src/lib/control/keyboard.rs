@@ -1,3 +1,5 @@
+use control::ControlEvent;
+use dimensions::LrDirection;
 use sdl2::{
     EventPump,
     keyboard::Scancode
@@ -37,20 +39,34 @@ impl KeyboardControls {
         self.currently_pressed = currently_pressed;
     }
 
-    pub fn is_pressed(&self, scancode: Scancode) -> bool {
+    pub fn is_pressed(&self, event: ControlEvent) -> bool {
+        let scancode = Self::control_event_to_scancode(event);
         self.currently_pressed.contains(&scancode)
     }
 
-    pub fn just_pressed(&self, scancode: Scancode) -> bool {
+    pub fn just_pressed(&self, event: ControlEvent) -> bool {
+        let scancode = Self::control_event_to_scancode(event);
         self.just_pressed.contains(&scancode)
     }
 
-    pub fn just_released(&self, scancode: Scancode) -> bool {
+    pub fn just_released(&self, event: ControlEvent) -> bool {
+        let scancode = Self::control_event_to_scancode(event);
         self.just_released.contains(&scancode)
     }
 
     pub fn just_joined(&self) -> bool {
         self.first_time_used.is_first()
+    }
+
+    fn control_event_to_scancode(event: ControlEvent) -> Scancode {
+        match event {
+            ControlEvent::PlayerFire => Scancode::I,
+            ControlEvent::PlayerJump => Scancode::Space,
+            ControlEvent::PlayerMove(LrDirection::Left) => Scancode::A,
+            ControlEvent::PlayerMove(LrDirection::Right) => Scancode::D,
+            ControlEvent::PlayerSlash => Scancode::J,
+            ControlEvent::RespawnEntities => Scancode::R,
+        }
     }
 }
 
