@@ -106,6 +106,36 @@ impl PlayerSystem {
                     }
                 )
             },
+            3 => {
+                let middle_x = screen_size.x / 2;
+                let middle_y = screen_size.y / 2 ;
+                vec!(
+                    CameraView {
+                        eye: player_positions[0],
+                        scale: glm::vec2(0.5, 0.5),
+                        viewport: Viewport {
+                            bottom_left: glm::ivec2(0, middle_y),
+                            viewport_size: glm::ivec2(middle_x, screen_size.y - middle_y),
+                        }
+                    },
+                    CameraView {
+                        eye: player_positions[1],
+                        scale: glm::vec2(0.5, 0.5),
+                        viewport: Viewport {
+                            bottom_left: glm::ivec2(middle_x, middle_y),
+                            viewport_size: glm::ivec2(screen_size.x - middle_x, screen_size.y - middle_y),
+                        }
+                    },
+                    CameraView {
+                        eye: player_positions[2],
+                        scale: glm::vec2(1.0, 0.5),
+                        viewport: Viewport {
+                            bottom_left: glm::ivec2(0, 0),
+                            viewport_size: glm::ivec2(screen_size.x, middle_y),
+                       }
+                    }
+                )
+            },
             _ => {
                 vec!(
                     CameraView {
