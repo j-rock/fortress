@@ -1,3 +1,8 @@
+use app::StatusOr;
+use file::{
+    ConfigWatcher,
+    SimpleConfigManager,
+};
 use control::{
     ControlEvent,
     ControllerId,
@@ -16,11 +21,12 @@ pub struct Controller {
 }
 
 impl Controller {
-    pub fn new() -> Controller {
-        Controller {
+    pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<Controller> {
+        let config_manager = SimpleConfigManager::new(config_watcher, "gamepad.conf")?;
+        Ok(Controller {
             keyboard: KeyboardControls::new(),
-            gamepad: GamepadControls::new(),
-        }
+            gamepad: GamepadControls::new(config_manager),
+        })
     }
 
     pub fn ingest_gamepad_events(&mut self, controller_subsystem: &sdl2::GameControllerSubsystem, gamepad_events: Vec<sdl2::event::Event>) {

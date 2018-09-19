@@ -46,12 +46,13 @@ impl AppRunner {
 
         let context = AppContext::new(&config.window_size)?;
         let world = WorldState::new(&mut config_watcher)?;
+        let controller = Controller::new(&mut config_watcher)?;
 
         Ok(AppRunner {
             config_watcher,
             context,
             clock: Clock::start(),
-            controller: Controller::new(),
+            controller,
             g_buffer: GBuffer::new(&config.window_size)?,
             world,
         })

@@ -1,9 +1,11 @@
 use control::{
     ControlEvent,
     ControllerEvent,
-    GamepadId
+    GamepadConfig,
+    GamepadId,
 };
 use dimensions::LrDirection;
+use file::SimpleConfigManager;
 use sdl2::{
     controller::GameController,
     event::Event,
@@ -15,6 +17,7 @@ use std::collections::{
 };
 
 pub struct GamepadControls {
+    config_manager: SimpleConfigManager<GamepadConfig>,
     controller_events: Vec<ControllerEvent>,
     gamepads: HashMap<GamepadId, GameController>,
     axes: HashMap<GamepadAxis, f32>,
@@ -24,8 +27,9 @@ pub struct GamepadControls {
 }
 
 impl GamepadControls {
-    pub fn new() -> GamepadControls {
+    pub fn new(config_manager: SimpleConfigManager<GamepadConfig>) -> GamepadControls {
         GamepadControls {
+            config_manager,
             controller_events: Vec::new(),
             gamepads: HashMap::new(),
             axes: HashMap::new(),
@@ -36,18 +40,63 @@ impl GamepadControls {
     }
 
     pub fn is_pressed(&self, gamepad_id: GamepadId, event: ControlEvent) -> bool {
-        let gamepad_button = Self::control_event_to_button(gamepad_id, event);
-        self.currently_pressed.contains(&gamepad_button)
+        match self.control_event_to_gamepad_control(event) {
+            GamepadControl::ButtonPress(button) => {
+                let gamepad_button = GamepadButton {
+                    gamepad_id,
+                    button
+                };
+                self.currently_pressed.contains(&gamepad_button)
+            },
+            GamepadControl::AxisAboveThreshold(axis, thresh) => {
+                let gamepad_axis = GamepadAxis {
+                    gamepad_id,
+                    axis
+                };
+                if let Some(value) = self.axes.get(&gamepad_axis) {
+                    *value > thresh
+                } else {
+                    false
+                }
+            },
+            GamepadControl::AxisBelowThreshold(axis, thresh) => {
+                let gamepad_axis = GamepadAxis {
+                    gamepad_id,
+                    axis
+                };
+                if let Some(value) = self.axes.get(&gamepad_axis) {
+                    *value < thresh
+                } else {
+                    false
+                }
+            }
+        }
     }
 
     pub fn just_pressed(&self, gamepad_id: GamepadId, event: ControlEvent) -> bool {
-        let gamepad_button = Self::control_event_to_button(gamepad_id, event);
-        self.just_pressed.contains(&gamepad_button)
+        match self.control_event_to_gamepad_control(event) {
+            GamepadControl::ButtonPress(button) => {
+                let gamepad_button = GamepadButton {
+                    gamepad_id,
+                    button
+                };
+                self.just_pressed.contains(&gamepad_button)
+            },
+            _ => false
+        }
     }
 
     pub fn just_released(&self, gamepad_id: GamepadId, event: ControlEvent) -> bool {
-        let gamepad_button = Self::control_event_to_button(gamepad_id, event);
-        self.just_released.contains(&gamepad_button)
+        match self.control_event_to_gamepad_control(event) {
+            GamepadControl::ButtonPress(button) => {
+                let gamepad_button = GamepadButton {
+                    gamepad_id,
+                    button
+                };
+                self.just_released.contains(&gamepad_button)
+            },
+            _ => false
+        }
     }
 
     pub fn controller_events(&self) -> &Vec<ControllerEvent> {
@@ -55,6 +104,7 @@ impl GamepadControls {
     }
 
     pub fn ingest_gamepad_events(&mut self, controller_subsystem: &sdl2::GameControllerSubsystem, gamepad_events: Vec<Event>) {
+        self.config_manager.update();
         self.controller_events.clear();
         self.just_released.clear();
         self.just_pressed.clear();
@@ -104,33 +154,36 @@ impl GamepadControls {
                 _ => {}
             }
         }
-        println!("{:?}", self.currently_pressed);
     }
 
-    fn control_event_to_button(gamepad_id: GamepadId, event: ControlEvent) -> GamepadButton {
-        let button = match event {
-            ControlEvent::PlayerFire => sdl2::controller::Button::RightShoulder,
-            ControlEvent::PlayerJump => sdl2::controller::Button::A,
-            ControlEvent::PlayerMove(LrDirection::Left) => sdl2::controller::Button::DPadLeft,
-            ControlEvent::PlayerMove(LrDirection::Right) => sdl2::controller::Button::DPadRight,
-            ControlEvent::PlayerSlash => sdl2::controller::Button::X,
-            ControlEvent::RespawnEntities => sdl2::controller::Button::Back,
-        };
-        GamepadButton {
-            gamepad_id,
-            button
+    fn control_event_to_gamepad_control(&self, event: ControlEvent) -> GamepadControl {
+        let config = self.config_manager.get();
+        match event {
+            ControlEvent::PlayerFire => GamepadControl::AxisAboveThreshold(sdl2::controller::Axis::TriggerRight, config.axis_threshold),
+            ControlEvent::PlayerJump => GamepadControl::ButtonPress(sdl2::controller::Button::A),
+            ControlEvent::PlayerMove(LrDirection::Left) => GamepadControl::AxisBelowThreshold(sdl2::controller::Axis::LeftX, -config.axis_threshold),
+            ControlEvent::PlayerMove(LrDirection::Right) => GamepadControl::AxisAboveThreshold(sdl2::controller::Axis::LeftX, config.axis_threshold),
+            ControlEvent::PlayerSlash => GamepadControl::ButtonPress(sdl2::controller::Button::X),
+            ControlEvent::RespawnEntities => GamepadControl::ButtonPress(sdl2::controller::Button::Back),
         }
     }
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct GamepadButton {
+struct GamepadButton {
     gamepad_id: GamepadId,
     button: sdl2::controller::Button,
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct GamepadAxis {
+struct GamepadAxis {
     gamepad_id: GamepadId,
     axis: sdl2::controller::Axis,
 }
+
+enum GamepadControl {
+    ButtonPress(sdl2::controller::Button),
+    AxisAboveThreshold(sdl2::controller::Axis, f32),
+    AxisBelowThreshold(sdl2::controller::Axis, f32),
+}
+
