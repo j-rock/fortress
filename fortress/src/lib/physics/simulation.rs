@@ -1,4 +1,5 @@
 use app::StatusOr;
+use audio::AudioPlayer;
 use dimensions::time::DeltaTime;
 use file::{
     ConfigWatcher,
@@ -57,13 +58,13 @@ impl PhysicsSimulation {
         Ok(sim)
     }
 
-    pub fn update(&mut self, dt: DeltaTime) {
+    pub fn update(&mut self, audio: &AudioPlayer, dt: DeltaTime) {
         self.config.update();
         let config = self.config.get();
         let gravity = Vec2::new(config.gravity_x, config.gravity_y);
         self.wrapped_world.world.set_gravity(&gravity);
         self.wrapped_world.world.step(dt.as_f32_seconds(), config.velocity_iterations, config.position_iterations);
-        self.contact_listener.process_contacts(&mut self.registrar);
+        self.contact_listener.process_contacts(audio, &mut self.registrar);
     }
 
     pub fn get_world_mut(&mut self) -> &mut World {

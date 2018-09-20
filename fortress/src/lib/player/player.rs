@@ -1,3 +1,4 @@
+use audio::AudioPlayer;
 use control::{
     Controller,
     ControllerId,
@@ -49,10 +50,10 @@ impl Player {
         self.player_state.register(player);
     }
 
-    pub fn pre_update(&mut self, controller_id: ControllerId, controller: &Controller, dt: DeltaTime) {
+    pub fn pre_update(&mut self, audio: &AudioPlayer, controller_id: ControllerId, controller: &Controller, dt: DeltaTime) {
         self.player_state.pre_update(dt);
 
-        if let Some(player_state_machine) = self.player_state_machine.pre_update(&mut self.player_state, controller_id, controller, dt) {
+        if let Some(player_state_machine) = self.player_state_machine.pre_update(&mut self.player_state, audio, controller_id, controller, dt) {
             self.player_state_machine = player_state_machine;
         }
     }
@@ -103,14 +104,14 @@ impl Player {
     }
 
     pub fn foot_sensor_hit_something() -> CollisionMatcher {
-        CollisionMatcher::match_one(EntityType::PlayerFootSensor, Box::new(|entity| {
+        CollisionMatcher::match_one(EntityType::PlayerFootSensor, Box::new(|audio, entity| {
             let player: &mut Self = entity.resolve();
-            player.player_state_machine.make_foot_contact();
+            player.player_state_machine.make_foot_contact(audio);
         }))
     }
 
     pub fn slash_wraith() -> CollisionMatcher {
-        CollisionMatcher::match_two(EntityType::PlayerSwordSensor, EntityType::Wraith, Box::new(|sword_ent, wraith_ent| {
+        CollisionMatcher::match_two(EntityType::PlayerSwordSensor, EntityType::Wraith, Box::new(|_audio, sword_ent, wraith_ent| {
             let player: &Self = sword_ent.resolve();
             let wraith: &mut Wraith = wraith_ent.resolve();
             let attack = Attack {

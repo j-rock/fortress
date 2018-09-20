@@ -1,4 +1,8 @@
 use app::StatusOr;
+use audio::{
+    AudioPlayer,
+    Sound,
+};
 use control::{
     Controller,
     ControllerId,
@@ -69,12 +73,13 @@ impl Wraith {
         }
     }
 
-    pub fn post_update(&mut self) {
+    pub fn post_update(&mut self, audio: &AudioPlayer) {
         if let Some(wraith_state_machine) = self.wraith_state_machine.post_update() {
             self.wraith_state_machine = wraith_state_machine;
         }
 
         if self.wraith_state.health <= 0 {
+            audio.play_sound(Sound::Raygun);
             self.redeploy();
         }
     }

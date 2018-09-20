@@ -1,3 +1,4 @@
+use audio::AudioPlayer;
 use entity::EntityRegistrar;
 use liquidfun::box2d::{
     collision::Manifold,
@@ -38,12 +39,12 @@ impl PhysicsContactListener {
         self.collision_matchers.append(&mut matcher_vec);
     }
 
-    pub fn process_contacts(&mut self, registrar: &mut EntityRegistrar) {
+    pub fn process_contacts(&mut self, audio: &AudioPlayer, registrar: &mut EntityRegistrar) {
         for (user_data1, user_data2) in self.contacts.iter() {
             match (registrar.resolve(*user_data1), registrar.resolve(*user_data2)) {
                 (Some(entity1), Some(entity2)) => {
                     for matcher in self.collision_matchers.iter() {
-                        matcher.try_apply(entity1, entity2);
+                        matcher.try_apply(audio, entity1, entity2);
                     }
                 },
                 _ => {}

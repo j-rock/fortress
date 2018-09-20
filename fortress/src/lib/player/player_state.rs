@@ -1,3 +1,4 @@
+use audio::AudioPlayer;
 use dimensions::{
     Damage,
     LrDirection,
@@ -50,11 +51,11 @@ impl PlayerState {
         self.crossbow.pre_update(dt);
     }
 
-    pub fn try_slash(&mut self) {
-        self.sword.try_slash(&mut self.body);
+    pub fn try_slash(&mut self, audio: &AudioPlayer) {
+        self.sword.try_slash(&mut self.body, audio);
     }
 
-    pub fn try_fire(&mut self) {
+    pub fn try_fire(&mut self, audio: &AudioPlayer) {
         let curr_pos = self.get_body_position();
         let curr_dir = self.get_facing_dir();
         let offset = self.config.crossbow_body_offset;
@@ -63,7 +64,7 @@ impl PlayerState {
             LrDirection::Right => Vec2::new(curr_pos.x + offset.0, curr_pos.y + offset.1),
         };
 
-        self.crossbow.try_fire(start_position, curr_dir);
+        self.crossbow.try_fire(audio, start_position, curr_dir);
     }
 
     pub fn get_sword_knockback_strength(&self) -> f32 {

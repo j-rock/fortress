@@ -1,3 +1,7 @@
+use audio::{
+    AudioPlayer,
+    Sound,
+};
 use dimensions::{
     Attack,
     Damage,
@@ -87,7 +91,7 @@ impl Crossbow {
         }
     }
 
-    pub fn try_fire(&mut self, start_position: Vec2, direction: LrDirection) {
+    pub fn try_fire(&mut self, audio: &AudioPlayer, start_position: Vec2, direction: LrDirection) {
         if let None = self.current_delay {
             // Dirty trick to get next arrow id. Create vacant entry, read its key, drop it.
             let next_arrow_id = {
@@ -104,6 +108,8 @@ impl Crossbow {
 
             self.arrows.vacant_entry().insert(arrow);
             self.current_delay = Some(self.firing_period);
+
+            audio.play_sound(Sound::Blast);
         }
     }
 
@@ -137,7 +143,7 @@ impl Crossbow {
             }
         }), Box::new(|_etype| {
             true
-        }), Box::new(|crossbow_entity, other_entity| {
+        }), Box::new(|_audio, crossbow_entity, other_entity| {
             let arrow_id = if let EntityType::CrossbowArrow(x) = crossbow_entity.etype() {
                 x
             } else {

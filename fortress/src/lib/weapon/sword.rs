@@ -1,3 +1,7 @@
+use audio::{
+    AudioPlayer,
+    Sound
+};
 use dimensions::{
     Damage,
     time::{
@@ -55,10 +59,12 @@ impl Sword {
         }
     }
 
-    pub fn try_slash(&mut self, body: &mut PlayerBody) {
+    pub fn try_slash(&mut self, body: &mut PlayerBody, audio: &AudioPlayer) {
         if let None = self.current_slash {
             body.enable_sword_collision();
             self.current_slash = Some(CurrentSlash::new(self.slash_period));
+
+            audio.play_sound(Sound::Slash);
         }
     }
 

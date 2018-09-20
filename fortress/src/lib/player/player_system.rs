@@ -1,4 +1,5 @@
 use app::StatusOr;
+use audio::AudioPlayer;
 use control::{
     Controller,
     ControllerId,
@@ -46,7 +47,7 @@ impl PlayerSystem {
         })
     }
 
-    pub fn pre_update(&mut self, controller: &Controller, physics_sim: &mut PhysicsSimulation, dt: DeltaTime) {
+    pub fn pre_update(&mut self, audio: &AudioPlayer, controller: &Controller, physics_sim: &mut PhysicsSimulation, dt: DeltaTime) {
         let anyone_pressed_respawn =
             self.controller_to_player
                 .keys()
@@ -97,7 +98,7 @@ impl PlayerSystem {
 
         for (player_idx, player) in self.players.iter_mut() {
             let controller_id = self.player_to_controller[player_idx];
-            player.pre_update(controller_id, controller, dt);
+            player.pre_update(audio, controller_id, controller, dt);
         }
     }
 

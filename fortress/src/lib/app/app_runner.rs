@@ -3,6 +3,7 @@ use app::{
     Clock,
     StatusOr,
 };
+use audio::AudioPlayer;
 use control::Controller;
 use file::{
     ConfigLoader,
@@ -27,6 +28,7 @@ struct AppRunnerConfig {
 }
 
 pub struct AppRunner {
+    audio: AudioPlayer,
     clock: Clock,
     controller: Controller,
     g_buffer: GBuffer,
@@ -49,6 +51,7 @@ impl AppRunner {
         let controller = Controller::new(&mut config_watcher)?;
 
         Ok(AppRunner {
+            audio: AudioPlayer::new()?,
             config_watcher,
             context,
             clock: Clock::start(),
@@ -103,7 +106,7 @@ impl AppRunner {
         let dt = self.clock.restart();
         self.config_watcher.update();
         self.controller.update(&self.context.events);
-        self.world.update(&self.controller, dt);
+        self.world.update(&self.audio, &self.controller, dt);
     }
 
     fn draw(&mut self) {

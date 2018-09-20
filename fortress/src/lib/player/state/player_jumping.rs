@@ -1,3 +1,7 @@
+use audio::{
+    AudioPlayer,
+    Sound,
+};
 use control::{
     Controller,
     ControllerId,
@@ -31,7 +35,7 @@ pub struct PlayerJumping {
 }
 
 impl PlayerStateMachine for PlayerJumping {
-    fn pre_update(&mut self, player_state: &mut PlayerState, controller_id: ControllerId, controller: &Controller, dt: DeltaTime) -> Option<Box<dyn PlayerStateMachine>> {
+    fn pre_update(&mut self, player_state: &mut PlayerState, audio: &AudioPlayer, controller_id: ControllerId, controller: &Controller, dt: DeltaTime) -> Option<Box<dyn PlayerStateMachine>> {
         self.current_delay -= dt.as_microseconds();
         if self.current_delay < 0 {
             self.current_delay = 0;
@@ -47,13 +51,13 @@ impl PlayerStateMachine for PlayerJumping {
         player_state.body.move_horizontal(player_state.config.move_speed, move_dir);
 
         if controller.is_pressed(controller_id, PlayerFire) {
-            player_state.try_fire();
-        } else if controller.is_pressed(controller_id, PlayerSlash) {
-            player_state.try_slash();
+            player_state.try_fire(audio);
+        } else if controller.just_pressed(controller_id, PlayerSlash) {
+            player_state.try_slash(audio);
         }
 
         if controller.just_pressed(controller_id, PlayerJump) {
-            self.try_jump(player_state);
+            self.try_jump(player_state, audio);
         }
 
         None
@@ -67,23 +71,24 @@ impl PlayerStateMachine for PlayerJumping {
         }
     }
 
-    fn make_foot_contact(&mut self) {
+    fn make_foot_contact(&mut self, audio: &AudioPlayer) {
         self.has_hit_ground_again = true;
+        audio.play_sound(Sound::Plop);
     }
 }
 
 impl PlayerJumping {
-    pub fn new(player_state: &mut PlayerState) -> PlayerJumping {
+    pub fn new(player_state: &mut PlayerState, audio: &AudioPlayer) -> PlayerJumping {
         let mut jumping = PlayerJumping {
             has_hit_ground_again: false,
             jumps_left: player_state.config.num_jumps,
             current_delay: time::milliseconds(0),
         };
-        jumping.try_jump(player_state);
+        jumping.try_jump(player_state, audio);
         jumping
     }
 
-    pub fn try_jump(&mut self, player_state: &mut PlayerState) {
+    pub fn try_jump(&mut self, player_state: &mut PlayerState, audio: &AudioPlayer) {
         if self.jumps_left > 0 && self.current_delay == 0 {
             self.current_delay = time::milliseconds(player_state.config.jump_delay_ms);
             self.jumps_left -= 1;
@@ -95,6 +100,8 @@ impl PlayerJumping {
             let impulse = Vec2::new(0.0, mass * jump_boost);
             let body_center = *body.get_world_center();
             body.apply_linear_impulse(&impulse, &body_center, true);
+
+            audio.play_sound(Sound::Jump);
         }
     }
 }

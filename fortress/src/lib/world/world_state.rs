@@ -1,4 +1,5 @@
 use app::StatusOr;
+use audio::AudioPlayer;
 use control::Controller;
 use dimensions::time::DeltaTime;
 use file::{
@@ -65,21 +66,21 @@ impl WorldState {
         self.wraith.register();
     }
 
-    pub fn update(&mut self, controller: &Controller, dt: DeltaTime) {
+    pub fn update(&mut self, audio: &AudioPlayer, controller: &Controller, dt: DeltaTime) {
         self.config_manager.update();
         self.camera.update();
 
         {
             self.map.pre_update(controller, dt);
-            self.players.pre_update(controller, &mut self.physics_sim, dt);
+            self.players.pre_update(audio, controller, &mut self.physics_sim, dt);
             self.wraith.pre_update(controller, dt);
         }
 
-        self.physics_sim.update(dt);
+        self.physics_sim.update(audio, dt);
 
         {
             self.players.post_update();
-            self.wraith.post_update();
+            self.wraith.post_update(audio);
         }
     }
 
