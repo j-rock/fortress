@@ -1,3 +1,4 @@
+#[macro_use] extern crate enum_iterator;
 extern crate gl;
 extern crate glm;
 #[macro_use] extern crate lazy_static;
@@ -11,6 +12,7 @@ extern crate serde_json;
 extern crate slab;
 
 pub mod app;
+pub mod audio;
 pub mod color;
 pub mod control;
 pub mod dimensions;

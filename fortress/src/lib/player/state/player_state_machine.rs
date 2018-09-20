@@ -1,3 +1,4 @@
+use audio::AudioPlayer;
 use control::{
     Controller,
     ControllerId,
@@ -7,12 +8,12 @@ use player::PlayerState;
 
 pub trait PlayerStateMachine {
     // Before physics step.
-    fn pre_update(&mut self, player_state: &mut PlayerState, controller_id: ControllerId, controller: &Controller, dt: DeltaTime) -> Option<Box<dyn PlayerStateMachine>>;
+    fn pre_update(&mut self, player_state: &mut PlayerState, audio: &AudioPlayer, controller_id: ControllerId, controller: &Controller, dt: DeltaTime) -> Option<Box<dyn PlayerStateMachine>>;
 
     // After physics step.
     fn post_update(&mut self) -> Option<Box<dyn PlayerStateMachine>> {
         None
     }
 
-    fn make_foot_contact(&mut self) {}
+    fn make_foot_contact(&mut self, _audio: &AudioPlayer) {}
 }
