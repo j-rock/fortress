@@ -47,7 +47,12 @@ impl PlayerSystem {
     }
 
     pub fn pre_update(&mut self, controller: &Controller, physics_sim: &mut PhysicsSimulation, dt: DeltaTime) {
-        if self.config_manager.update() || controller.just_pressed(ControllerId::Keyboard, ControlEvent::RespawnEntities) {
+        let anyone_pressed_respawn =
+            self.controller_to_player
+                .keys()
+                .any(|controller_id| controller.just_pressed(*controller_id, ControlEvent::RespawnEntities));
+
+        if self.config_manager.update() || anyone_pressed_respawn {
             self.redeploy(physics_sim);
         }
 
