@@ -1,5 +1,8 @@
 use app::StatusOr;
-use audio::AudioPlayer;
+use audio::{
+    AudioPlayer,
+    Sound
+};
 use control::{
     Controller,
     ControllerId,
@@ -66,7 +69,7 @@ impl PlayerSystem {
                         self.player_to_controller[player_id.as_usize()] = controller_id;
                         self.controller_to_player.insert(controller_id, player_id);
                     } else {
-                        self.new_player(controller_id, physics_sim);
+                        self.new_player(controller_id, audio, physics_sim);
                     }
                 }
                 ControllerEvent::GamepadConnected(gamepad_id) => {
@@ -76,7 +79,7 @@ impl PlayerSystem {
                         self.player_to_controller[player_id.as_usize()] = controller_id;
                         self.controller_to_player.insert(controller_id, player_id);
                     } else {
-                        self.new_player(controller_id, physics_sim);
+                        self.new_player(controller_id, audio, physics_sim);
                     }
                 },
                 ControllerEvent::GamepadDisconnected(gamepad_id) => {
@@ -194,7 +197,7 @@ impl PlayerSystem {
         }
     }
 
-    fn new_player(&mut self, controller_id: ControllerId, physics_sim: &mut PhysicsSimulation) {
+    fn new_player(&mut self, controller_id: ControllerId, audio: &AudioPlayer, physics_sim: &mut PhysicsSimulation) {
         let player_id = {
             let player_entry = self.players.vacant_entry();
             let player_id = PlayerId::from_usize(player_entry.key());
@@ -211,6 +214,8 @@ impl PlayerSystem {
             self.players.get_mut(raw_player_id).expect("PlayerSystem has bad key!").register();
             self.player_to_controller.push(controller_id);
             self.controller_to_player.insert(controller_id, player_id);
+
+            audio.play_sound(Sound::JoinGame);
         }
     }
 }
