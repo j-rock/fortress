@@ -185,7 +185,7 @@ impl Crossbow {
             let mut fixture_def = FixtureDef::new(&poly_shape);
             fixture_def.is_sensor = true;
             fixture_def.filter.category_bits = collision_category::PLAYER_WEAPON;
-            fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL & !collision_category::PLAYER_BODY;
+            fixture_def.filter.mask_bits = collision_category::BARRIER | collision_category::WRAITH;
             body.create_fixture(&fixture_def);
         }
 

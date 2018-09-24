@@ -1,7 +1,12 @@
+use buff::{
+    BuffBox,
+    BuffBoxConfig,
+    BuffBoxPlacement,
+    BuffDropConfig,
+};
 use entity::{
     Entity,
     EntityType,
-    EntityRegistrar,
     Registered,
 };
 use liquidfun::box2d::{
@@ -14,7 +19,6 @@ use liquidfun::box2d::{
             BodyType,
         },
         fixture::FixtureDef,
-        world::World,
     },
 };
 use physics::{
@@ -23,39 +27,43 @@ use physics::{
 };
 
 pub struct BuffBody {
-    pub half_size: (f32, f32),
     pub buff_box_body: Registered<Body>,
-    pub buff_body: Option<Registered<Body>>
+    pub buff_drop_body: Option<Registered<Body>>
 }
 
 impl BuffBody {
-    pub fn new(config: &BuffConfig, placement: &BuffBoxPlacement, physics_sim: &mut PhysicsSimulation) -> BuffBody {
+    pub fn new(config: &BuffBoxConfig, placement: &BuffBoxPlacement, physics_sim: &mut PhysicsSimulation) -> BuffBody {
         let mut body_def = BodyDef::default();
         body_def.body_type = BodyType::DynamicBody;
         body_def.position = Vec2::new(placement.location.0, placement.location.1);
         body_def.fixed_rotation = true;
-
         let body = physics_sim.get_world_mut().create_body(&body_def);
+
         let mut poly_shape = PolygonShape::new();
-        let half_size = {
-            let (hx, hy) = (config.buff_box_size.0 / 2.0, config.buff_box_size.1 / 2.0);
-            poly_shape.set_as_box(hx, hy);
+        let (hx, hy) = (config.size.0 / 2.0, config.size.1 / 2.0);
+        poly_shape.set_as_box(hx, hy);
 
-            let mut fixture_def = FixtureDef::new(&poly_shape);
-            fixture_def.density = config.density;
-            fixture_def.friction = config.friction;
-            fixture_def.filter.category_bits = collision_category::INTERACT;
-            fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL;
-            body.create_fixture(&fixture_def);
+        let mut fixture_def = FixtureDef::new(&poly_shape);
+        fixture_def.density = config.density;
+        fixture_def.friction = config.friction;
+        fixture_def.filter.category_bits = collision_category::INTERACT;
+        fixture_def.filter.mask_bits = collision_category::BARRIER | collision_category::PLAYER_WEAPON;
 
-            (hx, hy)
-        };
-
+        body.create_fixture(&fixture_def);
         let buff_box_body = Registered::new(body, physics_sim.registrar(), None);
+
         BuffBody {
             buff_box_body,
-            half_size,
-            buff_body: None,
+            buff_drop_body: None,
+        }
+    }
+
+    pub fn get_drop_body_position(&self) -> Option<(f32, f32)> {
+        if let Some(ref drop_body) = self.buff_drop_body {
+            let pos = drop_body.data_setter.get_position();
+            Some((pos.x, pos.y))
+        } else {
+            None
         }
     }
 
@@ -63,4 +71,46 @@ impl BuffBody {
         let entity = Entity::new(EntityType::BuffBox, buff_box);
         self.buff_box_body.register(entity);
     }
+
+    pub fn launch_drop(&mut self, config: &BuffDropConfig, entity: Entity, physics_sim: &mut PhysicsSimulation) {
+        let buff_box_pos = self.buff_box_body.data_setter.get_position();
+        let start_position = Vec2::new(config.start_position.0 + buff_box_pos.x, config.start_position.1 + buff_box_pos.y);
+
+        let mut body_def = BodyDef::default();
+        body_def.body_type = BodyType::DynamicBody;
+        body_def.position = start_position;
+        body_def.linear_velocity = Vec2::new(config.velocity.0, config.velocity.1);
+        body_def.fixed_rotation = true;
+        let body = physics_sim.get_world_mut().create_body(&body_def);
+
+        let mut poly_shape = PolygonShape::new();
+        let (hx, hy) = (config.size.0 / 2.0, config.size.1 / 2.0);
+        poly_shape.set_as_box(hx, hy);
+
+        let mut fixture_def = FixtureDef::new(&poly_shape);
+        fixture_def.density = config.density;
+        fixture_def.friction = config.friction;
+        fixture_def.restitution = config.restitution;
+        fixture_def.filter.category_bits = collision_category::PICKUP;
+        fixture_def.filter.mask_bits = collision_category::BARRIER | collision_category::PLAYER_BODY;
+
+        body.create_fixture(&fixture_def);
+        self.buff_drop_body = Some(Registered::new(body, physics_sim.registrar(), Some(entity)));
+    }
+
+    pub fn destroy_drop(&mut self) {
+        if let Some(mut drop_body) = self.buff_drop_body.take() {
+            let mut world = drop_body.data_setter.get_world();
+            world.destroy_body(&mut drop_body.data_setter);
+        }
+    }
+}
+
+impl Drop for BuffBody {
+   fn drop(&mut self) {
+       self.destroy_drop();
+
+       let mut world = self.buff_box_body.data_setter.get_world();
+       world.destroy_body(&mut self.buff_box_body.data_setter);
+   }
 }

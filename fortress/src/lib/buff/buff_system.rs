@@ -5,10 +5,9 @@ use buff::{
 };
 use control::{
     ControlEvent,
-    ControlId,
     Controller,
+    ControllerId,
 };
-use entity::EntityRegistrar;
 use file::{
     ConfigWatcher,
     SimpleConfigManager,
@@ -30,7 +29,7 @@ impl BuffSystem {
             buffs: Slab::new(),
         };
         buffs.redeploy(physics_sim);
-        buffs
+        Ok(buffs)
     }
 
     pub fn pre_update(&mut self, controller: &Controller, physics_sim: &mut PhysicsSimulation) {
@@ -39,8 +38,18 @@ impl BuffSystem {
         }
     }
 
+    pub fn post_update(&mut self, physics_sim: &mut PhysicsSimulation) {
+        let config = self.config_manager.get();
+        for (_i, buff_box) in self.buffs.iter_mut() {
+            buff_box.post_update(&config.buff_drop, physics_sim);
+        }
+    }
+
     pub fn draw(&self, box_renderer: &mut BoxRenderer) {
-        self.buffs.iter().foreach(|buff_box| buff_box.draw(box_renderer));
+        let config = self.config_manager.get();
+        for (_i, buff_box) in self.buffs.iter() {
+            buff_box.draw(config, box_renderer);
+        }
     }
 
     fn redeploy(&mut self, physics_sim: &mut PhysicsSimulation) {
@@ -48,7 +57,7 @@ impl BuffSystem {
 
         let config = self.config_manager.get();
         for placement in config.buffs.iter() {
-            let buff_box = BuffBox::new(config, placement, physics_sim);
+            let buff_box = BuffBox::new(&config.buff_box, placement, physics_sim);
             let idx = self.buffs.insert(buff_box);
             self.buffs.get_mut(idx).expect("BuffSystem has bad key!").register();
         }

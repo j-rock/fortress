@@ -1,4 +1,5 @@
 use audio::AudioPlayer;
+use buff::Buff;
 use dimensions::{
     Damage,
     LrDirection,
@@ -51,6 +52,13 @@ impl PlayerState {
         self.crossbow.pre_update(dt);
     }
 
+    pub fn absorb_buff(&mut self, buff: Buff) {
+        match buff {
+            Buff::IncreaseAttack => {
+            }
+        }
+    }
+
     pub fn try_slash(&mut self, audio: &AudioPlayer) {
         self.sword.try_slash(&mut self.body, audio);
     }
@@ -80,7 +88,7 @@ impl PlayerState {
     }
 
     pub fn get_body_position(&self) -> Vec2 {
-        *self.body.body.get_position()
+        *self.body.body.data_setter.get_position()
     }
 
     pub fn get_sword_position(&self) -> Vec2 {

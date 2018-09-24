@@ -1,6 +1,9 @@
 use app::StatusOr;
 use audio::AudioPlayer;
-use buff::BuffSystem;
+use buff::{
+    BuffBox,
+    BuffSystem,
+};
 use control::Controller;
 use dimensions::time::DeltaTime;
 use file::{
@@ -51,6 +54,8 @@ impl WorldState {
             Player::foot_sensor_hit_something(),
             Player::slash_wraith(),
             Crossbow::arrow_hit(),
+            BuffBox::player_slashed_buff_box(),
+            BuffBox::player_hit_buff_drop(),
         ));
 
         Ok(WorldState {
@@ -78,7 +83,7 @@ impl WorldState {
             self.map.pre_update(controller, dt);
             self.players.pre_update(audio, controller, &mut self.physics_sim, dt);
             self.wraith.pre_update(controller, dt);
-            self.buffs.pre_update(&mut self.physics_sim);
+            self.buffs.pre_update(controller, &mut self.physics_sim);
         }
 
         self.physics_sim.update(audio, dt);
@@ -86,6 +91,7 @@ impl WorldState {
         {
             self.players.post_update();
             self.wraith.post_update(audio);
+            self.buffs.post_update(&mut self.physics_sim);
         }
     }
 

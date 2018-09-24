@@ -13,6 +13,7 @@ extern crate slab;
 
 pub mod app;
 pub mod audio;
+pub mod buff;
 pub mod color;
 pub mod control;
 pub mod dimensions;

@@ -48,7 +48,7 @@ impl WraithBody {
             fixture_def.density = config.density;
             fixture_def.friction = config.friction;
             fixture_def.filter.category_bits = collision_category::WRAITH;
-            fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL;
+            fixture_def.filter.mask_bits = collision_category::BARRIER | collision_category::PLAYER_WEAPON;
             body.create_fixture(&fixture_def);
         }
 

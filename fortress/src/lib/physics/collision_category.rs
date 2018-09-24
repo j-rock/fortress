@@ -1,12 +1,12 @@
 use liquidfun::box2d::common::settings::UInt16;
 
 pub const COLLIDE_ALL: UInt16  = 1 << 0;
-pub const PLAYER_BODY: UInt16  = 1 << 1;
-pub const WRAITH: UInt16  = 1 << 2;
-pub const PLAYER_WEAPON: UInt16  = 1 << 3;
-pub const INTERACT: UInt16  = 1 << 4;
-pub const CAT_6: UInt16  = 1 << 5;
-pub const CAT_7: UInt16  = 1 << 6;
+pub const BARRIER: UInt16 = 1 << 1;
+pub const INTERACT: UInt16  = 1 << 2;
+pub const PICKUP: UInt16  = 1 << 3;
+pub const PLAYER_BODY: UInt16  = 1 << 4;
+pub const PLAYER_WEAPON: UInt16  = 1 << 5;
+pub const WRAITH: UInt16  = 1 << 6;
 pub const CAT_8: UInt16  = 1 << 7;
 pub const CAT_9: UInt16  = 1 << 8;
 pub const CAT_10: UInt16 = 1 << 9;

@@ -93,7 +93,7 @@ impl PlayerJumping {
             self.current_delay = time::milliseconds(player_state.config.jump_delay_ms);
             self.jumps_left -= 1;
 
-            let body = &player_state.body.body;
+            let body = &player_state.body.body.data_setter;
             let actual_body_velocity = *body.get_linear_velocity();
             let jump_boost = player_state.config.jump_strength - actual_body_velocity.y;
             let mass = body.get_mass();

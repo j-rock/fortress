@@ -1,4 +1,5 @@
 use audio::AudioPlayer;
+use buff::Buff;
 use control::{
     Controller,
     ControllerId,
@@ -62,6 +63,10 @@ impl Player {
         if let Some(player_state_machine) = self.player_state_machine.post_update() {
             self.player_state_machine = player_state_machine;
         }
+    }
+
+    pub fn absorb_buff(&mut self, buff: Buff) {
+        self.player_state.absorb_buff(buff);
     }
 
     pub fn get_position(&self) -> glm::Vec2 {

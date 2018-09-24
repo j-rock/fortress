@@ -30,7 +30,7 @@ use player::{
 use std;
 
 pub struct PlayerBody {
-    pub body: Body,
+    pub body: Registered<Body>,
     pub foot_sensor: Registered<Fixture>,
 
     pub sword_size: Vec2,
@@ -58,7 +58,7 @@ impl PlayerBody {
             let mut fixture_def = FixtureDef::new(&poly_shape);
             fixture_def.restitution = config.restitution;
             fixture_def.filter.category_bits = collision_category::PLAYER_BODY;
-            fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL & !collision_category::WRAITH;
+            fixture_def.filter.mask_bits = collision_category::BARRIER | collision_category::PICKUP;
             body.create_fixture(&fixture_def);
         }
 
@@ -69,7 +69,7 @@ impl PlayerBody {
 
             let mut fixture_def = FixtureDef::new(&poly_shape);
             fixture_def.filter.category_bits = collision_category::PLAYER_BODY;
-            fixture_def.filter.mask_bits = collision_category::MASK_ALLOW_ALL & !collision_category::WRAITH;
+            fixture_def.filter.mask_bits = collision_category::BARRIER;
             fixture_def.is_sensor = true;
 
             let foot_sensor_fixture = body.create_fixture(&fixture_def);
@@ -88,6 +88,8 @@ impl PlayerBody {
             (sword_size, sensor_center, sword_sensor)
         };
 
+        let body = Registered::new(body, registrar.clone(), None);
+
         PlayerBody {
             body,
             foot_sensor,
@@ -99,6 +101,9 @@ impl PlayerBody {
     }
 
     pub fn register(&mut self, player: *const Player) {
+        let player_entity = Entity::new(EntityType::Player, player);
+        self.body.register(player_entity);
+
         let foot_sensor_entity = Entity::new(EntityType::PlayerFootSensor, player);
         self.foot_sensor.register(foot_sensor_entity);
 
@@ -117,15 +122,17 @@ impl PlayerBody {
             Some(LrDirection::Right) => 1.0
         };
 
-        let actual_body_velocity = *self.body.get_linear_velocity();
-        let mass = self.body.get_mass();
+        let body = &mut self.body.data_setter;
+
+        let actual_body_velocity = *body.get_linear_velocity();
+        let mass = body.get_mass();
         let impulse = Vec2::new(mass * (desired_horizontal_velocity - actual_body_velocity.x), 0.0);
-        let body_center = *self.body.get_world_center();
-        self.body.apply_linear_impulse(&impulse, &body_center, true);
+        let body_center = *body.get_world_center();
+        body.apply_linear_impulse(&impulse, &body_center, true);
     }
 
     pub fn body(&self) -> &Body {
-        &self.body
+        &self.body.data_setter
     }
 
     pub fn turn_face(&mut self, direction: LrDirection) {
@@ -139,15 +146,15 @@ impl PlayerBody {
 
             let registrar = self.sword_sensor.registrar.clone();
             let entity = self.sword_sensor.entity.clone();
-            let sword_sensor_fixture = Self::create_sword_sensor_fixture(self.sword_size, self.sword_offset_from_body, &self.body);
+            let sword_sensor_fixture = Self::create_sword_sensor_fixture(self.sword_size, self.sword_offset_from_body, &self.body.data_setter);
             let mut old_sword = std::mem::replace(&mut self.sword_sensor, Registered::new(sword_sensor_fixture, registrar, entity));
-            self.body.destroy_fixture(&mut old_sword.data_setter);
+            self.body.data_setter.destroy_fixture(&mut old_sword.data_setter);
         }
     }
 
     pub fn enable_sword_collision(&mut self) {
         let mut collision_filter = Self::disabled_sword_collision_filter();
-        collision_filter.mask_bits = collision_category::WRAITH;
+        collision_filter.mask_bits = collision_category::WRAITH | collision_category::INTERACT;
         self.sword_sensor.data_setter.set_filter_data(&collision_filter);
     }
 
@@ -177,7 +184,7 @@ impl PlayerBody {
 
 impl Drop for PlayerBody {
     fn drop(&mut self) {
-        let mut world = self.body.get_world();
-        world.destroy_body(&mut self.body);
+        let mut world = self.body.data_setter.get_world();
+        world.destroy_body(&mut self.body.data_setter);
     }
 }
