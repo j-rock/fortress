@@ -1,5 +1,6 @@
 use app::StatusOr;
 use audio::AudioPlayer;
+use buff::BuffSystem;
 use control::Controller;
 use dimensions::time::DeltaTime;
 use file::{
@@ -32,6 +33,7 @@ pub struct WorldState {
     map: Map,
     players: PlayerSystem,
     wraith: Wraith,
+    buffs: BuffSystem,
 
     box_renderer: BoxRenderer,
     // Declare physics simulation last so it is dropped last.
@@ -43,6 +45,7 @@ impl WorldState {
         let mut physics_sim = PhysicsSimulation::new(config_watcher)?;
         let map = Map::new(config_watcher, &mut physics_sim)?;
         let wraith = Wraith::new(config_watcher, &mut physics_sim)?;
+        let buffs = BuffSystem::new(config_watcher, &mut physics_sim)?;
 
         physics_sim.add_collision_matchers(vec!(
             Player::foot_sensor_hit_something(),
@@ -56,6 +59,7 @@ impl WorldState {
             map,
             players: PlayerSystem::new(config_watcher)?,
             wraith,
+            buffs,
             box_renderer: BoxRenderer::new()?,
             physics_sim
         })
@@ -74,6 +78,7 @@ impl WorldState {
             self.map.pre_update(controller, dt);
             self.players.pre_update(audio, controller, &mut self.physics_sim, dt);
             self.wraith.pre_update(controller, dt);
+            self.buffs.pre_update(&mut self.physics_sim);
         }
 
         self.physics_sim.update(audio, dt);
@@ -92,6 +97,7 @@ impl WorldState {
         self.map.draw(&mut self.box_renderer);
         self.players.draw(&mut self.box_renderer);
         self.wraith.draw(&mut self.box_renderer);
+        self.buffs.draw(&mut self.box_renderer);
 
         self.box_renderer.draw_begin();
         {

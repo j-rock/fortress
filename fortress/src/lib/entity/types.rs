@@ -1,8 +1,9 @@
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum EntityType {
-    CrossbowArrow(usize),
-
+    BuffBox,
     Platform,
+
+    CrossbowArrow(usize),
 
     Player,
     PlayerFootSensor,
