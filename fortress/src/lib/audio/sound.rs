@@ -8,6 +8,7 @@ pub enum Sound {
     JoinGame,
     Jump,
     Plop,
+    Powerup,
     Raygun,
     Slash,
 }
@@ -19,6 +20,7 @@ impl Sound {
             Sound::JoinGame => "join_game.wav",
             Sound::Jump => "jump.wav",
             Sound::Plop => "plop.wav",
+            Sound::Powerup => "powerup.wav",
             Sound::Raygun => "raygun.wav",
             Sound::Slash => "slash.wav",
         };

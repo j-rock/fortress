@@ -1,3 +1,4 @@
+use audio::Sound;
 use buff::{
     Buff,
     BuffBody,
@@ -113,11 +114,13 @@ impl BuffBox {
     }
 
     pub fn player_hit_buff_drop() -> CollisionMatcher {
-        CollisionMatcher::match_two(EntityType::Player, EntityType::BuffDrop, Box::new(|_audio, player_ent, buff_box_ent| {
+        CollisionMatcher::match_two(EntityType::Player, EntityType::BuffDrop, Box::new(|audio, player_ent, buff_box_ent| {
             let player: &mut Player = player_ent.resolve();
             let buff_box: &mut Self = buff_box_ent.resolve();
             buff_box.destroy_drop = true;
             player.absorb_buff(buff_box.buff);
+
+            audio.play_sound(Sound::Powerup);
         }))
     }
 }
