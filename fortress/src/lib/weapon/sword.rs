@@ -13,6 +13,7 @@ use player::{
     PlayerConfig,
     state::PlayerBody,
 };
+use weapon::SwordStats;
 
 #[derive(Copy, Clone)]
 struct CurrentSlash {
@@ -29,18 +30,14 @@ impl CurrentSlash {
 
 #[derive(Copy, Clone)]
 pub struct Sword {
-    slash_knockback_strength: f32,
-    slash_damage: Damage,
-    slash_period: time::Microseconds,
+    stats: SwordStats,
     current_slash: Option<CurrentSlash>,
 }
 
 impl Sword {
     pub fn new(config: &PlayerConfig) -> Sword {
         Sword {
-            slash_period: time::milliseconds(config.slash_period_ms),
-            slash_damage: config.sword_damage,
-            slash_knockback_strength: config.sword_knockback_strength,
+            stats: SwordStats::new(config),
             current_slash: None,
         }
     }
@@ -62,17 +59,17 @@ impl Sword {
     pub fn try_slash(&mut self, body: &mut PlayerBody, audio: &AudioPlayer) {
         if let None = self.current_slash {
             body.enable_sword_collision();
-            self.current_slash = Some(CurrentSlash::new(self.slash_period));
+            self.current_slash = Some(CurrentSlash::new(self.stats.get_period()));
 
             audio.play_sound(Sound::Slash);
         }
     }
 
     pub fn get_knockback_strength(&self) -> f32 {
-        self.slash_knockback_strength
+        self.stats.get_knockback_strength()
     }
 
     pub fn get_damage(&self) -> Damage {
-        self.slash_damage
+        self.stats.get_damage()
     }
 }

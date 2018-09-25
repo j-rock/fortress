@@ -32,7 +32,7 @@ impl PlayerStateMachine for PlayerUpright {
         } else {
             None
         };
-        player_state.body.move_horizontal(player_state.config.move_speed, move_dir);
+        player_state.body.move_horizontal(player_state.stats.get_move_speed(), move_dir);
 
         if controller.is_pressed(controller_id, PlayerFire) {
             player_state.try_fire(audio);

@@ -48,7 +48,7 @@ impl PlayerStateMachine for PlayerJumping {
         } else {
             None
         };
-        player_state.body.move_horizontal(player_state.config.move_speed, move_dir);
+        player_state.body.move_horizontal(player_state.stats.get_move_speed(), move_dir);
 
         if controller.is_pressed(controller_id, PlayerFire) {
             player_state.try_fire(audio);
@@ -81,7 +81,7 @@ impl PlayerJumping {
     pub fn new(player_state: &mut PlayerState, audio: &AudioPlayer) -> PlayerJumping {
         let mut jumping = PlayerJumping {
             has_hit_ground_again: false,
-            jumps_left: player_state.config.num_jumps,
+            jumps_left: player_state.stats.get_num_jumps(),
             current_delay: time::milliseconds(0),
         };
         jumping.try_jump(player_state, audio);
@@ -95,7 +95,7 @@ impl PlayerJumping {
 
             let body = &player_state.body.body.data_setter;
             let actual_body_velocity = *body.get_linear_velocity();
-            let jump_boost = player_state.config.jump_strength - actual_body_velocity.y;
+            let jump_boost = player_state.stats.get_jump_strength() - actual_body_velocity.y;
             let mass = body.get_mass();
             let impulse = Vec2::new(0.0, mass * jump_boost);
             let body_center = *body.get_world_center();

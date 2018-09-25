@@ -4,7 +4,6 @@ use audio::{
 };
 use dimensions::{
     Attack,
-    Damage,
     LrDirection,
     time::{
         self,
@@ -43,6 +42,7 @@ use render::{
     BoxRenderer
 };
 use slab::Slab;
+use weapon::CrossbowStats;
 use wraith::Wraith;
 
 type ArrowId = usize;
@@ -54,10 +54,7 @@ struct Arrow {
 pub struct Crossbow {
     arrows: Slab<Arrow>,
 
-    arrow_speed: Vec2,
-    arrow_damage: Damage,
-    arrow_knockback_strength: f32,
-    firing_period: time::Microseconds,
+    stats: CrossbowStats,
     current_delay: Option<time::Microseconds>,
     arrow_box_size: Vec2,
 
@@ -69,10 +66,7 @@ impl Crossbow {
     pub fn new(config: &PlayerConfig, registrar: &EntityRegistrar, world: &mut World) -> Crossbow {
         Crossbow {
             arrows: Slab::new(),
-            arrow_speed: Vec2::new(config.arrow_speed.0, config.arrow_speed.1),
-            arrow_damage: config.arrow_damage,
-            arrow_knockback_strength: config.arrow_knockback_strength,
-            firing_period: time::milliseconds(config.firing_period_ms),
+            stats: CrossbowStats::new(config),
             current_delay: None,
             arrow_box_size: Vec2::new(config.arrow_box_size.0, config.arrow_box_size.1),
             registrar: registrar.clone(),
@@ -107,7 +101,7 @@ impl Crossbow {
             };
 
             self.arrows.vacant_entry().insert(arrow);
-            self.current_delay = Some(self.firing_period);
+            self.current_delay = Some(self.stats.get_firing_period());
 
             audio.play_sound(Sound::Blast);
         }
@@ -123,8 +117,8 @@ impl Crossbow {
         };
 
         Attack {
-            damage: self.arrow_damage,
-            knockback_strength: self.arrow_knockback_strength,
+            damage: self.stats.get_arrow_damage(),
+            knockback_strength: self.stats.get_knockback_strength(),
             knockback_dir: arrow_dir
         }
     }
@@ -166,12 +160,14 @@ impl Crossbow {
         let mut body_def = BodyDef::default();
         body_def.body_type = BodyType::DynamicBody;
         body_def.position = start_position;
-        body_def.linear_velocity = match direction {
-            LrDirection::Left => Vec2::new(-self.arrow_speed.x, self.arrow_speed.y),
-            LrDirection::Right => self.arrow_speed,
-        };
         body_def.fixed_rotation = true;
         body_def.bullet = true;
+
+        let arrow_speed = self.stats.get_arrow_speed();
+        body_def.linear_velocity = match direction {
+            LrDirection::Left => Vec2::new(-arrow_speed.x, arrow_speed.y),
+            LrDirection::Right => arrow_speed,
+        };
 
         let body = self.world.create_body(&body_def);
 

@@ -120,8 +120,8 @@ impl Player {
             let player: &Self = sword_ent.resolve();
             let wraith: &mut Wraith = wraith_ent.resolve();
             let attack = Attack {
-                damage: player.player_state.get_sword_damage(),
-                knockback_strength: player.player_state.get_sword_knockback_strength(),
+                damage: player.player_state.sword.get_damage(),
+                knockback_strength: player.player_state.sword.get_knockback_strength(),
                 knockback_dir: player.player_state.body.facing_dir
             };
             wraith.take_attack(attack);

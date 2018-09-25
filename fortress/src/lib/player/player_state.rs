@@ -1,7 +1,6 @@
 use audio::AudioPlayer;
 use buff::Buff;
 use dimensions::{
-    Damage,
     LrDirection,
     time::DeltaTime
 };
@@ -12,6 +11,7 @@ use liquidfun::box2d::{
 };
 use player::{
     Player,
+    PlayerStats,
     PlayerId,
     PlayerConfig,
     state::PlayerBody
@@ -24,6 +24,7 @@ use weapon::{
 pub struct PlayerState {
     pub player_id: PlayerId,
     pub config: PlayerConfig,
+    pub stats: PlayerStats,
     pub body: PlayerBody,
     pub sword: Sword,
     pub crossbow: Crossbow,
@@ -34,9 +35,11 @@ impl PlayerState {
         let body = PlayerBody::new(&config, registrar, world);
         let sword = Sword::new(&config);
         let crossbow = Crossbow::new(&config, registrar, world);
+        let stats = PlayerStats::new(&config);
         PlayerState {
             player_id,
             config,
+            stats,
             body,
             sword,
             crossbow,
@@ -73,14 +76,6 @@ impl PlayerState {
         };
 
         self.crossbow.try_fire(audio, start_position, curr_dir);
-    }
-
-    pub fn get_sword_knockback_strength(&self) -> f32 {
-        self.sword.get_knockback_strength()
-    }
-
-    pub fn get_sword_damage(&self) -> Damage {
-        self.sword.get_damage()
     }
 
     pub fn get_facing_dir(&self) -> LrDirection {
