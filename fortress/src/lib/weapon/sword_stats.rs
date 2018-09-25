@@ -7,13 +7,13 @@ use player::PlayerConfig;
 #[derive(Copy, Clone)]
 pub struct SwordStats {
     damage: Damage,
-    damage_level: usize,
+    pub damage_level: usize,
 
     knockback_strength: f32,
-    knockback_strength_level: usize,
+    pub knockback_strength_level: usize,
 
     period: time::Microseconds,
-    period_level: usize,
+    pub period_level: usize,
 }
 
 impl SwordStats {

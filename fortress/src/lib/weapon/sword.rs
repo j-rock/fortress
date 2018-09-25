@@ -30,7 +30,7 @@ impl CurrentSlash {
 
 #[derive(Copy, Clone)]
 pub struct Sword {
-    stats: SwordStats,
+    pub stats: SwordStats,
     current_slash: Option<CurrentSlash>,
 }
 

@@ -7,16 +7,16 @@ use player::PlayerConfig;
 
 pub struct CrossbowStats {
     base_arrow_speed: Vec2,
-    arrow_speed_level: usize,
+    pub arrow_speed_level: usize,
 
     base_arrow_damage: Damage,
-    arrow_damage_level: usize,
+    pub arrow_damage_level: usize,
 
     base_arrow_knockback_strength: f32,
-    arrow_knockback_strength_level: usize,
+    pub arrow_knockback_strength_level: usize,
 
     base_firing_period: time::Microseconds,
-    firing_period_level: usize,
+    pub firing_period_level: usize,
 }
 
 impl CrossbowStats {

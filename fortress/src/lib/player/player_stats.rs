@@ -2,13 +2,13 @@ use player::PlayerConfig;
 
 pub struct PlayerStats {
     move_speed: f32,
-    move_speed_level: usize,
+    pub move_speed_level: usize,
 
     jump_strength: f32,
-    jump_strength_level: usize,
+    pub jump_strength_level: usize,
 
     num_jumps: i32,
-    num_jumps_level: usize,
+    pub num_jumps_level: usize,
 }
 
 impl PlayerStats {

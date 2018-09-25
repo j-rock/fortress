@@ -54,7 +54,7 @@ struct Arrow {
 pub struct Crossbow {
     arrows: Slab<Arrow>,
 
-    stats: CrossbowStats,
+    pub stats: CrossbowStats,
     current_delay: Option<time::Microseconds>,
     arrow_box_size: Vec2,
 
