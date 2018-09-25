@@ -3,7 +3,8 @@ use entity::{
     Entity,
     EntityRegistrar,
     EntityType,
-    Registered,
+    RegisteredBody,
+    RegisteredFixture,
 };
 use liquidfun::box2d::{
     collision::shapes::polygon_shape::PolygonShape,
@@ -27,17 +28,18 @@ use player::{
     Player,
     PlayerConfig,
 };
-use std;
 
 pub struct PlayerBody {
-    pub body: Registered<Body>,
-    pub foot_sensor: Registered<Fixture>,
+    pub foot_sensor: RegisteredFixture,
 
     pub sword_size: Vec2,
     pub sword_offset_from_body: Vec2,
-    pub sword_sensor: Registered<Fixture>,
+    pub sword_sensor: RegisteredFixture,
 
     pub facing_dir: LrDirection,
+
+    // Declare last so we clean up fixtures first.
+    pub body: RegisteredBody,
 }
 
 impl PlayerBody {
@@ -73,7 +75,7 @@ impl PlayerBody {
             fixture_def.is_sensor = true;
 
             let foot_sensor_fixture = body.create_fixture(&fixture_def);
-            Registered::new(foot_sensor_fixture, registrar.clone(), None)
+            RegisteredFixture::new(foot_sensor_fixture, registrar.clone(), None)
         };
 
         let (sword_size, sword_offset_from_body, sword_sensor) = {
@@ -83,20 +85,20 @@ impl PlayerBody {
             };
             let sensor_center = Vec2::new(config.sword_sensor_center.0, config.sword_sensor_center.1);
             let sword_sensor_fixture = Self::create_sword_sensor_fixture(sword_size, sensor_center, &body);
-            let sword_sensor = Registered::new(sword_sensor_fixture, registrar.clone(), None);
+            let sword_sensor = RegisteredFixture::new(sword_sensor_fixture, registrar.clone(), None);
 
             (sword_size, sensor_center, sword_sensor)
         };
 
-        let body = Registered::new(body, registrar.clone(), None);
+        let body = RegisteredBody::new(body, registrar.clone(), None);
 
         PlayerBody {
-            body,
             foot_sensor,
             sword_size,
             sword_offset_from_body,
             sword_sensor,
             facing_dir: LrDirection::Right,
+            body,
         }
     }
 
@@ -147,8 +149,7 @@ impl PlayerBody {
             let registrar = self.sword_sensor.registrar.clone();
             let entity = self.sword_sensor.entity.clone();
             let sword_sensor_fixture = Self::create_sword_sensor_fixture(self.sword_size, self.sword_offset_from_body, &self.body.data_setter);
-            let mut old_sword = std::mem::replace(&mut self.sword_sensor, Registered::new(sword_sensor_fixture, registrar, entity));
-            self.body.data_setter.destroy_fixture(&mut old_sword.data_setter);
+            self.sword_sensor = RegisteredFixture::new(sword_sensor_fixture, registrar, entity);
         }
     }
 
@@ -179,12 +180,5 @@ impl PlayerBody {
         filter.category_bits = collision_category::PLAYER_WEAPON;
         filter.mask_bits = collision_category::MASK_ALLOW_NONE;
         filter
-    }
-}
-
-impl Drop for PlayerBody {
-    fn drop(&mut self) {
-        let mut world = self.body.data_setter.get_world();
-        world.destroy_body(&mut self.body.data_setter);
     }
 }

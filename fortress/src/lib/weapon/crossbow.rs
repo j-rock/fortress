@@ -15,7 +15,7 @@ use entity::{
     Entity,
     EntityRegistrar,
     EntityType,
-    Registered,
+    RegisteredBody,
 };
 use glm;
 use liquidfun::box2d::{
@@ -48,7 +48,7 @@ use wraith::Wraith;
 type ArrowId = usize;
 
 struct Arrow {
-    body: Registered<Body>,
+    body: RegisteredBody,
 }
 
 pub struct Crossbow {
@@ -103,7 +103,7 @@ impl Crossbow {
 
             let arrow_body = self.create_arrow_body(start_position, direction);
             let arrow = Arrow {
-                body: Registered::new(arrow_body, self.registrar.clone(), Some(entity))
+                body: RegisteredBody::new(arrow_body, self.registrar.clone(), Some(entity))
             };
 
             self.arrows.vacant_entry().insert(arrow);
@@ -130,8 +130,7 @@ impl Crossbow {
     }
 
     pub fn remove_arrow(&mut self, arrow_id: ArrowId) {
-        let mut arrow = self.arrows.remove(arrow_id);
-        self.world.destroy_body(&mut arrow.body.data_setter);
+        self.arrows.remove(arrow_id);
     }
 
     pub fn arrow_hit() -> CollisionMatcher {

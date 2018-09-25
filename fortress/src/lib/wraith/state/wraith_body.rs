@@ -3,14 +3,13 @@ use entity::{
     Entity,
     EntityType,
     EntityRegistrar,
-    Registered,
+    RegisteredBody,
 };
 use liquidfun::box2d::{
     collision::shapes::polygon_shape::PolygonShape,
     common::math::Vec2,
     dynamics::{
         body::{
-            Body,
             BodyDef,
             BodyType,
         },
@@ -25,7 +24,7 @@ use wraith::{
 };
 
 pub struct WraithBody {
-    pub body: Registered<Body>,
+    pub body: RegisteredBody,
     facing_dir: LrDirection,
 }
 
@@ -52,7 +51,7 @@ impl WraithBody {
             body.create_fixture(&fixture_def);
         }
 
-        let body = Registered::new(body, registrar, None);
+        let body = RegisteredBody::new(body, registrar, None);
 
         WraithBody {
             body,
@@ -88,11 +87,3 @@ impl WraithBody {
         self.facing_dir = direction;
     }
 }
-
-impl Drop for WraithBody {
-    fn drop(&mut self) {
-        let mut world = self.body.data_setter.get_world();
-        world.destroy_body(&mut self.body.data_setter);
-    }
-}
-

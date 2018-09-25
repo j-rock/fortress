@@ -2,16 +2,13 @@ use entity::{
     Entity,
     EntityRegistrar,
     EntityType,
-    Registered,
+    RegisteredBody,
 };
 use liquidfun::box2d::{
     collision::shapes::polygon_shape::PolygonShape,
     common::math::Vec2,
     dynamics::{
-        body::{
-            Body,
-            BodyDef,
-        },
+        body::BodyDef,
         fixture::FixtureDef,
         world::World,
     },
@@ -23,7 +20,7 @@ use map::{
 use physics::collision_category;
 
 pub struct MapBody {
-    pub platform_body: Registered<Body>,
+    pub platform_body: RegisteredBody,
 }
 
 impl MapBody {
@@ -43,19 +40,12 @@ impl MapBody {
         }
 
         MapBody {
-            platform_body: Registered::new(platform_body, registrar, None),
+            platform_body: RegisteredBody::new(platform_body, registrar, None),
         }
     }
 
     pub fn register(&mut self, map: *const Map) {
         let platform_entity = Entity::new(EntityType::Platform, map);
         self.platform_body.register(platform_entity);
-    }
-}
-
-impl Drop for MapBody {
-    fn drop(&mut self) {
-        let mut world = self.platform_body.data_setter.get_world();
-        world.destroy_body(&mut self.platform_body.data_setter);
     }
 }

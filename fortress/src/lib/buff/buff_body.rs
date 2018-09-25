@@ -7,14 +7,13 @@ use buff::{
 use entity::{
     Entity,
     EntityType,
-    Registered,
+    RegisteredBody,
 };
 use liquidfun::box2d::{
     collision::shapes::polygon_shape::PolygonShape,
     common::math::Vec2,
     dynamics::{
         body::{
-            Body,
             BodyDef,
             BodyType,
         },
@@ -27,8 +26,8 @@ use physics::{
 };
 
 pub struct BuffBody {
-    pub buff_box_body: Registered<Body>,
-    pub buff_drop_body: Option<Registered<Body>>
+    pub buff_box_body: RegisteredBody,
+    pub buff_drop_body: Option<RegisteredBody>
 }
 
 impl BuffBody {
@@ -50,7 +49,7 @@ impl BuffBody {
         fixture_def.filter.mask_bits = collision_category::BARRIER | collision_category::PLAYER_WEAPON;
 
         body.create_fixture(&fixture_def);
-        let buff_box_body = Registered::new(body, physics_sim.registrar(), None);
+        let buff_box_body = RegisteredBody::new(body, physics_sim.registrar(), None);
 
         BuffBody {
             buff_box_body,
@@ -95,22 +94,10 @@ impl BuffBody {
         fixture_def.filter.mask_bits = collision_category::BARRIER | collision_category::PLAYER_BODY;
 
         body.create_fixture(&fixture_def);
-        self.buff_drop_body = Some(Registered::new(body, physics_sim.registrar(), Some(entity)));
+        self.buff_drop_body = Some(RegisteredBody::new(body, physics_sim.registrar(), Some(entity)));
     }
 
     pub fn destroy_drop(&mut self) {
-        if let Some(mut drop_body) = self.buff_drop_body.take() {
-            let mut world = drop_body.data_setter.get_world();
-            world.destroy_body(&mut drop_body.data_setter);
-        }
+        self.buff_drop_body = None;
     }
-}
-
-impl Drop for BuffBody {
-   fn drop(&mut self) {
-       self.destroy_drop();
-
-       let mut world = self.buff_box_body.data_setter.get_world();
-       world.destroy_body(&mut self.buff_box_body.data_setter);
-   }
 }
