@@ -23,10 +23,11 @@ pub struct BuffSystem {
 
 impl BuffSystem {
     pub fn new(config_watcher: &mut ConfigWatcher, physics_sim: &mut PhysicsSimulation) -> StatusOr<BuffSystem> {
-        let config_manager = SimpleConfigManager::new(config_watcher, "buff.conf")?;
+        let config_manager: SimpleConfigManager<BuffConfig> = SimpleConfigManager::new(config_watcher, "buff.conf")?;
+        let num_buff_boxes = config_manager.get().buffs.len();
         let mut buffs = BuffSystem {
             config_manager,
-            buffs: Slab::with_capacity(100),
+            buffs: Slab::with_capacity(num_buff_boxes),
         };
         buffs.redeploy(physics_sim);
         Ok(buffs)
