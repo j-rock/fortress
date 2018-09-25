@@ -26,7 +26,7 @@ impl BuffSystem {
         let config_manager = SimpleConfigManager::new(config_watcher, "buff.conf")?;
         let mut buffs = BuffSystem {
             config_manager,
-            buffs: Slab::new(),
+            buffs: Slab::with_capacity(100),
         };
         buffs.redeploy(physics_sim);
         Ok(buffs)
