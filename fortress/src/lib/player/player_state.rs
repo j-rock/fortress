@@ -57,17 +57,37 @@ impl PlayerState {
 
     pub fn absorb_buff(&mut self, buff: Buff) {
         match buff {
-            Buff::SwordAttack => {
-                self.sword.stats.damage_level += 1;
-            },
             Buff::MoveSpeed => {
                 self.stats.move_speed_level += 1;
             },
             Buff::NumJumps => {
                 self.stats.num_jumps_level += 1;
             },
+            Buff::JumpStrength => {
+                self.stats.jump_strength_level += 1;
+            },
+
+            Buff::SwordAttack => {
+                self.sword.stats.damage_level += 1;
+            },
+            Buff::SwordKnockback => {
+                self.sword.stats.knockback_strength_level += 1;
+            },
+            Buff::SwordSlashSpeed => {
+                self.sword.stats.period_level += 1;
+            },
+
             Buff::CrossbowAttack => {
                 self.crossbow.stats.arrow_damage_level += 1;
+            },
+            Buff::CrossbowFiringSpeed => {
+                self.crossbow.stats.firing_period_level += 1;
+            },
+            Buff::ArrowSpeed => {
+                self.crossbow.stats.arrow_speed_level += 1;
+            },
+            Buff::ArrowKnockback => {
+                self.crossbow.stats.arrow_knockback_strength_level += 1;
             }
         }
     }

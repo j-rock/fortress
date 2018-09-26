@@ -1,7 +1,15 @@
 #[derive(Copy, Clone, Deserialize)]
 pub enum Buff {
-    SwordAttack,
     MoveSpeed,
     NumJumps,
+    JumpStrength,
+
+    SwordAttack,
+    SwordKnockback,
+    SwordSlashSpeed,
+
     CrossbowAttack,
+    CrossbowFiringSpeed,
+    ArrowSpeed,
+    ArrowKnockback,
 }
