@@ -40,7 +40,7 @@ pub struct Wraith {
 
 impl Wraith {
     pub fn new(config_watcher: &mut ConfigWatcher, physics_sim: &mut PhysicsSimulation) -> StatusOr<Wraith> {
-        let config_manager = SimpleConfigManager::new(config_watcher, "wraith.conf")?;
+        let config_manager = SimpleConfigManager::from_config_resource(config_watcher, "wraith.conf")?;
 
         let (wraith_state, wraith_state_machine) = {
             let config = config_manager.get();

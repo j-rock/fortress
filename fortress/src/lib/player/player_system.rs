@@ -40,7 +40,7 @@ pub struct PlayerSystem {
 
 impl PlayerSystem {
     pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<PlayerSystem> {
-        let config_manager = SimpleConfigManager::new(config_watcher, "player.conf")?;
+        let config_manager = SimpleConfigManager::from_config_resource(config_watcher, "player.conf")?;
         Ok(PlayerSystem {
             config_manager,
             players: Slab::with_capacity(player::MAX_PLAYERS),

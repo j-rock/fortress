@@ -12,7 +12,7 @@ pub struct Camera {
 
 impl Camera {
     pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<Camera> {
-        let config_manager: SimpleConfigManager<CameraConfig> = SimpleConfigManager::new(config_watcher, "camera.conf")?;
+        let config_manager: SimpleConfigManager<CameraConfig> = SimpleConfigManager::from_config_resource(config_watcher, "camera.conf")?;
         Ok(Camera {
             config_manager,
         })

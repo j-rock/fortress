@@ -39,7 +39,7 @@ pub struct PhysicsSimulation {
 
 impl PhysicsSimulation {
     pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<PhysicsSimulation> {
-        let config = SimpleConfigManager::<SimulationConfig>::new(config_watcher, "physics_sim.conf")?;
+        let config = SimpleConfigManager::<SimulationConfig>::from_config_resource(config_watcher, "physics_sim.conf")?;
         let gravity = {
             let config_data = config.get();
             Vec2::new(config_data.gravity_x, config_data.gravity_y)

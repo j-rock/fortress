@@ -25,7 +25,7 @@ pub struct Map {
 
 impl Map {
     pub fn new(config_watcher: &mut ConfigWatcher, physics_sim: &mut PhysicsSimulation) -> StatusOr<Map> {
-        let config_manager = SimpleConfigManager::new(config_watcher, "map.conf")?;
+        let config_manager = SimpleConfigManager::from_config_resource(config_watcher, "map.conf")?;
 
         let state = {
             let config = config_manager.get();

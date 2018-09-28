@@ -59,7 +59,7 @@ impl WorldState {
         ));
 
         Ok(WorldState {
-            config_manager: SimpleConfigManager::new(config_watcher, "world.conf")?,
+            config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
             camera: Camera::new(config_watcher)?,
             map,
             players: PlayerSystem::new(config_watcher)?,

@@ -22,7 +22,7 @@ pub struct Controller {
 
 impl Controller {
     pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<Controller> {
-        let config_manager = SimpleConfigManager::new(config_watcher, "gamepad.conf")?;
+        let config_manager = SimpleConfigManager::from_config_resource(config_watcher, "gamepad.conf")?;
         Ok(Controller {
             keyboard: KeyboardControls::new(),
             gamepad: GamepadControls::new(config_manager),

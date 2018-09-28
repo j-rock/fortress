@@ -135,15 +135,19 @@ pub struct SimpleConfigManager<T> {
 }
 
 impl<T: Config> SimpleConfigManager<T> {
-    pub fn new(config_watcher: &mut ConfigWatcher, config_file_name: &'static str) -> StatusOr<SimpleConfigManager<T>> {
-        let config_path = file::util::resource_path("config", config_file_name);
-        let mut config_loader = config_watcher.watch(config_path)?;
+    pub fn from_resource_path(config_watcher: &mut ConfigWatcher, path: PathBuf) -> StatusOr<SimpleConfigManager<T>> {
+        let mut config_loader = config_watcher.watch(path)?;
         let config = config_loader.force_load()?;
         Ok(SimpleConfigManager {
             config_file_name,
             config_loader,
             config
         })
+    }
+
+    pub fn from_config_resource(config_watcher: &mut ConfigWatcher, config_file_name: &'static str) -> StatusOr<SimpleConfigManager<T>> {
+        let config_path = file::util::resource_path("config", config_file_name);
+        Self::from_resource_path(config_watcher, config_path)
     }
 
     pub fn update(&mut self) -> bool {
