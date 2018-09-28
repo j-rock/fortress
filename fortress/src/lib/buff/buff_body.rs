@@ -34,7 +34,7 @@ impl BuffBody {
     pub fn new(config: &BuffBoxConfig, placement: &BuffBoxPlacement, physics_sim: &mut PhysicsSimulation) -> BuffBody {
         let mut body_def = BodyDef::default();
         body_def.body_type = BodyType::DynamicBody;
-        body_def.position = Vec2::new(placement.location.0, placement.location.1);
+        body_def.position = placement.location;
         body_def.fixed_rotation = true;
         let body = physics_sim.get_world_mut().create_body(&body_def);
 

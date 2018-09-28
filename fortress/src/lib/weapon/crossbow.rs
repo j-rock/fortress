@@ -35,6 +35,7 @@ use liquidfun::box2d::{
 use physics::{
     collision_category,
     CollisionMatcher,
+    PhysicsSimulation,
 };
 use player::PlayerConfig;
 use render::{
@@ -63,14 +64,14 @@ pub struct Crossbow {
 }
 
 impl Crossbow {
-    pub fn new(config: &PlayerConfig, registrar: &EntityRegistrar, world: &mut World) -> Crossbow {
+    pub fn new(config: &PlayerConfig, physics_sim: &mut PhysicsSimulation) -> Crossbow {
         Crossbow {
             arrows: Slab::new(),
             stats: CrossbowStats::new(config),
             current_delay: None,
             arrow_box_size: Vec2::new(config.arrow_box_size.0, config.arrow_box_size.1),
-            registrar: registrar.clone(),
-            world: world.clone(),
+            registrar: physics_sim.registrar(),
+            world: physics_sim.get_world_copy(),
         }
     }
 

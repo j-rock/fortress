@@ -23,7 +23,6 @@ use render::{
     Viewport,
 };
 use weapon::Crossbow;
-use wraith::Wraith;
 
 #[derive(Deserialize)]
 struct WorldConfig {
@@ -35,7 +34,6 @@ pub struct WorldState {
     camera: Camera,
     map: Map,
     players: PlayerSystem,
-    wraith: Wraith,
     buffs: BuffSystem,
 
     box_renderer: BoxRenderer,
@@ -47,12 +45,11 @@ impl WorldState {
     pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<WorldState> {
         let mut physics_sim = PhysicsSimulation::new(config_watcher)?;
         let map = Map::new(config_watcher, &mut physics_sim)?;
-        let wraith = Wraith::new(config_watcher, &mut physics_sim)?;
-        let buffs = BuffSystem::new(config_watcher, &mut physics_sim)?;
+        let buffs = BuffSystem::new(config_watcher, map.get_buff_box_spawns(), &mut physics_sim)?;
+        let players = PlayerSystem::new(config_watcher, map.get_player_spawns())?;
 
         physics_sim.add_collision_matchers(vec!(
             Player::foot_sensor_hit_something(),
-            Player::slash_wraith(),
             Crossbow::arrow_hit(),
             BuffBox::player_slashed_buff_box(),
             BuffBox::player_hit_buff_drop(),
@@ -62,8 +59,7 @@ impl WorldState {
             config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
             camera: Camera::new(config_watcher)?,
             map,
-            players: PlayerSystem::new(config_watcher)?,
-            wraith,
+            players,
             buffs,
             box_renderer: BoxRenderer::new()?,
             physics_sim
@@ -72,7 +68,6 @@ impl WorldState {
 
     pub fn register(&mut self) {
         self.map.register();
-        self.wraith.register();
     }
 
     pub fn update(&mut self, audio: &AudioPlayer, controller: &Controller, dt: DeltaTime) {
@@ -80,17 +75,19 @@ impl WorldState {
         self.camera.update();
 
         {
-            self.map.pre_update(controller, dt);
-            self.players.pre_update(audio, controller, &mut self.physics_sim, dt);
-            self.wraith.pre_update(controller, dt);
-            self.buffs.pre_update(controller, &mut self.physics_sim);
+            if self.map.pre_update(&mut self.physics_sim) {
+                self.players.respawn(self.map.get_player_spawns());
+                self.buffs.respawn(self.map.get_buff_box_spawns(), &mut self.physics_sim);
+            } else {
+                self.players.pre_update(audio, controller, &mut self.physics_sim, dt);
+                self.buffs.pre_update(controller, &mut self.physics_sim);
+            }
         }
 
         self.physics_sim.update(audio, dt);
 
         {
             self.players.post_update();
-            self.wraith.post_update(audio);
             self.buffs.post_update(&mut self.physics_sim);
         }
     }
@@ -102,7 +99,6 @@ impl WorldState {
     pub fn draw_geometry(&mut self, screen_size: glm::IVec2) {
         self.map.draw(&mut self.box_renderer);
         self.players.draw(&mut self.box_renderer);
-        self.wraith.draw(&mut self.box_renderer);
         self.buffs.draw(&mut self.box_renderer);
 
         self.box_renderer.draw_begin();

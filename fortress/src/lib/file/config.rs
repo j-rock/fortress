@@ -129,17 +129,17 @@ impl ConfigWatcher {
 }
 
 pub struct SimpleConfigManager<T> {
-    config_file_name: &'static str,
+    config_file_name: PathBuf,
     config_loader: ConfigLoader<T>,
     config: T
 }
 
 impl<T: Config> SimpleConfigManager<T> {
     pub fn from_resource_path(config_watcher: &mut ConfigWatcher, path: PathBuf) -> StatusOr<SimpleConfigManager<T>> {
-        let mut config_loader = config_watcher.watch(path)?;
+        let mut config_loader = config_watcher.watch(path.clone())?;
         let config = config_loader.force_load()?;
         Ok(SimpleConfigManager {
-            config_file_name,
+            config_file_name: path,
             config_loader,
             config
         })
@@ -153,10 +153,10 @@ impl<T: Config> SimpleConfigManager<T> {
     pub fn update(&mut self) -> bool {
         let reloaded = self.config_loader.try_load();
         match reloaded {
-            Err(message) => println!("Error reloading {}: {}", self.config_file_name, message),
+            Err(message) => println!("Error reloading {:?}: {}", self.config_file_name, message),
             Ok(None) => {},
             Ok(Some(config)) => {
-                println!("Reloading {}", self.config_file_name);
+                println!("Reloading {:?}", self.config_file_name);
                 self.config = config;
                 return true;
             }

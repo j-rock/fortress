@@ -14,5 +14,5 @@ pub enum ControlEvent {
     PlayerMove(LrDirection),
     PlayerSlash,
 
-    RespawnEntities,
+    RedeployEntities,
 }

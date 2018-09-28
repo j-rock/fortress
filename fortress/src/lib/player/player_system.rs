@@ -15,6 +15,7 @@ use file::{
     SimpleConfigManager,
 };
 use glm;
+use liquidfun::box2d::common::math::Vec2;
 use physics::PhysicsSimulation;
 use player::{
     Player,
@@ -36,27 +37,29 @@ pub struct PlayerSystem {
     player_needs_controller: Vec<PlayerId>,
     player_to_controller: Vec<ControllerId>,
     controller_to_player: HashMap<ControllerId, PlayerId>,
+    spawns: Vec<Vec2>,
 }
 
 impl PlayerSystem {
-    pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<PlayerSystem> {
+    pub fn new(config_watcher: &mut ConfigWatcher, spawns: Vec<Vec2>) -> StatusOr<PlayerSystem> {
         let config_manager = SimpleConfigManager::from_config_resource(config_watcher, "player.conf")?;
         Ok(PlayerSystem {
             config_manager,
             players: Slab::with_capacity(player::MAX_PLAYERS),
             player_needs_controller: Vec::with_capacity(player::MAX_PLAYERS),
             player_to_controller: Vec::with_capacity(player::MAX_PLAYERS),
-            controller_to_player: HashMap::new()
+            controller_to_player: HashMap::new(),
+            spawns,
         })
     }
 
     pub fn pre_update(&mut self, audio: &AudioPlayer, controller: &Controller, physics_sim: &mut PhysicsSimulation, dt: DeltaTime) {
-        let anyone_pressed_respawn =
+        let anyone_pressed_redeploy =
             self.controller_to_player
                 .keys()
-                .any(|controller_id| controller.just_pressed(*controller_id, ControlEvent::RespawnEntities));
+                .any(|controller_id| controller.just_pressed(*controller_id, ControlEvent::RedeployEntities));
 
-        if self.config_manager.update() || anyone_pressed_respawn {
+        if self.config_manager.update() || anyone_pressed_redeploy {
             self.redeploy(physics_sim);
         }
 
@@ -114,6 +117,14 @@ impl PlayerSystem {
     pub fn draw(&self, box_renderer: &mut BoxRenderer) {
         for (_i, player) in self.players.iter() {
             player.draw(box_renderer);
+        }
+    }
+
+    pub fn respawn(&mut self, spawns: Vec<Vec2>) {
+        self.spawns = spawns;
+        for (_i, player) in self.players.iter_mut() {
+            let spawn = self.spawns[player.get_player_id().as_usize()];
+            player.respawn(spawn);
         }
     }
 
@@ -203,7 +214,8 @@ impl PlayerSystem {
             let player_id = PlayerId::from_usize(player_entry.key());
             if let Some(player_id) = player_id {
                 let config = self.config_manager.get();
-                let player = Player::new(config, player_id, physics_sim);
+                let spawn = self.spawns[player_id.as_usize()];
+                let player = Player::new(config, player_id, spawn, physics_sim);
                 player_entry.insert(player);
             }
             player_id

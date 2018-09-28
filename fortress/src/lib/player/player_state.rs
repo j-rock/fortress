@@ -4,11 +4,8 @@ use dimensions::{
     LrDirection,
     time::DeltaTime
 };
-use entity::EntityRegistrar;
-use liquidfun::box2d::{
-    common::math::Vec2,
-    dynamics::world::World,
-};
+use liquidfun::box2d::common::math::Vec2;
+use physics::PhysicsSimulation;
 use player::{
     Player,
     PlayerStats,
@@ -24,6 +21,7 @@ use weapon::{
 pub struct PlayerState {
     pub player_id: PlayerId,
     pub config: PlayerConfig,
+    pub spawn: Vec2,
     pub stats: PlayerStats,
     pub body: PlayerBody,
     pub sword: Sword,
@@ -31,14 +29,15 @@ pub struct PlayerState {
 }
 
 impl PlayerState {
-    pub fn new(player_id: PlayerId, config: PlayerConfig, registrar: &EntityRegistrar, world: &mut World) -> PlayerState {
-        let body = PlayerBody::new(&config, registrar, world);
+    pub fn new(player_id: PlayerId, config: PlayerConfig, spawn: Vec2, physics_sim: &mut PhysicsSimulation) -> PlayerState {
+        let body = PlayerBody::new(&config, spawn, physics_sim);
         let sword = Sword::new(&config);
-        let crossbow = Crossbow::new(&config, registrar, world);
+        let crossbow = Crossbow::new(&config, physics_sim);
         let stats = PlayerStats::new(&config);
         PlayerState {
             player_id,
             config,
+            spawn,
             stats,
             body,
             sword,
@@ -106,6 +105,11 @@ impl PlayerState {
         };
 
         self.crossbow.try_fire(audio, start_position, curr_dir);
+    }
+
+    pub fn respawn(&mut self, spawn: Vec2) {
+        self.spawn = spawn;
+        self.body.body.data_setter.set_transform(&spawn, 0.0);
     }
 
     pub fn get_facing_dir(&self) -> LrDirection {

@@ -2,7 +2,8 @@
 pub enum EntityType {
     BuffBox,
     BuffDrop,
-    Platform,
+
+    Wall,
 
     CrossbowArrow(usize),
 

@@ -1,4 +1,5 @@
 use buff::Buff;
+use liquidfun::box2d::common::math::Vec2;
 
 #[derive(Clone, Deserialize)]
 pub struct BuffBoxConfig {
@@ -17,15 +18,13 @@ pub struct BuffDropConfig {
     pub restitution: f32,
 }
 
-#[derive(Clone, Deserialize)]
 pub struct BuffBoxPlacement {
     pub buff: Buff,
-    pub location: (f32, f32),
+    pub location: Vec2,
 }
 
 #[derive(Clone, Deserialize)]
 pub struct BuffConfig {
     pub buff_box: BuffBoxConfig,
     pub buff_drop: BuffDropConfig,
-    pub buffs: Vec<BuffBoxPlacement>,
 }

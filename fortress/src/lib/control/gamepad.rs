@@ -165,7 +165,7 @@ impl GamepadControls {
             ControlEvent::PlayerMove(LrDirection::Left) => GamepadControl::AxisBelowThreshold(sdl2::controller::Axis::LeftX, -config.axis_threshold),
             ControlEvent::PlayerMove(LrDirection::Right) => GamepadControl::AxisAboveThreshold(sdl2::controller::Axis::LeftX, config.axis_threshold),
             ControlEvent::PlayerSlash => GamepadControl::ButtonPress(sdl2::controller::Button::X),
-            ControlEvent::RespawnEntities => GamepadControl::ButtonPress(sdl2::controller::Button::Back),
+            ControlEvent::RedeployEntities => GamepadControl::ButtonPress(sdl2::controller::Button::Back),
         }
     }
 }

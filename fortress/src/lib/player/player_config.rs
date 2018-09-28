@@ -1,7 +1,6 @@
 #[derive(Clone, Deserialize)]
 pub struct PlayerConfig {
     pub size: (f32, f32),
-    pub spawn_location: (f32, f32),
     pub move_speed: f32,
     pub restitution: f32, // Between [0, 1]
 

@@ -1,18 +1,15 @@
 use map::{
     Map,
-    MapConfig,
     state::MapBody,
 };
 
 pub struct MapState {
-    pub config: MapConfig,
     pub body: MapBody,
 }
 
 impl MapState {
-    pub fn new(config: MapConfig, body: MapBody) -> MapState {
+    pub fn new(body: MapBody) -> MapState {
         MapState {
-            config,
             body
         }
     }

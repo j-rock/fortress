@@ -64,7 +64,7 @@ impl Wraith {
     }
 
     pub fn pre_update(&mut self, controller: &Controller, dt: DeltaTime) {
-        if self.config_manager.update() || controller.just_pressed(ControllerId::Keyboard, ControlEvent::RespawnEntities) {
+        if self.config_manager.update() || controller.just_pressed(ControllerId::Keyboard, ControlEvent::RedeployEntities) {
             self.redeploy();
         }
 

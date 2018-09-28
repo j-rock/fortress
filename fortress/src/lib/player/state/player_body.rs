@@ -1,7 +1,6 @@
 use dimensions::LrDirection;
 use entity::{
     Entity,
-    EntityRegistrar,
     EntityType,
     RegisteredBody,
     RegisteredFixture,
@@ -20,10 +19,12 @@ use liquidfun::box2d::{
             Fixture,
             FixtureDef
         },
-        world::World
     },
 };
-use physics::collision_category;
+use physics::{
+    collision_category,
+    PhysicsSimulation,
+};
 use player::{
     Player,
     PlayerConfig,
@@ -43,13 +44,13 @@ pub struct PlayerBody {
 }
 
 impl PlayerBody {
-    pub fn new(config: &PlayerConfig, registrar: &EntityRegistrar, world: &mut World) -> PlayerBody {
+    pub fn new(config: &PlayerConfig, spawn: Vec2, physics_sim: &mut PhysicsSimulation) -> PlayerBody {
         let mut body_def = BodyDef::default();
         body_def.body_type = BodyType::DynamicBody;
-        body_def.position = Vec2::new(config.spawn_location.0 as f32, config.spawn_location.1 as f32);
+        body_def.position = spawn;
         body_def.fixed_rotation = true;
 
-        let body = world.create_body(&body_def);
+        let body = physics_sim.get_world_mut().create_body(&body_def);
 
         // Player body fixture
         let mut poly_shape = PolygonShape::new();
@@ -75,7 +76,7 @@ impl PlayerBody {
             fixture_def.is_sensor = true;
 
             let foot_sensor_fixture = body.create_fixture(&fixture_def);
-            RegisteredFixture::new(foot_sensor_fixture, registrar.clone(), None)
+            RegisteredFixture::new(foot_sensor_fixture, physics_sim.registrar(), None)
         };
 
         let (sword_size, sword_offset_from_body, sword_sensor) = {
@@ -85,12 +86,12 @@ impl PlayerBody {
             };
             let sensor_center = Vec2::new(config.sword_sensor_center.0, config.sword_sensor_center.1);
             let sword_sensor_fixture = Self::create_sword_sensor_fixture(sword_size, sensor_center, &body);
-            let sword_sensor = RegisteredFixture::new(sword_sensor_fixture, registrar.clone(), None);
+            let sword_sensor = RegisteredFixture::new(sword_sensor_fixture, physics_sim.registrar(), None);
 
             (sword_size, sensor_center, sword_sensor)
         };
 
-        let body = RegisteredBody::new(body, registrar.clone(), None);
+        let body = RegisteredBody::new(body, physics_sim.registrar(), None);
 
         PlayerBody {
             foot_sensor,

@@ -10,6 +10,7 @@ use dimensions::{
 };
 use entity::EntityType;
 use glm;
+use liquidfun::box2d::common::math::Vec2;
 use physics::{
     CollisionMatcher,
     PhysicsSimulation,
@@ -35,9 +36,8 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(config: &PlayerConfig, player_id: PlayerId, physics_sim: &mut PhysicsSimulation) -> Player {
-        let registrar = physics_sim.registrar();
-        let player_state = PlayerState::new(player_id, config.clone(), &registrar, physics_sim.get_world_mut());
+    pub fn new(config: &PlayerConfig, player_id: PlayerId, spawn: Vec2, physics_sim: &mut PhysicsSimulation) -> Player {
+        let player_state = PlayerState::new(player_id, config.clone(), spawn, physics_sim);
         let player_state_machine = Box::new(PlayerUpright::new());
 
         Player {
@@ -75,11 +75,18 @@ impl Player {
     }
 
     pub fn redeploy(&mut self, config: &PlayerConfig, physics_sim: &mut PhysicsSimulation) {
-        let registrar = physics_sim.registrar();
-        self.player_state = PlayerState::new(self.player_state.player_id, config.clone(), &registrar, physics_sim.get_world_mut());
+        self.player_state = PlayerState::new(self.player_state.player_id, config.clone(), self.player_state.spawn, physics_sim);
         self.player_state_machine = Box::new(PlayerUpright::new());
 
         self.register();
+    }
+
+    pub fn get_player_id(&self) -> PlayerId {
+        self.player_state.player_id
+    }
+
+    pub fn respawn(&mut self, spawn: Vec2) {
+        self.player_state.respawn(spawn);
     }
 
     pub fn draw(&self, box_renderer: &mut BoxRenderer) {

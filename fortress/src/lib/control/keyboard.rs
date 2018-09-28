@@ -65,7 +65,7 @@ impl KeyboardControls {
             ControlEvent::PlayerMove(LrDirection::Left) => Scancode::A,
             ControlEvent::PlayerMove(LrDirection::Right) => Scancode::D,
             ControlEvent::PlayerSlash => Scancode::J,
-            ControlEvent::RespawnEntities => Scancode::R,
+            ControlEvent::RedeployEntities => Scancode::R,
         }
     }
 }

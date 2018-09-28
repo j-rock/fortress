@@ -1,6 +1,4 @@
 use app::StatusOr;
-use control::Controller;
-use dimensions::time::DeltaTime;
 use file::{
     ConfigWatcher,
     SimpleConfigManager,
@@ -8,6 +6,7 @@ use file::{
 use glm;
 use liquidfun;
 use map::{
+    file::MapFile,
     MapConfig,
     MapState,
     state::MapBody,
@@ -19,22 +18,29 @@ use render::{
 };
 
 pub struct Map {
-    config_manager: SimpleConfigManager<MapConfig>,
+    map_config_manager: SimpleConfigManager<MapConfig>,
+    map_file_manager:  SimpleConfigManager<MapFile>,
     state: MapState,
 }
 
 impl Map {
     pub fn new(config_watcher: &mut ConfigWatcher, physics_sim: &mut PhysicsSimulation) -> StatusOr<Map> {
-        let config_manager = SimpleConfigManager::from_config_resource(config_watcher, "map.conf")?;
+        let map_config_manager = SimpleConfigManager::<MapConfig>::from_config_resource(config_watcher, "map.conf")?;
+        let map_file_manager = {
+            let config = map_config_manager.get();
+            SimpleConfigManager::<MapFile>::from_resource_path(config_watcher, config.map_label.to_path())?
+        };
 
         let state = {
-            let config = config_manager.get();
-            let map_body = MapBody::new(config, physics_sim.registrar(), physics_sim.get_world_mut());
-            MapState::new(config.clone(), map_body)
+            let config = map_config_manager.get();
+            let map_file = map_file_manager.get();
+            let map_body = MapBody::new(config, map_file, physics_sim);
+            MapState::new(map_body)
         };
 
         Ok(Map {
-            config_manager,
+            map_config_manager,
+            map_file_manager,
             state,
         })
     }
@@ -44,24 +50,51 @@ impl Map {
         self.state.register(map);
     }
 
-    pub fn pre_update(&mut self, _controller: &Controller, _dt: DeltaTime) {
-        if self.config_manager.update() {
-            self.redeploy();
+    pub fn pre_update(&mut self, physics_sim: &mut PhysicsSimulation) -> bool {
+        if self.map_config_manager.update() || self.map_file_manager.update() {
+            self.redeploy(physics_sim);
+            true
+        } else {
+            false
         }
     }
 
-    fn redeploy(&mut self) {
+    pub fn get_player_spawns(&self) -> Vec<liquidfun::box2d::common::math::Vec2> {
+        let cell_len = self.map_config_manager.get().map_file_cell_length;
+        self.map_file_manager
+            .get()
+            .spawns
+            .iter()
+            .map(|grid_loc| {
+                grid_loc.to_2d(cell_len)
+            })
+            .collect()
+    }
+
+    pub fn get_buff_box_spawns(&self) -> Vec<liquidfun::box2d::common::math::Vec2> {
+        let cell_len = self.map_config_manager.get().map_file_cell_length;
+        self.map_file_manager
+            .get()
+            .buff_boxes
+            .iter()
+            .map(|grid_loc| {
+                grid_loc.to_2d(cell_len)
+            })
+            .collect()
+    }
+
+    fn redeploy(&mut self, physics_sim: &mut PhysicsSimulation) {
         {
-            let config = self.config_manager.get();
-            let mut world = self.state.body.platform_body.data_setter.get_world();
-            let map_body = MapBody::new(config, self.state.body.platform_body.registrar.clone(), &mut world);
-            self.state = MapState::new(config.clone(), map_body);
+            let config = self.map_config_manager.get();
+            let map_file = self.map_file_manager.get();
+            let map_body = MapBody::new(config, map_file, physics_sim);
+            self.state = MapState::new(map_body);
         }
         self.register();
     }
 
     pub fn draw(&mut self, box_renderer: &mut BoxRenderer) {
-        let boxes: Vec<BoxData> = self.state.body.platform_body.data_setter.get_fixture_iterator().map(|fixture| -> BoxData {
+        let boxes: Vec<BoxData> = self.state.body.wall_body.data_setter.get_fixture_iterator().map(|fixture| -> BoxData {
             let mut polygon =  liquidfun::box2d::collision::shapes::polygon_shape::from_shape(fixture.get_shape());
             let vertices: Vec<liquidfun::box2d::common::math::Vec2> = polygon.get_vertex_iterator().collect();
             let (min_vertex, max_vertex) = (vertices[0], vertices[2]);
