@@ -6,7 +6,7 @@ use app::{
 use audio::AudioPlayer;
 use control::Controller;
 use file::{
-    ConfigLoader,
+    Config,
     ConfigWatcher,
     self
 };
@@ -44,7 +44,7 @@ impl AppRunner {
         let mut config_watcher = ConfigWatcher::new()?;
 
         let config_path = file::util::resource_path("config", "app.conf");
-        let config = ConfigLoader::<AppRunnerConfig>::read_config_file(&config_path)?;
+        let config = AppRunnerConfig::from_path(&config_path)?;
 
         let context = AppContext::new(&config.window_size)?;
         let world = WorldState::new(&mut config_watcher)?;

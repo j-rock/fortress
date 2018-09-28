@@ -16,6 +16,18 @@ use std::{
     rc::Rc,
 };
 
+pub trait Config: Sized {
+    fn from_path(path_buf: &PathBuf) -> StatusOr<Self>;
+}
+
+impl<T: DeserializeOwned> Config for T {
+    fn from_path(path_buf: &PathBuf) -> StatusOr<T> {
+        let reader = file::util::reader(path_buf)?;
+        serde_json::from_reader(reader)
+            .map_err(|e| format!("Couldn't parse config {:?}: {}", path_buf, e))
+    }
+}
+
 struct DirtyBit {
     is_dirty: Rc<RefCell<bool>>
 }
@@ -52,16 +64,10 @@ impl<T> ConfigLoader<T> {
     }
 }
 
-impl<T: DeserializeOwned> ConfigLoader<T> {
-    pub fn read_config_file(path_buf: &PathBuf) -> StatusOr<T> {
-        let reader = file::util::reader(path_buf)?;
-        serde_json::from_reader(reader)
-            .map_err(|e| format!("Couldn't parse config {:?}: {}", path_buf, e))
-    }
-
+impl<T: Config> ConfigLoader<T> {
     pub fn force_load(&mut self) -> StatusOr<T> {
         self.dirty.set_clean();
-        Self::read_config_file(&self.path)
+        T::from_path(&self.path)
     }
 
     pub fn try_load(&mut self) -> StatusOr<Option<T>> {
@@ -128,7 +134,7 @@ pub struct SimpleConfigManager<T> {
     config: T
 }
 
-impl<T: DeserializeOwned> SimpleConfigManager<T> {
+impl<T: Config> SimpleConfigManager<T> {
     pub fn new(config_watcher: &mut ConfigWatcher, config_file_name: &'static str) -> StatusOr<SimpleConfigManager<T>> {
         let config_path = file::util::resource_path("config", config_file_name);
         let mut config_loader = config_watcher.watch(config_path)?;
