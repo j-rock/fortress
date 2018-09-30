@@ -11,12 +11,12 @@ fn find_sdl_gl_driver() -> StatusOr<u32> {
     Err(String::from("Could not find SDL GL driver."))
 }
 pub struct AppContext {
-    _sdl_context: sdl2::Sdl,
-    _gl_context: sdl2::video::GLContext,
-    _video_subsystem: sdl2::VideoSubsystem,
-    pub controller_subsystem: sdl2::GameControllerSubsystem,
-    pub canvas: sdl2::render::WindowCanvas,
     pub events: sdl2::EventPump,
+    pub canvas: sdl2::render::WindowCanvas,
+    pub controller_subsystem: sdl2::GameControllerSubsystem,
+    _video_subsystem: sdl2::VideoSubsystem,
+    _gl_context: sdl2::video::GLContext,
+    _sdl_context: sdl2::Sdl,
 }
 
 impl AppContext {
