@@ -55,6 +55,7 @@
 #include <Box2D/Common/b2GrowableStack.h>
 
 #include "Box2D/Collision/Shapes/c_b2ChainShape.cpp"
+#include "Box2D/Collision/Shapes/c_b2CircleShape.cpp"
 #include "Box2D/Collision/Shapes/c_b2EdgeShape.cpp"
 #include "Box2D/Collision/Shapes/c_b2PolygonShape.cpp"
 #include "Box2D/Common/c_b2Math.cpp"
