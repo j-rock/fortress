@@ -128,7 +128,7 @@ impl PlayerSystem {
         }
     }
 
-    pub fn get_views(&self, screen_size: &glm::IVec2) -> Vec<CameraView> {
+    pub fn get_views(&self, screen_size: glm::IVec2) -> Vec<CameraView> {
         let player_positions: Vec<glm::Vec2> = self.players.iter().map(|(_, player)| player.get_position()).collect();
         match player_positions.len() {
             1 => {

@@ -103,14 +103,14 @@ impl WorldState {
 
         self.box_renderer.draw_begin();
         {
-            for camera_view in self.players.get_views(&screen_size).into_iter() {
+            for camera_view in self.players.get_views(screen_size).into_iter() {
                 camera_view.viewport.set();
-                let projection_view = self.camera.projection(camera_view.scale) * self.camera.view(camera_view.eye);
+                let projection_view = self.camera.projection(screen_size, camera_view.scale) * self.camera.view(camera_view.eye);
                 self.box_renderer.draw(&projection_view);
             }
         }
         self.box_renderer.draw_end();
 
-        Viewport::default(&screen_size).set();
+        Viewport::default(screen_size).set();
     }
 }

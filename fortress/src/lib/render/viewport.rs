@@ -8,10 +8,10 @@ pub struct Viewport {
 }
 
 impl Viewport {
-    pub fn default(screen_size: &glm::IVec2) -> Viewport {
+    pub fn default(screen_size: glm::IVec2) -> Viewport {
         Viewport {
             bottom_left: glm::ivec2(0,0),
-            viewport_size: screen_size.clone(),
+            viewport_size: screen_size,
         }
     }
 

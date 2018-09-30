@@ -18,9 +18,13 @@ impl Camera {
         })
     }
 
-    pub fn projection(&self, scale: glm::Vec2) -> glm::Mat4 {
+    pub fn projection(&self, screen_size: glm::IVec2, scale: glm::Vec2) -> glm::Mat4 {
         let config = self.config_manager.get();
-        Self::ortho(scale.x * config.left, scale.x * config.right, scale.y * config.bottom, scale.y * config.top, config.z_near, config.z_far)
+        let right = config.zoom / 2.0;
+        let left = -right;
+        let top = config.zoom * (screen_size.y as f32) / (2.0 * screen_size.x as f32);
+        let bottom = -top;
+        Self::ortho(scale.x * left, scale.x * right, scale.y * bottom, scale.y * top, config.z_near, config.z_far)
     }
 
     fn ortho(left: f32, right: f32, bottom: f32, top: f32, z_near: f32, z_far: f32) -> glm::Mat4 {
