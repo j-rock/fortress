@@ -23,6 +23,7 @@ use render::{
     Viewport,
 };
 use weapon::Crossbow;
+use world::RandGen;
 
 #[derive(Deserialize)]
 struct WorldConfig {
@@ -35,6 +36,7 @@ pub struct WorldState {
     map: Map,
     players: PlayerSystem,
     buffs: BuffSystem,
+    _rng: RandGen,
 
     box_renderer: BoxRenderer,
     // Declare physics simulation last so it is dropped last.
@@ -45,6 +47,7 @@ impl WorldState {
     pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<WorldState> {
         let mut physics_sim = PhysicsSimulation::new(config_watcher)?;
         let map = Map::new(config_watcher, &mut physics_sim)?;
+        let rng = RandGen::new();
         let buffs = BuffSystem::new(config_watcher, map.get_buff_box_spawns(), &mut physics_sim)?;
         let players = PlayerSystem::new(config_watcher, map.get_player_spawns())?;
 
@@ -61,6 +64,7 @@ impl WorldState {
             map,
             players,
             buffs,
+            _rng: rng,
             box_renderer: BoxRenderer::new()?,
             physics_sim
         })
