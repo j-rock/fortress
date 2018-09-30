@@ -69,8 +69,11 @@ impl BuffSystem {
         let config = self.config_manager.get();
         for location in self.buff_locations.iter() {
             let placement = BuffBoxPlacement {
-                buff: Buff::JumpStrength,
-                location: *location,
+                buff: Buff::NumJumps,
+                location: Vec2 {
+                    x: location.x + config.buff_box.size.0 / 2.0,
+                    y: location.y - config.buff_box.size.1 / 2.0,
+                }
             };
             let buff_box = BuffBox::new(&config.buff_box, &placement, physics_sim);
             let idx = self.buffs.insert(buff_box);
