@@ -13,10 +13,7 @@ use file::{
 use glm;
 use map::Map;
 use physics::PhysicsSimulation;
-use player::{
-    Player,
-    PlayerSystem
-};
+use player::PlayerSystem;
 use render::{
     BoxRenderer,
     Camera,
@@ -52,7 +49,6 @@ impl WorldState {
         let players = PlayerSystem::new(config_watcher, map.get_player_spawns())?;
 
         physics_sim.add_collision_matchers(vec!(
-            Player::foot_sensor_hit_something(),
             Crossbow::arrow_hit(),
             BuffBox::player_slashed_buff_box(),
             BuffBox::player_hit_buff_drop(),
@@ -91,7 +87,7 @@ impl WorldState {
         self.physics_sim.update(audio, dt);
 
         {
-            self.players.post_update();
+            self.players.post_update(audio);
             self.buffs.post_update(&mut self.physics_sim);
         }
     }

@@ -59,8 +59,8 @@ impl Player {
         }
     }
 
-    pub fn post_update(&mut self) {
-        if let Some(player_state_machine) = self.player_state_machine.post_update() {
+    pub fn post_update(&mut self, audio: &AudioPlayer) {
+        if let Some(player_state_machine) = self.player_state_machine.post_update(&self.player_state, audio) {
             self.player_state_machine = player_state_machine;
         }
     }
@@ -113,13 +113,6 @@ impl Player {
         box_renderer.queue(boxes.as_slice());
 
         self.player_state.crossbow.draw(box_renderer);
-    }
-
-    pub fn foot_sensor_hit_something() -> CollisionMatcher {
-        CollisionMatcher::match_one(EntityType::PlayerFootSensor, Box::new(|audio, entity| {
-            let player: &mut Self = entity.resolve();
-            player.player_state_machine.make_foot_contact(audio);
-        }))
     }
 
     pub fn slash_wraith() -> CollisionMatcher {

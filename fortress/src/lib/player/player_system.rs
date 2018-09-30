@@ -108,9 +108,9 @@ impl PlayerSystem {
         }
     }
 
-    pub fn post_update(&mut self) {
+    pub fn post_update(&mut self, audio: &AudioPlayer) {
         for (_i, player) in self.players.iter_mut() {
-            player.post_update();
+            player.post_update(audio);
         }
     }
 

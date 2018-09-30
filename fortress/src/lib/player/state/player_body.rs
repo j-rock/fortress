@@ -31,8 +31,6 @@ use player::{
 };
 
 pub struct PlayerBody {
-    pub foot_sensor: RegisteredFixture,
-
     pub sword_size: Vec2,
     pub sword_offset_from_body: Vec2,
     pub sword_sensor: RegisteredFixture,
@@ -65,20 +63,6 @@ impl PlayerBody {
             body.create_fixture(&fixture_def);
         }
 
-        let foot_sensor = {
-            let (hx, hy) = (config.foot_sensor_size.0 / 2.0, config.foot_sensor_size.1 / 2.0);
-            let sensor_center = Vec2::new(config.foot_sensor_center.0, config.foot_sensor_center.1);
-            poly_shape.set_as_box_oriented(hx, hy, &sensor_center, 0.0);
-
-            let mut fixture_def = FixtureDef::new(&poly_shape);
-            fixture_def.filter.category_bits = collision_category::PLAYER_BODY;
-            fixture_def.filter.mask_bits = collision_category::BARRIER;
-            fixture_def.is_sensor = true;
-
-            let foot_sensor_fixture = body.create_fixture(&fixture_def);
-            RegisteredFixture::new(foot_sensor_fixture, physics_sim.registrar(), None)
-        };
-
         let (sword_size, sword_offset_from_body, sword_sensor) = {
             let sword_size = Vec2 {
                 x: config.sword_sensor_size.0,
@@ -94,7 +78,6 @@ impl PlayerBody {
         let body = RegisteredBody::new(body, physics_sim.registrar(), None);
 
         PlayerBody {
-            foot_sensor,
             sword_size,
             sword_offset_from_body,
             sword_sensor,
@@ -106,9 +89,6 @@ impl PlayerBody {
     pub fn register(&mut self, player: *const Player) {
         let player_entity = Entity::new(EntityType::Player, player);
         self.body.register(player_entity);
-
-        let foot_sensor_entity = Entity::new(EntityType::PlayerFootSensor, player);
-        self.foot_sensor.register(foot_sensor_entity);
 
         let sword_sensor_entity = Entity::new(EntityType::PlayerSwordSensor, player);
         self.sword_sensor.register(sword_sensor_entity);

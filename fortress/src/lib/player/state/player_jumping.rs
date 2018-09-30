@@ -29,9 +29,9 @@ use player::{
 };
 
 pub struct PlayerJumping {
-    has_hit_ground_again: bool,
     jumps_left: i32,
     current_delay: time::Microseconds,
+    last_y_coords: LastYCoords,
 }
 
 impl PlayerStateMachine for PlayerJumping {
@@ -63,26 +63,23 @@ impl PlayerStateMachine for PlayerJumping {
         None
     }
 
-    fn post_update(&mut self) -> Option<Box<dyn PlayerStateMachine>> {
-        if self.has_hit_ground_again {
+    fn post_update(&mut self, player_state: &PlayerState, audio: &AudioPlayer) -> Option<Box<dyn PlayerStateMachine>> {
+        self.last_y_coords.insert(player_state.get_body_position().y);
+        if self.last_y_coords.all_same() {
+            audio.play_sound(Sound::Plop);
             Some(Box::new(PlayerUpright::new()))
         } else {
             None
         }
-    }
-
-    fn make_foot_contact(&mut self, audio: &AudioPlayer) {
-        self.has_hit_ground_again = true;
-        audio.play_sound(Sound::Plop);
     }
 }
 
 impl PlayerJumping {
     pub fn new(player_state: &mut PlayerState, audio: &AudioPlayer) -> PlayerJumping {
         let mut jumping = PlayerJumping {
-            has_hit_ground_again: false,
             jumps_left: player_state.stats.get_num_jumps(),
             current_delay: time::milliseconds(0),
+            last_y_coords: LastYCoords::new(player_state)
         };
         jumping.try_jump(player_state, audio);
         jumping
@@ -105,3 +102,29 @@ impl PlayerJumping {
         }
     }
 }
+
+struct LastYCoords {
+    values: Vec<Option<f32>>
+}
+
+impl LastYCoords {
+    pub fn new(player_state: &PlayerState) -> LastYCoords {
+        let mut res = LastYCoords {
+            values: vec![None; player_state.config.jump_tracker_num_last_y_coords]
+        };
+        res.insert(player_state.get_body_position().y);
+        res
+    }
+
+    pub fn insert(&mut self, next_value: f32) {
+        for i in (1 .. self.values.len()).rev() {
+            self.values[i] = self.values[i-1];
+        }
+        self.values[0] = Some(next_value);
+    }
+
+    pub fn all_same(&self) -> bool {
+        self.values.iter().all(|x| *x == self.values[0])
+    }
+}
+
