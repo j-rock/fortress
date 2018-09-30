@@ -1,6 +1,5 @@
 use app::StatusOr;
 use buff::{
-    Buff,
     BuffBox,
     BuffBoxPlacement,
     BuffConfig,
@@ -16,8 +15,10 @@ use file::{
 };
 use liquidfun::box2d::common::math::Vec2;
 use physics::PhysicsSimulation;
+use rand::Rng;
 use render::BoxRenderer;
 use slab::Slab;
+use world::RandGen;
 
 pub struct BuffSystem {
     config_manager: SimpleConfigManager<BuffConfig>,
@@ -26,20 +27,20 @@ pub struct BuffSystem {
 }
 
 impl BuffSystem {
-    pub fn new(config_watcher: &mut ConfigWatcher, buff_locations: Vec<Vec2>, physics_sim: &mut PhysicsSimulation) -> StatusOr<BuffSystem> {
+    pub fn new(config_watcher: &mut ConfigWatcher, buff_locations: Vec<Vec2>, rng: &mut RandGen, physics_sim: &mut PhysicsSimulation) -> StatusOr<BuffSystem> {
         let config_manager: SimpleConfigManager<BuffConfig> = SimpleConfigManager::from_config_resource(config_watcher, "buff.conf")?;
         let mut buffs = BuffSystem {
             config_manager,
             buffs: Slab::with_capacity(buff_locations.len()),
             buff_locations,
         };
-        buffs.redeploy(physics_sim);
+        buffs.redeploy(rng, physics_sim);
         Ok(buffs)
     }
 
-    pub fn pre_update(&mut self, controller: &Controller, physics_sim: &mut PhysicsSimulation) {
+    pub fn pre_update(&mut self, controller: &Controller, rng: &mut RandGen, physics_sim: &mut PhysicsSimulation) {
         if self.config_manager.update() || controller.just_pressed(ControllerId::Keyboard, ControlEvent::RedeployEntities) {
-            self.redeploy(physics_sim);
+            self.redeploy(rng, physics_sim);
         }
     }
 
@@ -57,19 +58,19 @@ impl BuffSystem {
         }
     }
 
-    pub fn respawn(&mut self, buff_locations: Vec<Vec2>, physics_sim: &mut PhysicsSimulation) {
+    pub fn respawn(&mut self, buff_locations: Vec<Vec2>, rng: &mut RandGen, physics_sim: &mut PhysicsSimulation) {
         self.buff_locations = buff_locations;
-        self.redeploy(physics_sim);
+        self.redeploy(rng, physics_sim);
     }
 
-    fn redeploy(&mut self, physics_sim: &mut PhysicsSimulation) {
+    fn redeploy(&mut self, rng: &mut RandGen, physics_sim: &mut PhysicsSimulation) {
         self.buffs.clear();
         self.buffs.reserve(self.buff_locations.len());
 
         let config = self.config_manager.get();
         for location in self.buff_locations.iter() {
             let placement = BuffBoxPlacement {
-                buff: Buff::NumJumps,
+                buff: rng.rng.gen(),
                 location: Vec2 {
                     x: location.x + config.buff_box.size.0 / 2.0,
                     y: location.y - config.buff_box.size.1 / 2.0,

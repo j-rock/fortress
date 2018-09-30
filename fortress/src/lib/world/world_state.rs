@@ -36,7 +36,7 @@ pub struct WorldState {
     map: Map,
     players: PlayerSystem,
     buffs: BuffSystem,
-    _rng: RandGen,
+    rng: RandGen,
 
     box_renderer: BoxRenderer,
     // Declare physics simulation last so it is dropped last.
@@ -47,8 +47,8 @@ impl WorldState {
     pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<WorldState> {
         let mut physics_sim = PhysicsSimulation::new(config_watcher)?;
         let map = Map::new(config_watcher, &mut physics_sim)?;
-        let rng = RandGen::new();
-        let buffs = BuffSystem::new(config_watcher, map.get_buff_box_spawns(), &mut physics_sim)?;
+        let mut rng = RandGen::new();
+        let buffs = BuffSystem::new(config_watcher, map.get_buff_box_spawns(), &mut rng, &mut physics_sim)?;
         let players = PlayerSystem::new(config_watcher, map.get_player_spawns())?;
 
         physics_sim.add_collision_matchers(vec!(
@@ -64,7 +64,7 @@ impl WorldState {
             map,
             players,
             buffs,
-            _rng: rng,
+            rng,
             box_renderer: BoxRenderer::new()?,
             physics_sim
         })
@@ -81,10 +81,10 @@ impl WorldState {
         {
             if self.map.pre_update(&mut self.physics_sim) {
                 self.players.respawn(self.map.get_player_spawns());
-                self.buffs.respawn(self.map.get_buff_box_spawns(), &mut self.physics_sim);
+                self.buffs.respawn(self.map.get_buff_box_spawns(), &mut self.rng, &mut self.physics_sim);
             } else {
                 self.players.pre_update(audio, controller, &mut self.physics_sim, dt);
-                self.buffs.pre_update(controller, &mut self.physics_sim);
+                self.buffs.pre_update(controller, &mut self.rng, &mut self.physics_sim);
             }
         }
 

@@ -18,7 +18,7 @@ impl RandGen {
             Ok(duration) => {
                 let secs = duration.as_secs();
                 let nanos = duration.subsec_nanos();
-                [secs, 0 + (nanos as u64)]
+                [secs, nanos as u64]
 
             },
             Err(_) => {
