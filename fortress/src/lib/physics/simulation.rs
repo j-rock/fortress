@@ -1,11 +1,17 @@
-use app::StatusOr;
-use audio::AudioPlayer;
-use dimensions::time::DeltaTime;
-use file::{
-    ConfigWatcher,
-    SimpleConfigManager,
+use crate::{
+    app::StatusOr,
+    audio::AudioPlayer,
+    dimensions::time::DeltaTime,
+    entities::EntityRegistrar,
+    file::{
+        ConfigWatcher,
+        SimpleConfigManager,
+    },
+    physics::{
+        CollisionMatcher,
+        PhysicsContactListener
+    }
 };
-use entities::EntityRegistrar;
 use liquidfun::box2d::{
     common::math::Vec2,
     dynamics::{
@@ -15,10 +21,6 @@ use liquidfun::box2d::{
         },
         world_callbacks::ContactListenerGlue
     }
-};
-use physics::{
-    CollisionMatcher,
-    PhysicsContactListener
 };
 
 #[derive(Deserialize)]

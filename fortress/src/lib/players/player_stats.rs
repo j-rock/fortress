@@ -1,4 +1,4 @@
-use players::PlayerConfig;
+use crate::players::PlayerConfig;
 
 pub struct PlayerStats {
     move_speed: f32,

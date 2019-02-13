@@ -1,34 +1,36 @@
-use audio::AudioPlayer;
-use buffs::Buff;
-use control::{
-    Controller,
-    ControllerId,
+use crate::{
+    audio::AudioPlayer,
+    buffs::Buff,
+    control::{
+        Controller,
+        ControllerId,
+    },
+    dimensions::{
+        Attack,
+        time::DeltaTime
+    },
+    entities::EntityType,
+    physics::{
+        CollisionMatcher,
+        PhysicsSimulation,
+    },
+    players::{
+        PlayerConfig,
+        PlayerId,
+        PlayerState,
+        state::{
+            PlayerStateMachine,
+            PlayerUpright,
+        }
+    },
+    render::{
+        BoxData,
+        BoxRenderer,
+    },
+    wraiths::Wraith
 };
-use dimensions::{
-    Attack,
-    time::DeltaTime
-};
-use entities::EntityType;
 use glm;
 use liquidfun::box2d::common::math::Vec2;
-use physics::{
-    CollisionMatcher,
-    PhysicsSimulation,
-};
-use players::{
-    PlayerConfig,
-    PlayerId,
-    PlayerState,
-    state::{
-        PlayerStateMachine,
-        PlayerUpright,
-    }
-};
-use render::{
-    BoxData,
-    BoxRenderer,
-};
-use wraiths::Wraith;
 
 pub struct Player {
     player_state: PlayerState,

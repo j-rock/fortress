@@ -1,24 +1,26 @@
-use audio::AudioPlayer;
-use control::{
-    Controller,
-    ControllerId,
-    events::ControlEvent::{
-        PlayerFire,
-        PlayerJump,
-        PlayerMove,
-        PlayerSlash,
+use crate::{
+    audio::AudioPlayer,
+    control::{
+        Controller,
+        ControllerId,
+        events::ControlEvent::{
+            PlayerFire,
+            PlayerJump,
+            PlayerMove,
+            PlayerSlash,
+        },
     },
-};
-use dimensions::{
-    LrDirection,
-    time::DeltaTime,
-};
-use players::{
-    PlayerState,
-    state::{
-        PlayerStateMachine,
-        PlayerJumping,
+    dimensions::{
+        LrDirection,
+        time::DeltaTime,
     },
+    players::{
+        PlayerState,
+        state::{
+            PlayerStateMachine,
+            PlayerJumping,
+        },
+    }
 };
 
 #[derive(Default)]

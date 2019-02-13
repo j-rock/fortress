@@ -1,16 +1,18 @@
-use app::StatusOr;
-use file;
+use crate::{
+    app::StatusOr,
+    file,
+    render::{
+        attribute,
+        Attribute,
+        AttributeProgram,
+        ShaderProgram,
+    }
+};
 use gl::{
     self,
     types::*
 };
 use glm;
-use render::{
-    attribute,
-    Attribute,
-    AttributeProgram,
-    ShaderProgram,
-};
 
 pub struct BoxData {
     pub position: glm::Vec2,

@@ -1,11 +1,13 @@
-use control::{
-    ControlEvent,
-    ControllerEvent,
-    GamepadConfig,
-    GamepadId,
+use crate::{
+    control::{
+        ControlEvent,
+        ControllerEvent,
+        GamepadConfig,
+        GamepadId,
+    },
+    dimensions::LrDirection,
+    file::SimpleConfigManager,
 };
-use dimensions::LrDirection;
-use file::SimpleConfigManager;
 use sdl2::{
     controller::GameController,
     event::Event,

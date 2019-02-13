@@ -1,26 +1,28 @@
-use app::StatusOr;
-use audio::AudioPlayer;
-use buffs::{
-    BuffBox,
-    BuffSystem,
-};
-use control::Controller;
-use dimensions::time::DeltaTime;
-use file::{
-    ConfigWatcher,
-    SimpleConfigManager,
+use crate::{
+    app::StatusOr,
+    audio::AudioPlayer,
+    buffs::{
+        BuffBox,
+        BuffSystem,
+    },
+    control::Controller,
+    dimensions::time::DeltaTime,
+    file::{
+        ConfigWatcher,
+        SimpleConfigManager,
+    },
+    maps::Map,
+    physics::PhysicsSimulation,
+    players::PlayerSystem,
+    render::{
+        BoxRenderer,
+        Camera,
+        Viewport,
+    },
+    weapon::Crossbow,
+    world::RandGen
 };
 use glm;
-use maps::Map;
-use physics::PhysicsSimulation;
-use players::PlayerSystem;
-use render::{
-    BoxRenderer,
-    Camera,
-    Viewport,
-};
-use weapon::Crossbow;
-use world::RandGen;
 
 #[derive(Deserialize)]
 struct WorldConfig {

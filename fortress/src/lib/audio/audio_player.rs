@@ -1,5 +1,7 @@
-use app::StatusOr;
-use audio::Sound;
+use crate::{
+    app::StatusOr,
+    audio::Sound,
+};
 use sdl2::mixer::{
     Chunk,
     self,

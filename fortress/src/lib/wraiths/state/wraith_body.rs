@@ -1,9 +1,16 @@
-use dimensions::LrDirection;
-use entities::{
-    Entity,
-    EntityType,
-    EntityRegistrar,
-    RegisteredBody,
+use crate::{
+    dimensions::LrDirection,
+    entities::{
+        Entity,
+        EntityType,
+        EntityRegistrar,
+        RegisteredBody,
+    },
+    physics::collision_category,
+    wraiths::{
+        Wraith,
+        WraithConfig
+    }
 };
 use liquidfun::box2d::{
     collision::shapes::polygon_shape::PolygonShape,
@@ -16,11 +23,6 @@ use liquidfun::box2d::{
         fixture::FixtureDef,
         world::World,
     },
-};
-use physics::collision_category;
-use wraiths::{
-    Wraith,
-    WraithConfig
 };
 
 pub struct WraithBody {

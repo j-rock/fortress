@@ -1,9 +1,11 @@
-use dimensions::Pixels;
+use crate::{
+    dimensions::Pixels,
+    image::Png
+};
 use gl::{
     self,
     types::*
 };
-use image::Png;
 
 pub struct Texture {
     pub texture_id: GLuint,

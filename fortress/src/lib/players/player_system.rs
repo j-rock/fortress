@@ -1,33 +1,35 @@
-use app::StatusOr;
-use audio::{
-    AudioPlayer,
-    Sound
-};
-use control::{
-    Controller,
-    ControllerId,
-    ControlEvent,
-    ControllerEvent,
-};
-use dimensions::time::DeltaTime;
-use file::{
-    ConfigWatcher,
-    SimpleConfigManager,
+use crate::{
+    app::StatusOr,
+    audio::{
+        AudioPlayer,
+        Sound
+    },
+    control::{
+        Controller,
+        ControllerId,
+        ControlEvent,
+        ControllerEvent,
+    },
+    dimensions::time::DeltaTime,
+    file::{
+        ConfigWatcher,
+        SimpleConfigManager,
+    },
+    physics::PhysicsSimulation,
+    players::{
+        Player,
+        PlayerConfig,
+        PlayerId,
+        self,
+    },
+    render::{
+        BoxRenderer,
+        CameraView,
+        Viewport,
+    }
 };
 use glm;
 use liquidfun::box2d::common::math::Vec2;
-use physics::PhysicsSimulation;
-use players::{
-    Player,
-    PlayerConfig,
-    PlayerId,
-    self,
-};
-use render::{
-    BoxRenderer,
-    CameraView,
-    Viewport,
-};
 use slab::Slab;
 use std::collections::HashMap;
 

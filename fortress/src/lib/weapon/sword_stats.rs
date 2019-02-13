@@ -1,8 +1,10 @@
-use dimensions::{
-    Damage,
-    time,
+use crate::{
+    dimensions::{
+        Damage,
+        time,
+    },
+    players::PlayerConfig
 };
-use players::PlayerConfig;
 
 #[derive(Copy, Clone)]
 pub struct SwordStats {

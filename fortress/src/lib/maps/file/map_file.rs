@@ -1,10 +1,12 @@
-use app::StatusOr;
-use file::{
-    Config,
-    self,
+use crate::{
+    app::StatusOr,
+    file::{
+        Config,
+        self,
+    },
+    maps::file::MapFileCharacter,
 };
 use liquidfun;
-use maps::file::MapFileCharacter;
 use std::{
     collections::HashSet,
     path::PathBuf

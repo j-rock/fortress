@@ -1,26 +1,28 @@
-use audio::Sound;
-use buffs::{
-    Buff,
-    BuffBody,
-    BuffBoxConfig,
-    BuffBoxPlacement,
-    BuffConfig,
-    BuffDropConfig,
-};
-use entities::{
-    Entity,
-    EntityType
+use crate::{
+    audio::Sound,
+    buffs::{
+        Buff,
+        BuffBody,
+        BuffBoxConfig,
+        BuffBoxPlacement,
+        BuffConfig,
+        BuffDropConfig,
+    },
+    entities::{
+        Entity,
+        EntityType
+    },
+    physics::{
+        CollisionMatcher,
+        PhysicsSimulation
+    },
+    players::Player,
+    render::{
+        BoxData,
+        BoxRenderer
+    }
 };
 use glm;
-use physics::{
-    CollisionMatcher,
-    PhysicsSimulation
-};
-use players::Player;
-use render::{
-    BoxData,
-    BoxRenderer
-};
 
 pub struct BuffBox {
     body: BuffBody,

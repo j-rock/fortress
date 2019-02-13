@@ -1,3 +1,18 @@
+extern crate enum_iterator;
+extern crate gl;
+extern crate glm;
+#[macro_use] extern crate lazy_static;
+extern crate liquidfun;
+extern crate lodepng;
+extern crate notify;
+extern crate rand;
+extern crate rand_xorshift;
+extern crate sdl2;
+extern crate serde;
+#[macro_use] extern crate serde_derive;
+extern crate serde_json;
+extern crate slab;
+
 pub mod app;
 pub mod audio;
 pub mod buffs;

@@ -1,10 +1,12 @@
-use dimensions::Health;
-use liquidfun::box2d::common::math::Vec2;
-use wraiths::{
-    Wraith,
-    WraithConfig,
-    state::WraithBody
+use crate::{
+    dimensions::Health,
+    wraiths::{
+        Wraith,
+        WraithConfig,
+        state::WraithBody
+    }
 };
+use liquidfun::box2d::common::math::Vec2;
 
 pub struct WraithState {
     pub config: WraithConfig,

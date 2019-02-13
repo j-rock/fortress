@@ -1,21 +1,23 @@
-use app::StatusOr;
-use file::{
-    ConfigWatcher,
-    SimpleConfigManager,
+use crate::{
+    app::StatusOr,
+    file::{
+        ConfigWatcher,
+        SimpleConfigManager,
+    },
+    maps::{
+        file::MapFile,
+        MapConfig,
+        MapState,
+        state::MapBody,
+    },
+    physics::PhysicsSimulation,
+    render::{
+        BoxData,
+        BoxRenderer,
+    }
 };
 use glm;
 use liquidfun;
-use maps::{
-    file::MapFile,
-    MapConfig,
-    MapState,
-    state::MapBody,
-};
-use physics::PhysicsSimulation;
-use render::{
-    BoxData,
-    BoxRenderer,
-};
 
 pub struct Map {
     map_config_manager: SimpleConfigManager<MapConfig>,

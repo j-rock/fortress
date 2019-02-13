@@ -1,7 +1,18 @@
-use entities::{
-    Entity,
-    EntityType,
-    RegisteredBody,
+use crate::{
+    entities::{
+        Entity,
+        EntityType,
+        RegisteredBody,
+    },
+    maps::{
+        file::MapFile,
+        Map,
+        MapConfig,
+    },
+    physics::{
+        collision_category,
+        PhysicsSimulation,
+    }
 };
 use liquidfun::box2d::{
     collision::shapes::polygon_shape::PolygonShape,
@@ -10,15 +21,6 @@ use liquidfun::box2d::{
         body::BodyDef,
         fixture::FixtureDef,
     },
-};
-use maps::{
-    file::MapFile,
-    Map,
-    MapConfig,
-};
-use physics::{
-    collision_category,
-    PhysicsSimulation,
 };
 
 pub struct MapBody {

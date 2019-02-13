@@ -1,32 +1,34 @@
-use audio::{
-    AudioPlayer,
-    Sound,
-};
-use control::{
-    Controller,
-    ControllerId,
-    ControlEvent::{
-        PlayerFire,
-        PlayerJump,
-        PlayerMove,
-        PlayerSlash,
-    }
-};
-use dimensions::{
-    LrDirection,
-    time::{
-        self,
-        DeltaTime,
-    }
+use crate::{
+    audio::{
+        AudioPlayer,
+        Sound,
+    },
+    control::{
+        Controller,
+        ControllerId,
+        ControlEvent::{
+            PlayerFire,
+            PlayerJump,
+            PlayerMove,
+            PlayerSlash,
+        }
+    },
+    dimensions::{
+        LrDirection,
+        time::{
+            self,
+            DeltaTime,
+        }
+    },
+    players::{
+        PlayerState,
+        state::{
+            PlayerStateMachine,
+            PlayerUpright,
+        }
+    },
 };
 use liquidfun::box2d::common::math::Vec2;
-use players::{
-    PlayerState,
-    state::{
-        PlayerStateMachine,
-        PlayerUpright,
-    }
-};
 
 pub struct PlayerJumping {
     jumps_left: i32,

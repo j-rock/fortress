@@ -1,19 +1,21 @@
-use audio::{
-    AudioPlayer,
-    Sound
+use crate::{
+    audio::{
+        AudioPlayer,
+        Sound
+    },
+    dimensions::{
+        Damage,
+        time::{
+            DeltaTime,
+            self,
+        }
+    },
+    players::{
+        PlayerConfig,
+        state::PlayerBody,
+    },
+    weapon::SwordStats
 };
-use dimensions::{
-    Damage,
-    time::{
-        DeltaTime,
-        self,
-    }
-};
-use players::{
-    PlayerConfig,
-    state::PlayerBody,
-};
-use weapon::SwordStats;
 
 #[derive(Copy, Clone)]
 struct CurrentSlash {

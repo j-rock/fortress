@@ -1,13 +1,19 @@
-use buffs::{
-    BuffBox,
-    BuffBoxConfig,
-    BuffBoxPlacement,
-    BuffDropConfig,
-};
-use entities::{
-    Entity,
-    EntityType,
-    RegisteredBody,
+use crate::{
+    buffs::{
+        BuffBox,
+        BuffBoxConfig,
+        BuffBoxPlacement,
+        BuffDropConfig,
+    },
+    entities::{
+        Entity,
+        EntityType,
+        RegisteredBody
+    },
+    physics::{
+        collision_category,
+        PhysicsSimulation,
+    }
 };
 use liquidfun::box2d::{
     collision::shapes::polygon_shape::PolygonShape,
@@ -19,10 +25,6 @@ use liquidfun::box2d::{
         },
         fixture::FixtureDef,
     },
-};
-use physics::{
-    collision_category,
-    PhysicsSimulation,
 };
 
 pub struct BuffBody {

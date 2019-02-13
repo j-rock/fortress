@@ -1,8 +1,8 @@
+use crate::entities::Entity;
 use liquidfun::box2d::dynamics::{
     body::Body,
     fixture::Fixture
 };
-use entities::Entity;
 use slab::Slab;
 use std::{
     cell::RefCell,

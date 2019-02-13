@@ -1,4 +1,4 @@
-use control::GamepadId;
+use crate::control::GamepadId;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum ControllerId {

@@ -1,14 +1,16 @@
-use app::StatusOr;
-use file::{
-    ConfigWatcher,
-    SimpleConfigManager,
-};
-use control::{
-    ControlEvent,
-    ControllerId,
-    ControllerEvent,
-    GamepadControls,
-    KeyboardControls
+use crate::{
+    app::StatusOr,
+    control::{
+        ControlEvent,
+        ControllerId,
+        ControllerEvent,
+        GamepadControls,
+        KeyboardControls
+    },
+    file::{
+        ConfigWatcher,
+        SimpleConfigManager,
+    }
 };
 use sdl2::{
     EventPump,

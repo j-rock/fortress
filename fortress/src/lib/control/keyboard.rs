@@ -1,5 +1,7 @@
-use control::ControlEvent;
-use dimensions::LrDirection;
+use crate::{
+    control::ControlEvent,
+    dimensions::LrDirection,
+};
 use sdl2::{
     EventPump,
     keyboard::Scancode

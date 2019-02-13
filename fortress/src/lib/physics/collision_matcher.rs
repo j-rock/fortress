@@ -1,7 +1,9 @@
-use audio::AudioPlayer;
-use entities::{
-    Entity,
-    EntityType,
+use crate::{
+    audio::AudioPlayer,
+    entities::{
+        Entity,
+        EntityType,
+    }
 };
 
 pub enum CollisionMatcher {

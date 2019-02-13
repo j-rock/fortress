@@ -1,10 +1,12 @@
-use app::StatusOr;
-use file::{
-    ConfigWatcher,
-    SimpleConfigManager,
+use crate::{
+    app::StatusOr,
+    file::{
+        ConfigWatcher,
+        SimpleConfigManager,
+    },
+    render::CameraConfig
 };
 use glm;
-use render::CameraConfig;
 
 pub struct Camera {
     config_manager: SimpleConfigManager<CameraConfig>,

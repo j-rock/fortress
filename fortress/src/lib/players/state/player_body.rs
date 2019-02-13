@@ -1,9 +1,19 @@
-use dimensions::LrDirection;
-use entities::{
-    Entity,
-    EntityType,
-    RegisteredBody,
-    RegisteredFixture,
+use crate::{
+    dimensions::LrDirection,
+    entities::{
+        Entity,
+        EntityType,
+        RegisteredBody,
+        RegisteredFixture,
+    },
+    physics::{
+        collision_category,
+        PhysicsSimulation,
+    },
+    players::{
+        Player,
+        PlayerConfig,
+    }
 };
 use liquidfun::box2d::{
     collision::shapes::polygon_shape::PolygonShape,
@@ -20,14 +30,6 @@ use liquidfun::box2d::{
             FixtureDef
         },
     },
-};
-use physics::{
-    collision_category,
-    PhysicsSimulation,
-};
-use players::{
-    Player,
-    PlayerConfig,
 };
 
 pub struct PlayerBody {

@@ -1,4 +1,4 @@
-use app::StatusOr;
+use crate::app::StatusOr;
 use std::path::PathBuf;
 
 pub enum MapFileCharacter {

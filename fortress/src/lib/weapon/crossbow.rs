@@ -1,20 +1,34 @@
-use audio::{
-    AudioPlayer,
-    Sound,
-};
-use dimensions::{
-    Attack,
-    LrDirection,
-    time::{
-        self,
-        DeltaTime,
-    }
-};
-use entities::{
-    Entity,
-    EntityRegistrar,
-    EntityType,
-    RegisteredBody,
+use crate::{
+    audio::{
+        AudioPlayer,
+        Sound,
+    },
+    dimensions::{
+        Attack,
+        LrDirection,
+        time::{
+            self,
+            DeltaTime,
+        }
+    },
+    entities::{
+        Entity,
+        EntityRegistrar,
+        EntityType,
+        RegisteredBody,
+    },
+    physics::{
+        collision_category,
+        CollisionMatcher,
+        PhysicsSimulation,
+    },
+    players::PlayerConfig,
+    render::{
+        BoxData,
+        BoxRenderer
+    },
+    weapon::CrossbowStats,
+    wraiths::Wraith
 };
 use glm;
 use liquidfun::box2d::{
@@ -32,19 +46,7 @@ use liquidfun::box2d::{
         world::World,
     },
 };
-use physics::{
-    collision_category,
-    CollisionMatcher,
-    PhysicsSimulation,
-};
-use players::PlayerConfig;
-use render::{
-    BoxData,
-    BoxRenderer
-};
 use slab::Slab;
-use weapon::CrossbowStats;
-use wraiths::Wraith;
 
 type ArrowId = usize;
 

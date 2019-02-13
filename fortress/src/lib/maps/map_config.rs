@@ -1,4 +1,4 @@
-use file;
+use crate::file;
 use std::path::PathBuf;
 
 #[derive(Clone, Deserialize)]

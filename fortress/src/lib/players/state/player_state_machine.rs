@@ -1,10 +1,12 @@
-use audio::AudioPlayer;
-use control::{
-    Controller,
-    ControllerId,
+use crate::{
+    audio::AudioPlayer,
+    control::{
+        Controller,
+        ControllerId,
+    },
+    dimensions::time::DeltaTime,
+    players::PlayerState
 };
-use dimensions::time::DeltaTime;
-use players::PlayerState;
 
 pub trait PlayerStateMachine {
     // Before physics step.

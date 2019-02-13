@@ -1,4 +1,4 @@
-use players;
+use crate::players;
 
 #[derive(Copy, Clone)]
 pub struct PlayerId {

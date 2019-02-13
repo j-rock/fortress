@@ -1,5 +1,7 @@
-use control::GamepadId;
-use dimensions::LrDirection;
+use crate::{
+    control::GamepadId,
+    dimensions::LrDirection
+};
 
 #[derive(Copy, Clone)]
 pub enum ControllerEvent {

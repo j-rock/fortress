@@ -1,4 +1,4 @@
-use maps::{
+use crate::maps::{
     Map,
     state::MapBody,
 };

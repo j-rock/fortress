@@ -1,9 +1,11 @@
-use dimensions::{
-    Damage,
-    time,
+use crate::{
+    dimensions::{
+        Damage,
+        time,
+    },
+    players::PlayerConfig,
 };
 use liquidfun::box2d::common::math::Vec2;
-use players::PlayerConfig;
 
 pub struct CrossbowStats {
     base_arrow_speed: Vec2,

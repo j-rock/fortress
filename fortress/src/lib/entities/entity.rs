@@ -1,4 +1,4 @@
-use entities::EntityType;
+use crate::entities::EntityType;
 
 struct Void {}
 

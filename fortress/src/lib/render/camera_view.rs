@@ -1,5 +1,5 @@
+use crate::render::Viewport;
 use glm;
-use render::Viewport;
 
 pub struct CameraView {
     pub eye: glm::Vec2,

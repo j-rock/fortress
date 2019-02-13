@@ -1,6 +1,8 @@
-use control::Controller;
-use dimensions::time::DeltaTime;
-use wraiths::WraithState;
+use crate::{
+    control::Controller,
+    dimensions::time::DeltaTime,
+    wraiths::WraithState
+};
 
 pub trait WraithStateMachine {
     // Before physics step.

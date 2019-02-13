@@ -1,8 +1,10 @@
-use control::Controller;
-use dimensions::time::DeltaTime;
-use wraiths::{
-    WraithState,
-    state::WraithStateMachine,
+use crate::{
+    control::Controller,
+    dimensions::time::DeltaTime,
+    wraiths::{
+        WraithState,
+        state::WraithStateMachine,
+    }
 };
 
 #[derive(Default)]

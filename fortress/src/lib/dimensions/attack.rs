@@ -1,4 +1,4 @@
-use dimensions::{
+use crate::dimensions::{
     Damage,
     LrDirection,
 };

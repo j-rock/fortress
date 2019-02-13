@@ -1,6 +1,8 @@
-use app::StatusOr;
-use color::Rgba;
-use dimensions::Pixels;
+use crate::{
+    app::StatusOr,
+    color::Rgba,
+    dimensions::Pixels
+};
 use lodepng;
 use std::path::PathBuf;
 

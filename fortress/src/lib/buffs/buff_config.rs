@@ -1,4 +1,4 @@
-use buffs::Buff;
+use crate::buffs::Buff;
 use liquidfun::box2d::common::math::Vec2;
 
 #[derive(Clone, Deserialize)]

@@ -1,24 +1,26 @@
-use app::StatusOr;
-use buffs::{
-    BuffBox,
-    BuffBoxPlacement,
-    BuffConfig,
-};
-use control::{
-    ControlEvent,
-    Controller,
-    ControllerId,
-};
-use file::{
-    ConfigWatcher,
-    SimpleConfigManager,
+use crate::{
+    app::StatusOr,
+    buffs::{
+        BuffBox,
+        BuffBoxPlacement,
+        BuffConfig,
+    },
+    control::{
+        ControlEvent,
+        Controller,
+        ControllerId,
+    },
+    file::{
+        ConfigWatcher,
+        SimpleConfigManager,
+    },
+    physics::PhysicsSimulation,
+    render::BoxRenderer,
+    world::RandGen
 };
 use liquidfun::box2d::common::math::Vec2;
-use physics::PhysicsSimulation;
 use rand::Rng;
-use render::BoxRenderer;
 use slab::Slab;
-use world::RandGen;
 
 pub struct BuffSystem {
     config_manager: SimpleConfigManager<BuffConfig>,

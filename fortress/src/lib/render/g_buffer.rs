@@ -1,10 +1,12 @@
-use app::StatusOr;
+use crate::{
+    app::StatusOr,
+    file,
+    render::ShaderProgram
+};
 use gl::{
     self,
     types::*,
 };
-use file;
-use render::ShaderProgram;
 use std;
 
 // Used for glTexImage2D() call.

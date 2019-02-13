@@ -1,5 +1,8 @@
-use audio::AudioPlayer;
-use entities::EntityRegistrar;
+use crate::{
+    audio::AudioPlayer,
+    entities::EntityRegistrar,
+    physics::CollisionMatcher,
+};
 use liquidfun::box2d::{
     collision::Manifold,
     common::{
@@ -19,7 +22,6 @@ use liquidfun::box2d::{
         ParticleSystem
     },
 };
-use physics::CollisionMatcher;
 
 #[derive(Default)]
 pub struct PhysicsContactListener {

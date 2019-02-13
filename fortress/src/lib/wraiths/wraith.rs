@@ -1,36 +1,39 @@
-use app::StatusOr;
-use audio::{
-    AudioPlayer,
-    Sound,
-};
-use control::{
-    Controller,
-    ControllerId,
-    ControlEvent,
-};
-use dimensions::{
-    Attack,
-    time::DeltaTime
-};
-use file::{
-    ConfigWatcher,
-    SimpleConfigManager,
-};
-use glm;
-use physics::PhysicsSimulation;
-use render::{
-    BoxData,
-    BoxRenderer,
-};
-use wraiths::{
-    WraithConfig,
-    WraithState,
-    state::{
-        WraithBody,
-        WraithStateMachine,
-        WraithUpright,
+use crate::{
+    app::StatusOr,
+    audio::{
+        AudioPlayer,
+        Sound,
+    },
+    control::{
+        Controller,
+        ControllerId,
+        ControlEvent,
+    },
+    dimensions::{
+        Attack,
+        time::DeltaTime
+    },
+    file::{
+        ConfigWatcher,
+        SimpleConfigManager,
+    },
+    physics::PhysicsSimulation,
+    render::{
+        BoxData,
+        BoxRenderer,
+    },
+    wraiths::{
+        WraithConfig,
+        WraithState,
+        state::{
+            WraithBody,
+            WraithStateMachine,
+            WraithUpright,
+        }
     }
 };
+
+use glm;
 
 pub struct Wraith {
     config_manager: SimpleConfigManager<WraithConfig>,

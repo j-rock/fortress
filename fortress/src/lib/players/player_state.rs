@@ -1,22 +1,24 @@
-use audio::AudioPlayer;
-use buffs::Buff;
-use dimensions::{
-    LrDirection,
-    time::DeltaTime
+use crate::{
+    audio::AudioPlayer,
+    buffs::Buff,
+    dimensions::{
+        LrDirection,
+        time::DeltaTime
+    },
+    physics::PhysicsSimulation,
+    players::{
+        Player,
+        PlayerStats,
+        PlayerId,
+        PlayerConfig,
+        state::PlayerBody
+    },
+    weapon::{
+        Crossbow,
+        Sword
+    }
 };
 use liquidfun::box2d::common::math::Vec2;
-use physics::PhysicsSimulation;
-use players::{
-    Player,
-    PlayerStats,
-    PlayerId,
-    PlayerConfig,
-    state::PlayerBody
-};
-use weapon::{
-    Crossbow,
-    Sword
-};
 
 pub struct PlayerState {
     pub player_id: PlayerId,

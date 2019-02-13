@@ -1,5 +1,7 @@
-use app::StatusOr;
-use file;
+use crate::{
+    app::StatusOr,
+    file
+};
 use notify::{
     self,
     Watcher,
