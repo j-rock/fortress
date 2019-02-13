@@ -1,18 +1,21 @@
-use app::{
-    AppContext,
-    Clock,
-    StatusOr,
-};
-use audio::AudioPlayer;
-use control::Controller;
-use file::{
-    Config,
-    ConfigWatcher,
-    self
+use crate::{
+    app::{
+        AppContext,
+        Clock,
+        StatusOr,
+    },
+    audio::AudioPlayer,
+    control::Controller,
+    file::{
+        Config,
+        ConfigWatcher,
+        self
+    },
+    render::GBuffer,
+    world::WorldState,
 };
 use gl;
 use glm;
-use render::GBuffer;
 use sdl2::{
     event::{
         Event,
@@ -20,7 +23,6 @@ use sdl2::{
     },
     keyboard::Keycode,
 };
-use world::WorldState;
 
 #[derive(Deserialize)]
 struct AppRunnerConfig {

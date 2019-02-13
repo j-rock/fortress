@@ -1,4 +1,4 @@
-use app::StatusOr;
+use crate::app::StatusOr;
 use gl;
 use sdl2;
 

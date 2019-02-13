@@ -1,4 +1,4 @@
-use dimensions::time::DeltaTime;
+use crate::dimensions::time::DeltaTime;
 use std::time::Instant;
 
 pub struct Clock {
