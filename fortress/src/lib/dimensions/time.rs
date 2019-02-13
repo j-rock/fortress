@@ -13,8 +13,8 @@ pub struct DeltaTime {
 
 impl DeltaTime {
     fn duration_to_microseconds(duration: Duration) -> Microseconds {
-        let nanos = duration.subsec_nanos() as Microseconds;
-        1000000 * duration.as_secs() as i64 + nanos / 1000
+        let nanos = Microseconds::from(duration.subsec_nanos());
+        1_000_000 * duration.as_secs() as i64 + nanos / 1000
     }
 
     pub fn new(duration: Duration) -> DeltaTime {
@@ -23,11 +23,11 @@ impl DeltaTime {
         }
     }
 
-    pub fn as_microseconds(&self) -> Microseconds {
+    pub fn as_microseconds(self) -> Microseconds {
         self.microseconds_elapsed
     }
 
-    pub fn as_f32_seconds(&self) -> f32 {
-        self.microseconds_elapsed as f32 / 1000000.0
+    pub fn as_f32_seconds(self) -> f32 {
+        self.microseconds_elapsed as f32 / 1_000_000.0
     }
 }

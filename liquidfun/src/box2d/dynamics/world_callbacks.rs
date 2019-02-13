@@ -123,13 +123,12 @@ impl Drop for RayCastCallbackGlue {
     }
 }
 
-fn default_report_particle(_particle_system: *const B2ParticleSystem, _index: Int32, _point: &Vec2, _normal: &Vec2, _fraction: Float32) -> Float32
-{
-    return 0.0;
+fn default_report_particle(_particle_system: *const B2ParticleSystem, _index: Int32, _point: &Vec2, _normal: &Vec2, _fraction: Float32) -> Float32 {
+    0.0
 }
 
 fn default_should_query_particle_system(_particle_system: *const B2ParticleSystem) -> bool {
-    return false;
+    false
 }
 
 unsafe extern "C" fn ray_cast_callback_report_fixture<C: RayCastCallback>(c_object: *const c_void, fixture: *const B2Fixture, point: &Vec2, normal: &Vec2, fraction: Float32) -> Float32 {

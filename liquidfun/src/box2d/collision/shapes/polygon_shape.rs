@@ -1,7 +1,4 @@
-use std::{
-    self,
-    slice,
-};
+use std::slice;
 use super::shape::*;
 use super::super::super::common::settings::*;
 use super::super::super::common::math::*;
@@ -43,6 +40,12 @@ impl Shape for PolygonShape {
     }
 }
 
+impl Default for PolygonShape {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PolygonShape {
 
     /// Create a new PolygonShape.
@@ -55,7 +58,7 @@ impl PolygonShape {
     /// Get a vertex by index.
     pub fn get_vertex(&self, index: i32) -> &Vec2 {
         unsafe {
-            b2PolygonShape_GetVertex(std::mem::transmute(self.ptr), index)
+            b2PolygonShape_GetVertex(&mut *self.ptr, index)
         }
     }
 
@@ -87,6 +90,7 @@ impl PolygonShape {
     /// @param hy the half-height.
     /// @param center the center of the box in local coordinates.
     /// @param angle the rotation of the box in local coordinates.
+    ///
     pub fn set_as_box_oriented(&mut self, hx: f32, hy: f32, center: &Vec2, angle: f32) {
         unsafe {
             b2PolygonShape_SetAsBox_Oriented(self.ptr, hx, hy, center, angle);

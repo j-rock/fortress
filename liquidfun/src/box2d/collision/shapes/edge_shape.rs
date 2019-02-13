@@ -34,6 +34,12 @@ impl Shape for EdgeShape {
     }
 }
 
+impl Default for EdgeShape {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl EdgeShape {
 
     /// Create a new EdgeShape.

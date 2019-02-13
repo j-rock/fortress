@@ -293,7 +293,7 @@ impl ParticleSystem {
         if ptr.is_null() {
             None
         } else {
-            Some(ParticleSystem { ptr: ptr })
+            Some(ParticleSystem { ptr })
         }
     }
 

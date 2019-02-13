@@ -1,6 +1,6 @@
 use app::StatusOr;
 use audio::AudioPlayer;
-use buff::{
+use buffs::{
     BuffBox,
     BuffSystem,
 };
@@ -11,9 +11,9 @@ use file::{
     SimpleConfigManager,
 };
 use glm;
-use map::Map;
+use maps::Map;
 use physics::PhysicsSimulation;
-use player::PlayerSystem;
+use players::PlayerSystem;
 use render::{
     BoxRenderer,
     Camera,

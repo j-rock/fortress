@@ -480,7 +480,7 @@ impl Body {
         if ptr.is_null() {
             None
         } else {
-            Some(Fixture { ptr: ptr })
+            Some(Fixture { ptr })
         }
     }
 
@@ -503,7 +503,7 @@ impl Body {
         if ptr.is_null() {
             None
         } else {
-            Some(Body { ptr: ptr })
+            Some(Body { ptr })
         }
     }
 

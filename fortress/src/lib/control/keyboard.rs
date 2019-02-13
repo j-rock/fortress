@@ -13,6 +13,12 @@ pub struct KeyboardControls {
     just_released: HashSet<Scancode>,
 }
 
+impl Default for KeyboardControls {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl KeyboardControls {
     pub fn new() -> KeyboardControls {
         KeyboardControls {
@@ -25,7 +31,7 @@ impl KeyboardControls {
 
     pub fn update(&mut self, e: &EventPump) {
         let currently_pressed: HashSet<_> = e.keyboard_state().pressed_scancodes().collect();
-        self.first_time_used.touch(currently_pressed.len() > 0);
+        self.first_time_used.touch(!currently_pressed.is_empty());
         self.just_pressed.clear();
         for scancode in currently_pressed.difference(&self.currently_pressed) {
             self.just_pressed.insert(scancode.clone());

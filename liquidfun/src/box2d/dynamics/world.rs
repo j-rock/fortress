@@ -108,7 +108,7 @@ impl World {
         if ptr.is_null() {
             None
         } else {
-            Some(Body { ptr: ptr })
+            Some(Body { ptr })
         }
     }
 
@@ -125,7 +125,7 @@ impl World {
         if ptr.is_null() {
             None
         } else {
-            Some(ParticleSystem { ptr: ptr })
+            Some(ParticleSystem { ptr })
         }
     }
 

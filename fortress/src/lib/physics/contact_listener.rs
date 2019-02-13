@@ -1,5 +1,5 @@
 use audio::AudioPlayer;
-use entity::EntityRegistrar;
+use entities::EntityRegistrar;
 use liquidfun::box2d::{
     collision::Manifold,
     common::{

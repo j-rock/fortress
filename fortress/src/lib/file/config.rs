@@ -161,7 +161,7 @@ impl<T: Config> SimpleConfigManager<T> {
                 return true;
             }
         }
-        return false;
+        false
     }
 
     pub fn get(&self) -> &T {

@@ -40,8 +40,13 @@ impl Shape for ChainShape {
     }
 }
 
-impl ChainShape {
+impl Default for ChainShape {
+    fn default() -> Self {
+       Self::new()
+    }
+}
 
+impl ChainShape {
     /// Create a new ChainShape.
     pub fn new() -> ChainShape {
         unsafe {

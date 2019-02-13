@@ -54,5 +54,7 @@ extern crate libc;
 #[macro_use]
 extern crate bitflags;
 
+#[cfg_attr(feature = "cargo-clippy", allow(clippy::all))]
 pub mod box2d;
+#[cfg_attr(feature = "cargo-clippy", allow(clippy::all))]
 pub mod ext;

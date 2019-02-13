@@ -112,7 +112,7 @@ impl GamepadControls {
         for event in gamepad_events.into_iter() {
             match event {
                 Event::ControllerDeviceAdded { which, .. } => {
-                    if let Some(game_controller) = controller_subsystem.open(which).ok() {
+                    if let Ok(game_controller) = controller_subsystem.open(which) {
                         let gamepad_id = GamepadId::from_i32(game_controller.instance_id());
                         self.gamepads.insert(gamepad_id, game_controller);
                         self.controller_events.push(ControllerEvent::GamepadConnected(gamepad_id));
@@ -149,7 +149,7 @@ impl GamepadControls {
                         gamepad_id,
                         axis
                     };
-                    let normalized_value = value as f32  / i16::max_value() as f32;
+                    let normalized_value = f32::from(value) / f32::from(i16::max_value());
                     self.axes.insert(gamepad_axis, normalized_value);
                 }
                 _ => {}

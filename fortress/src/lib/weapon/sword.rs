@@ -9,7 +9,7 @@ use dimensions::{
         self,
     }
 };
-use player::{
+use players::{
     PlayerConfig,
     state::PlayerBody,
 };

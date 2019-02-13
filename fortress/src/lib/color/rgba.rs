@@ -15,7 +15,7 @@ impl Rgba {
     }
 
     fn u8_to_f32(u: u8) -> f32 {
-        (u as f32) / 255.0
+        f32::from(u) / 255.0
     }
 
     pub fn from_bytes(red: u8, green: u8, blue: u8, alpha: u8) -> Rgba {

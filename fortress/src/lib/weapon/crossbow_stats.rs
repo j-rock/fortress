@@ -3,7 +3,7 @@ use dimensions::{
     time,
 };
 use liquidfun::box2d::common::math::Vec2;
-use player::PlayerConfig;
+use players::PlayerConfig;
 
 pub struct CrossbowStats {
     base_arrow_speed: Vec2,

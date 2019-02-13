@@ -11,7 +11,7 @@ pub struct Vec2 {
 impl Vec2 {
 	/// Construct using coordinates.
 	pub fn new(x: Float32, y: Float32) -> Vec2 {
-		Vec2 {x: x, y: y}
+		Vec2 {x, y}
 	}
 
 	/// Set this vector to some specified coordinates.
@@ -28,7 +28,7 @@ impl Vec2 {
 
 #[allow(non_snake_case)]
 /// Construct using coordinates.
-#[inline] pub fn Vec2(x: Float32, y: Float32) -> Vec2 { Vec2 { x: x, y: y } }
+#[inline] pub fn Vec2(x: Float32, y: Float32) -> Vec2 { Vec2 { x, y } }
 
 #[repr(C)]
 #[derive(Debug, PartialEq, Default, Copy, Clone)]

@@ -5,7 +5,7 @@ use file::{
     ConfigWatcher,
     SimpleConfigManager,
 };
-use entity::EntityRegistrar;
+use entities::EntityRegistrar;
 use liquidfun::box2d::{
     common::math::Vec2,
     dynamics::{

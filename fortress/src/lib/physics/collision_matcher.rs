@@ -1,5 +1,5 @@
 use audio::AudioPlayer;
-use entity::{
+use entities::{
     Entity,
     EntityType,
 };

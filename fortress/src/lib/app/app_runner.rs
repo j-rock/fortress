@@ -46,7 +46,7 @@ impl AppRunner {
         let config_path = file::util::resource_path("config", "app.conf");
         let config = AppRunnerConfig::from_path(&config_path)?;
 
-        let context = AppContext::new(&config.window_size)?;
+        let context = AppContext::new(config.window_size)?;
         let world = WorldState::new(&mut config_watcher)?;
         let controller = Controller::new(&mut config_watcher)?;
 

@@ -10,7 +10,7 @@ use dimensions::{
         DeltaTime,
     }
 };
-use entity::{
+use entities::{
     Entity,
     EntityRegistrar,
     EntityType,
@@ -37,14 +37,14 @@ use physics::{
     CollisionMatcher,
     PhysicsSimulation,
 };
-use player::PlayerConfig;
+use players::PlayerConfig;
 use render::{
     BoxData,
     BoxRenderer
 };
 use slab::Slab;
 use weapon::CrossbowStats;
-use wraith::Wraith;
+use wraiths::Wraith;
 
 type ArrowId = usize;
 

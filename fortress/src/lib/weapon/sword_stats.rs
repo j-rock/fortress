@@ -2,7 +2,7 @@ use dimensions::{
     Damage,
     time,
 };
-use player::PlayerConfig;
+use players::PlayerConfig;
 
 #[derive(Copy, Clone)]
 pub struct SwordStats {

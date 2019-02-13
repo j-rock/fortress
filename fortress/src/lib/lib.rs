@@ -1,4 +1,4 @@
-#[macro_use] extern crate enum_iterator;
+extern crate enum_iterator;
 extern crate gl;
 extern crate glm;
 #[macro_use] extern crate lazy_static;
@@ -14,17 +14,17 @@ extern crate slab;
 
 pub mod app;
 pub mod audio;
-pub mod buff;
+pub mod buffs;
 pub mod color;
 pub mod control;
 pub mod dimensions;
-pub mod entity;
+pub mod entities;
 pub mod file;
 pub mod image;
-pub mod map;
+pub mod maps;
 pub mod physics;
-pub mod player;
+pub mod players;
 pub mod render;
 pub mod weapon;
 pub mod world;
-pub mod wraith;
+pub mod wraiths;

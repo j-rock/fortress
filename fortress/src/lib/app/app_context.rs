@@ -20,7 +20,7 @@ pub struct AppContext {
 }
 
 impl AppContext {
-    pub fn new(window_size: &(i32, i32)) -> StatusOr<AppContext> {
+    pub fn new(window_size: (i32, i32)) -> StatusOr<AppContext> {
         let sdl_context = sdl2::init()?;
         let video_subsystem = sdl_context.video()?;
         {

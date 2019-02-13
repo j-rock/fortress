@@ -112,7 +112,7 @@ impl Fixture {
     /// Manipulating the shape may lead to non-physical behavior.
     pub fn get_shape(&self) -> *mut shape::B2Shape {
         unsafe {
-            return b2Fixture_GetShape(self.ptr);
+            b2Fixture_GetShape(self.ptr)
         }
     }
 
@@ -154,7 +154,7 @@ impl Fixture {
         if ptr.is_null() {
             None
         } else {
-            Some(Fixture { ptr: ptr })
+            Some(Fixture { ptr })
         }
     }
 

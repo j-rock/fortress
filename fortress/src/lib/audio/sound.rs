@@ -14,7 +14,7 @@ pub enum Sound {
 }
 
 impl Sound {
-    pub fn to_path_buf(&self) -> PathBuf {
+    pub fn to_path_buf(self) -> PathBuf {
         let filename = match self {
             Sound::Blast => "blast.wav",
             Sound::JoinGame => "join_game.wav",
