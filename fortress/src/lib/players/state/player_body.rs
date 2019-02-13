@@ -128,7 +128,7 @@ impl PlayerBody {
             };
 
             let registrar = self.sword_sensor.registrar.clone();
-            let entity = self.sword_sensor.entity.clone();
+            let entity = self.sword_sensor.entity;
             let sword_sensor_fixture = Self::create_sword_sensor_fixture(self.sword_size, self.sword_offset_from_body, &self.body.data_setter);
             self.sword_sensor = RegisteredFixture::new(sword_sensor_fixture, registrar, entity);
         }

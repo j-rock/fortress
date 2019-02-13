@@ -37,7 +37,7 @@ impl AppContext {
 
         let gl_context = window.gl_create_context()?;
         gl::load_with(|name| video_subsystem.gl_get_proc_address(name) as *const _);
-        video_subsystem.gl_set_swap_interval(1);
+        video_subsystem.gl_set_swap_interval(1)?;
 
         let canvas = window
             .into_canvas()

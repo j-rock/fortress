@@ -21,6 +21,7 @@ use players::{
     },
 };
 
+#[derive(Default)]
 pub struct PlayerUpright;
 
 impl PlayerStateMachine for PlayerUpright {

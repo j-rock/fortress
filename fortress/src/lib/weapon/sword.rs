@@ -57,7 +57,7 @@ impl Sword {
     }
 
     pub fn try_slash(&mut self, body: &mut PlayerBody, audio: &AudioPlayer) {
-        if let None = self.current_slash {
+        if self.current_slash.is_none() {
             body.enable_sword_collision();
             self.current_slash = Some(CurrentSlash::new(self.stats.get_period()));
 

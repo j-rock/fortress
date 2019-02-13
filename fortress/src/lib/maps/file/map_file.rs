@@ -50,8 +50,8 @@ impl Config for MapFile {
                                 let wall_right_edge = Self::compute_wall_end(&wall_claimed, row, row_idx, col_idx);
                                 let wall_bottom_edge = Self::compute_wall_bottom(&raw_map_data, row_idx, col_idx, wall_right_edge);
 
-                                for row_i in row_idx..(wall_bottom_edge + 1) {
-                                    for col_i in col_idx..(wall_right_edge + 1) {
+                                for row_i in row_idx ..= wall_bottom_edge {
+                                    for col_i in col_idx ..= wall_right_edge {
                                         wall_claimed.insert((row_i, col_i));
                                     }
                                 }
@@ -106,17 +106,17 @@ impl MapFile {
             data.push(row_data);
         }
 
-        if data.len() < 1 {
+        if data.is_empty() {
             return Err(format!("MapFile must contain at least 1 row: {:?}", path));
         }
 
         Ok(data)
     }
 
-    fn compute_wall_end(wall_claimed: &HashSet<(usize, usize)>, row: &Vec<Option<MapFileCharacter>>, row_idx: usize, start_col_idx: usize) -> usize {
+    fn compute_wall_end(wall_claimed: &HashSet<(usize, usize)>, row: &[Option<MapFileCharacter>], row_idx: usize, start_col_idx: usize) -> usize {
         let mut out_idx = start_col_idx;
-        for col in (start_col_idx + 1)..row.len() {
-            if let Some(MapFileCharacter::Wall) = row[col] {
+        for (col, cell) in row.iter().enumerate().skip(start_col_idx + 1) {
+            if let Some(MapFileCharacter::Wall) = cell {
                 if !wall_claimed.contains(&(row_idx, col)) {
                     out_idx = col;
                 } else {
@@ -129,25 +129,27 @@ impl MapFile {
         out_idx
     }
 
-    fn compute_wall_bottom(raw_map_data: &Vec<Vec<Option<MapFileCharacter>>>, row_idx: usize, col_idx: usize, wall_right_edge: usize) -> usize {
+    fn is_wall_cell(cell: &Option<MapFileCharacter>) -> bool {
+        if let Some(MapFileCharacter::Wall) = cell {
+            true
+        } else {
+            false
+        }
+    }
+
+    fn compute_wall_bottom(raw_map_data: &[Vec<Option<MapFileCharacter>>], row_idx: usize, col_idx: usize, wall_right_edge: usize) -> usize {
         let mut out_row = row_idx;
-        for row_i in (row_idx + 1)..raw_map_data.len() {
+        for (row_i, row) in raw_map_data.iter().enumerate().skip(row_idx + 1) {
             if col_idx == wall_right_edge {
-                if let Some(MapFileCharacter::Wall) = raw_map_data[row_i][col_idx] {
+                if let Some(MapFileCharacter::Wall) = row[col_idx] {
                     out_row = row_i;
                 } else {
                     return out_row;
                 }
             }
-            if raw_map_data[row_i][col_idx .. wall_right_edge + 1]
+            if raw_map_data[row_i][col_idx ..= wall_right_edge]
                 .iter()
-                .all(|cell| {
-                    if let Some(MapFileCharacter::Wall) = *cell {
-                        true
-                    } else {
-                        false
-                    }
-                }) {
+                .all(Self::is_wall_cell) {
                 out_row = row_i;
             } else {
                 return out_row;

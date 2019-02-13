@@ -41,6 +41,12 @@ pub struct EntityRegistrar {
     raw: Rc<RefCell<RawEntityRegistrar>>
 }
 
+impl Default for EntityRegistrar {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl EntityRegistrar {
     pub fn new() -> EntityRegistrar {
         EntityRegistrar {
@@ -122,7 +128,7 @@ impl RegisteredBody {
     }
 
     pub fn register(&mut self, entity: Entity) {
-        if let None = self.entity {
+        if self.entity.is_none() {
             self.registrar.register(entity, &self.data_setter);
             self.entity = Some(entity);
         }
@@ -160,7 +166,7 @@ impl RegisteredFixture {
     }
 
     pub fn register(&mut self, entity: Entity) {
-        if let None = self.entity {
+        if self.entity.is_none() {
             self.registrar.register(entity, &self.data_setter);
             self.entity = Some(entity);
         }

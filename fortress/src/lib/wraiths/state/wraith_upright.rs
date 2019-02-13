@@ -5,6 +5,7 @@ use wraiths::{
     state::WraithStateMachine,
 };
 
+#[derive(Default)]
 pub struct WraithUpright;
 
 impl WraithStateMachine for WraithUpright {

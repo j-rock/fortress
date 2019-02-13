@@ -72,7 +72,7 @@ impl PhysicsSimulation {
     }
 
     pub fn get_world_copy(&self) -> World {
-        self.wrapped_world.world.clone()
+        self.wrapped_world.world
     }
 
     pub fn add_collision_matchers(&mut self, matchers: Vec<CollisionMatcher>) {

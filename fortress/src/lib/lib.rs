@@ -6,6 +6,7 @@ extern crate liquidfun;
 extern crate lodepng;
 extern crate notify;
 extern crate rand;
+extern crate rand_xorshift;
 extern crate sdl2;
 extern crate serde;
 #[macro_use] extern crate serde_derive;

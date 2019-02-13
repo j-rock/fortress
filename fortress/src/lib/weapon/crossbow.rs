@@ -87,7 +87,7 @@ impl Crossbow {
     }
 
     pub fn try_fire(&mut self, audio: &AudioPlayer, start_position: Vec2, direction: LrDirection) {
-        if let None = self.current_delay {
+        if self.current_delay.is_none() {
             // Dirty trick to get next arrow id. Create vacant entry, read its key, drop it.
             let next_arrow_id = {
                 self.arrows.vacant_entry().key()

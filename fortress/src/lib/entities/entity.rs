@@ -20,6 +20,7 @@ impl Entity {
         self.etype
     }
 
+    #[allow(clippy::mut_from_ref)]
     pub fn resolve<T>(&self) -> &mut T {
         unsafe {
             &mut *(self.data as *mut T)

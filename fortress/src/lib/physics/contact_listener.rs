@@ -21,6 +21,7 @@ use liquidfun::box2d::{
 };
 use physics::CollisionMatcher;
 
+#[derive(Default)]
 pub struct PhysicsContactListener {
     contacts: Vec<(usize, usize)>,
     collision_matchers: Vec<CollisionMatcher>
@@ -41,13 +42,10 @@ impl PhysicsContactListener {
 
     pub fn process_contacts(&mut self, audio: &AudioPlayer, registrar: &mut EntityRegistrar) {
         for (user_data1, user_data2) in self.contacts.iter() {
-            match (registrar.resolve(*user_data1), registrar.resolve(*user_data2)) {
-                (Some(entity1), Some(entity2)) => {
-                    for matcher in self.collision_matchers.iter() {
-                        matcher.try_apply(audio, entity1, entity2);
-                    }
-                },
-                _ => {}
+            if let (Some(entity1), Some(entity2)) = (registrar.resolve(*user_data1), registrar.resolve(*user_data2)) {
+                for matcher in self.collision_matchers.iter() {
+                    matcher.try_apply(audio, entity1, entity2);
+                }
             }
         }
         self.contacts.clear();
@@ -71,12 +69,9 @@ impl ContactListener for PhysicsContactListener {
         for contact in contact.iter() {
             let user_data_a = Self::get_user_data(&contact.get_fixture_a());
             let user_data_b = Self::get_user_data(&contact.get_fixture_b());
-            match (user_data_a, user_data_b) {
-                (Some(data_a), Some(data_b)) => {
-                    self.contacts.push((data_a, data_b));
-                },
-                _ => {}
-           }
+            if let (Some(data_a), Some(data_b)) = (user_data_a, user_data_b) {
+                self.contacts.push((data_a, data_b));
+            }
         }
     }
 

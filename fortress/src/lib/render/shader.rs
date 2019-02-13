@@ -22,9 +22,9 @@ fn compile_shader(path: &PathBuf, shader_type: GLenum) -> StatusOr<GLuint> {
         gl::ShaderSource(shader_id, 1, &shader_c_str.as_ptr(), std::ptr::null());
         gl::CompileShader(shader_id);
 
-        let mut success = gl::FALSE as GLint;
+        let mut success = GLint::from(gl::FALSE);
         gl::GetShaderiv(shader_id, gl::COMPILE_STATUS, &mut success);
-        if success == (gl::TRUE as GLint) {
+        if success == GLint::from(gl::TRUE) {
             Ok(shader_id)
         } else {
             let mut info_log_len = 0;
@@ -128,44 +128,44 @@ impl ShaderProgram {
         }
     }
 
-    pub fn set_vec2(&self, name: &'static str, v: &glm::Vec2) {
+    pub fn set_vec2(&self, name: &'static str, v: glm::Vec2) {
+        let value_ptr = &v as *const glm::Vec2 as *const f32;
         unsafe {
-            let value_ptr = std::mem::transmute(v);
             gl::Uniform2fv(self.get_uniform_location(name), 1, value_ptr);
         }
     }
 
     pub fn set_vec3(&self, name: &'static str, v: &glm::Vec3) {
+        let value_ptr = v as *const glm::Vec3 as *const f32;
         unsafe {
-            let value_ptr = std::mem::transmute(v);
             gl::Uniform3fv(self.get_uniform_location(name), 1, value_ptr);
         }
     }
 
     pub fn set_vec4(&self, name: &'static str, v: &glm::Vec4) {
+        let value_ptr = v as *const glm::Vec4 as *const f32;
         unsafe {
-            let value_ptr = std::mem::transmute(v);
             gl::Uniform4fv(self.get_uniform_location(name), 1, value_ptr);
         }
     }
 
     pub fn set_mat2(&self, name: &'static str, m: &glm::Mat2) {
+        let value_ptr = m as *const glm::Mat2 as *const f32;
         unsafe {
-            let value_ptr = std::mem::transmute(m);
             gl::UniformMatrix2fv(self.get_uniform_location(name), 1, gl::FALSE, value_ptr);
         }
     }
 
     pub fn set_mat3(&self, name: &'static str, m: &glm::Mat3) {
+        let value_ptr = m as *const glm::Mat3 as *const f32;
         unsafe {
-            let value_ptr = std::mem::transmute(m);
             gl::UniformMatrix3fv(self.get_uniform_location(name), 1, gl::FALSE, value_ptr);
         }
     }
 
     pub fn set_mat4(&self, name: &'static str, m: &glm::Mat4) {
+        let value_ptr = m as *const glm::Mat4 as *const f32;
         unsafe {
-            let value_ptr = std::mem::transmute(m);
             gl::UniformMatrix4fv(self.get_uniform_location(name), 1, gl::FALSE, value_ptr);
         }
     }

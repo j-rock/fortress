@@ -104,7 +104,7 @@ impl ConfigWatcher {
 
     pub fn watch<T>(&mut self, path: PathBuf) -> StatusOr<ConfigLoader<T>> {
         if !path.exists() {
-            return Err(String::from(format!("Cannot watch path because it doesn't exist: {:?}", path)));
+            return Err(format!("Cannot watch path because it doesn't exist: {:?}", path));
         }
         let dirty_bit = DirtyBit::new();
         let dirty_bit_copy = DirtyBit { is_dirty: Rc::clone(&dirty_bit.is_dirty) };
@@ -114,9 +114,8 @@ impl ConfigWatcher {
 
     pub fn update(&self) {
         for event in self.fs_events.try_iter() {
-            match event {
-                notify::DebouncedEvent::Write(path) => self.set_dirty(path),
-                _ => {}
+            if let notify::DebouncedEvent::Write(path) = event {
+                self.set_dirty(path)
             }
         }
     }
@@ -125,8 +124,7 @@ impl ConfigWatcher {
         if let Some(dirty_bit) = self.children.get(&p) {
             (*dirty_bit).set_dirty();
         }
-    }
-}
+    } }
 
 pub struct SimpleConfigManager<T> {
     config_file_name: PathBuf,

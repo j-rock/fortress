@@ -38,7 +38,7 @@ impl BoxRenderer {
         let fragment = file::util::resource_path("shaders", "box_frag.glsl");
         let shader_program = ShaderProgram::from_long_pipeline(&vertex, &geometry, &fragment)?;
 
-        let mut attribute_program_builder = AttributeProgram::new();
+        let mut attribute_program_builder = AttributeProgram::builder();
         let attr_pos = attribute_program_builder.add_attribute();
         let attr_tl = attribute_program_builder.add_attribute();
         let attr_tr = attribute_program_builder.add_attribute();

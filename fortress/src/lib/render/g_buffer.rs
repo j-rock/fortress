@@ -26,7 +26,7 @@ pub struct GBuffer {
 }
 
 impl GBuffer {
-    pub fn new(window_size: &(i32, i32)) -> StatusOr<GBuffer> {
+    pub fn new(window_size: (i32, i32)) -> StatusOr<GBuffer> {
         let vert_path = file::util::resource_path("shaders", "deferred_lighting_vert.glsl");
         let frag_path = file::util::resource_path("shaders", "deferred_lighting_frag.glsl");
         let mut g_buffer = GBuffer {

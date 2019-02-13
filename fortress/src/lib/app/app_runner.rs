@@ -56,7 +56,7 @@ impl AppRunner {
             context,
             clock: Clock::start(),
             controller,
-            g_buffer: GBuffer::new(&config.window_size)?,
+            g_buffer: GBuffer::new(config.window_size)?,
             world,
         })
     }

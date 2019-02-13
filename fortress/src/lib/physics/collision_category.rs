@@ -1,6 +1,6 @@
 use liquidfun::box2d::common::settings::UInt16;
 
-pub const COLLIDE_ALL: UInt16  = 1 << 0;
+pub const COLLIDE_ALL: UInt16  = 1;
 pub const BARRIER: UInt16 = 1 << 1;
 pub const INTERACT: UInt16  = 1 << 2;
 pub const PICKUP: UInt16  = 1 << 3;

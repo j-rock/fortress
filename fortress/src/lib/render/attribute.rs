@@ -86,7 +86,7 @@ pub struct AttributeProgram {
 }
 
 impl AttributeProgram {
-    pub fn new() -> AttributeProgramBuilder {
+    pub fn builder() -> AttributeProgramBuilder {
         let mut vao = 0;
         unsafe {
             gl::GenVertexArrays(1, &mut vao);

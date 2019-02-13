@@ -16,7 +16,7 @@ impl PlayerId {
         }
     }
 
-    pub fn as_usize(&self) -> usize {
+    pub fn as_usize(self) -> usize {
         self.id
     }
 }
