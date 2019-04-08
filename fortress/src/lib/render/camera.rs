@@ -29,6 +29,12 @@ impl Camera {
         Self::ortho(scale.x * left, scale.x * right, scale.y * bottom, scale.y * top, config.z_near, config.z_far)
     }
 
+    fn perspective(&self, screen_size: glm::IVec2) -> glm::Mat4 {
+        let config = self.config_manager.get();
+        let aspect_ratio = (screen_size.x as f32) / (screen_size.y as f32);
+        glm::ext::perspective(config.zoom,aspect_ratio, config.z_near, config.z_far)
+    }
+
     fn ortho(left: f32, right: f32, bottom: f32, top: f32, z_near: f32, z_far: f32) -> glm::Mat4 {
         let rml = right - left;
         let tmb = top - bottom;
