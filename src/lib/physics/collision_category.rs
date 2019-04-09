@@ -1,0 +1,19 @@
+pub const COLLIDE_ALL: usize  = 1;
+pub const BARRIER: usize = 1 << 1;
+pub const INTERACT: usize  = 1 << 2;
+pub const PICKUP: usize  = 1 << 3;
+pub const PLAYER_BODY: usize  = 1 << 4;
+pub const PLAYER_WEAPON: usize  = 1 << 5;
+pub const WRAITH: usize  = 1 << 6;
+pub const CAT_8: usize  = 1 << 7;
+pub const CAT_9: usize  = 1 << 8;
+pub const CAT_10: usize = 1 << 9;
+pub const CAT_11: usize = 1 << 10;
+pub const CAT_12: usize = 1 << 11;
+pub const CAT_13: usize = 1 << 12;
+pub const CAT_14: usize = 1 << 13;
+pub const CAT_15: usize = 1 << 14;
+pub const CAT_16: usize = 1 << 15;
+
+pub const MASK_ALLOW_ALL: usize = 0xFFFF;
+pub const MASK_ALLOW_NONE: usize = 0x0;
