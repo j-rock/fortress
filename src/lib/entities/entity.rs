@@ -2,7 +2,7 @@
 pub enum Entity {
     BuffBox,
     BuffDrop,
-    Wall,
+    MapWall,
     CrossbowArrow(usize),
     Player,
     PlayerSwordSensor,

@@ -3,6 +3,7 @@ use std::path::PathBuf;
 
 #[derive(Clone, Deserialize)]
 pub struct MapConfig {
+    pub cell_length: f64,
     pub map_label: MapLabel,
 }
 

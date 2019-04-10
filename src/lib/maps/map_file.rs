@@ -1,11 +1,10 @@
+use crate::dimensions::GridIndex;
+
 #[derive(Clone, Deserialize)]
-pub struct GridCell {
-    // Axial coordinates
-    q: i64,
-    r: i64
+pub struct MapFileCell {
 }
 
 #[derive(Clone, Deserialize)]
 pub struct MapFile {
-    cells: Vec<GridCell>
+    pub cells: Vec<(GridIndex, MapFileCell)>
 }
