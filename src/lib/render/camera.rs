@@ -24,9 +24,8 @@ impl Camera {
         let config = self.config_manager.get();
         let right = 1.0 / (2.0 * config.zoom);
         let left = -right;
-        let top = (screen_size.y as f32) / (2.0 * screen_size.x as f32) / config.zoom;
+        let top = (screen_size.y as f32) / (2.0 * config.zoom * screen_size.x as f32);
         let bottom = -top;
-        //Self::ortho(scale.x * left, scale.x * right, scale.y * bottom, scale.y * top, config.z_near, config.z_far)
         Self::ortho(left, right, bottom, top, config.z_near, config.z_far)
     }
 
@@ -47,7 +46,7 @@ impl Camera {
         let position = glm::vec3(config.position.0, config.position.1, config.position.2);
         let lookat = glm::builtin::normalize(glm::vec3(config.lookat.0, config.lookat.1, config.lookat.2));
         let right = glm::builtin::normalize(glm::vec3(config.right.0, config.right.1, config.right.2));
-        let up = glm::builtin::cross(lookat, right);
+        let up = glm::builtin::cross(right, lookat);
         glm::ext::look_at(position, position + lookat, up)
     }
 
