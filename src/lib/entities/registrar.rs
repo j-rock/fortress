@@ -26,9 +26,10 @@ impl EntityRegistrar {
     }
 
     pub fn register(&mut self, id: EntityId, entity: Entity) {
-        self.registrar.insert(id, entity).or_else(|| {
+        let maybe_preexisting = self.registrar.insert(id, entity);
+        if maybe_preexisting.is_some() {
             panic!("This id has already been registered! {:?}", id);
-        });
+        };
     }
 
     pub fn unregister(&mut self, id: EntityId) {

@@ -94,7 +94,7 @@ impl RawPhysicsSimulation {
         })
     }
 
-    pub fn update(&mut self, audio: &AudioPlayer, dt: DeltaTime) {
+    pub fn step(&mut self, audio: &AudioPlayer, dt: DeltaTime) {
         self.config.update();
         let config = self.config.get();
         Self::update_world_from_config(config, &mut self.world);

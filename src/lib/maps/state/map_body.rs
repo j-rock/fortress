@@ -8,9 +8,7 @@ use crate::{
         RegisteredBody,
     },
     maps::{
-        Map,
         MapCell,
-        MapFile,
         MapConfig,
     },
     physics::{
@@ -31,32 +29,30 @@ use hashbrown::HashMap;
 
 pub struct MapBody {
     pub wall_body: RegisteredBody,
-    pub cells: HashMap<GridIndex, MapCell>
 }
 
 impl MapBody {
-    pub fn new(config: &MapConfig, map_file: &MapFile, physics_sim: &mut PhysicsSimulation) -> MapBody {
-        let cells: HashMap<_, _> = map_file.cells
-            .iter()
-            .map(|&(grid_cell, map_file_cell)| {
-                (grid_cell, MapCell::from_map_file_cell(map_file_cell))
-            })
-            .collect();
-
-        let body_desc = RigidBodyDesc::new()
+    pub fn new(config: &MapConfig, cells: &HashMap<GridIndex, MapCell>, physics_sim: &mut PhysicsSimulation) -> MapBody {
+        let mut body_desc = RigidBodyDesc::new()
             .status(BodyStatus::Static);
 
-        for &(grid_index, _) in cells.iter() {
+        let mut collider_descs = Vec::new();
+        let axial_to_cartesian = GridIndex::axial_to_cartesian(config.cell_length);
+        for (grid_index, _) in cells.iter() {
            for grid_dir in GridDirection::all() {
-               if !cells.contains_key(grid_index.neighbor(grid_dir)) {
-                   let segment = grid_index.edge_line_segment(grid_dir, config.cell_length);
+               if !cells.contains_key(&grid_index.neighbor(*grid_dir)) {
+                   let segment = grid_index.edge_line_segment(*grid_dir, config.cell_length, &axial_to_cartesian);
                    let collider_desc = ColliderDesc::new(ShapeHandle::new(segment))
                        .collision_groups(CollisionGroups::new()
                            .with_membership(&[collision_category::BARRIER])
                            .with_whitelist(collision_category::ALLOW_ALL_WHITELIST));
-                   body_desc.add_collider(collider_desc);
+                   collider_descs.push(collider_desc);
                }
            }
+        }
+
+        for collider_desc in collider_descs.iter() {
+            body_desc.add_collider(collider_desc);
         }
 
         let body_handle = body_desc
@@ -65,7 +61,6 @@ impl MapBody {
 
         MapBody {
             wall_body: RegisteredBody::new(body_handle, Entity::MapWall, physics_sim),
-            cells
         }
     }
 }

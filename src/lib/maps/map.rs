@@ -8,15 +8,16 @@ use crate::{
         MapConfig,
         MapFile,
         MapState,
-        state::MapBody,
     },
     physics::PhysicsSimulation,
+    render::hex_renderer::HexRenderer,
 };
 
 pub struct Map {
     map_config_manager: SimpleConfigManager<MapConfig>,
     map_file_manager:  SimpleConfigManager<MapFile>,
     map_state: MapState,
+    renderer: HexRenderer,
 }
 
 impl Map {
@@ -30,14 +31,16 @@ impl Map {
         let map_state = {
             let config = map_config_manager.get();
             let map_file = map_file_manager.get();
-            let map_body = MapBody::new(config, map_file, physics_sim);
-            MapState::new(map_body)
+            MapState::new(config, map_file, physics_sim)
         };
+
+        let renderer = HexRenderer::new()?;
 
         Ok(Map {
             map_config_manager,
             map_file_manager,
             map_state,
+            renderer,
         })
     }
 
@@ -53,12 +56,16 @@ impl Map {
     fn redeploy(&mut self, physics_sim: &mut PhysicsSimulation) {
         {
             let config = self.map_config_manager.get();
-            let map_file = map_file_manager.get();
-            let map_body = MapBody::new(config, map_file, physics_sim);
-            self.map_state = MapState::new(map_body)
+            let map_file = self.map_file_manager.get();
+            self.map_state = MapState::new(config, map_file, physics_sim);
         }
     }
 
-    pub fn draw(&mut self) {
+    pub fn draw(&mut self, projection_view: &glm::Mat4) {
+        self.map_state.draw(&mut self.renderer);
+
+        self.renderer.draw_begin();
+        self.renderer.draw(projection_view);
+        self.renderer.draw_end();
     }
 }

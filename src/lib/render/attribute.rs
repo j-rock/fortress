@@ -50,23 +50,8 @@ pub struct AttributeProgramBuilder {
 
 impl AttributeProgramBuilder {
     pub fn add_attribute<T: KnownComponent>(&mut self) -> Attribute<T> {
-        let mut attribute = Attribute::<T>::new();
-        unsafe {
-            gl::GenBuffers(1, &mut attribute.vbo);
-        }
-        attribute.prepare_buffer();
-
         self.num_attributes += 1;
-        let array_index = self.num_attributes - 1;
-        let data_element_byte_size = std::mem::size_of::<T>() as i32;
-        let (num_comp, comp_type) = T::component();
-        unsafe {
-            gl::EnableVertexAttribArray(array_index);
-            gl::VertexAttribPointer(array_index, num_comp.into_gl_size(), comp_type.into_gl_enum(), gl::FALSE, data_element_byte_size, std::ptr::null());
-            gl::VertexAttribDivisor(array_index, 1);
-        }
-
-        attribute
+        Attribute::<T>::new(self.num_attributes - 1)
     }
 
     pub fn build(self) -> AttributeProgram {
@@ -86,7 +71,7 @@ pub struct AttributeProgram {
 }
 
 impl AttributeProgram {
-    pub fn builder() -> AttributeProgramBuilder {
+    pub fn builder_with_offset(preexisting_num_attributes: GLuint) -> AttributeProgramBuilder {
         let mut vao = 0;
         unsafe {
             gl::GenVertexArrays(1, &mut vao);
@@ -94,8 +79,12 @@ impl AttributeProgram {
         }
         AttributeProgramBuilder {
             vao,
-            num_attributes: 0
+            num_attributes: preexisting_num_attributes,
         }
+    }
+
+    pub fn builder() -> AttributeProgramBuilder {
+        Self::builder_with_offset(0)
     }
 
     pub fn activate(&self) {
@@ -127,10 +116,26 @@ pub struct Attribute<T> {
 }
 
 impl<T> Attribute<T> {
-    fn new() -> Attribute<T> {
+    fn new<U: KnownComponent>(vertex_attrib_array_index: GLuint) -> Attribute<U> {
+        let mut vbo: GLuint = 0;
+        let data = vec!();
+        unsafe {
+            gl::GenBuffers(1, &mut vbo);
+            gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
+            gl::BufferData(gl::ARRAY_BUFFER, 0, data.as_ptr() as *const GLvoid, gl::STATIC_DRAW);
+        }
+
+        let data_element_byte_size = std::mem::size_of::<U>() as i32;
+        let (num_comp, comp_type) = U::component();
+        unsafe {
+            gl::EnableVertexAttribArray(vertex_attrib_array_index);
+            gl::VertexAttribPointer(vertex_attrib_array_index, num_comp.into_gl_size(), comp_type.into_gl_enum(), gl::FALSE, data_element_byte_size, std::ptr::null());
+            gl::VertexAttribDivisor(vertex_attrib_array_index, 1);
+        }
+
         Attribute {
-            vbo: 0,
-            data: vec!()
+            vbo,
+            data,
         }
     }
 

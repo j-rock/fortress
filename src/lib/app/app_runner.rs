@@ -64,7 +64,6 @@ impl AppRunner {
     }
 
     pub fn run(&mut self) -> StatusOr<()> {
-        self.world.register();
         let _ = self.clock.restart();
         loop {
             match self.process_events() {

@@ -20,39 +20,24 @@ impl Camera {
         })
     }
 
-    pub fn projection(&self, screen_size: glm::IVec2, scale: glm::Vec2) -> glm::Mat4 {
-        let config = self.config_manager.get();
-        let right = config.zoom / 2.0;
-        let left = -right;
-        let top = config.zoom * (screen_size.y as f32) / (2.0 * screen_size.x as f32);
-        let bottom = -top;
-        Self::ortho(scale.x * left, scale.x * right, scale.y * bottom, scale.y * top, config.z_near, config.z_far)
-    }
-
-    fn _perspective(&self, screen_size: glm::IVec2) -> glm::Mat4 {
+    pub fn perspective_projection(&self, screen_size: glm::IVec2) -> glm::Mat4 {
         let config = self.config_manager.get();
         let aspect_ratio = (screen_size.x as f32) / (screen_size.y as f32);
         glm::ext::perspective(config.zoom,aspect_ratio, config.z_near, config.z_far)
     }
 
-    fn ortho(left: f32, right: f32, bottom: f32, top: f32, z_near: f32, z_far: f32) -> glm::Mat4 {
-        let rml = right - left;
-        let tmb = top - bottom;
-        let fmn = z_far - z_near;
-
-        glm::Matrix4::new(
-            glm::vec4(2.0 / rml, 0.0, 0.0, 0.0),
-            glm::vec4(0.0, 2.0 / tmb, 0.0, 0.0),
-            glm::vec4(0.0, 0.0, -2.0 / fmn, 0.0),
-            glm::vec4(-(right + left) / rml, -(top + bottom) / tmb, -(z_far + z_near) / fmn, 1.0))
-    }
-
-    pub fn view(&self, position: glm::Vec2) -> glm::Mat4 {
-        let pos3d = glm::Vec3::new(position.x, position.y, 0.0);
-        glm::ext::look_at(pos3d, pos3d + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0))
+    pub fn view(&self) -> glm::Mat4 {
+        let config = self.config_manager.get();
+        let position = glm::vec3(config.position.0, config.position.1, config.position.2);
+        let lookat = glm::builtin::normalize(glm::vec3(config.lookat.0, config.lookat.1, config.lookat.2));
+        let right = glm::builtin::normalize(glm::vec3(config.right.0, config.right.1, config.right.2));
+        let up = glm::builtin::cross(lookat, right);
+        glm::ext::look_at(position, position + lookat, up)
     }
 
     pub fn update(&mut self) {
-        self.config_manager.update();
+        if self.config_manager.update() {
+            println!("Updated!");
+        }
     }
 }

@@ -19,13 +19,34 @@ static DIRECTIONS: &[GridDirection] = &[
 
 static HALF_ROOT_3: f64 = 0.8660254037844386;
 
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct GridDirection {
     q: i64,
     r: i64,
 }
 
 impl GridDirection {
+    pub fn up() -> GridDirection {
+        GridDirection {
+            q: 0,
+            r: -1
+        }
+    }
+
+    pub fn down_left() -> GridDirection {
+        GridDirection {
+            q: -1,
+            r: 1
+        }
+    }
+
+    pub fn down_right() -> GridDirection {
+        GridDirection {
+            q: 1,
+            r: 0
+        }
+    }
+
     pub fn all() -> &'static [GridDirection] {
         DIRECTIONS
     }
@@ -65,7 +86,7 @@ impl GridDirection {
     }
 }
 
-#[derive(Copy, Clone, Deserialize)]
+#[derive(Copy, Clone, Deserialize, Eq, Hash, PartialEq)]
 pub struct GridIndex {
     // Axial coordinates
     q: i64,
@@ -80,19 +101,25 @@ impl GridIndex {
         }
     }
 
-    // Cartesian coordinates for edge defined in direction of dir.
-    pub fn edge_line_segment(&self, dir: GridDirection, hex_side_length: f64) -> Segment<f64> {
-        // Converts Axial coords into Cartesian 2D coords. The Cartesian coordinates correspond to
-        // the hex cell's center.
-        let axial_to_cartesian = Matrix2::from_rows(&[
+    // Converts Axial coords into Cartesian 2D coords. The Cartesian coordinates correspond to
+    // the hex cell's center.
+    pub fn axial_to_cartesian(hex_side_length: f64) -> Matrix2<f64> {
+        Matrix2::from_rows(&[
             RowVector2::new(1.5 * hex_side_length, 0.0),
-            RowVector2::new(-HALF_ROOT_3 * hex_side_length, -2.0 * HALF_ROOT_3 * hex_side_length)]);
+            RowVector2::new(-HALF_ROOT_3 * hex_side_length, -2.0 * HALF_ROOT_3 * hex_side_length)])
+    }
 
-        let self_center_cartesian = axial_to_cartesian * Vector2::new(self.q as f64, self.r as f64);
+    pub fn index_center(&self, axial_to_cartesian: &Matrix2<f64>) -> Point<f64> {
+        Point::from(axial_to_cartesian * Vector2::new(self.q as f64, self.r as f64))
+    }
+
+    // Cartesian coordinates for edge defined in direction of dir.
+    pub fn edge_line_segment(&self, dir: GridDirection, hex_side_length: f64, axial_to_cartesian: &Matrix2<f64>) -> Segment<f64> {
+        let self_center_cartesian = self.index_center(axial_to_cartesian);
         let (start_offset, end_offset) = dir.cartesian_offsets(hex_side_length);
 
-        let start_point = Point::from(self_center_cartesian + start_offset);
-        let end_point   = Point::from(self_center_cartesian + end_offset);
+        let start_point = self_center_cartesian + start_offset;
+        let end_point   = self_center_cartesian + end_offset;
         Segment::new(start_point, end_point)
     }
 }
