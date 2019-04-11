@@ -104,7 +104,7 @@ impl HexRenderer {
     fn compute_hexagon_vertices() -> Vec<glm::Vec3> {
         let (vec2_0, vec2_1) = GridDirection::up().cartesian_offsets(1.0);
         let (vec2_2, vec2_3) = GridDirection::down_right().cartesian_offsets(1.0);
-        let (vec2_5, vec2_4) = GridDirection::down_left().cartesian_offsets(1.0);
+        let (vec2_4, vec2_5) = GridDirection::down_left().cartesian_offsets(1.0);
 
         vec!(
             glm::vec3(vec2_0.x as f32, 0.0,  -vec2_0.y as f32),
@@ -113,6 +113,7 @@ impl HexRenderer {
             glm::vec3(vec2_3.x as f32, 0.0 , -vec2_3.y as f32),
             glm::vec3(vec2_4.x as f32, 0.0 , -vec2_4.y as f32),
             glm::vec3(vec2_5.x as f32, 0.0 , -vec2_5.y as f32),
+
             glm::vec3(vec2_2.x as f32, -1.0, -vec2_2.y as f32),
             glm::vec3(vec2_3.x as f32, -1.0, -vec2_3.y as f32),
             glm::vec3(vec2_4.x as f32, -1.0, -vec2_4.y as f32),

@@ -71,7 +71,7 @@ impl WorldState {
     }
 
     pub fn draw_geometry(&mut self, screen_size: glm::IVec2) {
-        let projection_view = self.camera.perspective_projection(screen_size) * self.camera.view();
+        let projection_view = self.camera.projection(screen_size) * self.camera.view();
 
         self.map.draw(&projection_view);
 
