@@ -51,8 +51,6 @@ impl Camera {
     }
 
     pub fn update(&mut self) {
-        if self.config_manager.update() {
-            println!("Updated!");
-        }
+        self.config_manager.update();
     }
 }

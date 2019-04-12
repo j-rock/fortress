@@ -156,7 +156,6 @@ impl<T: Config> SimpleConfigManager<T> {
             Err(message) => println!("Error reloading {:?}: {}", self.config_file_name, message),
             Ok(None) => {},
             Ok(Some(config)) => {
-                println!("Reloading {:?}", self.config_file_name);
                 self.config = config;
                 return true;
             }
