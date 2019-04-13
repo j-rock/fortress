@@ -86,7 +86,7 @@ impl GridDirection {
     }
 }
 
-#[derive(Copy, Clone, Deserialize, Eq, Hash, PartialEq)]
+#[derive(Copy, Clone, Debug, Deserialize, Eq, Hash, PartialEq)]
 pub struct GridIndex {
     // Axial coordinates
     q: i64,

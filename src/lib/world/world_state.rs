@@ -13,6 +13,7 @@ use crate::{
     render::{
         Camera,
         Viewport,
+        SpriteRenderer,
     },
 };
 use glm;
@@ -25,6 +26,7 @@ struct WorldConfig {
 pub struct WorldState {
     config_manager: SimpleConfigManager<WorldConfig>,
     camera: Camera,
+    sprite_renderer: SpriteRenderer,
 
     map: Map,
     players: PlayerSystem,
@@ -48,6 +50,7 @@ impl WorldState {
         Ok(WorldState {
             config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
             camera: Camera::new(config_watcher)?,
+            sprite_renderer: SpriteRenderer::new()?,
             map,
             players,
             physics_sim
@@ -80,10 +83,13 @@ impl WorldState {
     }
 
     pub fn draw_geometry(&mut self, screen_size: glm::IVec2) {
-        let projection_view = self.camera.projection(screen_size) * self.camera.view();
+        let (lookat, right, up) = self.camera.lookat_right_and_up();
+        let projection_view = self.camera.projection(screen_size) * self.camera.view(lookat, up);
 
         self.map.draw(&projection_view);
-        self.players.draw();
+        self.players.draw(&mut self.sprite_renderer);
+
+        self.sprite_renderer.draw(&projection_view, right, up);
 
         // Fix viewport at the end.
         Viewport::default(screen_size).set();

@@ -22,6 +22,7 @@ use crate::{
         PlayerId,
         self,
     },
+    render::SpriteRenderer,
 };
 use hashbrown::HashMap;
 use nalgebra::Point2;
@@ -110,10 +111,10 @@ impl PlayerSystem {
         }
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, sprite_renderer: &mut SpriteRenderer) {
         let config = self.config_manager.get();
         for (_i, player) in self.players.iter() {
-            player.draw( config);
+            player.draw( config, sprite_renderer);
         }
     }
 

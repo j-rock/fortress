@@ -41,13 +41,18 @@ impl Camera {
             glm::vec4(-(right + left) / rml, -(top + bottom) / tmb, -(z_far + z_near) / fmn, 1.0))
     }
 
-    pub fn view(&self) -> glm::Mat4 {
+    pub fn view(&self, lookat: glm::Vec3, up: glm::Vec3) -> glm::Mat4 {
         let config = self.config_manager.get();
         let position = glm::vec3(config.position.0, config.position.1, config.position.2);
+        glm::ext::look_at(position, position + lookat, up)
+    }
+
+    pub fn lookat_right_and_up(&self) -> (glm::Vec3, glm::Vec3, glm::Vec3) {
+        let config = self.config_manager.get();
         let lookat = glm::builtin::normalize(glm::vec3(config.lookat.0, config.lookat.1, config.lookat.2));
         let right = glm::builtin::normalize(glm::vec3(config.right.0, config.right.1, config.right.2));
         let up = glm::builtin::cross(right, lookat);
-        glm::ext::look_at(position, position + lookat, up)
+        (lookat, right, up)
     }
 
     pub fn update(&mut self) {

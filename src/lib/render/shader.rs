@@ -1,6 +1,6 @@
 use crate::{
     app::StatusOr,
-    file
+    file,
 };
 use gl::{
     self,
@@ -169,6 +169,12 @@ impl ShaderProgram {
         let value_ptr = m as *const glm::Mat4 as *const f32;
         unsafe {
             gl::UniformMatrix4fv(self.get_uniform_location(name), 1, gl::FALSE, value_ptr);
+        }
+    }
+
+    pub fn set_gluint(&self, name: &'static str, gluint: GLuint) {
+        unsafe {
+            gl::Uniform1ui(self.get_uniform_location(name), gluint);
         }
     }
 

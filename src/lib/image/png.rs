@@ -11,9 +11,9 @@ pub struct Png {
 }
 
 impl Png {
-    pub fn from_file(path: &str) -> StatusOr<Png> {
+    pub fn from_file(path: &PathBuf) -> StatusOr<Png> {
         let bitmap = lodepng::decode32_file(path)
-            .map_err(|err| format!("Failed to open PNG path {}: {}", path, err))?;
+            .map_err(|err| format!("Failed to open PNG path {:?}: {}", path, err))?;
 
         let mut img = Vec::with_capacity(bitmap.height);
         for i in 0..bitmap.height {

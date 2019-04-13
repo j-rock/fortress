@@ -28,13 +28,14 @@ impl NumComponents {
 
 // Add types here as necessary.
 pub enum ComponentType {
-    FLOAT
+    Float, UnsignedInt
 }
 
 impl ComponentType {
     fn into_gl_enum(self) -> GLenum {
         match self {
-            ComponentType::FLOAT => gl::FLOAT
+            ComponentType::Float => gl::FLOAT,
+            ComponentType::UnsignedInt => gl::UNSIGNED_INT,
         }
     }
 }

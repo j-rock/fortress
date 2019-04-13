@@ -133,7 +133,7 @@ struct HexTransformAttr {
 
 impl attribute::KnownComponent for HexTransformAttr {
     fn component() -> (attribute::NumComponents, attribute::ComponentType) {
-        (attribute::NumComponents::S4, attribute::ComponentType::FLOAT)
+        (attribute::NumComponents::S4, attribute::ComponentType::Float)
     }
 }
 
@@ -144,7 +144,7 @@ struct HexColorAttr {
 
 impl attribute::KnownComponent for HexColorAttr {
     fn component() -> (attribute::NumComponents, attribute::ComponentType) {
-        (attribute::NumComponents::S4, attribute::ComponentType::FLOAT)
+        (attribute::NumComponents::S4, attribute::ComponentType::Float)
     }
 }
 

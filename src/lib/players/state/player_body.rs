@@ -44,13 +44,13 @@ impl PlayerBody {
     pub fn new(config: &PlayerConfig, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) -> PlayerBody {
         let ball_shape = Ball::new(config.physical_radius);
         let collider_desc = ColliderDesc::new(ShapeHandle::new(ball_shape))
-            .translation(spawn.coords)
             .collision_groups(CollisionGroups::new()
                 .with_membership(&[collision_category::PLAYER_BODY])
                 .with_whitelist(&[collision_category::BARRIER, collision_category::PICKUP]));
 
         let mut rigid_body_desc = RigidBodyDesc::new()
             .status(BodyStatus::Dynamic)
+            .translation(spawn.coords)
             .collider(&collider_desc)
             .kinematic_rotation(true);
         let body_handle  = rigid_body_desc
@@ -85,5 +85,15 @@ impl PlayerBody {
             let translation = Translation2::from(point.coords);
             body.set_position(Isometry2::from_parts(translation, UnitComplex::identity()));
         }
+    }
+
+    pub fn position(&self) -> Option<Point2<f64>> {
+        let physics_sim = self.body.physics_sim.borrow();
+        physics_sim
+            .world()
+            .rigid_body(self.body.handle)
+            .map(|body| {
+                Point2::from(body.position().translation.vector)
+            })
     }
 }

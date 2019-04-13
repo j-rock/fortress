@@ -1,5 +1,5 @@
-pub mod box_renderer;
 pub mod hex_renderer;
+pub mod sprite_renderer;
 
-pub use self::box_renderer::BoxData;
-pub use self::box_renderer::BoxRenderer;
+pub use self::sprite_renderer::SpriteData;
+pub use self::sprite_renderer::SpriteRenderer;
