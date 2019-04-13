@@ -19,7 +19,7 @@ use glm;
 pub struct HexData {
     pub position: GridIndex,
     pub height: f32,
-    pub top_y_coord: f32,
+    pub elevation: f32,
     pub rgba_color: glm::Vec4,
 }
 
@@ -28,8 +28,7 @@ pub struct HexRenderer {
     // InstancedMesh should be destructed before AttributeProgram.
     mesh: InstancedMesh,
     attribute_program: AttributeProgram,
-    attr_position: Attribute<HexPositionAttr>,
-    attr_height: Attribute<HexHeightAttr>,
+    attr_transform: Attribute<HexTransformAttr>,
     attr_color: Attribute<HexColorAttr>,
 }
 
@@ -42,8 +41,7 @@ impl HexRenderer {
 
         // The InstancedMesh will take up the first vertex attrib slot.
         let mut attribute_program_builder = AttributeProgram::builder_with_offset(1);
-        let attr_position = attribute_program_builder.add_attribute();
-        let attr_height = attribute_program_builder.add_attribute();
+        let attr_transform = attribute_program_builder.add_attribute();
         let attr_color = attribute_program_builder.add_attribute();
         let attribute_program = attribute_program_builder.build();
 
@@ -55,8 +53,7 @@ impl HexRenderer {
             shader_program,
             mesh,
             attribute_program,
-            attr_position,
-            attr_height,
+            attr_transform,
             attr_color
         })
     }
@@ -66,12 +63,10 @@ impl HexRenderer {
 
         for datum in data.iter() {
             let hex_center = datum.position.index_center(&axial_to_cartesian);
-
-            self.attr_position.data.push(HexPositionAttr {
-                position: glm::vec3(hex_center.x as f32, datum.top_y_coord, -hex_center.y as f32)
-            });
-            self.attr_height.data.push(HexHeightAttr {
+            self.attr_transform.data.push(HexTransformAttr {
+                position: glm::vec2(hex_center.x as f32, -hex_center.y as f32),
                 height: datum.height,
+                elevation: datum.elevation,
             });
             self.attr_color.data.push(HexColorAttr {
                 rgba_color: datum.rgba_color
@@ -82,22 +77,19 @@ impl HexRenderer {
     pub fn draw_begin(&mut self) {
         self.shader_program.activate();
         self.attribute_program.activate();
-        self.attr_position.prepare_buffer();
-        self.attr_height.prepare_buffer();
+        self.attr_transform.prepare_buffer();
         self.attr_color.prepare_buffer();
     }
 
     pub fn draw(&mut self, projection_view: &glm::Mat4) {
         self.shader_program.set_mat4("projection_view", projection_view);
-        self.mesh.draw(self.attr_position.data.len());
+        self.mesh.draw(self.attr_transform.data.len());
     }
 
     pub fn draw_end(&mut self) {
         self.attribute_program.deactivate();
         self.shader_program.deactivate();
-
-        self.attr_position.data.clear();
-        self.attr_height.data.clear();
+        self.attr_transform.data.clear();
         self.attr_color.data.clear();
     }
 
@@ -113,7 +105,6 @@ impl HexRenderer {
             glm::vec3(vec2_3.x as f32, 0.0 , -vec2_3.y as f32),
             glm::vec3(vec2_4.x as f32, 0.0 , -vec2_4.y as f32),
             glm::vec3(vec2_5.x as f32, 0.0 , -vec2_5.y as f32),
-
             glm::vec3(vec2_2.x as f32, -1.0, -vec2_2.y as f32),
             glm::vec3(vec2_3.x as f32, -1.0, -vec2_3.y as f32),
             glm::vec3(vec2_4.x as f32, -1.0, -vec2_4.y as f32),
@@ -138,24 +129,15 @@ impl HexRenderer {
 }
 
 #[repr(C)]
-struct HexPositionAttr {
-    position: glm::Vec3,
-}
-
-impl attribute::KnownComponent for HexPositionAttr {
-    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
-        (attribute::NumComponents::S3, attribute::ComponentType::FLOAT)
-    }
-}
-
-#[repr(C)]
-struct HexHeightAttr {
+struct HexTransformAttr {
+    position: glm::Vec2,
     height: f32,
+    elevation: f32,
 }
 
-impl attribute::KnownComponent for HexHeightAttr {
+impl attribute::KnownComponent for HexTransformAttr {
     fn component() -> (attribute::NumComponents, attribute::ComponentType) {
-        (attribute::NumComponents::S1, attribute::ComponentType::FLOAT)
+        (attribute::NumComponents::S4, attribute::ComponentType::FLOAT)
     }
 }
 

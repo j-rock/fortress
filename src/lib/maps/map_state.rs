@@ -12,11 +12,15 @@ use crate::{
         HexRenderer,
     }
 };
-use hashbrown::HashMap;
+use hashbrown::{
+    HashMap,
+    HashSet,
+};
 
 pub struct MapState {
-    pub cells: HashMap<GridIndex, MapCell>,
-    pub body: MapBody,
+    cells: HashMap<GridIndex, MapCell>,
+    _spawns: HashSet<GridIndex>,
+    _body: MapBody,
     hex_cell_length: f64,
 }
 
@@ -24,8 +28,18 @@ impl MapState {
     pub fn new(config: &MapConfig, map_file: &MapFile, physics_sim: &mut PhysicsSimulation) -> MapState {
         let cells: HashMap<_, _> = map_file.cells
             .iter()
-            .map(|(grid_index, map_file_cell)| {
-                (*grid_index, MapCell::from_map_file_cell(map_file_cell))
+            .map(|map_file_cell| {
+                (map_file_cell.grid_index(), MapCell::from_map_file_cell(map_file_cell))
+            })
+            .collect();
+
+        let spawns: HashSet<_> = map_file.cells
+            .iter()
+            .filter_map(|map_file_cell| {
+                if !map_file_cell.is_spawn() {
+                    return None;
+                }
+                return Some(map_file_cell.grid_index());
             })
             .collect();
 
@@ -33,7 +47,8 @@ impl MapState {
 
         MapState {
             cells,
-            body,
+            _spawns: spawns,
+            _body: body,
             hex_cell_length: config.cell_length
         }
     }
@@ -44,7 +59,7 @@ impl MapState {
             data.push(HexData {
                 position: *grid_index,
                 height: map_cell.height,
-                top_y_coord: map_cell.top_y_coord,
+                elevation: map_cell.elevation,
                 rgba_color: map_cell.rgba_color
             });
         }

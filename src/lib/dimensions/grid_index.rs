@@ -94,6 +94,13 @@ pub struct GridIndex {
 }
 
 impl GridIndex {
+    pub fn new(q: i64, r: i64) -> GridIndex {
+        GridIndex {
+            q,
+            r,
+        }
+    }
+
     pub fn neighbor(&self, dir: GridDirection) -> GridIndex {
         GridIndex {
             q: self.q + dir.q,

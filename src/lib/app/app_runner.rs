@@ -66,6 +66,7 @@ impl AppRunner {
     pub fn run(&mut self) -> StatusOr<()> {
         let _ = self.clock.restart();
         loop {
+            std::thread::sleep(std::time::Duration::from_millis(5));
             match self.process_events() {
                 Err(e) => return Err(e),
                 Ok(false) => return Ok(()),
