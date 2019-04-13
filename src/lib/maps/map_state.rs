@@ -16,10 +16,11 @@ use hashbrown::{
     HashMap,
     HashSet,
 };
+use nalgebra::Point2;
 
 pub struct MapState {
     cells: HashMap<GridIndex, MapCell>,
-    _spawns: HashSet<GridIndex>,
+    spawns: HashSet<GridIndex>,
     _body: MapBody,
     hex_cell_length: f64,
 }
@@ -47,13 +48,23 @@ impl MapState {
 
         MapState {
             cells,
-            _spawns: spawns,
+            spawns,
             _body: body,
             hex_cell_length: config.cell_length
         }
     }
 
-    pub fn draw(&self, renderer: &mut HexRenderer) {
+    pub fn spawns(&self) -> Vec<Point2<f64>> {
+        let axial_to_cartesian = GridIndex::axial_to_cartesian(self.hex_cell_length);
+        self.spawns
+            .iter()
+            .map(|grid_index| {
+                grid_index.index_center(&axial_to_cartesian)
+            })
+            .collect()
+    }
+
+    pub fn queue_draw(&self, renderer: &mut HexRenderer) {
         let mut data = Vec::with_capacity(self.cells.len());
         for (grid_index, map_cell) in self.cells.iter() {
             data.push(HexData {

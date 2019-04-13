@@ -12,6 +12,7 @@ use crate::{
     physics::PhysicsSimulation,
     render::hex_renderer::HexRenderer,
 };
+use nalgebra::Point2;
 
 pub struct Map {
     map_config_manager: SimpleConfigManager<MapConfig>,
@@ -53,19 +54,20 @@ impl Map {
         }
     }
 
+    pub fn draw(&mut self, projection_view: &glm::Mat4) {
+        self.map_state.queue_draw(&mut self.renderer);
+        self.renderer.draw(projection_view);
+    }
+
+    pub fn spawns(&self) -> Vec<Point2<f64>> {
+        self.map_state.spawns()
+    }
+
     fn redeploy(&mut self, physics_sim: &mut PhysicsSimulation) {
         {
             let config = self.map_config_manager.get();
             let map_file = self.map_file_manager.get();
             self.map_state = MapState::new(config, map_file, physics_sim);
         }
-    }
-
-    pub fn draw(&mut self, projection_view: &glm::Mat4) {
-        self.map_state.draw(&mut self.renderer);
-
-        self.renderer.draw_begin();
-        self.renderer.draw(projection_view);
-        self.renderer.draw_end();
     }
 }

@@ -9,6 +9,7 @@ use crate::{
     },
     maps::Map,
     physics::PhysicsSimulation,
+    players::PlayerSystem,
     render::{
         Camera,
         Viewport,
@@ -26,6 +27,7 @@ pub struct WorldState {
     camera: Camera,
 
     map: Map,
+    players: PlayerSystem,
 
     // Declare physics simulation last so it is dropped last.
     physics_sim: PhysicsSimulation,
@@ -41,28 +43,35 @@ impl WorldState {
         ));
 
         let map = Map::new(config_watcher, &mut physics_sim)?;
+        let players = PlayerSystem::new(config_watcher, map.spawns())?;
 
         Ok(WorldState {
             config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
             camera: Camera::new(config_watcher)?,
             map,
+            players,
             physics_sim
         })
     }
 
-    pub fn update(&mut self, audio: &AudioPlayer, _controller: &Controller, dt: DeltaTime) {
+    pub fn update(&mut self, audio: &AudioPlayer, controller: &Controller, dt: DeltaTime) {
         self.config_manager.update();
         self.camera.update();
 
         // Pre-update.
         {
-            self.map.pre_update(&mut self.physics_sim);
+            if self.map.pre_update(&mut self.physics_sim) {
+                self.players.respawn(self.map.spawns());
+            } else {
+                self.players.pre_update(audio, controller, &mut self.physics_sim, dt);
+            }
         }
 
         self.physics_sim.borrow_mut().step(audio, dt);
 
         // Post-update.
         {
+            self.players.post_update(audio);
         }
     }
 
@@ -74,6 +83,7 @@ impl WorldState {
         let projection_view = self.camera.projection(screen_size) * self.camera.view();
 
         self.map.draw(&projection_view);
+        self.players.draw();
 
         // Fix viewport at the end.
         Viewport::default(screen_size).set();

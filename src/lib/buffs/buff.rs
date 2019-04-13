@@ -7,12 +7,6 @@ use rand::{
 #[derive(Copy, Clone, Debug, Deserialize, IntoEnumIterator)]
 pub enum Buff {
     MoveSpeed,
-    NumJumps,
-    JumpStrength,
-
-    SwordAttack,
-    SwordKnockback,
-    SwordSlashSpeed,
 
     CrossbowAttack,
     CrossbowFiringSpeed,

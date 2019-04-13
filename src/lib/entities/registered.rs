@@ -35,8 +35,8 @@ impl Drop for RegisteredCollider {
 }
 
 pub struct RegisteredBody {
-    physics_sim: PhysicsSimulation,
-    handle: BodyHandle,
+    pub physics_sim: PhysicsSimulation,
+    pub handle: BodyHandle,
 }
 
 impl RegisteredBody {

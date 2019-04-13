@@ -74,19 +74,15 @@ impl HexRenderer {
         }
     }
 
-    pub fn draw_begin(&mut self) {
+    pub fn draw(&mut self, projection_view: &glm::Mat4) {
         self.shader_program.activate();
         self.attribute_program.activate();
         self.attr_transform.prepare_buffer();
         self.attr_color.prepare_buffer();
-    }
 
-    pub fn draw(&mut self, projection_view: &glm::Mat4) {
         self.shader_program.set_mat4("projection_view", projection_view);
         self.mesh.draw(self.attr_transform.data.len());
-    }
 
-    pub fn draw_end(&mut self) {
         self.attribute_program.deactivate();
         self.shader_program.deactivate();
         self.attr_transform.data.clear();

@@ -1,7 +1,4 @@
-use crate::{
-    control::GamepadId,
-    dimensions::LrDirection
-};
+use crate::control::GamepadId;
 
 #[derive(Copy, Clone)]
 pub enum ControllerEvent {
@@ -11,10 +8,5 @@ pub enum ControllerEvent {
 }
 
 pub enum ControlEvent {
-    PlayerFire,
-    PlayerJump,
-    PlayerMove(LrDirection),
-    PlayerSlash,
-
     RedeployEntities,
 }

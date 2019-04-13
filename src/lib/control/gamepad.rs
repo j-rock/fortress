@@ -5,7 +5,6 @@ use crate::{
         GamepadConfig,
         GamepadId,
     },
-    dimensions::LrDirection,
     file::SimpleConfigManager,
 };
 use sdl2::{
@@ -160,13 +159,12 @@ impl GamepadControls {
     }
 
     fn control_event_to_gamepad_control(&self, event: ControlEvent) -> GamepadControl {
-        let config = self.config_manager.get();
+        // let _config = self.config_manager.get();
         match event {
-            ControlEvent::PlayerFire => GamepadControl::AxisAboveThreshold(sdl2::controller::Axis::TriggerRight, config.axis_threshold),
-            ControlEvent::PlayerJump => GamepadControl::ButtonPress(sdl2::controller::Button::A),
-            ControlEvent::PlayerMove(LrDirection::Left) => GamepadControl::AxisBelowThreshold(sdl2::controller::Axis::LeftX, -config.axis_threshold),
-            ControlEvent::PlayerMove(LrDirection::Right) => GamepadControl::AxisAboveThreshold(sdl2::controller::Axis::LeftX, config.axis_threshold),
-            ControlEvent::PlayerSlash => GamepadControl::ButtonPress(sdl2::controller::Button::X),
+            //ControlEvent::PlayerFire => GamepadControl::AxisAboveThreshold(sdl2::controller::Axis::TriggerRight, config.axis_threshold),
+            //ControlEvent::PlayerMove(LrDirection::Left) => GamepadControl::AxisBelowThreshold(sdl2::controller::Axis::LeftX, -config.axis_threshold),
+            //ControlEvent::PlayerMove(LrDirection::Right) => GamepadControl::AxisAboveThreshold(sdl2::controller::Axis::LeftX, config.axis_threshold),
+            //ControlEvent::PlayerSlash => GamepadControl::ButtonPress(sdl2::controller::Button::X),
             ControlEvent::RedeployEntities => GamepadControl::ButtonPress(sdl2::controller::Button::Back),
         }
     }

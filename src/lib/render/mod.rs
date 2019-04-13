@@ -1,7 +1,6 @@
 pub mod attribute;
 pub mod camera;
 pub mod camera_config;
-pub mod camera_view;
 pub mod g_buffer;
 pub mod instanced_mesh;
 pub mod opengl;
@@ -15,7 +14,6 @@ pub use self::attribute::AttributeProgram;
 pub use self::attribute::AttributeProgramBuilder;
 pub use self::camera::Camera;
 pub use self::camera_config::CameraConfig;
-pub use self::camera_view::CameraView;
 pub use self::g_buffer::GBuffer;
 pub use self::instanced_mesh::InstancedMesh;
 pub use self::renderer::BoxData;

@@ -1,25 +1,13 @@
 #[derive(Clone, Deserialize)]
 pub struct PlayerConfig {
-    pub size: (f32, f32),
-    pub move_speed: f32,
-    pub restitution: f32, // Between [0, 1]
+    pub physical_radius: f64,
+    pub base_move_speed: f64,
 
-    pub jump_strength: f32,
-    pub num_jumps: i32,
-    pub jump_delay_ms: i64,
-    pub jump_tracker_num_last_y_coords: usize,
-
-    pub sword_sensor_size: (f32, f32),
-    pub sword_sensor_center: (f32, f32),
-    pub sword_damage: i64,
-    pub sword_knockback_strength: f32,
-    pub sword_period_ms: i64,
-
-    pub crossbow_body_offset: (f32, f32),
-    pub arrow_box_size: (f32, f32),
-    pub arrow_speed: (f32, f32),
+    pub crossbow_body_offset: (f64, f64),
+    pub arrow_box_size: (f64, f64),
+    pub arrow_speed: (f64, f64),
     pub arrow_damage: i64,
-    pub arrow_knockback_strength: f32,
+    pub arrow_knockback_strength: f64,
     pub firing_period_ms: i64,
 }
 

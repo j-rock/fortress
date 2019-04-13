@@ -1,12 +1,9 @@
-use crate::{
-    control::ControlEvent,
-    dimensions::LrDirection,
-};
+use crate::control::ControlEvent;
 use sdl2::{
     EventPump,
     keyboard::Scancode
 };
-use std::collections::HashSet;
+use hashbrown::HashSet;
 
 pub struct KeyboardControls {
     first_time_used: FirstTimeUsed,
@@ -68,11 +65,11 @@ impl KeyboardControls {
 
     fn control_event_to_scancode(event: ControlEvent) -> Scancode {
         match event {
-            ControlEvent::PlayerFire => Scancode::I,
-            ControlEvent::PlayerJump => Scancode::Space,
-            ControlEvent::PlayerMove(LrDirection::Left) => Scancode::A,
-            ControlEvent::PlayerMove(LrDirection::Right) => Scancode::D,
-            ControlEvent::PlayerSlash => Scancode::J,
+            //ControlEvent::PlayerFire => Scancode::I,
+            //ControlEvent::PlayerJump => Scancode::Space,
+            //ControlEvent::PlayerMove(LrDirection::Left) => Scancode::A,
+            //ControlEvent::PlayerMove(LrDirection::Right) => Scancode::D,
+            //ControlEvent::PlayerSlash => Scancode::J,
             ControlEvent::RedeployEntities => Scancode::R,
         }
     }

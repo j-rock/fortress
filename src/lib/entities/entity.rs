@@ -5,6 +5,5 @@ pub enum Entity {
     MapWall,
     CrossbowArrow(usize),
     Player,
-    PlayerSwordSensor,
     Wraith,
 }
