@@ -73,8 +73,8 @@ impl PlayerState {
             sprite_renderer.queue(NamedTexture::SpriteSheet1, &[SpriteData {
                 world_bottom_center_position,
                 world_half_size,
-                tex_top_left: glm::vec2(0.0001, 0.9999),
-                tex_bottom_right: glm::vec2(0.9999, 0.0001),
+                tex_bottom_left: glm::vec2(0.0001, 0.0001),
+                tex_top_right: glm::vec2(0.9999, 0.9999),
             }]);
         }
     }

@@ -21,8 +21,8 @@ use hashbrown::HashMap;
 pub struct SpriteData {
     pub world_bottom_center_position: glm::Vec3,
     pub world_half_size: glm::Vec2,
-    pub tex_top_left: glm::Vec2,
-    pub tex_bottom_right: glm::Vec2,
+    pub tex_bottom_left: glm::Vec2,
+    pub tex_top_right: glm::Vec2,
 }
 
 pub struct SpriteRenderer {
@@ -91,8 +91,8 @@ impl SpriteRenderer {
                     world_half_size: datum.world_half_size,
                 });
                 self.attr_texel.data.push(SpriteTexelAttr {
-                    top_left: datum.tex_top_left,
-                    bottom_right: datum.tex_bottom_right,
+                    bottom_left: datum.tex_bottom_left,
+                    top_right: datum.tex_top_right,
                 });
             }
 
@@ -139,8 +139,8 @@ impl attribute::KnownComponent for SpriteSizeAttr {
 
 #[repr(C)]
 struct SpriteTexelAttr {
-    top_left: glm::Vec2,
-    bottom_right: glm::Vec2,
+    bottom_left: glm::Vec2,
+    top_right: glm::Vec2,
 }
 
 impl attribute::KnownComponent for SpriteTexelAttr {
