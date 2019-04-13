@@ -117,10 +117,6 @@ impl RawPhysicsSimulation {
         &mut self.registrar
     }
 
-    pub fn world(&self) -> &World<f64> {
-        &self.world
-    }
-
     pub fn world_mut(&mut self) -> &mut World<f64> {
         &mut self.world
     }

@@ -8,7 +8,7 @@ use crate::{
         state::PlayerBody
     },
 };
-use nalgebra::geometry::Point2;
+use nalgebra::Point2;
 
 pub struct PlayerState {
     player_id: PlayerId,

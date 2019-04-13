@@ -2,11 +2,11 @@ use crate::{
     app::StatusOr,
     audio::Sound,
 };
+use hashbrown::HashMap;
 use sdl2::mixer::{
     Chunk,
     self,
 };
-use std::collections::HashMap;
 
 const CHUNK_SIZE: i32 = 512;
 

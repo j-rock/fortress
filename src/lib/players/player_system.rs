@@ -23,9 +23,9 @@ use crate::{
         self,
     },
 };
+use hashbrown::HashMap;
 use nalgebra::Point2;
 use slab::Slab;
-use hashbrown::HashMap;
 
 pub struct PlayerSystem {
     config_manager: SimpleConfigManager<PlayerConfig>,

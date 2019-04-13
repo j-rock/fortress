@@ -7,14 +7,14 @@ use crate::{
     },
     file::SimpleConfigManager,
 };
+use hashbrown::{
+    HashMap,
+    HashSet,
+};
 use sdl2::{
     controller::GameController,
     event::Event,
     self
-};
-use std::collections::{
-    HashMap,
-    HashSet,
 };
 
 pub struct GamepadControls {

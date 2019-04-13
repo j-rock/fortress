@@ -1,9 +1,9 @@
 use crate::control::ControlEvent;
+use hashbrown::HashSet;
 use sdl2::{
     EventPump,
     keyboard::Scancode
 };
-use hashbrown::HashSet;
 
 pub struct KeyboardControls {
     first_time_used: FirstTimeUsed,

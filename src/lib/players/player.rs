@@ -16,7 +16,7 @@ use crate::{
         }
     },
 };
-use nalgebra::geometry::Point2;
+use nalgebra::Point2;
 
 pub struct Player {
     player_state: PlayerState,
