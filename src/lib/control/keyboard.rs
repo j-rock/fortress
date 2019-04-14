@@ -1,4 +1,7 @@
-use crate::control::ControlEvent;
+use crate::{
+    control::ControlEvent,
+    dimensions::UpDownLeftRight,
+};
 use hashbrown::HashSet;
 use sdl2::{
     EventPump,
@@ -65,12 +68,13 @@ impl KeyboardControls {
 
     fn control_event_to_scancode(event: ControlEvent) -> Scancode {
         match event {
-            //ControlEvent::PlayerFire => Scancode::I,
-            //ControlEvent::PlayerJump => Scancode::Space,
-            //ControlEvent::PlayerMove(LrDirection::Left) => Scancode::A,
-            //ControlEvent::PlayerMove(LrDirection::Right) => Scancode::D,
-            //ControlEvent::PlayerSlash => Scancode::J,
+            ControlEvent::PlayerMove(UpDownLeftRight::Up) => Scancode::W,
+            ControlEvent::PlayerMove(UpDownLeftRight::Down) => Scancode::S,
+            ControlEvent::PlayerMove(UpDownLeftRight::Left) => Scancode::A,
+            ControlEvent::PlayerMove(UpDownLeftRight::Right) => Scancode::D,
             ControlEvent::RedeployEntities => Scancode::R,
+            //ControlEvent::PlayerFire => Scancode::I,
+            //ControlEvent::PlayerSlash => Scancode::J,
         }
     }
 }

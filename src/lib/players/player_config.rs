@@ -1,6 +1,7 @@
 #[derive(Clone, Deserialize)]
 pub struct PlayerConfig {
     pub physical_radius: f64,
+    pub physical_density: f64,
     pub base_move_speed: f64,
 
     pub crossbow_body_offset: (f64, f64),

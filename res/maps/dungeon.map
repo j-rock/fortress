@@ -52,7 +52,6 @@
        , { "q":  -1, "r":  1, "height": 1.0, "elevation": 0.0, "rgba_color": [1.0, 0.2, 0.2, 1.0] }
        , { "q":  -1, "r":  2, "height": 1.0, "elevation": 0.0, "rgba_color": [1.0, 0.2, 0.2, 1.0] }
        , { "q":  -1, "r":  3, "height": 1.0, "elevation": 0.0, "rgba_color": [1.0, 0.2, 0.2, 1.0] }
-       , { "q":   0, "r":  0, "height": 1.0, "elevation": 0.0, "rgba_color": [1.0, 0.2, 0.2, 1.0] }
        , { "q":   0, "r":  1, "height": 1.0, "elevation": 0.0, "rgba_color": [1.0, 0.2, 0.2, 1.0] }
        , { "q":   0, "r":  2, "height": 1.0, "elevation": 0.0, "rgba_color": [1.0, 0.2, 0.2, 1.0] }
        , { "q":   0, "r":  3, "height": 1.0, "elevation": 0.0, "rgba_color": [1.0, 0.2, 0.2, 1.0] }

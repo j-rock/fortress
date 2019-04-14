@@ -44,6 +44,7 @@ impl PlayerBody {
     pub fn new(config: &PlayerConfig, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) -> PlayerBody {
         let ball_shape = Ball::new(config.physical_radius);
         let collider_desc = ColliderDesc::new(ShapeHandle::new(ball_shape))
+            .density(config.physical_density)
             .collision_groups(CollisionGroups::new()
                 .with_membership(&[collision_category::PLAYER_BODY])
                 .with_whitelist(&[collision_category::BARRIER, collision_category::PICKUP]));
@@ -62,9 +63,9 @@ impl PlayerBody {
         }
     }
 
-    pub fn walk(&mut self, speed: f64, dir: Vector2<f64>) {
+    pub fn set_velocity(&mut self, speed: f64, dir: Vector2<f64>) {
         let dir_magnitude = dir.norm();
-        if !dir_magnitude.is_finite() {
+        if !dir_magnitude.is_normal() {
             return;
         }
 
