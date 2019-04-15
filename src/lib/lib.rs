@@ -30,6 +30,6 @@ pub mod maps;
 pub mod physics;
 pub mod players;
 pub mod render;
-// pub mod weapon;
+pub mod weapons;
 pub mod world;
 // pub mod wraiths;

@@ -166,9 +166,8 @@ impl GamepadControls {
             ControlEvent::PlayerMove(UpDownLeftRight::Down) => GamepadControl::AxisBelowThreshold(sdl2::controller::Axis::LeftY, -config.axis_threshold),
             ControlEvent::PlayerMove(UpDownLeftRight::Left) => GamepadControl::AxisBelowThreshold(sdl2::controller::Axis::LeftX, -config.axis_threshold),
             ControlEvent::PlayerMove(UpDownLeftRight::Right) => GamepadControl::AxisAboveThreshold(sdl2::controller::Axis::LeftX, config.axis_threshold),
+            ControlEvent::PlayerFireWeapon => GamepadControl::ButtonPress(sdl2::controller::Button::X),
             ControlEvent::RedeployEntities => GamepadControl::ButtonPress(sdl2::controller::Button::Back),
-            //ControlEvent::PlayerFire => GamepadControl::AxisAboveThreshold(sdl2::controller::Axis::TriggerRight, config.axis_threshold),
-            //ControlEvent::PlayerSlash => GamepadControl::ButtonPress(sdl2::controller::Button::X),
         }
     }
 }

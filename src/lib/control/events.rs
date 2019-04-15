@@ -12,5 +12,6 @@ pub enum ControllerEvent {
 
 pub enum ControlEvent {
     PlayerMove(UpDownLeftRight),
+    PlayerFireWeapon,
     RedeployEntities,
 }
