@@ -9,6 +9,7 @@ pub mod textures;
 pub mod viewport;
 
 pub use self::attribute::Attribute;
+pub use self::attribute::AttributeAdvance;
 pub use self::attribute::AttributeProgram;
 pub use self::attribute::AttributeProgramBuilder;
 pub use self::cameras::Camera;

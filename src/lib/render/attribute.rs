@@ -51,8 +51,12 @@ pub struct AttributeProgramBuilder {
 
 impl AttributeProgramBuilder {
     pub fn add_attribute<T: KnownComponent>(&mut self) -> Attribute<T> {
+        self.add_attribute_with_advance(AttributeAdvance::PerInstance)
+    }
+
+    pub fn add_attribute_with_advance<T: KnownComponent>(&mut self, advance: AttributeAdvance) -> Attribute<T> {
         self.num_attributes += 1;
-        Attribute::<T>::new(self.num_attributes - 1)
+        Attribute::<T>::new(self.num_attributes - 1, advance)
     }
 
     pub fn build(self) -> AttributeProgram {
@@ -111,13 +115,26 @@ impl Drop for AttributeProgram {
     }
 }
 
+pub enum AttributeAdvance {
+    PerVertex, PerInstance
+}
+
+impl AttributeAdvance {
+    fn to_divisor(self) -> GLuint {
+        match self {
+            AttributeAdvance::PerVertex => 0,
+            AttributeAdvance::PerInstance => 1,
+        }
+    }
+}
+
 pub struct Attribute<T> {
     vbo: GLuint,
     pub data: Vec<T>,
 }
 
 impl<T> Attribute<T> {
-    fn new<U: KnownComponent>(vertex_attrib_array_index: GLuint) -> Attribute<U> {
+    fn new<U: KnownComponent>(vertex_attrib_array_index: GLuint, advance: AttributeAdvance) -> Attribute<U> {
         let mut vbo: GLuint = 0;
         let data = vec!();
         unsafe {
@@ -131,7 +148,7 @@ impl<T> Attribute<T> {
         unsafe {
             gl::EnableVertexAttribArray(vertex_attrib_array_index);
             gl::VertexAttribPointer(vertex_attrib_array_index, num_comp.into_gl_size(), comp_type.into_gl_enum(), gl::FALSE, data_element_byte_size, std::ptr::null());
-            gl::VertexAttribDivisor(vertex_attrib_array_index, 1);
+            gl::VertexAttribDivisor(vertex_attrib_array_index, advance.to_divisor());
         }
 
         Attribute {

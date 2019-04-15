@@ -1,20 +1,18 @@
 use crate::{
     app::StatusOr,
     file,
-    render::ShaderProgram
+    render::{
+        attribute,
+        Attribute,
+        AttributeAdvance,
+        AttributeProgram,
+        ShaderProgram
+    }
 };
 use gl::{
     self,
     types::*,
 };
-use std;
-
-// Used for glTexImage2D() call.
-struct GBufferTextureFormat {
-    internal_format: GLint,
-    format: GLenum,
-    pixel_data_type: GLenum,
-}
 
 pub struct GBuffer {
     frame_buffer: GLuint,
@@ -25,12 +23,21 @@ pub struct GBuffer {
     quad_vao: GLuint,
     quad_vbo: GLuint,
     lighting_pass_shader: ShaderProgram,
+    lighting_pass_attribute_program: AttributeProgram,
+    attr_pos: Attribute<LightingPosAttr>,
+    attr_texel: Attribute<LightingTexelAttr>,
 }
 
 impl GBuffer {
     pub fn new(window_size: (i32, i32)) -> StatusOr<GBuffer> {
         let vert_path = file::util::resource_path("shaders", "deferred_lighting_vert.glsl");
         let frag_path = file::util::resource_path("shaders", "deferred_lighting_frag.glsl");
+
+        let mut lighting_pass_attribute_program_builder = AttributeProgram::builder();
+        let attr_pos = lighting_pass_attribute_program_builder.add_attribute_with_advance(AttributeAdvance::PerVertex);
+        let attr_texel = lighting_pass_attribute_program_builder.add_attribute_with_advance(AttributeAdvance::PerVertex);
+        let lighting_pass_attribute_program = lighting_pass_attribute_program_builder.build();
+
         let mut g_buffer = GBuffer {
             frame_buffer: 0,
             position_texture: 0,
@@ -39,7 +46,10 @@ impl GBuffer {
             depth_render_buffer: 0,
             quad_vao: 0,
             quad_vbo: 0,
-            lighting_pass_shader: ShaderProgram::from_short_pipeline(&vert_path, &frag_path)?
+            lighting_pass_shader: ShaderProgram::from_short_pipeline(&vert_path, &frag_path)?,
+            lighting_pass_attribute_program,
+            attr_pos,
+            attr_texel,
         };
         g_buffer.resize(window_size.0, window_size.1)?;
         Ok(g_buffer)
@@ -105,30 +115,25 @@ impl GBuffer {
         self.lighting_pass_shader.set_i32("normal_tex", 1);
         self.lighting_pass_shader.set_i32("color_tex", 2);
 
-        // Prepare lighting pass quad.
-        let vertices: [f32; 20] = [
-            // positions        // texture Coords
-            -1.0,  1.0, 0.0, 0.0, 1.0,
-            -1.0, -1.0, 0.0, 0.0, 0.0,
-             1.0,  1.0, 0.0, 1.0, 1.0,
-             1.0, -1.0, 0.0, 1.0, 0.0,
-        ];
-        unsafe {
-            gl::GenVertexArrays(1, &mut self.quad_vao);
-            gl::GenBuffers(1, &mut self.quad_vbo);
-            gl::BindVertexArray(self.quad_vao);
-            gl::BindBuffer(gl::ARRAY_BUFFER, self.quad_vbo);
-            let float_size = std::mem::size_of::<f32>() as isize;
-            let vertex_array_byte_size = vertices.len() as isize * float_size;
-            gl::BufferData(gl::ARRAY_BUFFER, vertex_array_byte_size, vertices.as_ptr() as *const GLvoid, gl::STATIC_DRAW);
-            // Vertex positions goes into attrib array = 0
-            gl::EnableVertexAttribArray(0);
-            gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, 5 * float_size as i32, std::ptr::null());
-            // Texture coords goes into attrib array = 1
-            let tex_coord_offset = (std::ptr::null() as *const GLvoid).offset(3 * float_size);
-            gl::EnableVertexAttribArray(1);
-            gl::VertexAttribPointer(1, 2, gl::FLOAT, gl::FALSE, 5 * float_size as i32, tex_coord_offset);
+        for pos in [
+            glm::vec3(-1.0,  1.0, 0.0),
+            glm::vec3(-1.0, -1.0, 0.0),
+            glm::vec3( 1.0,  1.0, 0.0),
+            glm::vec3( 1.0, -1.0, 0.0)].iter() {
+            self.attr_pos.data.push( LightingPosAttr {
+                position: *pos
+            });
         }
+        for tex in [
+            glm::vec2(0.0, 1.0),
+            glm::vec2(0.0, 0.0),
+            glm::vec2(1.0, 1.0),
+            glm::vec2(1.0, 0.0)].iter() {
+            self.attr_texel.data.push( LightingTexelAttr {
+                texel: *tex,
+            });
+        }
+
         Ok(())
     }
 
@@ -153,11 +158,15 @@ impl GBuffer {
             gl::ActiveTexture(gl::TEXTURE2);
             gl::BindTexture(gl::TEXTURE_2D, self.color_texture);
         }
+        self.lighting_pass_attribute_program.activate();
+        self.attr_pos.prepare_buffer();
+        self.attr_texel.prepare_buffer();
+
         unsafe {
-            gl::BindVertexArray(self.quad_vao);
             gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);
-            gl::BindVertexArray(0);
         }
+
+        self.lighting_pass_attribute_program.deactivate();
     }
 
     fn clear_buffers(&mut self) {
@@ -197,5 +206,34 @@ impl GBuffer {
 impl Drop for GBuffer {
     fn drop(&mut self) {
         self.clear_buffers();
+    }
+}
+
+struct GBufferTextureFormat {
+    internal_format: GLint,
+    format: GLenum,
+    pixel_data_type: GLenum,
+}
+
+
+#[repr(C)]
+struct LightingPosAttr {
+    position: glm::Vec3,
+}
+
+impl attribute::KnownComponent for LightingPosAttr {
+    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
+        (attribute::NumComponents::S3, attribute::ComponentType::Float)
+    }
+}
+
+#[repr(C)]
+struct LightingTexelAttr {
+    texel: glm::Vec2,
+}
+
+impl attribute::KnownComponent for LightingTexelAttr {
+    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
+        (attribute::NumComponents::S2, attribute::ComponentType::Float)
     }
 }
