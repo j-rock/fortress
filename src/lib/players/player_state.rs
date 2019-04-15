@@ -35,6 +35,7 @@ pub struct PlayerState {
     stats: PlayerStats,
     body: PlayerBody,
 
+    facing_dir: Vector2<f64>,
     weapon_physical_offset: f64,
     weapon: Weapon,
 }
@@ -49,6 +50,7 @@ impl PlayerState {
             spawn,
             stats,
             body,
+            facing_dir: Vector2::new(1.0, 0.0),
             weapon_physical_offset: config.weapon_physical_offset,
             weapon,
         }
@@ -91,18 +93,27 @@ impl PlayerState {
     }
 
     pub fn set_velocity(&mut self, dir: Option<Vector2<f64>>) {
+        if dir.is_none() {
+            self.body.set_velocity(Vector2::new(0.0, 0.0));
+            return;
+        }
+
         if let Some(dir) = dir {
-            self.body.set_velocity(self.stats.get_move_speed(), dir);
-        } else {
-            self.body.set_velocity(0.0, Vector2::new(1.0, 0.0));
+            let dir_magnitude = dir.norm();
+            if !dir_magnitude.is_normal() {
+                self.body.set_velocity(Vector2::new(0.0, 0.0));
+                return;
+            }
+
+            self.facing_dir = dir / dir_magnitude;
+            self.body.set_velocity(self.stats.get_move_speed() * self.facing_dir);
         }
     }
 
     pub fn try_fire(&mut self, audio: &AudioPlayer) {
         for position in self.body.position().iter() {
-            let facing_dir = self.get_facing_dir();
-            let start_position = Point2::from(position.coords + self.weapon_physical_offset * facing_dir);
-            self.weapon.try_fire(audio, self.player_id, start_position, facing_dir);
+            let start_position = Point2::from(position.coords + self.weapon_physical_offset * self.facing_dir);
+            self.weapon.try_fire(audio, self.player_id, start_position, self.facing_dir);
         }
     }
 
@@ -128,9 +139,5 @@ impl PlayerState {
         }
 
         Some(Vector2::new(move_horiz.unwrap_or(0.0), move_vert.unwrap_or(0.0)))
-    }
-
-    fn get_facing_dir(&self) -> Vector2<f64> {
-        Vector2::new(1.0, 0.0)
     }
 }

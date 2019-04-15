@@ -63,14 +63,7 @@ impl PlayerBody {
         }
     }
 
-    pub fn set_velocity(&mut self, speed: f64, dir: Vector2<f64>) {
-        let dir_magnitude = dir.norm();
-        if !dir_magnitude.is_normal() {
-            return;
-        }
-
-        let desired_velocity = (speed / dir_magnitude) * dir;
-
+    pub fn set_velocity(&mut self, desired_velocity: Vector2<f64>) {
         let mut physics_sim = self.body.physics_sim.borrow_mut();
         if let Some(body) =  physics_sim.world_mut().rigid_body_mut(self.body.handle) {
             let actual_body_velocity = body.velocity().linear;

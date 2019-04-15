@@ -11,6 +11,7 @@ pub struct PlayerConfig {
     pub bullet_speed: f64,
     pub bullet_damage: i64,
     pub bullet_knockback_strength: f64,
+    pub bullet_render_height: f32,
     pub bullet_light_color: (f32, f32, f32),
     pub bullet_light_attenuation: (f32, f32, f32),
 }

@@ -43,6 +43,7 @@ pub struct Weapon {
     physics_sim: PhysicsSimulation,
 
     bullet_radius: f64,
+    bullet_render_height: f32,
     bullet_light_color: glm::Vec3,
     bullet_light_attenuation: glm::Vec3,
 }
@@ -55,6 +56,7 @@ impl Weapon {
             current_delay: None,
             physics_sim: physics_sim.clone(),
             bullet_radius: config.bullet_radius,
+            bullet_render_height: config.bullet_render_height,
             bullet_light_color: glm::vec3(config.bullet_light_color.0, config.bullet_light_color.1, config.bullet_light_color.2),
             bullet_light_attenuation: glm::vec3(config.bullet_light_attenuation.0, config.bullet_light_attenuation.1, config.bullet_light_attenuation.2),
         }
@@ -105,7 +107,7 @@ impl Weapon {
     pub fn draw(&self, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {
         let sprites: Vec<_> = self.bullets.iter().map(|(_idx, bullet)| -> SpriteData {
             let body_position = bullet.get_position();
-            let world_position = glm::vec3(body_position.x as f32, 0.1, -body_position.y as f32);
+            let world_position = glm::vec3(body_position.x as f32, self.bullet_render_height, -body_position.y as f32);
             lights.push(PointLight {
                 position: glm::vec3(world_position.x, world_position.y + self.bullet_radius as f32, world_position.z + 0.0001),
                 color: self.bullet_light_color,
