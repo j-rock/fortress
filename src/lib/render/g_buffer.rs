@@ -6,6 +6,7 @@ use crate::{
         Attribute,
         AttributeAdvance,
         AttributeProgram,
+        PointLight,
         ShaderProgram
     }
 };
@@ -20,12 +21,11 @@ pub struct GBuffer {
     normal_texture: GLuint,
     color_texture: GLuint,
     depth_render_buffer: GLuint,
-    quad_vao: GLuint,
-    quad_vbo: GLuint,
     lighting_pass_shader: ShaderProgram,
     lighting_pass_attribute_program: AttributeProgram,
     attr_pos: Attribute<LightingPosAttr>,
     attr_texel: Attribute<LightingTexelAttr>,
+    lights: Vec<PointLight>,
 }
 
 impl GBuffer {
@@ -44,12 +44,11 @@ impl GBuffer {
             normal_texture: 0,
             color_texture: 0,
             depth_render_buffer: 0,
-            quad_vao: 0,
-            quad_vbo: 0,
             lighting_pass_shader: ShaderProgram::from_short_pipeline(&vert_path, &frag_path)?,
             lighting_pass_attribute_program,
             attr_pos,
             attr_texel,
+            lights: vec!(),
         };
         g_buffer.resize(window_size.0, window_size.1)?;
         Ok(g_buffer)
@@ -111,7 +110,7 @@ impl GBuffer {
 
         // Set texture uniforms once and for all.
         self.lighting_pass_shader.activate();
-        self.lighting_pass_shader.set_i32("position_tex", 0); // Attachment values
+        self.lighting_pass_shader.set_i32("position_tex", 0);
         self.lighting_pass_shader.set_i32("normal_tex", 1);
         self.lighting_pass_shader.set_i32("color_tex", 2);
 
@@ -137,19 +136,38 @@ impl GBuffer {
         Ok(())
     }
 
-    pub fn geometry_pass(&self) {
+    pub fn lights_mut(&mut self) -> &mut Vec<PointLight> {
+        &mut self.lights
+    }
+
+    pub fn geometry_pass(&mut self) {
+        self.lights.clear();
+
         unsafe {
             gl::BindFramebuffer(gl::FRAMEBUFFER, self.frame_buffer);
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         }
     }
 
-    pub fn lighting_pass(&self) {
+    pub fn lighting_pass(&mut self) {
         unsafe {
             gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         }
         self.lighting_pass_shader.activate();
+        if self.lights.len() > 32 {
+            panic!("Need to update deferred fragment shader to support more than {} lights", self.lights.len());
+        }
+        self.lighting_pass_shader.set_i32("num_lights", self.lights.len() as i32);
+        for (idx, point_light) in self.lights.iter().enumerate() {
+            let position_str = format!("lights[{}].position", idx);
+            let color_str = format!("lights[{}].color", idx);
+            let attenuation_str = format!("lights[{}].attenuation", idx);
+            self.lighting_pass_shader.set_vec3(position_str.as_str(), &point_light.position);
+            self.lighting_pass_shader.set_vec3(color_str.as_str(), &point_light.color);
+            self.lighting_pass_shader.set_vec3(attenuation_str.as_str(), &point_light.attenuation);
+        }
+
         unsafe {
             gl::ActiveTexture(gl::TEXTURE0);
             gl::BindTexture(gl::TEXTURE_2D, self.position_texture);
@@ -190,14 +208,6 @@ impl GBuffer {
             if self.depth_render_buffer != 0 {
                 gl::DeleteRenderbuffers(1, &self.depth_render_buffer);
                 self.depth_render_buffer = 0;
-            }
-            if self.quad_vao != 0 {
-                gl::DeleteVertexArrays(1, &self.quad_vao);
-                self.quad_vao = 0;
-            }
-            if self.quad_vbo != 0 {
-                gl::DeleteBuffers(1, &self.quad_vbo);
-                self.quad_vbo = 0;
             }
         }
     }

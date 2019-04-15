@@ -7,10 +7,10 @@ use gl::{
     types::*,
 };
 use glm;
+use hashbrown::HashMap;
 use std::{
     ffi::CString,
     path::PathBuf,
-    self,
 };
 
 fn compile_shader(path: &PathBuf, shader_type: GLenum) -> StatusOr<GLuint> {
@@ -68,7 +68,8 @@ fn compile_program(shaders: &[GLuint]) -> StatusOr<GLuint> {
 }
 
 pub struct ShaderProgram {
-    pub program: GLuint
+    pub program: GLuint,
+    uniform_cache: HashMap<CString, GLint>,
 }
 
 impl ShaderProgram {
@@ -76,7 +77,8 @@ impl ShaderProgram {
         let vertex = compile_shader(vertex_filepath, gl::VERTEX_SHADER)?;
         let fragment = compile_shader(fragment_filepath, gl::FRAGMENT_SHADER)?;
         let shader_program = ShaderProgram {
-            program: compile_program(&[vertex, fragment])?
+            program: compile_program(&[vertex, fragment])?,
+            uniform_cache: HashMap::new(),
         };
         unsafe {
             gl::DeleteShader(vertex);
@@ -92,7 +94,8 @@ impl ShaderProgram {
         let geometry = compile_shader(geometry_filepath, gl::GEOMETRY_SHADER)?;
         let fragment = compile_shader(fragment_filepath, gl::FRAGMENT_SHADER)?;
         let shader_program = ShaderProgram {
-            program: compile_program(&[vertex, geometry, fragment])?
+            program: compile_program(&[vertex, geometry, fragment])?,
+            uniform_cache: HashMap::new(),
         };
         unsafe {
             gl::DeleteShader(vertex);
@@ -102,77 +105,85 @@ impl ShaderProgram {
         Ok(shader_program)
     }
 
-    unsafe fn get_uniform_location(&self, name: &'static str) -> GLint {
+    unsafe fn get_uniform_location(&mut self, name: &str) -> GLint {
         let c_str = CString::new(name)
             .map_err(|err| format!("Couldn't uniform name {} into a C string. Reason: {}", name, err)).unwrap();
-        let res = gl::GetUniformLocation(self.program, c_str.as_ptr() as *const GLchar);
-        if res < 0 {
-            panic!("Uniform: {}, {}", res, name);
-        }
-        res
+        let c_str_ptr = c_str.as_ptr() as *const GLchar;
+
+        let program = self.program;
+
+        let cached = self.uniform_cache.entry(c_str).or_insert_with(|| {
+            let res = gl::GetUniformLocation(program, c_str_ptr);
+            if res < 0 {
+                panic!("Uniform: {}, {:?}", res, *c_str_ptr);
+            }
+            res
+        });
+
+        *cached
     }
 
-    pub fn set_bool(&self, name: &'static str, b: bool) {
+    pub fn set_bool(&mut self, name: &str, b: bool) {
        unsafe {
            gl::Uniform1i(self.get_uniform_location(name), if b { 1 } else { 0 });
        }
     }
 
-    pub fn set_i32(&self, name: &'static str, i: i32) {
+    pub fn set_i32(&mut self, name: &str, i: i32) {
         unsafe {
             gl::Uniform1i(self.get_uniform_location(name), i);
         }
     }
 
-    pub fn set_f32(&self, name: &'static str, f: f32) {
+    pub fn set_f32(&mut self, name: &str, f: f32) {
         unsafe {
             gl::Uniform1f(self.get_uniform_location(name), f);
         }
     }
 
-    pub fn set_vec2(&self, name: &'static str, v: glm::Vec2) {
+    pub fn set_vec2(&mut self, name: &str, v: glm::Vec2) {
         let value_ptr = &v as *const glm::Vec2 as *const f32;
         unsafe {
             gl::Uniform2fv(self.get_uniform_location(name), 1, value_ptr);
         }
     }
 
-    pub fn set_vec3(&self, name: &'static str, v: &glm::Vec3) {
+    pub fn set_vec3(&mut self, name: &str, v: &glm::Vec3) {
         let value_ptr = v as *const glm::Vec3 as *const f32;
         unsafe {
             gl::Uniform3fv(self.get_uniform_location(name), 1, value_ptr);
         }
     }
 
-    pub fn set_vec4(&self, name: &'static str, v: &glm::Vec4) {
+    pub fn set_vec4(&mut self, name: &str, v: &glm::Vec4) {
         let value_ptr = v as *const glm::Vec4 as *const f32;
         unsafe {
             gl::Uniform4fv(self.get_uniform_location(name), 1, value_ptr);
         }
     }
 
-    pub fn set_mat2(&self, name: &'static str, m: &glm::Mat2) {
+    pub fn set_mat2(&mut self, name: &str, m: &glm::Mat2) {
         let value_ptr = m as *const glm::Mat2 as *const f32;
         unsafe {
             gl::UniformMatrix2fv(self.get_uniform_location(name), 1, gl::FALSE, value_ptr);
         }
     }
 
-    pub fn set_mat3(&self, name: &'static str, m: &glm::Mat3) {
+    pub fn set_mat3(&mut self, name: &str, m: &glm::Mat3) {
         let value_ptr = m as *const glm::Mat3 as *const f32;
         unsafe {
             gl::UniformMatrix3fv(self.get_uniform_location(name), 1, gl::FALSE, value_ptr);
         }
     }
 
-    pub fn set_mat4(&self, name: &'static str, m: &glm::Mat4) {
+    pub fn set_mat4(&mut self, name: &str, m: &glm::Mat4) {
         let value_ptr = m as *const glm::Mat4 as *const f32;
         unsafe {
             gl::UniformMatrix4fv(self.get_uniform_location(name), 1, gl::FALSE, value_ptr);
         }
     }
 
-    pub fn set_gluint(&self, name: &'static str, gluint: GLuint) {
+    pub fn set_gluint(&mut self, name: &str, gluint: GLuint) {
         unsafe {
             gl::Uniform1ui(self.get_uniform_location(name), gluint);
         }

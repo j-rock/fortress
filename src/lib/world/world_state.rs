@@ -12,8 +12,9 @@ use crate::{
     players::PlayerSystem,
     render::{
         Camera,
-        Viewport,
+        PointLight,
         SpriteRenderer,
+        Viewport,
     },
 };
 use glm;
@@ -82,7 +83,13 @@ impl WorldState {
        self.config_manager.get().clear_color
     }
 
-    pub fn draw_geometry(&mut self, screen_size: glm::IVec2) {
+    pub fn draw_geometry(&mut self, screen_size: glm::IVec2, lights: &mut Vec<PointLight>) {
+        lights.push(PointLight {
+            position: glm::vec3(32.5, 9.0, 0.0),
+            color: glm::vec3(0.2, 0.2, 0.2),
+            attenuation: glm::vec3(1.0, 0.005, 0.0004),
+        });
+
         let (lookat, right, up) = self.camera.lookat_right_and_up();
         let projection_view = self.camera.projection(screen_size) * self.camera.view(lookat, up);
 

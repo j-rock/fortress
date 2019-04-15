@@ -121,7 +121,7 @@ impl AppRunner {
 
         // 1. Draw all geometry.
         self.g_buffer.geometry_pass();
-        self.world.draw_geometry(screen_size);
+        self.world.draw_geometry(screen_size, self.g_buffer.lights_mut());
 
         // 2. Lighting pass
         self.g_buffer.lighting_pass();
