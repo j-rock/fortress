@@ -155,7 +155,7 @@ impl GBuffer {
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         }
         self.lighting_pass_shader.activate();
-        if self.lights.len() > 32 {
+        if self.lights.len() > 100 {
             panic!("Need to update deferred fragment shader to support more than {} lights", self.lights.len());
         }
         self.lighting_pass_shader.set_i32("num_lights", self.lights.len() as i32);

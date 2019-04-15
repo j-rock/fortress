@@ -9,7 +9,7 @@ struct PointLight {
 	vec3 color;
     vec3 attenuation;
 };
-const int MAX_NUM_LIGHTS = 32;
+const int MAX_NUM_LIGHTS = 100;
 
 uniform sampler2D position_tex;
 uniform sampler2D normal_tex;
