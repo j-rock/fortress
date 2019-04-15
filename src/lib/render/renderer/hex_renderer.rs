@@ -30,6 +30,7 @@ pub struct HexRenderer {
     attribute_program: AttributeProgram,
     attr_transform: Attribute<HexTransformAttr>,
     attr_color: Attribute<HexColorAttr>,
+    attr_scale: Attribute<HexScaleAttr>,
 }
 
 impl HexRenderer {
@@ -43,6 +44,7 @@ impl HexRenderer {
         let mut attribute_program_builder = AttributeProgram::builder_with_offset(1);
         let attr_transform = attribute_program_builder.add_attribute();
         let attr_color = attribute_program_builder.add_attribute();
+        let attr_scale = attribute_program_builder.add_attribute();
         let attribute_program = attribute_program_builder.build();
 
         let vertices = Self::compute_hexagon_vertices();
@@ -54,7 +56,8 @@ impl HexRenderer {
             mesh,
             attribute_program,
             attr_transform,
-            attr_color
+            attr_color,
+            attr_scale,
         })
     }
 
@@ -71,6 +74,9 @@ impl HexRenderer {
             self.attr_color.data.push(HexColorAttr {
                 rgba_color: datum.rgba_color
             });
+            self.attr_scale.data.push(HexScaleAttr {
+                scale: hex_cell_length as f32,
+            });
         }
     }
 
@@ -79,6 +85,7 @@ impl HexRenderer {
         self.attribute_program.activate();
         self.attr_transform.prepare_buffer();
         self.attr_color.prepare_buffer();
+        self.attr_scale.prepare_buffer();
 
         self.shader_program.set_mat4("projection_view", projection_view);
         self.mesh.draw(self.attr_transform.data.len());
@@ -87,6 +94,7 @@ impl HexRenderer {
         self.shader_program.deactivate();
         self.attr_transform.data.clear();
         self.attr_color.data.clear();
+        self.attr_scale.data.clear();
     }
 
     fn compute_hexagon_vertices() -> Vec<glm::Vec3> {
@@ -148,3 +156,13 @@ impl attribute::KnownComponent for HexColorAttr {
     }
 }
 
+#[repr(C)]
+struct HexScaleAttr {
+    scale: f32,
+}
+
+impl attribute::KnownComponent for HexScaleAttr {
+    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
+        (attribute::NumComponents::S1, attribute::ComponentType::Float)
+    }
+}
