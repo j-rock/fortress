@@ -18,6 +18,7 @@ use crate::{
     },
     render::{
         NamedTexture,
+        PointLight,
         SpriteData,
         SpriteRenderer,
     },
@@ -37,20 +38,25 @@ use slab::Slab;
 
 pub struct Weapon {
     stats: WeaponStats,
-    bullet_radius: f64,
     bullets: Slab<Bullet>,
     current_delay: Option<time::Microseconds>,
     physics_sim: PhysicsSimulation,
+
+    bullet_radius: f64,
+    bullet_light_color: glm::Vec3,
+    bullet_light_attenuation: glm::Vec3,
 }
 
 impl Weapon {
     pub fn new(config: &PlayerConfig, physics_sim: &PhysicsSimulation) -> Weapon {
         Weapon {
             stats: WeaponStats::new(config),
-            bullet_radius: config.bullet_radius,
             bullets: Slab::new(),
             current_delay: None,
             physics_sim: physics_sim.clone(),
+            bullet_radius: config.bullet_radius,
+            bullet_light_color: glm::vec3(config.bullet_light_color.0, config.bullet_light_color.1, config.bullet_light_color.2),
+            bullet_light_attenuation: glm::vec3(config.bullet_light_attenuation.0, config.bullet_light_attenuation.1, config.bullet_light_attenuation.2),
         }
     }
 
@@ -96,11 +102,18 @@ impl Weapon {
         self.bullets.remove(bullet_id.to_usize());
     }
 
-    pub fn draw(&self, sprite_renderer: &mut SpriteRenderer) {
+    pub fn draw(&self, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {
         let sprites: Vec<_> = self.bullets.iter().map(|(_idx, bullet)| -> SpriteData {
             let body_position = bullet.get_position();
+            let world_position = glm::vec3(body_position.x as f32, 0.1, -body_position.y as f32);
+            lights.push(PointLight {
+                position: glm::vec3(world_position.x, world_position.y + self.bullet_radius as f32, world_position.z + 0.0001),
+                color: self.bullet_light_color,
+                attenuation: self.bullet_light_attenuation
+            });
+
             SpriteData {
-                world_bottom_center_position: glm::vec3(body_position.x as f32, 0.1, -body_position.y as f32),
+                world_bottom_center_position: world_position,
                 world_half_size: glm::vec2(self.bullet_radius as f32, self.bullet_radius as f32),
                 tex_bottom_left: glm::vec2(0.0001, 0.0001),
                 tex_top_right: glm::vec2(0.9999, 0.9999),

@@ -94,7 +94,7 @@ impl WorldState {
         let projection_view = self.camera.projection(screen_size) * self.camera.view(lookat, up);
 
         self.map.draw(&projection_view);
-        self.players.draw(&mut self.sprite_renderer);
+        self.players.draw(&mut self.sprite_renderer, lights);
 
         self.sprite_renderer.draw(&projection_view, right, up);
 

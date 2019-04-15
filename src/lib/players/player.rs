@@ -15,7 +15,10 @@ use crate::{
             PlayerUpright,
         }
     },
-    render::SpriteRenderer,
+    render::{
+        PointLight,
+        SpriteRenderer
+    },
 };
 use nalgebra::Point2;
 
@@ -62,7 +65,7 @@ impl Player {
         self.player_state.get_player_id()
     }
 
-    pub fn draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer) {
-        self.player_state.draw(config, sprite_renderer);
+    pub fn draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {
+        self.player_state.draw(config, sprite_renderer, lights);
     }
 }

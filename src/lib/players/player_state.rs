@@ -18,6 +18,7 @@ use crate::{
     },
     render::{
         NamedTexture,
+        PointLight,
         SpriteData,
         SpriteRenderer
     },
@@ -73,7 +74,7 @@ impl PlayerState {
         self.player_id
     }
 
-    pub fn draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer) {
+    pub fn draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {
         if let Some(position) = self.body.position() {
             let world_bottom_center_position = glm::vec3(position.x as f32, 0.0, -position.y as f32);
             let world_half_size = glm::vec2(config.physical_radius as f32, 2.0 * config.physical_radius as f32);
@@ -85,7 +86,7 @@ impl PlayerState {
                 tex_top_right: glm::vec2(0.9999, 0.9999),
             }]);
 
-            self.weapon.draw(sprite_renderer);
+            self.weapon.draw(sprite_renderer, lights);
         }
     }
 

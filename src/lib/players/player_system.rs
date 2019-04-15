@@ -22,7 +22,10 @@ use crate::{
         PlayerId,
         self,
     },
-    render::SpriteRenderer,
+    render::{
+        PointLight,
+        SpriteRenderer
+    },
 };
 use hashbrown::HashMap;
 use nalgebra::Point2;
@@ -111,10 +114,10 @@ impl PlayerSystem {
         }
     }
 
-    pub fn draw(&self, sprite_renderer: &mut SpriteRenderer) {
+    pub fn draw(&self, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {
         let config = self.config_manager.get();
         for (_i, player) in self.players.iter() {
-            player.draw( config, sprite_renderer);
+            player.draw( config, sprite_renderer, lights);
         }
     }
 
