@@ -10,7 +10,10 @@ use crate::{
         MapState,
     },
     physics::PhysicsSimulation,
-    render::hex_renderer::HexRenderer,
+    render::{
+        hex_renderer::HexRenderer,
+        PointLight,
+    },
 };
 use nalgebra::Point2;
 
@@ -54,8 +57,9 @@ impl Map {
         }
     }
 
-    pub fn draw(&mut self, projection_view: &glm::Mat4) {
-        self.map_state.queue_draw(&mut self.renderer);
+    pub fn draw(&mut self, projection_view: &glm::Mat4, lights: &mut Vec<PointLight>) {
+        let config = self.map_config_manager.get();
+        self.map_state.queue_draw(config, &mut self.renderer, lights);
         self.renderer.draw(projection_view);
     }
 

@@ -5,6 +5,9 @@ use std::path::PathBuf;
 pub struct MapConfig {
     pub cell_length: f64,
     pub map_label: MapLabel,
+    pub light_height: f32,
+    pub light_color: (f32, f32, f32),
+    pub light_attenuation: (f32, f32, f32),
 }
 
 #[derive(Copy, Clone, Deserialize)]

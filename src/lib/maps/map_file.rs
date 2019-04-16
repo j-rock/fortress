@@ -24,6 +24,12 @@ impl MapFileCell {
 }
 
 #[derive(Clone, Deserialize)]
+pub struct MapFileLight {
+    pub position: (f32, f32),
+}
+
+#[derive(Clone, Deserialize)]
 pub struct MapFile {
-    pub cells: Vec<MapFileCell>
+    pub cells: Vec<MapFileCell>,
+    pub lights: Vec<MapFileLight>,
 }

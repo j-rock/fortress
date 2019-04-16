@@ -7,9 +7,12 @@ use crate::{
         state::MapBody,
     },
     physics::PhysicsSimulation,
-    render::hex_renderer::{
-        HexData,
-        HexRenderer,
+    render::{
+        hex_renderer::{
+            HexData,
+            HexRenderer,
+        },
+        PointLight,
     }
 };
 use hashbrown::{
@@ -21,6 +24,7 @@ use nalgebra::Point2;
 pub struct MapState {
     cells: HashMap<GridIndex, MapCell>,
     spawns: HashSet<GridIndex>,
+    light_positions: Vec<(f32, f32)>,
     _body: MapBody,
     hex_cell_length: f64,
 }
@@ -44,11 +48,19 @@ impl MapState {
             })
             .collect();
 
+        let light_positions = map_file.lights
+            .iter()
+            .map(|map_file_light| -> (f32, f32) {
+                map_file_light.position
+            })
+            .collect();
+
         let body = MapBody::new(config, &cells, physics_sim);
 
         MapState {
             cells,
             spawns,
+            light_positions,
             _body: body,
             hex_cell_length: config.cell_length
         }
@@ -64,7 +76,7 @@ impl MapState {
             .collect()
     }
 
-    pub fn queue_draw(&self, renderer: &mut HexRenderer) {
+    pub fn queue_draw(&self, config: &MapConfig, renderer: &mut HexRenderer, lights: &mut Vec<PointLight>) {
         let mut data = Vec::with_capacity(self.cells.len());
         for (grid_index, map_cell) in self.cells.iter() {
             data.push(HexData {
@@ -75,5 +87,13 @@ impl MapState {
             });
         }
         renderer.queue(self.hex_cell_length, &data);
+
+        for position in self.light_positions.iter() {
+            lights.push(PointLight {
+                position: glm::vec3(position.0, config.light_height, -position.1),
+                color: glm::vec3(config.light_color.0, config.light_color.1, config.light_color.2),
+                attenuation: glm::vec3(config.light_attenuation.0, config.light_attenuation.1, config.light_attenuation.2),
+            })
+        }
     }
 }
