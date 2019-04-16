@@ -1,6 +1,6 @@
 use crate::players;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct PlayerId(usize);
 
 impl PlayerId {

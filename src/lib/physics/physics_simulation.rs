@@ -10,11 +10,15 @@ use crate::{
         SimpleConfigManager,
     },
     physics::{
+        Contact,
         ContactMatcher,
+        Proximity,
         ProximityMatcher,
+        ProximityType,
     },
     world::WorldView,
 };
+use hashbrown::HashSet;
 use ncollide2d::events::ContactEvent;
 use nphysics2d::{
     object::ColliderHandle,
@@ -150,17 +154,22 @@ impl RawPhysicsSimulation {
 
     fn process_contacts<'a>(&mut self, world: WorldView) {
         // Resolve all entities first to avoid ABA problem.
-        let proximity_events: Vec<_> =
+        let proximity_events: HashSet<_> =
             self.world.proximity_events()
                 .iter()
                 .filter_map(|proximity| {
                     let entity1 = self.try_resolve_collider(proximity.collider1)?;
-                    let entity2 = self. try_resolve_collider(proximity.collider2)?;
-                    Some((proximity, entity1, entity2))
+                    let entity2 = self.try_resolve_collider(proximity.collider2)?;
+                    Some(Proximity {
+                        entity1,
+                        entity2,
+                        prev_type: ProximityType::from(proximity.prev_status),
+                        curr_type: ProximityType::from(proximity.new_status),
+                    })
                 })
                 .collect();
 
-        let contact_events: Vec<_> =
+        let contact_events: HashSet<_> =
             self.world.contact_events()
             .iter()
             .filter_map(|contact| {
@@ -168,12 +177,12 @@ impl RawPhysicsSimulation {
                     ContactEvent::Started(handle1, handle2) => {
                         let entity1 = self.try_resolve_collider(*handle1)?;
                         let entity2 = self.try_resolve_collider(*handle2)?;
-                        return Some((contact, entity1, entity2));
+                        Some(Contact::Started(entity1, entity2))
                     },
                     ContactEvent::Stopped(handle1, handle2) => {
                         let entity1 = self.try_resolve_collider(*handle1)?;
                         let entity2 = self.try_resolve_collider(*handle2)?;
-                        return Some((contact, entity1, entity2));
+                        Some(Contact::Stopped(entity1, entity2))
                     }
                 }
             })
@@ -182,15 +191,15 @@ impl RawPhysicsSimulation {
         let mut world = world;
 
         // Entities resolved (if possible), now apply updates.
-        for (proximity, entity1, entity2) in proximity_events.into_iter() {
+        for proximity in proximity_events.into_iter() {
             for matcher in self.proximity_matchers.iter() {
-                matcher.try_apply(entity1, entity2, proximity, &mut world);
+                matcher.try_apply(proximity, &mut world);
             }
         }
 
-        for (contact, entity1, entity2) in contact_events.into_iter() {
+        for contact in contact_events.into_iter() {
             for matcher in self.contact_matchers.iter() {
-                matcher.try_apply(entity1, entity2, contact, &mut world);
+                matcher.try_apply(contact, &mut world);
             }
         }
     }
