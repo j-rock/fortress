@@ -16,6 +16,7 @@ use crate::{
         SpriteRenderer,
         Viewport,
     },
+    world::WorldView,
 };
 use glm;
 
@@ -71,7 +72,10 @@ impl WorldState {
             }
         }
 
-        self.physics_sim.borrow_mut().step(audio, dt);
+        {
+            let mut world_view = WorldView::new(audio, &mut self.players, dt);
+            self.physics_sim.borrow_mut().step(&mut world_view);
+        }
 
         // Post-update.
         {

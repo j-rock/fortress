@@ -1,7 +1,5 @@
 use crate::{
     app::StatusOr,
-    audio::AudioPlayer,
-    dimensions::time::DeltaTime,
     entities::{
         Entity,
         EntityId,
@@ -14,7 +12,8 @@ use crate::{
     physics::{
         ContactMatcher,
         ProximityMatcher,
-    }
+    },
+    world::WorldView,
 };
 use ncollide2d::events::ContactEvent;
 use nphysics2d::{
@@ -94,13 +93,13 @@ impl RawPhysicsSimulation {
         })
     }
 
-    pub fn step(&mut self, audio: &AudioPlayer, dt: DeltaTime) {
+    pub fn step<'a>(&mut self, world: &mut WorldView<'a>) {
         self.config.update();
         let config = self.config.get();
         Self::update_world_from_config(config, &mut self.world);
-        self.world.set_timestep(dt.as_f64_seconds());
+        self.world.set_timestep(world.dt().as_f64_seconds());
         self.world.step();
-        self.process_contacts(audio, dt);
+        self.process_contacts(world);
     }
 
     pub fn add_contact_matchers(&mut self, matchers: Vec<ContactMatcher>) {
@@ -149,7 +148,7 @@ impl RawPhysicsSimulation {
         return self.registrar.resolve(EntityId::from_body_handle(body_handle));
     }
 
-    fn process_contacts(&mut self, audio: &AudioPlayer, dt: DeltaTime) {
+    fn process_contacts<'a>(&mut self, world: &mut WorldView<'a>) {
         // Resolve all entities first to avoid ABA problem.
         let proximity_events: Vec<_> =
             self.world.proximity_events()
@@ -183,13 +182,13 @@ impl RawPhysicsSimulation {
         // Entities resolved (if possible), now apply updates.
         for (proximity, entity1, entity2) in proximity_events.into_iter() {
             for matcher in self.proximity_matchers.iter() {
-                matcher.try_apply(entity1, entity2, proximity, audio, dt);
+                matcher.try_apply(entity1, entity2, proximity, world);
             }
         }
 
         for (contact, entity1, entity2) in contact_events.into_iter() {
             for matcher in self.contact_matchers.iter() {
-                matcher.try_apply(entity1, entity2, contact, audio, dt);
+                matcher.try_apply(entity1, entity2, contact, world);
             }
         }
     }

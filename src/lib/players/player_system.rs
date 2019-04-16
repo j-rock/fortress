@@ -114,6 +114,10 @@ impl PlayerSystem {
         }
     }
 
+    pub fn player_mut(&mut self, player_id: PlayerId) -> &mut Player {
+        &mut self.players[player_id.as_usize()]
+    }
+
     pub fn draw(&self, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {
         let config = self.config_manager.get();
         for (_i, player) in self.players.iter() {
