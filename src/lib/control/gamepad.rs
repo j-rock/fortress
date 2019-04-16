@@ -162,8 +162,8 @@ impl GamepadControls {
     fn control_event_to_gamepad_control(&self, event: ControlEvent) -> GamepadControl {
         let config = self.config_manager.get();
         match event {
-            ControlEvent::PlayerMove(UpDownLeftRight::Up) => GamepadControl::AxisAboveThreshold(sdl2::controller::Axis::LeftY,  config.axis_threshold),
-            ControlEvent::PlayerMove(UpDownLeftRight::Down) => GamepadControl::AxisBelowThreshold(sdl2::controller::Axis::LeftY, -config.axis_threshold),
+            ControlEvent::PlayerMove(UpDownLeftRight::Up) => GamepadControl::AxisBelowThreshold(sdl2::controller::Axis::LeftY,  -config.axis_threshold),
+            ControlEvent::PlayerMove(UpDownLeftRight::Down) => GamepadControl::AxisAboveThreshold(sdl2::controller::Axis::LeftY, config.axis_threshold),
             ControlEvent::PlayerMove(UpDownLeftRight::Left) => GamepadControl::AxisBelowThreshold(sdl2::controller::Axis::LeftX, -config.axis_threshold),
             ControlEvent::PlayerMove(UpDownLeftRight::Right) => GamepadControl::AxisAboveThreshold(sdl2::controller::Axis::LeftX, config.axis_threshold),
             ControlEvent::PlayerFireWeapon => GamepadControl::ButtonPress(sdl2::controller::Button::X),
