@@ -93,11 +93,11 @@ impl RawPhysicsSimulation {
         })
     }
 
-    pub fn step<'a>(&mut self, world: &mut WorldView<'a>) {
+    pub fn step(&mut self, world: WorldView) {
         self.config.update();
         let config = self.config.get();
         Self::update_world_from_config(config, &mut self.world);
-        self.world.set_timestep(world.dt().as_f64_seconds());
+        self.world.set_timestep(world.dt.as_f64_seconds());
         self.world.step();
         self.process_contacts(world);
     }
@@ -148,7 +148,7 @@ impl RawPhysicsSimulation {
         return self.registrar.resolve(EntityId::from_body_handle(body_handle));
     }
 
-    fn process_contacts<'a>(&mut self, world: &mut WorldView<'a>) {
+    fn process_contacts<'a>(&mut self, world: WorldView) {
         // Resolve all entities first to avoid ABA problem.
         let proximity_events: Vec<_> =
             self.world.proximity_events()
@@ -179,16 +179,18 @@ impl RawPhysicsSimulation {
             })
             .collect();
 
+        let mut world = world;
+
         // Entities resolved (if possible), now apply updates.
         for (proximity, entity1, entity2) in proximity_events.into_iter() {
             for matcher in self.proximity_matchers.iter() {
-                matcher.try_apply(entity1, entity2, proximity, world);
+                matcher.try_apply(entity1, entity2, proximity, &mut world);
             }
         }
 
         for (contact, entity1, entity2) in contact_events.into_iter() {
             for matcher in self.contact_matchers.iter() {
-                matcher.try_apply(entity1, entity2, contact, world);
+                matcher.try_apply(entity1, entity2, contact, &mut world);
             }
         }
     }

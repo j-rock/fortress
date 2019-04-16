@@ -39,6 +39,7 @@ use slab::Slab;
 pub struct Weapon {
     stats: WeaponStats,
     bullets: Slab<Bullet>,
+    bullets_to_remove: Vec<BulletId>,
     current_delay: Option<time::Microseconds>,
     physics_sim: PhysicsSimulation,
 
@@ -53,6 +54,7 @@ impl Weapon {
         Weapon {
             stats: WeaponStats::new(config),
             bullets: Slab::new(),
+            bullets_to_remove: vec!(),
             current_delay: None,
             physics_sim: physics_sim.clone(),
             bullet_radius: config.bullet_radius,
@@ -71,6 +73,15 @@ impl Weapon {
                 Some(new_delay)
             };
         }
+    }
+
+    pub fn post_update(&mut self) {
+        for bullet_id in self.bullets_to_remove.iter() {
+            if self.bullets.contains(bullet_id.to_usize()) {
+                self.bullets.remove(bullet_id.to_usize());
+            }
+        }
+        self.bullets_to_remove.clear();
     }
 
     pub fn try_fire(&mut self, audio: &AudioPlayer, player_id: PlayerId, start_position: Point2<f64>, direction: Vector2<f64>) {
@@ -100,8 +111,8 @@ impl Weapon {
             })
     }
 
-    pub fn remove_bullet(&mut self, bullet_id: BulletId) {
-        self.bullets.remove(bullet_id.to_usize());
+    pub fn bullet_hit(&mut self, bullet_id: BulletId) {
+        self.bullets_to_remove.push(bullet_id);
     }
 
     pub fn draw(&self, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {

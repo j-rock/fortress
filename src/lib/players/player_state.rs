@@ -22,7 +22,10 @@ use crate::{
         SpriteData,
         SpriteRenderer
     },
-    weapons::Weapon,
+    weapons::{
+        BulletId,
+        Weapon
+    },
 };
 use nalgebra::{
     Point2,
@@ -58,6 +61,10 @@ impl PlayerState {
 
     pub fn pre_update(&mut self, dt: DeltaTime) {
         self.weapon.pre_update(dt);
+    }
+
+    pub fn post_update(&mut self) {
+        self.weapon.post_update();
     }
 
     pub fn redeploy(&mut self, config: &PlayerConfig, physics_sim: &mut PhysicsSimulation) {
@@ -115,6 +122,10 @@ impl PlayerState {
             let start_position = Point2::from(position.coords + self.weapon_physical_offset * self.facing_dir);
             self.weapon.try_fire(audio, self.player_id, start_position, self.facing_dir);
         }
+    }
+
+    pub fn bullet_hit(&mut self, bullet_id: BulletId) {
+        self.weapon.bullet_hit(bullet_id);
     }
 
     pub fn compute_move_direction(controller_id: ControllerId, controller: &Controller) -> Option<Vector2<f64>> {

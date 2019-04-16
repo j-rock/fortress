@@ -16,6 +16,7 @@ use crate::{
         SpriteRenderer,
         Viewport,
     },
+    weapons::WeaponMatchers,
     world::WorldView,
 };
 use glm;
@@ -42,6 +43,7 @@ impl WorldState {
         let mut physics_sim = PhysicsSimulation::new(config_watcher)?;
 
         physics_sim.borrow_mut().add_contact_matchers(vec!(
+            WeaponMatchers::bullet_hit(),
         ));
         physics_sim.borrow_mut().add_proximity_matchers(vec!(
         ));
@@ -73,8 +75,12 @@ impl WorldState {
         }
 
         {
-            let mut world_view = WorldView::new(audio, &mut self.players, dt);
-            self.physics_sim.borrow_mut().step(&mut world_view);
+            let world_view = WorldView {
+                audio,
+                players: &mut self.players,
+                dt
+            };
+            self.physics_sim.borrow_mut().step(world_view);
         }
 
         // Post-update.

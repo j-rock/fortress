@@ -19,6 +19,7 @@ use crate::{
         PointLight,
         SpriteRenderer
     },
+    weapons::BulletId,
 };
 use nalgebra::Point2;
 
@@ -47,6 +48,8 @@ impl Player {
     }
 
     pub fn post_update(&mut self, audio: &AudioPlayer) {
+        self.player_state.post_update();
+
         if let Some(player_state_machine) = self.player_state_machine.post_update(&self.player_state, audio) {
             self.player_state_machine = player_state_machine;
         }
@@ -67,5 +70,9 @@ impl Player {
 
     pub fn draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {
         self.player_state.draw(config, sprite_renderer, lights);
+    }
+
+    pub fn bullet_hit(&mut self, bullet_id: BulletId) {
+        self.player_state.bullet_hit(bullet_id);
     }
 }
