@@ -12,7 +12,10 @@ use crate::{
             HexData,
             HexRenderer,
         },
+        NamedTexture,
         PointLight,
+        SpriteData,
+        SpriteRenderer,
     }
 };
 use hashbrown::{
@@ -76,7 +79,7 @@ impl MapState {
             .collect()
     }
 
-    pub fn queue_draw(&self, config: &MapConfig, renderer: &mut HexRenderer, lights: &mut Vec<PointLight>) {
+    pub fn queue_draw(&self, config: &MapConfig, hex_renderer: &mut HexRenderer, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {
         let mut data = Vec::with_capacity(self.cells.len());
         for (grid_index, map_cell) in self.cells.iter() {
             data.push(HexData {
@@ -86,14 +89,24 @@ impl MapState {
                 rgba_color: map_cell.rgba_color
             });
         }
-        renderer.queue(self.hex_cell_length, &data);
+        hex_renderer.queue(self.hex_cell_length, &data);
 
+        let mut sprite_data = Vec::with_capacity(self.light_positions.len());
         for position in self.light_positions.iter() {
+
             lights.push(PointLight {
-                position: glm::vec3(position.0, config.light_height, -position.1),
+                position: glm::vec3(position.0, config.light_center_height, -position.1),
                 color: glm::vec3(config.light_color.0, config.light_color.1, config.light_color.2),
                 attenuation: glm::vec3(config.light_attenuation.0, config.light_attenuation.1, config.light_attenuation.2),
+            });
+
+            sprite_data.push(SpriteData {
+                world_bottom_center_position: glm::vec3(position.0, config.light_center_height - config.light_half_size.1, -position.1),
+                world_half_size: glm::vec2(config.light_half_size.0, config.light_half_size.1),
+                tex_bottom_left: glm::vec2(config.light_texel_bottom_left.0, config.light_texel_bottom_left.1),
+                tex_top_right: glm::vec2(config.light_texel_top_right.0, config.light_texel_top_right.1),
             })
         }
+        sprite_renderer.queue(NamedTexture::SpriteSheet1, sprite_data.as_slice());
     }
 }

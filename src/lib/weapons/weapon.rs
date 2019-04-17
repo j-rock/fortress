@@ -115,7 +115,7 @@ impl Weapon {
         self.bullets_to_remove.push(bullet_id);
     }
 
-    pub fn draw(&self, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {
+    pub fn draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {
         let sprites: Vec<_> = self.bullets.iter().map(|(_idx, bullet)| -> SpriteData {
             let body_position = bullet.get_position();
             let world_position = glm::vec3(body_position.x as f32, self.bullet_render_height, -body_position.y as f32);
@@ -128,8 +128,8 @@ impl Weapon {
             SpriteData {
                 world_bottom_center_position: world_position,
                 world_half_size: glm::vec2(self.bullet_radius as f32, self.bullet_radius as f32),
-                tex_bottom_left: glm::vec2(0.0001, 0.0001),
-                tex_top_right: glm::vec2(0.9999, 0.9999),
+                tex_bottom_left: glm::vec2(config.bullet_texel_bottom_left.0, config.bullet_texel_bottom_left.1),
+                tex_top_right: glm::vec2(config.bullet_texel_top_right.0, config.bullet_texel_top_right.1),
             }
         }).collect();
 

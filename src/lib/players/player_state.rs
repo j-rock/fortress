@@ -91,11 +91,11 @@ impl PlayerState {
             sprite_renderer.queue(NamedTexture::SpriteSheet1, &[SpriteData {
                 world_bottom_center_position,
                 world_half_size,
-                tex_bottom_left: glm::vec2(0.0001, 0.0001),
-                tex_top_right: glm::vec2(0.9999, 0.9999),
+                tex_bottom_left: glm::vec2(config.player_texel_bottom_left.0, config.player_texel_bottom_left.1),
+                tex_top_right: glm::vec2(config.player_texel_top_right.0, config.player_texel_top_right.1),
             }]);
 
-            self.weapon.draw(sprite_renderer, lights);
+            self.weapon.draw(config, sprite_renderer, lights);
         }
     }
 

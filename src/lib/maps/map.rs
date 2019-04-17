@@ -13,6 +13,7 @@ use crate::{
     render::{
         hex_renderer::HexRenderer,
         PointLight,
+        SpriteRenderer,
     },
 };
 use nalgebra::Point2;
@@ -57,9 +58,9 @@ impl Map {
         }
     }
 
-    pub fn draw(&mut self, projection_view: &glm::Mat4, lights: &mut Vec<PointLight>) {
+    pub fn draw(&mut self, projection_view: &glm::Mat4, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {
         let config = self.map_config_manager.get();
-        self.map_state.queue_draw(config, &mut self.renderer, lights);
+        self.map_state.queue_draw(config, &mut self.renderer, sprite_renderer, lights);
         self.renderer.draw(projection_view);
     }
 

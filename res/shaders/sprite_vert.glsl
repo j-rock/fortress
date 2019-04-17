@@ -15,6 +15,8 @@ void main() {
 
     vs_out.world_bottom_center_position = world_bottom_center_position;
     vs_out.half_size = half_size;
-    vs_out.texel_bottom_left = texel_coords.xy;
-    vs_out.texel_top_right = texel_coords.zw;
+
+    // Since OpenGL loads the image upside-down, invert the texel coords.
+    vs_out.texel_bottom_left = vec2(texel_coords.x, 1.0 - texel_coords.y);
+    vs_out.texel_top_right = vec2(texel_coords.z, 1.0 - texel_coords.w);
 }
