@@ -1,8 +1,9 @@
 {
     "lights": [
-         { "position": [32.5, 0.0] }
-       , { "position": [-32.5, 0.0] }
-       , { "position": [-2.5, 10.0] }
+         { "position": [-66.0, -35.0] }
+       , { "position": [-54.0, 0.0] }
+       , { "position": [-8.0, 10.0] }
+       , { "position": [24.5, -28.0] }
     ],
 
     "cells": [

@@ -80,7 +80,7 @@ impl MapState {
     pub fn populate_lights(&self, config: &MapConfig, lights: &mut Vec<PointLight>) {
         for position in self.light_positions.iter() {
             lights.push(PointLight {
-                position: glm::vec3(position.0, config.light_center_height, -position.1),
+                position: glm::vec3(position.0, config.light_center_height, position.1),
                 color: glm::vec3(config.light_color.0, config.light_color.1, config.light_color.2),
                 attenuation: glm::vec3(config.light_attenuation.0, config.light_attenuation.1, config.light_attenuation.2),
             });
@@ -102,7 +102,7 @@ impl MapState {
         let mut sprite_data = Vec::with_capacity(self.light_positions.len());
         for position in self.light_positions.iter() {
             sprite_data.push(SpriteData {
-                world_bottom_center_position: glm::vec3(position.0, config.light_center_height - config.light_half_size.1, -position.1),
+                world_bottom_center_position: glm::vec3(position.0, config.light_center_height - config.light_half_size.1, position.1),
                 world_half_size: glm::vec2(config.light_half_size.0, config.light_half_size.1),
                 tex_bottom_left: glm::vec2(config.light_texel_bottom_left.0, config.light_texel_bottom_left.1),
                 tex_top_right: glm::vec2(config.light_texel_top_right.0, config.light_texel_top_right.1),
