@@ -83,7 +83,11 @@ impl PlayerState {
         self.player_id
     }
 
-    pub fn draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {
+    pub fn populate_lights(&self, lights: &mut Vec<PointLight>) {
+        self.weapon.populate_lights(lights);
+    }
+
+    pub fn queue_draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer) {
         if let Some(position) = self.body.position() {
             let world_bottom_center_position = glm::vec3(position.x as f32, 0.0, -position.y as f32);
             let world_half_size = glm::vec2(config.physical_radius as f32, 2.0 * config.physical_radius as f32);
@@ -95,7 +99,7 @@ impl PlayerState {
                 tex_top_right: glm::vec2(config.player_texel_top_right.0, config.player_texel_top_right.1),
             }]);
 
-            self.weapon.draw(config, sprite_renderer, lights);
+            self.weapon.queue_draw(config, sprite_renderer);
         }
     }
 

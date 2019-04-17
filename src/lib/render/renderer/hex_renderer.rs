@@ -10,6 +10,7 @@ use crate::{
         Attribute,
         AttributeProgram,
         InstancedMesh,
+        PointLight,
         ShaderProgram,
     }
 };
@@ -80,7 +81,7 @@ impl HexRenderer {
         }
     }
 
-    pub fn draw(&mut self, projection_view: &glm::Mat4) {
+    pub fn draw(&mut self, lights: &Vec<PointLight>, projection_view: &glm::Mat4) {
         self.shader_program.activate();
         self.attribute_program.activate();
         self.attr_transform.prepare_buffer();
@@ -88,6 +89,8 @@ impl HexRenderer {
         self.attr_scale.prepare_buffer();
 
         self.shader_program.set_mat4("projection_view", projection_view);
+        PointLight::set_lights(lights, &mut self.shader_program);
+
         self.mesh.draw(self.attr_transform.data.len());
 
         self.attribute_program.deactivate();

@@ -7,6 +7,7 @@ use crate::{
         AttributeProgram,
         NamedTexture,
         NamedTextureManager,
+        PointLight,
         ShaderProgram,
     }
 };
@@ -71,13 +72,14 @@ impl SpriteRenderer {
         }
     }
 
-    pub fn draw(&mut self, projection_view: &glm::Mat4, camera_right: glm::Vec3, camera_up: glm::Vec3) {
+    pub fn draw(&mut self, lights: &Vec<PointLight>, projection_view: &glm::Mat4, camera_right: glm::Vec3, camera_up: glm::Vec3) {
         self.shader_program.activate();
         self.attribute_program.activate();
 
         self.shader_program.set_mat4("projection_view", projection_view);
         self.shader_program.set_vec3("camera_right", &camera_right);
         self.shader_program.set_vec3("camera_up", &camera_up);
+        PointLight::set_lights(lights, &mut self.shader_program);
 
         for (named_texture, queued_draw) in self.per_pack_attrs.iter() {
             let texture = self.textures.texture(*named_texture);

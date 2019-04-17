@@ -118,10 +118,16 @@ impl PlayerSystem {
         &mut self.players[player_id.as_usize()]
     }
 
-    pub fn draw(&self, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {
+    pub fn populate_lights(&self, lights: &mut Vec<PointLight>) {
+        for (_i, player) in self.players.iter() {
+            player.populate_lights( lights);
+        }
+    }
+
+    pub fn queue_draw(&self, sprite_renderer: &mut SpriteRenderer) {
         let config = self.config_manager.get();
         for (_i, player) in self.players.iter() {
-            player.draw( config, sprite_renderer, lights);
+            player.queue_draw( config, sprite_renderer);
         }
     }
 

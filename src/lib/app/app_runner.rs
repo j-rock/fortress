@@ -11,7 +11,6 @@ use crate::{
         ConfigWatcher,
         self
     },
-    render::GBuffer,
     world::WorldState,
 };
 use gl;
@@ -33,7 +32,6 @@ pub struct AppRunner {
     audio: AudioPlayer,
     clock: Clock,
     controller: Controller,
-    g_buffer: GBuffer,
     world: WorldState,
     config_watcher: ConfigWatcher,
 
@@ -58,7 +56,6 @@ impl AppRunner {
             context,
             clock: Clock::start(),
             controller,
-            g_buffer: GBuffer::new(config.window_size)?,
             world,
         })
     }
@@ -87,7 +84,6 @@ impl AppRunner {
                 Event::Quit { .. } | Event::KeyDown {keycode: Some(Keycode::Q), ..} => return Ok(false),
                 Event::Window { win_event: WindowEvent::Resized(width, height), .. } => {
                     unsafe { gl::Viewport(0, 0, width, height); }
-                    self.g_buffer.resize(width, height)?;
                 },
                   Event::ControllerDeviceAdded {..}
                 | Event::ControllerDeviceRemoved {..}
@@ -120,13 +116,9 @@ impl AppRunner {
         }
 
         // 1. Draw all geometry.
-        self.g_buffer.geometry_pass();
-        self.world.draw_geometry(screen_size, self.g_buffer.lights_mut());
+        self.world.draw(screen_size);
 
-        // 2. Lighting pass
-        self.g_buffer.lighting_pass();
-
-        // 3. Non-geometric superimposed draw calls.
+        // 2. Non-geometric superimposed draw calls.
     }
 
     fn screen_size(&self) -> glm::IVec2 {

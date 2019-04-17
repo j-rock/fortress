@@ -13,6 +13,7 @@ use crate::{
     render::{
         Camera,
         PointLight,
+        HexRenderer,
         SpriteRenderer,
         Viewport,
     },
@@ -29,7 +30,9 @@ struct WorldConfig {
 pub struct WorldState {
     config_manager: SimpleConfigManager<WorldConfig>,
     camera: Camera,
+    hex_renderer: HexRenderer,
     sprite_renderer: SpriteRenderer,
+    lights: Vec<PointLight>,
 
     map: Map,
     players: PlayerSystem,
@@ -54,7 +57,9 @@ impl WorldState {
         Ok(WorldState {
             config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
             camera: Camera::new(config_watcher)?,
+            hex_renderer: HexRenderer::new()?,
             sprite_renderer: SpriteRenderer::new()?,
+            lights: vec!(),
             map,
             players,
             physics_sim
@@ -93,14 +98,26 @@ impl WorldState {
        self.config_manager.get().clear_color
     }
 
-    pub fn draw_geometry(&mut self, screen_size: glm::IVec2, lights: &mut Vec<PointLight>) {
+    pub fn draw(&mut self, screen_size: glm::IVec2) {
+        self.populate_lights();
+        self.draw_geometry(screen_size);
+        self.lights.clear();
+    }
+
+    fn populate_lights(&mut self) {
+        self.map.populate_lights(&mut self.lights);
+        self.players.populate_lights(&mut self.lights);
+    }
+
+    fn draw_geometry(&mut self, screen_size: glm::IVec2) {
         let (lookat, right, up) = self.camera.lookat_right_and_up();
         let projection_view = self.camera.projection(screen_size) * self.camera.view(lookat, up);
 
-        self.map.draw(&projection_view, &mut self.sprite_renderer, lights);
-        self.players.draw(&mut self.sprite_renderer, lights);
+        self.map.queue_draw(&mut self.hex_renderer, &mut self.sprite_renderer);
+        self.players.queue_draw(&mut self.sprite_renderer);
 
-        self.sprite_renderer.draw(&projection_view, right, up);
+        self.sprite_renderer.draw(&self.lights, &projection_view, right, up);
+        self.hex_renderer.draw(&self.lights, &projection_view);
 
         // Fix viewport at the end.
         Viewport::default(screen_size).set();

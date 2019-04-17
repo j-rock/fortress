@@ -68,8 +68,12 @@ impl Player {
         self.player_state.get_player_id()
     }
 
-    pub fn draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {
-        self.player_state.draw(config, sprite_renderer, lights);
+    pub fn populate_lights(&self, lights: &mut Vec<PointLight>) {
+        self.player_state.populate_lights(lights);
+    }
+
+    pub fn queue_draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer) {
+        self.player_state.queue_draw(config, sprite_renderer);
     }
 
     pub fn bullet_hit(&mut self, bullet_id: BulletId) {

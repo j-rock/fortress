@@ -11,7 +11,7 @@ use crate::{
     },
     physics::PhysicsSimulation,
     render::{
-        hex_renderer::HexRenderer,
+        HexRenderer,
         PointLight,
         SpriteRenderer,
     },
@@ -22,7 +22,6 @@ pub struct Map {
     map_config_manager: SimpleConfigManager<MapConfig>,
     map_file_manager:  SimpleConfigManager<MapFile>,
     map_state: MapState,
-    renderer: HexRenderer,
 }
 
 impl Map {
@@ -39,13 +38,10 @@ impl Map {
             MapState::new(config, map_file, physics_sim)
         };
 
-        let renderer = HexRenderer::new()?;
-
         Ok(Map {
             map_config_manager,
             map_file_manager,
             map_state,
-            renderer,
         })
     }
 
@@ -58,10 +54,14 @@ impl Map {
         }
     }
 
-    pub fn draw(&mut self, projection_view: &glm::Mat4, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {
+    pub fn populate_lights(&self, lights: &mut Vec<PointLight>) {
         let config = self.map_config_manager.get();
-        self.map_state.queue_draw(config, &mut self.renderer, sprite_renderer, lights);
-        self.renderer.draw(projection_view);
+       self.map_state.populate_lights(config, lights);
+    }
+
+    pub fn queue_draw(&mut self, hex_renderer: &mut HexRenderer, sprite_renderer: &mut SpriteRenderer) {
+        let config = self.map_config_manager.get();
+        self.map_state.queue_draw(config, hex_renderer, sprite_renderer);
     }
 
     pub fn spawns(&self) -> Vec<Point2<f64>> {

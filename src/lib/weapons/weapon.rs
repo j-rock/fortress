@@ -115,8 +115,8 @@ impl Weapon {
         self.bullets_to_remove.push(bullet_id);
     }
 
-    pub fn draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer, lights: &mut Vec<PointLight>) {
-        let sprites: Vec<_> = self.bullets.iter().map(|(_idx, bullet)| -> SpriteData {
+    pub fn populate_lights(&self, lights: &mut Vec<PointLight>) {
+        for (_idx, bullet) in self.bullets.iter() {
             let body_position = bullet.get_position();
             let world_position = glm::vec3(body_position.x as f32, self.bullet_render_height, -body_position.y as f32);
             lights.push(PointLight {
@@ -124,6 +124,13 @@ impl Weapon {
                 color: self.bullet_light_color,
                 attenuation: self.bullet_light_attenuation
             });
+        }
+    }
+
+    pub fn queue_draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer) {
+        let sprites: Vec<_> = self.bullets.iter().map(|(_idx, bullet)| -> SpriteData {
+            let body_position = bullet.get_position();
+            let world_position = glm::vec3(body_position.x as f32, self.bullet_render_height, -body_position.y as f32);
 
             SpriteData {
                 world_bottom_center_position: world_position,
