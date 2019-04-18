@@ -1,14 +1,19 @@
 use crate::{
     app::StatusOr,
-    file,
+    file::{
+        self,
+        ConfigWatcher,
+    },
     render::{
         attribute,
         Attribute,
         AttributeProgram,
-        NamedTexture,
-        NamedTextureManager,
+        NamedSpriteSheet,
+        SpriteSheetTexelId,
+        SpriteSheetTextureManager,
         PointLight,
         ShaderProgram,
+        Texel,
     }
 };
 use gl::{
@@ -18,12 +23,11 @@ use gl::{
 use glm;
 use hashbrown::HashMap;
 
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct SpriteData {
     pub world_bottom_center_position: glm::Vec3,
     pub world_half_size: glm::Vec2,
-    pub tex_bottom_left: glm::Vec2,
-    pub tex_top_right: glm::Vec2,
+    pub sprite_texel_id: SpriteSheetTexelId,
 }
 
 pub struct SpriteRenderer {
@@ -31,13 +35,13 @@ pub struct SpriteRenderer {
     attribute_program: AttributeProgram,
     attr_pos: Attribute<SpritePositionAttr>,
     attr_size: Attribute<SpriteSizeAttr>,
-    attr_texel: Attribute<SpriteTexelAttr>,
-    textures: NamedTextureManager,
-    per_pack_attrs: HashMap<NamedTexture, Vec<SpriteData>>,
+    attr_texel: Attribute<Texel>,
+    textures: SpriteSheetTextureManager,
+    per_pack_attrs: HashMap<NamedSpriteSheet, Vec<SpriteData>>,
 }
 
 impl SpriteRenderer {
-    pub fn new() -> StatusOr<SpriteRenderer> {
+    pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<SpriteRenderer> {
         let vertex = file::util::resource_path("shaders", "sprite_vert.glsl");
         let geometry = file::util::resource_path("shaders", "sprite_geo.glsl");
         let fragment = file::util::resource_path("shaders", "sprite_frag.glsl");
@@ -49,7 +53,7 @@ impl SpriteRenderer {
         let attr_texel = attribute_program_builder.add_attribute();
         let attribute_program = attribute_program_builder.build();
 
-        let textures = NamedTextureManager::new()?;
+        let textures = SpriteSheetTextureManager::new(config_watcher)?;
 
         Ok(SpriteRenderer {
             shader_program,
@@ -62,13 +66,17 @@ impl SpriteRenderer {
         })
     }
 
-    pub fn queue(&mut self, texture: NamedTexture, data: &[SpriteData]) {
-        let pack_attrs = self.per_pack_attrs
-            .entry(texture)
-            .or_insert(Vec::new());
+    pub fn update(&mut self) {
+        self.textures.update();
+    }
 
-        for datum in data.iter() {
-            pack_attrs.push(*datum);
+    pub fn queue(&mut self, data: Vec<SpriteData>) {
+        for datum in data.into_iter() {
+            let pack_attrs = self.per_pack_attrs
+                .entry(datum.sprite_texel_id.sprite_sheet)
+                .or_insert(Vec::new());
+
+            pack_attrs.push(datum);
         }
     }
 
@@ -86,16 +94,15 @@ impl SpriteRenderer {
             texture.activate(&mut self.shader_program);
 
             for datum in queued_draw.iter() {
+                let texel = self.textures.texel(&datum.sprite_texel_id);
+
                 self.attr_pos.data.push(SpritePositionAttr {
                     world_bottom_center_position: datum.world_bottom_center_position,
                 });
                 self.attr_size.data.push(SpriteSizeAttr {
                     world_half_size: datum.world_half_size,
                 });
-                self.attr_texel.data.push(SpriteTexelAttr {
-                    bottom_left: datum.tex_bottom_left,
-                    top_right: datum.tex_top_right,
-                });
+                self.attr_texel.data.push(*texel);
             }
 
             self.attr_pos.prepare_buffer();
@@ -136,17 +143,5 @@ struct SpriteSizeAttr {
 impl attribute::KnownComponent for SpriteSizeAttr {
     fn component() -> (attribute::NumComponents, attribute::ComponentType) {
         (attribute::NumComponents::S2, attribute::ComponentType::Float)
-    }
-}
-
-#[repr(C)]
-struct SpriteTexelAttr {
-    bottom_left: glm::Vec2,
-    top_right: glm::Vec2,
-}
-
-impl attribute::KnownComponent for SpriteTexelAttr {
-    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
-        (attribute::NumComponents::S4, attribute::ComponentType::Float)
     }
 }

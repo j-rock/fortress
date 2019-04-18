@@ -10,10 +10,11 @@ use crate::{
     render::{
         HexData,
         HexRenderer,
-        NamedTexture,
+        NamedSpriteSheet,
         PointLight,
         SpriteData,
         SpriteRenderer,
+        SpriteSheetTexelId,
     }
 };
 use hashbrown::{
@@ -104,10 +105,12 @@ impl MapState {
             sprite_data.push(SpriteData {
                 world_bottom_center_position: glm::vec3(position.0, config.light_center_height - config.light_half_size.1, position.1),
                 world_half_size: glm::vec2(config.light_half_size.0, config.light_half_size.1),
-                tex_bottom_left: glm::vec2(config.light_texel_bottom_left.0, config.light_texel_bottom_left.1),
-                tex_top_right: glm::vec2(config.light_texel_top_right.0, config.light_texel_top_right.1),
+                sprite_texel_id: SpriteSheetTexelId {
+                    name: String::from("lantern.png"),
+                    sprite_sheet: NamedSpriteSheet::SpriteSheet1,
+                },
             })
         }
-        sprite_renderer.queue(NamedTexture::SpriteSheet1, sprite_data.as_slice());
+        sprite_renderer.queue(sprite_data);
     }
 }

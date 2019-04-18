@@ -58,7 +58,7 @@ impl WorldState {
             config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
             camera: Camera::new(config_watcher)?,
             hex_renderer: HexRenderer::new()?,
-            sprite_renderer: SpriteRenderer::new()?,
+            sprite_renderer: SpriteRenderer::new(config_watcher)?,
             lights: vec!(),
             map,
             players,
@@ -69,6 +69,7 @@ impl WorldState {
     pub fn update(&mut self, audio: &AudioPlayer, controller: &Controller, dt: DeltaTime) {
         self.config_manager.update();
         self.camera.update();
+        self.sprite_renderer.update();
 
         // Pre-update.
         {

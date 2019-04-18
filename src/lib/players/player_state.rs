@@ -17,10 +17,11 @@ use crate::{
         state::PlayerBody
     },
     render::{
-        NamedTexture,
+        NamedSpriteSheet,
         PointLight,
         SpriteData,
-        SpriteRenderer
+        SpriteRenderer,
+        SpriteSheetTexelId,
     },
     weapons::{
         BulletId,
@@ -92,14 +93,16 @@ impl PlayerState {
             let world_bottom_center_position = glm::vec3(position.x as f32, 0.0, -position.y as f32);
             let world_half_size = glm::vec2(config.physical_radius as f32, 2.0 * config.physical_radius as f32);
 
-            sprite_renderer.queue(NamedTexture::SpriteSheet1, &[SpriteData {
+            sprite_renderer.queue(vec![SpriteData {
                 world_bottom_center_position,
                 world_half_size,
-                tex_bottom_left: glm::vec2(config.player_texel_bottom_left.0, config.player_texel_bottom_left.1),
-                tex_top_right: glm::vec2(config.player_texel_top_right.0, config.player_texel_top_right.1),
+                sprite_texel_id: SpriteSheetTexelId {
+                    name: String::from("player.png"),
+                    sprite_sheet: NamedSpriteSheet::SpriteSheet1,
+                },
             }]);
 
-            self.weapon.queue_draw(config, sprite_renderer);
+            self.weapon.queue_draw(sprite_renderer);
         }
     }
 

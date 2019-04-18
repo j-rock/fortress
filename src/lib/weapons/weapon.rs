@@ -17,10 +17,11 @@ use crate::{
         PlayerId,
     },
     render::{
-        NamedTexture,
+        NamedSpriteSheet,
         PointLight,
         SpriteData,
         SpriteRenderer,
+        SpriteSheetTexelId,
     },
     weapons::{
         BulletId,
@@ -127,7 +128,7 @@ impl Weapon {
         }
     }
 
-    pub fn queue_draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer) {
+    pub fn queue_draw(&self, sprite_renderer: &mut SpriteRenderer) {
         let sprites: Vec<_> = self.bullets.iter().map(|(_idx, bullet)| -> SpriteData {
             let body_position = bullet.get_position();
             let world_position = glm::vec3(body_position.x as f32, self.bullet_render_height, -body_position.y as f32);
@@ -135,11 +136,13 @@ impl Weapon {
             SpriteData {
                 world_bottom_center_position: world_position,
                 world_half_size: glm::vec2(self.bullet_radius as f32, self.bullet_radius as f32),
-                tex_bottom_left: glm::vec2(config.bullet_texel_bottom_left.0, config.bullet_texel_bottom_left.1),
-                tex_top_right: glm::vec2(config.bullet_texel_top_right.0, config.bullet_texel_top_right.1),
+                sprite_texel_id: SpriteSheetTexelId {
+                    name: String::from("bullet.png"),
+                    sprite_sheet: NamedSpriteSheet::SpriteSheet1,
+                },
             }
         }).collect();
 
-        sprite_renderer.queue(NamedTexture::SpriteSheet1, sprites.as_slice());
+        sprite_renderer.queue(sprites);
     }
 }
