@@ -137,7 +137,7 @@ impl Weapon {
                 world_bottom_center_position: world_position,
                 world_half_size: glm::vec2(self.bullet_radius as f32, self.bullet_radius as f32),
                 sprite_texel_id: SpriteSheetTexelId {
-                    name: String::from("bullet.png"),
+                    name: String::from("arrow_right.png"),
                     sprite_sheet: NamedSpriteSheet::SpriteSheet1,
                 },
             }
