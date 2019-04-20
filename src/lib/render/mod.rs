@@ -17,6 +17,7 @@ pub use self::cameras::Camera;
 pub use self::cameras::CameraConfig;
 pub use self::instanced_mesh::InstancedMesh;
 pub use self::point_light::PointLight;
+pub use self::renderer::BackgroundRenderer;
 pub use self::renderer::HexData;
 pub use self::renderer::HexRenderer;
 pub use self::renderer::SpriteData;

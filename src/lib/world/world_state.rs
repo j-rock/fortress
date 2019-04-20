@@ -11,6 +11,7 @@ use crate::{
     physics::PhysicsSimulation,
     players::PlayerSystem,
     render::{
+        BackgroundRenderer,
         Camera,
         PointLight,
         HexRenderer,
@@ -30,6 +31,7 @@ struct WorldConfig {
 pub struct WorldState {
     config_manager: SimpleConfigManager<WorldConfig>,
     camera: Camera,
+    background_renderer: BackgroundRenderer,
     hex_renderer: HexRenderer,
     sprite_renderer: SpriteRenderer,
     lights: Vec<PointLight>,
@@ -57,6 +59,7 @@ impl WorldState {
         Ok(WorldState {
             config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
             camera: Camera::new(config_watcher)?,
+            background_renderer: BackgroundRenderer::new()?,
             hex_renderer: HexRenderer::new()?,
             sprite_renderer: SpriteRenderer::new(config_watcher)?,
             lights: vec!(),
@@ -117,6 +120,7 @@ impl WorldState {
         self.map.queue_draw(&mut self.hex_renderer, &mut self.sprite_renderer);
         self.players.queue_draw(&mut self.sprite_renderer);
 
+        self.background_renderer.draw();
         self.sprite_renderer.draw(&self.lights, &projection_view, right, up);
         self.hex_renderer.draw(&self.lights, &projection_view);
 

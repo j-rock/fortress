@@ -1,5 +1,4 @@
 use crate::{
-    app::StatusOr,
     image::Png,
     render::ShaderProgram,
 };
@@ -40,7 +39,7 @@ pub struct Texture {
 }
 
 impl Texture {
-    pub fn new(png: Png, texture_unit: usize) -> StatusOr<Texture> {
+    pub fn new(png: Png, texture_unit: usize) -> Texture {
         let (width, height) = png.size();
         let png_vec = png.flattened_copy_bytes();
 
@@ -65,11 +64,11 @@ impl Texture {
             gl::BindTexture(gl::TEXTURE_2D, 0);
         }
 
-        Ok(Texture {
+        Texture {
             texture_id: TextureId(texture_id),
             texture_unit,
             _png_vec: png_vec,
-        })
+        }
     }
 
     pub fn activate(&self, shader_program: &mut ShaderProgram) {

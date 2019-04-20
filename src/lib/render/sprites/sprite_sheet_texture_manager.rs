@@ -49,7 +49,7 @@ impl SpriteSheetTextureManager {
         for sprite_sheet in NamedSpriteSheet::all_values() {
             let sheet_data = config.sheets.get(&sprite_sheet).ok_or(format!("No sheet data for {:?}", sprite_sheet))?;
             let packed = PackedSpriteSheet::new(sprite_sheet, sheet_data.width, sheet_data.height)?;
-            self.textures.insert(sprite_sheet, Texture::new(packed.image, 0)?);
+            self.textures.insert(sprite_sheet, Texture::new(packed.image, 0));
 
             for (sprite_sheet_texel_id, texel) in packed.mappings.into_iter() {
                 self.texels.insert(sprite_sheet_texel_id, texel);

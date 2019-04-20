@@ -13,7 +13,7 @@ pub struct Png {
 
 impl Png {
     pub fn empty(width: usize, height: usize) -> Png {
-        let empty = Rgba::new(0.0, 0.0, 0.0, 0.0);
+        let empty = Rgba::from_bytes(0, 0, 0, 0);
         let len = width * height;
 
         Png {
