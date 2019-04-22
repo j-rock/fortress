@@ -14,7 +14,7 @@ use crate::{
         PointLight,
         SpriteData,
         SpriteRenderer,
-        SpriteSheetTexelId,
+        SpriteSheetFrameId,
     }
 };
 use hashbrown::{
@@ -105,10 +105,11 @@ impl MapState {
             sprite_data.push(SpriteData {
                 world_bottom_center_position: glm::vec3(position.0, config.light_center_height - config.light_half_size.1, position.1),
                 world_half_size: glm::vec2(config.light_half_size.0, config.light_half_size.1),
-                sprite_texel_id: SpriteSheetTexelId {
+                sprite_frame_id: SpriteSheetFrameId {
                     name: String::from("lantern.png"),
                     sprite_sheet: NamedSpriteSheet::SpriteSheet1,
                 },
+                frame: 0,
             })
         }
         sprite_renderer.queue(sprite_data);

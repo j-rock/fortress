@@ -21,7 +21,7 @@ use crate::{
         PointLight,
         SpriteData,
         SpriteRenderer,
-        SpriteSheetTexelId,
+        SpriteSheetFrameId,
     },
     weapons::{
         BulletId,
@@ -96,13 +96,14 @@ impl PlayerState {
             sprite_renderer.queue(vec![SpriteData {
                 world_bottom_center_position,
                 world_half_size,
-                sprite_texel_id: SpriteSheetTexelId {
+                sprite_frame_id: SpriteSheetFrameId {
                     name: String::from("player.png"),
                     sprite_sheet: NamedSpriteSheet::SpriteSheet1,
                 },
+                frame: 0,
             }]);
 
-            self.weapon.queue_draw(sprite_renderer);
+            self.weapon.queue_draw(config, sprite_renderer);
         }
     }
 

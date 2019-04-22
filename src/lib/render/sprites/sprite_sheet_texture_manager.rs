@@ -8,7 +8,8 @@ use crate::{
         NamedSpriteSheet,
         PackedSpriteSheet,
         SpriteSheetConfig,
-        SpriteSheetTexelId,
+        SpriteSheetFrameId,
+        FrameInfo,
         Texel,
         Texture,
     },
@@ -19,7 +20,7 @@ pub struct SpriteSheetTextureManager {
     config: SimpleConfigManager<SpriteSheetConfig>,
 
     textures: HashMap<NamedSpriteSheet, Texture>,
-    texels: HashMap<SpriteSheetTexelId, Texel>,
+    frames: HashMap<SpriteSheetFrameId, FrameInfo>,
 }
 
 impl SpriteSheetTextureManager {
@@ -29,7 +30,7 @@ impl SpriteSheetTextureManager {
         let mut manager = SpriteSheetTextureManager {
             config,
             textures: HashMap::new(),
-            texels: HashMap::new(),
+            frames: HashMap::new(),
         };
         manager.recompute_data()?;
         Ok(manager)
@@ -43,16 +44,16 @@ impl SpriteSheetTextureManager {
 
     pub fn recompute_data(&mut self) -> StatusOr<()> {
         self.textures.clear();
-        self.texels.clear();
+        self.frames.clear();
 
         let config = self.config.get();
         for sprite_sheet in NamedSpriteSheet::all_values() {
-            let sheet_data = config.sheets.get(&sprite_sheet).ok_or(format!("No sheet data for {:?}", sprite_sheet))?;
-            let packed = PackedSpriteSheet::new(sprite_sheet, sheet_data.width, sheet_data.height)?;
+            let sheet_config = config.sheets.get(&sprite_sheet).ok_or(format!("No sheet data for {:?}", sprite_sheet))?;
+            let packed = PackedSpriteSheet::new(sheet_config, sprite_sheet)?;
             self.textures.insert(sprite_sheet, Texture::new(packed.image, 0));
 
-            for (sprite_sheet_texel_id, texel) in packed.mappings.into_iter() {
-                self.texels.insert(sprite_sheet_texel_id, texel);
+            for (sprite_sheet_frame_id, frame_info) in packed.mappings.into_iter() {
+                self.frames.insert(sprite_sheet_frame_id, frame_info);
             }
         }
 
@@ -63,7 +64,8 @@ impl SpriteSheetTextureManager {
         self.textures.get(&sprite_sheet).expect("Missing texture!")
     }
 
-    pub fn texel(&self, texel_id: &SpriteSheetTexelId) -> &Texel {
-        self.texels.get(texel_id).expect("Missing texel id!")
+    pub fn frame(&self, frame_id: &SpriteSheetFrameId, frame: usize) -> Texel {
+        let frame_info = self.frames.get(frame_id).expect("Missing frame id!");
+        frame_info.texel(frame)
     }
 }

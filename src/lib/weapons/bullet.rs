@@ -2,6 +2,10 @@ use crate::{
     dimensions::{
         Attack,
         Damage,
+        time::{
+            DeltaTime,
+            Microseconds,
+        },
     },
     entities::{
         Entity,
@@ -11,6 +15,7 @@ use crate::{
         collision_category,
         PhysicsSimulation
     },
+    players::PlayerConfig,
 };
 use nalgebra::{
     Point2,
@@ -47,6 +52,7 @@ impl BulletId {
 
 pub struct Bullet {
     body: RegisteredBody,
+    time_elapsed: Microseconds,
 }
 
 impl Bullet {
@@ -70,7 +76,16 @@ impl Bullet {
 
         Bullet {
             body: RegisteredBody::new(body_handle, entity, physics_sim),
+            time_elapsed: 0,
         }
+    }
+
+    pub fn pre_update(&mut self, dt: DeltaTime) {
+        self.time_elapsed += dt.as_microseconds();
+    }
+
+    pub fn frame(&self, config: &PlayerConfig) -> usize {
+        (self.time_elapsed / config.bullet_sprite_frame_duration_micros) as usize
     }
 
     pub fn get_position(&self) -> Point2<f64> {

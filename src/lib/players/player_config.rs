@@ -14,5 +14,6 @@ pub struct PlayerConfig {
     pub bullet_render_height: f32,
     pub bullet_light_color: (f32, f32, f32),
     pub bullet_light_attenuation: (f32, f32, f32),
+    pub bullet_sprite_frame_duration_micros: i64,
 }
 

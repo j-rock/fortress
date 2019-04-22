@@ -21,7 +21,7 @@ use crate::{
         PointLight,
         SpriteData,
         SpriteRenderer,
-        SpriteSheetTexelId,
+        SpriteSheetFrameId,
     },
     weapons::{
         BulletId,
@@ -73,6 +73,10 @@ impl Weapon {
             } else {
                 Some(new_delay)
             };
+        }
+
+        for (_idx, bullet) in self.bullets.iter_mut() {
+            bullet.pre_update(dt);
         }
     }
 
@@ -128,18 +132,19 @@ impl Weapon {
         }
     }
 
-    pub fn queue_draw(&self, sprite_renderer: &mut SpriteRenderer) {
+    pub fn queue_draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer) {
         let sprites: Vec<_> = self.bullets.iter().map(|(_idx, bullet)| -> SpriteData {
             let body_position = bullet.get_position();
             let world_position = glm::vec3(body_position.x as f32, self.bullet_render_height, -body_position.y as f32);
 
             SpriteData {
                 world_bottom_center_position: world_position,
-                world_half_size: glm::vec2(self.bullet_radius as f32, self.bullet_radius as f32),
-                sprite_texel_id: SpriteSheetTexelId {
-                    name: String::from("arrow_right.png"),
+                world_half_size: glm::vec2(3.0 * self.bullet_radius as f32, self.bullet_radius as f32),
+                sprite_frame_id: SpriteSheetFrameId {
+                    name: String::from("shooting_fireball.png"),
                     sprite_sheet: NamedSpriteSheet::SpriteSheet1,
                 },
+                frame: bullet.frame(config),
             }
         }).collect();
 

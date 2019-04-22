@@ -9,7 +9,7 @@ use crate::{
         Attribute,
         AttributeProgram,
         NamedSpriteSheet,
-        SpriteSheetTexelId,
+        SpriteSheetFrameId,
         SpriteSheetTextureManager,
         PointLight,
         ShaderProgram,
@@ -27,7 +27,8 @@ use hashbrown::HashMap;
 pub struct SpriteData {
     pub world_bottom_center_position: glm::Vec3,
     pub world_half_size: glm::Vec2,
-    pub sprite_texel_id: SpriteSheetTexelId,
+    pub sprite_frame_id: SpriteSheetFrameId,
+    pub frame: usize,
 }
 
 pub struct SpriteRenderer {
@@ -73,7 +74,7 @@ impl SpriteRenderer {
     pub fn queue(&mut self, data: Vec<SpriteData>) {
         for datum in data.into_iter() {
             let pack_attrs = self.per_pack_attrs
-                .entry(datum.sprite_texel_id.sprite_sheet)
+                .entry(datum.sprite_frame_id.sprite_sheet)
                 .or_insert(Vec::new());
 
             pack_attrs.push(datum);
@@ -94,7 +95,7 @@ impl SpriteRenderer {
             texture.activate(&mut self.shader_program);
 
             for datum in queued_draw.iter() {
-                let texel = self.textures.texel(&datum.sprite_texel_id);
+                let texel = self.textures.frame(&datum.sprite_frame_id, datum.frame);
 
                 self.attr_pos.data.push(SpritePositionAttr {
                     world_bottom_center_position: datum.world_bottom_center_position,
@@ -102,7 +103,7 @@ impl SpriteRenderer {
                 self.attr_size.data.push(SpriteSizeAttr {
                     world_half_size: datum.world_half_size,
                 });
-                self.attr_texel.data.push(*texel);
+                self.attr_texel.data.push(texel);
             }
 
             self.attr_pos.prepare_buffer();
