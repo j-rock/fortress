@@ -5,11 +5,11 @@ use crate::{
         SimpleConfigManager
     },
     render::{
+        FrameInfo,
         NamedSpriteSheet,
         PackedSpriteSheet,
         SpriteSheetConfig,
         SpriteSheetFrameId,
-        FrameInfo,
         Texel,
         Texture,
     },

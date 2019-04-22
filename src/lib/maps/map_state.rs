@@ -8,12 +8,12 @@ use crate::{
     },
     physics::PhysicsSimulation,
     render::{
+        FullyIlluminatedSpriteData,
+        FullyIlluminatedSpriteRenderer,
         HexData,
         HexRenderer,
         NamedSpriteSheet,
         PointLight,
-        FullyIlluminatedSpriteData,
-        FullyIlluminatedSpriteRenderer,
         SpriteSheetFrameId,
     }
 };
@@ -103,13 +103,14 @@ impl MapState {
         let mut sprite_data = Vec::with_capacity(self.light_positions.len());
         for position in self.light_positions.iter() {
             sprite_data.push(FullyIlluminatedSpriteData {
-                world_bottom_center_position: glm::vec3(position.0, config.light_center_height - config.light_half_size.1, position.1),
+                world_center_position: glm::vec3(position.0, config.light_center_height, position.1),
                 world_half_size: glm::vec2(config.light_half_size.0, config.light_half_size.1),
                 sprite_frame_id: SpriteSheetFrameId {
                     name: String::from("lantern.png"),
                     sprite_sheet: NamedSpriteSheet::SpriteSheet1,
                 },
                 frame: 0,
+                rotation: 0.0,
             })
         }
         sprite_renderer.queue(sprite_data);

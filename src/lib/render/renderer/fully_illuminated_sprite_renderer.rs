@@ -21,10 +21,11 @@ use hashbrown::HashMap;
 
 #[derive(Clone)]
 pub struct FullyIlluminatedSpriteData {
-    pub world_bottom_center_position: glm::Vec3,
+    pub world_center_position: glm::Vec3,
     pub world_half_size: glm::Vec2,
     pub sprite_frame_id: SpriteSheetFrameId,
     pub frame: usize,
+    pub rotation: f32,
 }
 
 pub struct FullyIlluminatedSpriteRenderer {
@@ -33,6 +34,7 @@ pub struct FullyIlluminatedSpriteRenderer {
     attr_pos: Attribute<SpritePositionAttr>,
     attr_size: Attribute<SpriteSizeAttr>,
     attr_texel: Attribute<Texel>,
+    attr_rot: Attribute<RotationAttr>,
     per_pack_attrs: HashMap<NamedSpriteSheet, Vec<FullyIlluminatedSpriteData>>,
 }
 
@@ -47,6 +49,7 @@ impl FullyIlluminatedSpriteRenderer {
         let attr_pos = attribute_program_builder.add_attribute();
         let attr_size = attribute_program_builder.add_attribute();
         let attr_texel = attribute_program_builder.add_attribute();
+        let attr_rot = attribute_program_builder.add_attribute();
         let attribute_program = attribute_program_builder.build();
 
         Ok(FullyIlluminatedSpriteRenderer {
@@ -55,6 +58,7 @@ impl FullyIlluminatedSpriteRenderer {
             attr_pos,
             attr_size,
             attr_texel,
+            attr_rot,
             per_pack_attrs: HashMap::new(),
         })
     }
@@ -85,17 +89,21 @@ impl FullyIlluminatedSpriteRenderer {
                 let texel = textures.frame(&datum.sprite_frame_id, datum.frame);
 
                 self.attr_pos.data.push(SpritePositionAttr {
-                    world_bottom_center_position: datum.world_bottom_center_position,
+                    world_center_position: datum.world_center_position,
                 });
                 self.attr_size.data.push(SpriteSizeAttr {
                     world_half_size: datum.world_half_size,
                 });
                 self.attr_texel.data.push(texel);
+                self.attr_rot.data.push(RotationAttr {
+                    rotation: datum.rotation
+                });
             }
 
             self.attr_pos.prepare_buffer();
             self.attr_size.prepare_buffer();
             self.attr_texel.prepare_buffer();
+            self.attr_rot.prepare_buffer();
 
             unsafe {
                 gl::DrawArraysInstanced(gl::POINTS, 0, 4, self.attr_pos.data.len() as GLsizei);
@@ -104,6 +112,7 @@ impl FullyIlluminatedSpriteRenderer {
             self.attr_pos.data.clear();
             self.attr_size.data.clear();
             self.attr_texel.data.clear();
+            self.attr_rot.data.clear();
         }
 
         self.per_pack_attrs.clear();
@@ -114,7 +123,7 @@ impl FullyIlluminatedSpriteRenderer {
 
 #[repr(C)]
 struct SpritePositionAttr {
-    world_bottom_center_position: glm::Vec3,
+    world_center_position: glm::Vec3,
 }
 
 impl attribute::KnownComponent for SpritePositionAttr {
@@ -131,5 +140,16 @@ struct SpriteSizeAttr {
 impl attribute::KnownComponent for SpriteSizeAttr {
     fn component() -> (attribute::NumComponents, attribute::ComponentType) {
         (attribute::NumComponents::S2, attribute::ComponentType::Float)
+    }
+}
+
+#[repr(C)]
+struct RotationAttr {
+    rotation: f32,
+}
+
+impl attribute::KnownComponent for RotationAttr {
+    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
+        (attribute::NumComponents::S1, attribute::ComponentType::Float)
     }
 }

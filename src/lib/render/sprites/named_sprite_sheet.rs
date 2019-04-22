@@ -7,9 +7,7 @@ pub enum NamedSpriteSheet {
 
 impl NamedSpriteSheet {
     pub fn to_lowercase_string(self) -> String {
-        let mut string = format!("{:?}", self);
-        string.make_ascii_lowercase();
-        string
+        format!("{:?}", self)
     }
 
     pub fn all_values() -> NamedSpriteSheetEnumIterator {

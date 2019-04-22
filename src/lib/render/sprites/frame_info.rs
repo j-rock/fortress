@@ -13,6 +13,7 @@ pub struct FrameInfo {
 
 impl FrameInfo {
     pub fn texel(&self, frame: usize) -> Texel {
+        let frame = frame % (self.num_sub_frames_horizontal * self.num_sub_frames_vertical);
         let frame_x = (frame % self.num_sub_frames_horizontal) as f32;
         let frame_y = (frame / self.num_sub_frames_horizontal) as f32;
 

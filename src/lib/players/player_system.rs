@@ -120,8 +120,9 @@ impl PlayerSystem {
     }
 
     pub fn populate_lights(&self, lights: &mut Vec<PointLight>) {
+        let config = self.config_manager.get();
         for (_i, player) in self.players.iter() {
-            player.populate_lights( lights);
+            player.populate_lights( config, lights);
         }
     }
 

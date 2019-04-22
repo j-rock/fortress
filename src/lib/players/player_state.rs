@@ -6,6 +6,7 @@ use crate::{
         ControllerId,
     },
     dimensions::{
+        OctoDirection,
         UpDownLeftRight,
         time::DeltaTime
     },
@@ -18,9 +19,9 @@ use crate::{
     },
     render::{
         NamedSpriteSheet,
-        PointLight,
         LightDependentSpriteData,
         LightDependentSpriteRenderer,
+        PointLight,
         SpriteSheetFrameId,
     },
     weapons::{
@@ -85,8 +86,8 @@ impl PlayerState {
         self.player_id
     }
 
-    pub fn populate_lights(&self, lights: &mut Vec<PointLight>) {
-        self.weapon.populate_lights(lights);
+    pub fn populate_lights(&self, config: &PlayerConfig, lights: &mut Vec<PointLight>) {
+        self.weapon.populate_lights(config, lights);
     }
 
     pub fn queue_draw(&self, config: &PlayerConfig, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {
@@ -108,21 +109,13 @@ impl PlayerState {
         }
     }
 
-    pub fn set_velocity(&mut self, dir: Option<Vector2<f64>>) {
-        if dir.is_none() {
-            self.body.set_velocity(Vector2::new(0.0, 0.0));
-            return;
-        }
-
-        if let Some(dir) = dir {
-            let dir_magnitude = dir.norm();
-            if !dir_magnitude.is_normal() {
-                self.body.set_velocity(Vector2::new(0.0, 0.0));
-                return;
-            }
-
-            self.facing_dir = dir / dir_magnitude;
-            self.body.set_velocity(self.stats.get_move_speed() * self.facing_dir);
+    pub fn set_velocity(&mut self, dir: Option<OctoDirection>) {
+        match dir {
+            None => self.body.set_velocity(Vector2::new(0.0, 0.0)),
+            Some(dir) => {
+                self.facing_dir = dir.to_direction();
+                self.body.set_velocity(self.stats.get_move_speed() * self.facing_dir);
+            },
         }
     }
 
@@ -137,27 +130,12 @@ impl PlayerState {
         self.weapon.bullet_hit(bullet_id);
     }
 
-    pub fn compute_move_direction(controller_id: ControllerId, controller: &Controller) -> Option<Vector2<f64>> {
-        let move_vert = if controller.is_pressed(controller_id, PlayerMove(UpDownLeftRight::Up)) {
-            Some(1.0)
-        } else if controller.is_pressed(controller_id, PlayerMove(UpDownLeftRight::Down)) {
-            Some(-1.0)
-        } else {
-            None
-        };
+    pub fn compute_move_direction(controller_id: ControllerId, controller: &Controller) -> Option<OctoDirection> {
+        let up = controller.is_pressed(controller_id, PlayerMove(UpDownLeftRight::Up));
+        let down = controller.is_pressed(controller_id, PlayerMove(UpDownLeftRight::Down));
+        let left = controller.is_pressed(controller_id, PlayerMove(UpDownLeftRight::Left));
+        let right = controller.is_pressed(controller_id, PlayerMove(UpDownLeftRight::Right));
 
-        let move_horiz = if controller.is_pressed(controller_id, PlayerMove(UpDownLeftRight::Left)) {
-            Some(-1.0)
-        } else if controller.is_pressed(controller_id, PlayerMove(UpDownLeftRight::Right)) {
-            Some(1.0)
-        } else {
-            None
-        };
-
-        if move_vert.is_none() && move_horiz.is_none() {
-            return None;
-        }
-
-        Some(Vector2::new(move_horiz.unwrap_or(0.0), move_vert.unwrap_or(0.0)))
+        OctoDirection::from(up, down, left, right)
     }
 }

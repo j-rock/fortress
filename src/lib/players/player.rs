@@ -69,8 +69,8 @@ impl Player {
         self.player_state.get_player_id()
     }
 
-    pub fn populate_lights(&self, lights: &mut Vec<PointLight>) {
-        self.player_state.populate_lights(lights);
+    pub fn populate_lights(&self, config: &PlayerConfig, lights: &mut Vec<PointLight>) {
+        self.player_state.populate_lights(config, lights);
     }
 
     pub fn queue_draw(&self, config: &PlayerConfig, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {

@@ -16,18 +16,13 @@ use crate::{
         PlayerConfig,
         PlayerId,
     },
-    render::{
-        NamedSpriteSheet,
-        PointLight,
-        SpriteSheetFrameId,
-    },
+    render::PointLight,
     weapons::{
         BulletId,
         Bullet,
         WeaponStats,
     },
 };
-use glm;
 use nalgebra::{
     Point2,
     Vector2
@@ -44,9 +39,6 @@ pub struct Weapon {
     physics_sim: PhysicsSimulation,
 
     bullet_radius: f64,
-    bullet_render_height: f32,
-    bullet_light_color: glm::Vec3,
-    bullet_light_attenuation: glm::Vec3,
 }
 
 impl Weapon {
@@ -57,10 +49,7 @@ impl Weapon {
             bullets_to_remove: vec!(),
             current_delay: None,
             physics_sim: physics_sim.clone(),
-            bullet_radius: config.bullet_radius,
-            bullet_render_height: config.bullet_render_height,
-            bullet_light_color: glm::vec3(config.bullet_light_color.0, config.bullet_light_color.1, config.bullet_light_color.2),
-            bullet_light_attenuation: glm::vec3(config.bullet_light_attenuation.0, config.bullet_light_attenuation.1, config.bullet_light_attenuation.2),
+            bullet_radius: config.bullet_physical_radius,
         }
     }
 
@@ -119,32 +108,15 @@ impl Weapon {
         self.bullets_to_remove.push(bullet_id);
     }
 
-    pub fn populate_lights(&self, lights: &mut Vec<PointLight>) {
+    pub fn populate_lights(&self, config: &PlayerConfig, lights: &mut Vec<PointLight>) {
         for (_idx, bullet) in self.bullets.iter() {
-            let body_position = bullet.get_position();
-            let world_position = glm::vec3(body_position.x as f32, self.bullet_render_height, -body_position.y as f32);
-            lights.push(PointLight {
-                position: glm::vec3(world_position.x, world_position.y + self.bullet_radius as f32, world_position.z + 0.0001),
-                color: self.bullet_light_color,
-                attenuation: self.bullet_light_attenuation
-            });
+            lights.push(bullet.point_light(config));
         }
     }
 
     pub fn queue_draw(&self, config: &PlayerConfig, full_light: &mut FullyIlluminatedSpriteRenderer) {
         let sprites: Vec<_> = self.bullets.iter().map(|(_idx, bullet)| -> FullyIlluminatedSpriteData {
-            let body_position = bullet.get_position();
-            let world_position = glm::vec3(body_position.x as f32, self.bullet_render_height, -body_position.y as f32);
-
-            FullyIlluminatedSpriteData {
-                world_bottom_center_position: world_position,
-                world_half_size: glm::vec2(3.0 * self.bullet_radius as f32, self.bullet_radius as f32),
-                sprite_frame_id: SpriteSheetFrameId {
-                    name: String::from("shooting_fireball.png"),
-                    sprite_sheet: NamedSpriteSheet::SpriteSheet1,
-                },
-                frame: bullet.frame(config),
-            }
+            bullet.render_info(config)
         }).collect();
 
         full_light.queue(sprites);
