@@ -13,17 +13,17 @@ use crate::{
     render::{
         BackgroundRenderer,
         Camera,
-        PointLight,
+        FullyIlluminatedSpriteRenderer,
         HexRenderer,
         LightDependentSpriteRenderer,
+        PointLight,
+        SpriteSheetTextureManager,
         Viewport,
     },
     weapons::WeaponMatchers,
     world::WorldView,
 };
 use glm;
-use crate::render::renderer::FullyIlluminatedSpriteRenderer;
-use crate::render::SpriteSheetTextureManager;
 
 #[derive(Deserialize)]
 struct WorldConfig {
@@ -35,7 +35,7 @@ pub struct WorldState {
     camera: Camera,
 
     textures: SpriteSheetTextureManager,
-    background_renderer: BackgroundRenderer,
+    background_renderer: Option<BackgroundRenderer>,
     hex_renderer: HexRenderer,
     full_light_sprite: FullyIlluminatedSpriteRenderer,
     light_dependent_sprite: LightDependentSpriteRenderer,
@@ -65,7 +65,7 @@ impl WorldState {
             config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
             camera: Camera::new(config_watcher)?,
             textures: SpriteSheetTextureManager::new(config_watcher)?,
-            background_renderer: BackgroundRenderer::new()?,
+            background_renderer: None,
             hex_renderer: HexRenderer::new()?,
             full_light_sprite: FullyIlluminatedSpriteRenderer::new()?,
             light_dependent_sprite: LightDependentSpriteRenderer::new()?,
@@ -127,7 +127,9 @@ impl WorldState {
         self.map.queue_draw(&mut self.hex_renderer, &mut self.full_light_sprite);
         self.players.queue_draw(&mut self.full_light_sprite, &mut self.light_dependent_sprite);
 
-        self.background_renderer.draw();
+        if let Some(background_renderer) = self.background_renderer.as_mut() {
+            background_renderer.draw();
+        }
         self.full_light_sprite.draw(&self.textures, &projection_view, right, up);
         self.light_dependent_sprite.draw(&self.lights, &self.textures, &projection_view, right, up);
         self.hex_renderer.draw(&self.lights, &projection_view);
