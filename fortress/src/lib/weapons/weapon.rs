@@ -23,12 +23,12 @@ use crate::{
         WeaponStats,
     },
 };
+use generational_slab::Slab;
 use nalgebra::{
     Point2,
     Vector2
 };
 use nphysics2d::algebra::Velocity2;
-use slab::Slab;
 use crate::render::{FullyIlluminatedSpriteRenderer, FullyIlluminatedSpriteData};
 
 pub struct Weapon {

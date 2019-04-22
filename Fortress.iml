@@ -14,7 +14,13 @@
       <sourceFolder url="file://$MODULE_DIR$/liquidfun/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/liquidfun/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/liquidfun/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/generational_slab/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/generational_slab/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/generational_slab/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/generational_slab/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/fortress/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/fortress/target" />
+      <excludeFolder url="file://$MODULE_DIR$/generational_slab/target" />
       <excludeFolder url="file://$MODULE_DIR$/liquidfun/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>

@@ -1,5 +1,5 @@
 extern crate enum_iterator;
-extern crate generational_arena;
+extern crate generational_slab;
 extern crate gl;
 extern crate glm;
 extern crate hashbrown;
@@ -16,7 +16,6 @@ extern crate sdl2;
 extern crate serde;
 #[macro_use] extern crate serde_derive;
 extern crate serde_json;
-extern crate slab;
 
 pub mod app;
 pub mod audio;

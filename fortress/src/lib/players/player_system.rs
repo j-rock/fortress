@@ -28,9 +28,9 @@ use crate::{
         LightDependentSpriteRenderer,
     },
 };
+use generational_slab::Slab;
 use hashbrown::HashMap;
 use nalgebra::Point2;
-use slab::Slab;
 
 pub struct PlayerSystem {
     config_manager: SimpleConfigManager<PlayerConfig>,

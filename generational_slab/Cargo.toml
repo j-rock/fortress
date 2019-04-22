@@ -1,0 +1,9 @@
+[package]
+
+name = "generational_slab"
+version = "0.5.0"
+license = "MIT"
+authors = ["Carl Lerche <me@carllerche.com>", "Joseph Rock <no@thanks.com"]
+description = "Pre-allocated storage for a uniform data type"
+keywords = ["slab", "allocator", "generational"]
+categories = ["memory-management", "data-structures"]
