@@ -1,9 +1,6 @@
 use crate::{
     app::StatusOr,
-    file::{
-        self,
-        ConfigWatcher,
-    },
+    file,
     render::{
         attribute,
         Attribute,
@@ -11,7 +8,6 @@ use crate::{
         NamedSpriteSheet,
         SpriteSheetFrameId,
         SpriteSheetTextureManager,
-        PointLight,
         ShaderProgram,
         Texel,
     }
@@ -24,28 +20,27 @@ use glm;
 use hashbrown::HashMap;
 
 #[derive(Clone)]
-pub struct SpriteData {
+pub struct FullyIlluminatedSpriteData {
     pub world_bottom_center_position: glm::Vec3,
     pub world_half_size: glm::Vec2,
     pub sprite_frame_id: SpriteSheetFrameId,
     pub frame: usize,
 }
 
-pub struct SpriteRenderer {
+pub struct FullyIlluminatedSpriteRenderer {
     shader_program: ShaderProgram,
     attribute_program: AttributeProgram,
     attr_pos: Attribute<SpritePositionAttr>,
     attr_size: Attribute<SpriteSizeAttr>,
     attr_texel: Attribute<Texel>,
-    textures: SpriteSheetTextureManager,
-    per_pack_attrs: HashMap<NamedSpriteSheet, Vec<SpriteData>>,
+    per_pack_attrs: HashMap<NamedSpriteSheet, Vec<FullyIlluminatedSpriteData>>,
 }
 
-impl SpriteRenderer {
-    pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<SpriteRenderer> {
-        let vertex = file::util::resource_path("shaders", "sprite_vert.glsl");
-        let geometry = file::util::resource_path("shaders", "sprite_geo.glsl");
-        let fragment = file::util::resource_path("shaders", "sprite_frag.glsl");
+impl FullyIlluminatedSpriteRenderer {
+    pub fn new() -> StatusOr<FullyIlluminatedSpriteRenderer> {
+        let vertex = file::util::resource_path("shaders", "full_light_sprite_vert.glsl");
+        let geometry = file::util::resource_path("shaders", "full_light_sprite_geo.glsl");
+        let fragment = file::util::resource_path("shaders", "full_light_sprite_frag.glsl");
         let shader_program = ShaderProgram::from_long_pipeline(&vertex, &geometry, &fragment)?;
 
         let mut attribute_program_builder = AttributeProgram::builder();
@@ -54,24 +49,17 @@ impl SpriteRenderer {
         let attr_texel = attribute_program_builder.add_attribute();
         let attribute_program = attribute_program_builder.build();
 
-        let textures = SpriteSheetTextureManager::new(config_watcher)?;
-
-        Ok(SpriteRenderer {
+        Ok(FullyIlluminatedSpriteRenderer {
             shader_program,
             attribute_program,
             attr_pos,
             attr_size,
             attr_texel,
-            textures,
             per_pack_attrs: HashMap::new(),
         })
     }
 
-    pub fn update(&mut self) {
-        self.textures.update();
-    }
-
-    pub fn queue(&mut self, data: Vec<SpriteData>) {
+    pub fn queue(&mut self, data: Vec<FullyIlluminatedSpriteData>) {
         for datum in data.into_iter() {
             let pack_attrs = self.per_pack_attrs
                 .entry(datum.sprite_frame_id.sprite_sheet)
@@ -81,21 +69,20 @@ impl SpriteRenderer {
         }
     }
 
-    pub fn draw(&mut self, lights: &Vec<PointLight>, projection_view: &glm::Mat4, camera_right: glm::Vec3, camera_up: glm::Vec3) {
+    pub fn draw(&mut self, textures: &SpriteSheetTextureManager, projection_view: &glm::Mat4, camera_right: glm::Vec3, camera_up: glm::Vec3) {
         self.shader_program.activate();
         self.attribute_program.activate();
 
         self.shader_program.set_mat4("projection_view", projection_view);
         self.shader_program.set_vec3("camera_right", &camera_right);
         self.shader_program.set_vec3("camera_up", &camera_up);
-        PointLight::set_lights(lights, &mut self.shader_program);
 
         for (named_texture, queued_draw) in self.per_pack_attrs.iter() {
-            let texture = self.textures.texture(*named_texture);
+            let texture = textures.texture(*named_texture);
             texture.activate(&mut self.shader_program);
 
             for datum in queued_draw.iter() {
-                let texel = self.textures.frame(&datum.sprite_frame_id, datum.frame);
+                let texel = textures.frame(&datum.sprite_frame_id, datum.frame);
 
                 self.attr_pos.data.push(SpritePositionAttr {
                     world_bottom_center_position: datum.world_bottom_center_position,

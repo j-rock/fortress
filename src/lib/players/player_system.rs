@@ -24,7 +24,8 @@ use crate::{
     },
     render::{
         PointLight,
-        SpriteRenderer
+        FullyIlluminatedSpriteRenderer,
+        LightDependentSpriteRenderer,
     },
 };
 use hashbrown::HashMap;
@@ -124,10 +125,10 @@ impl PlayerSystem {
         }
     }
 
-    pub fn queue_draw(&self, sprite_renderer: &mut SpriteRenderer) {
+    pub fn queue_draw(&self, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {
         let config = self.config_manager.get();
         for (_i, player) in self.players.iter() {
-            player.queue_draw( config, sprite_renderer);
+            player.queue_draw( config, full_light, light_dependent);
         }
     }
 

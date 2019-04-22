@@ -19,8 +19,6 @@ use crate::{
     render::{
         NamedSpriteSheet,
         PointLight,
-        SpriteData,
-        SpriteRenderer,
         SpriteSheetFrameId,
     },
     weapons::{
@@ -36,6 +34,7 @@ use nalgebra::{
 };
 use nphysics2d::algebra::Velocity2;
 use slab::Slab;
+use crate::render::{FullyIlluminatedSpriteRenderer, FullyIlluminatedSpriteData};
 
 pub struct Weapon {
     stats: WeaponStats,
@@ -132,12 +131,12 @@ impl Weapon {
         }
     }
 
-    pub fn queue_draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer) {
-        let sprites: Vec<_> = self.bullets.iter().map(|(_idx, bullet)| -> SpriteData {
+    pub fn queue_draw(&self, config: &PlayerConfig, full_light: &mut FullyIlluminatedSpriteRenderer) {
+        let sprites: Vec<_> = self.bullets.iter().map(|(_idx, bullet)| -> FullyIlluminatedSpriteData {
             let body_position = bullet.get_position();
             let world_position = glm::vec3(body_position.x as f32, self.bullet_render_height, -body_position.y as f32);
 
-            SpriteData {
+            FullyIlluminatedSpriteData {
                 world_bottom_center_position: world_position,
                 world_half_size: glm::vec2(3.0 * self.bullet_radius as f32, self.bullet_radius as f32),
                 sprite_frame_id: SpriteSheetFrameId {
@@ -148,6 +147,6 @@ impl Weapon {
             }
         }).collect();
 
-        sprite_renderer.queue(sprites);
+        full_light.queue(sprites);
     }
 }

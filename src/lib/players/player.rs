@@ -16,8 +16,9 @@ use crate::{
         }
     },
     render::{
+        FullyIlluminatedSpriteRenderer,
+        LightDependentSpriteRenderer,
         PointLight,
-        SpriteRenderer
     },
     weapons::BulletId,
 };
@@ -72,8 +73,8 @@ impl Player {
         self.player_state.populate_lights(lights);
     }
 
-    pub fn queue_draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer) {
-        self.player_state.queue_draw(config, sprite_renderer);
+    pub fn queue_draw(&self, config: &PlayerConfig, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {
+        self.player_state.queue_draw(config, full_light, light_dependent);
     }
 
     pub fn bullet_hit(&mut self, bullet_id: BulletId) {

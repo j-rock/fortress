@@ -19,8 +19,8 @@ use crate::{
     render::{
         NamedSpriteSheet,
         PointLight,
-        SpriteData,
-        SpriteRenderer,
+        LightDependentSpriteData,
+        LightDependentSpriteRenderer,
         SpriteSheetFrameId,
     },
     weapons::{
@@ -32,6 +32,7 @@ use nalgebra::{
     Point2,
     Vector2,
 };
+use crate::render::FullyIlluminatedSpriteRenderer;
 
 pub struct PlayerState {
     player_id: PlayerId,
@@ -88,12 +89,12 @@ impl PlayerState {
         self.weapon.populate_lights(lights);
     }
 
-    pub fn queue_draw(&self, config: &PlayerConfig, sprite_renderer: &mut SpriteRenderer) {
+    pub fn queue_draw(&self, config: &PlayerConfig, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {
         if let Some(position) = self.body.position() {
             let world_bottom_center_position = glm::vec3(position.x as f32, 0.0, -position.y as f32);
             let world_half_size = glm::vec2(config.physical_radius as f32, 2.0 * config.physical_radius as f32);
 
-            sprite_renderer.queue(vec![SpriteData {
+            light_dependent.queue(vec![LightDependentSpriteData {
                 world_bottom_center_position,
                 world_half_size,
                 sprite_frame_id: SpriteSheetFrameId {
@@ -103,7 +104,7 @@ impl PlayerState {
                 frame: 0,
             }]);
 
-            self.weapon.queue_draw(config, sprite_renderer);
+            self.weapon.queue_draw(config, full_light);
         }
     }
 

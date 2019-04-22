@@ -13,7 +13,7 @@ use crate::{
     render::{
         HexRenderer,
         PointLight,
-        SpriteRenderer,
+        FullyIlluminatedSpriteRenderer,
     },
 };
 use nalgebra::Point2;
@@ -59,7 +59,7 @@ impl Map {
        self.map_state.populate_lights(config, lights);
     }
 
-    pub fn queue_draw(&mut self, hex_renderer: &mut HexRenderer, sprite_renderer: &mut SpriteRenderer) {
+    pub fn queue_draw(&mut self, hex_renderer: &mut HexRenderer, sprite_renderer: &mut FullyIlluminatedSpriteRenderer) {
         let config = self.map_config_manager.get();
         self.map_state.queue_draw(config, hex_renderer, sprite_renderer);
     }

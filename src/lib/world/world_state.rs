@@ -15,13 +15,15 @@ use crate::{
         Camera,
         PointLight,
         HexRenderer,
-        SpriteRenderer,
+        LightDependentSpriteRenderer,
         Viewport,
     },
     weapons::WeaponMatchers,
     world::WorldView,
 };
 use glm;
+use crate::render::renderer::FullyIlluminatedSpriteRenderer;
+use crate::render::SpriteSheetTextureManager;
 
 #[derive(Deserialize)]
 struct WorldConfig {
@@ -31,9 +33,12 @@ struct WorldConfig {
 pub struct WorldState {
     config_manager: SimpleConfigManager<WorldConfig>,
     camera: Camera,
+
+    textures: SpriteSheetTextureManager,
     background_renderer: BackgroundRenderer,
     hex_renderer: HexRenderer,
-    sprite_renderer: SpriteRenderer,
+    full_light_sprite: FullyIlluminatedSpriteRenderer,
+    light_dependent_sprite: LightDependentSpriteRenderer,
     lights: Vec<PointLight>,
 
     map: Map,
@@ -59,9 +64,11 @@ impl WorldState {
         Ok(WorldState {
             config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
             camera: Camera::new(config_watcher)?,
+            textures: SpriteSheetTextureManager::new(config_watcher)?,
             background_renderer: BackgroundRenderer::new()?,
             hex_renderer: HexRenderer::new()?,
-            sprite_renderer: SpriteRenderer::new(config_watcher)?,
+            full_light_sprite: FullyIlluminatedSpriteRenderer::new()?,
+            light_dependent_sprite: LightDependentSpriteRenderer::new()?,
             lights: vec!(),
             map,
             players,
@@ -72,7 +79,7 @@ impl WorldState {
     pub fn update(&mut self, audio: &AudioPlayer, controller: &Controller, dt: DeltaTime) {
         self.config_manager.update();
         self.camera.update();
-        self.sprite_renderer.update();
+        self.textures.update();
 
         // Pre-update.
         {
@@ -117,11 +124,12 @@ impl WorldState {
         let (lookat, right, up) = self.camera.lookat_right_and_up();
         let projection_view = self.camera.projection(screen_size) * self.camera.view(lookat, up);
 
-        self.map.queue_draw(&mut self.hex_renderer, &mut self.sprite_renderer);
-        self.players.queue_draw(&mut self.sprite_renderer);
+        self.map.queue_draw(&mut self.hex_renderer, &mut self.full_light_sprite);
+        self.players.queue_draw(&mut self.full_light_sprite, &mut self.light_dependent_sprite);
 
         self.background_renderer.draw();
-        self.sprite_renderer.draw(&self.lights, &projection_view, right, up);
+        self.full_light_sprite.draw(&self.textures, &projection_view, right, up);
+        self.light_dependent_sprite.draw(&self.lights, &self.textures, &projection_view, right, up);
         self.hex_renderer.draw(&self.lights, &projection_view);
 
         // Fix viewport at the end.
