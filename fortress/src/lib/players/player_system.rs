@@ -70,7 +70,7 @@ impl PlayerSystem {
                     let controller_id = ControllerId::Keyboard;
 
                     if let Some(player_id) = self.player_needs_controller.pop() {
-                        self.player_to_controller[player_id.as_usize()] = controller_id;
+                        self.player_to_controller[player_id.to_raw_usize()] = controller_id;
                         self.controller_to_player.insert(controller_id, player_id);
                     } else {
                         self.new_player(controller_id, audio, physics_sim);
@@ -80,7 +80,7 @@ impl PlayerSystem {
                     let controller_id = ControllerId::Gamepad(gamepad_id);
 
                     if let Some(player_id) = self.player_needs_controller.pop() {
-                        self.player_to_controller[player_id.as_usize()] = controller_id;
+                        self.player_to_controller[player_id.to_raw_usize()] = controller_id;
                         self.controller_to_player.insert(controller_id, player_id);
                     } else {
                         self.new_player(controller_id, audio, physics_sim);
@@ -116,7 +116,7 @@ impl PlayerSystem {
     }
 
     pub fn player_mut(&mut self, player_id: PlayerId) -> &mut Player {
-        &mut self.players[player_id.as_usize()]
+        self.players.get_mut(player_id.to_key()).expect("Invalid player id.")
     }
 
     pub fn populate_lights(&self, lights: &mut Vec<PointLight>) {
@@ -136,7 +136,7 @@ impl PlayerSystem {
     pub fn respawn(&mut self, spawns: Vec<Point2<f64>>) {
         self.spawns = spawns;
         for (_i, player) in self.players.iter_mut() {
-            let spawn = self.spawns[player.get_player_id().as_usize()];
+            let spawn = self.spawns[player.get_player_id().to_raw_usize()];
             player.respawn(spawn);
         }
     }
@@ -151,10 +151,10 @@ impl PlayerSystem {
     fn new_player(&mut self, controller_id: ControllerId, audio: &AudioPlayer, physics_sim: &mut PhysicsSimulation) {
         let player_id = {
             let player_entry = self.players.vacant_entry();
-            let player_id = PlayerId::from_usize(player_entry.key());
+            let player_id = PlayerId::from_key(player_entry.key());
             if let Some(player_id) = player_id {
                 let config = self.config_manager.get();
-                let spawn = self.spawns[player_id.as_usize()].clone();
+                let spawn = self.spawns[player_id.to_raw_usize()].clone();
                 let player = Player::new(config, player_id, spawn, physics_sim);
                 player_entry.insert(player);
             }

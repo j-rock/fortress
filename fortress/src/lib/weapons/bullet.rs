@@ -24,6 +24,7 @@ use crate::{
         SpriteSheetFrameId,
     },
 };
+use generational_slab::Key;
 use nalgebra::{
     Point2,
     Vector2,
@@ -45,14 +46,14 @@ use nphysics2d::{
 };
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct BulletId(usize);
+pub struct BulletId(Key);
 
 impl BulletId {
-    pub fn new(val: usize) -> BulletId {
-        BulletId(val)
+    pub fn new(key: Key) -> BulletId {
+        BulletId(key)
     }
 
-    pub fn to_usize(self) -> usize {
+    pub fn to_key(self) -> Key {
        self.0
    }
 }

@@ -70,9 +70,7 @@ impl Weapon {
 
     pub fn post_update(&mut self) {
         for bullet_id in self.bullets_to_remove.iter() {
-            if self.bullets.contains(bullet_id.to_usize()) {
-                self.bullets.remove(bullet_id.to_usize());
-            }
+            self.bullets.remove(bullet_id.to_key());
         }
         self.bullets_to_remove.clear();
     }
@@ -90,15 +88,17 @@ impl Weapon {
             let velocity = Velocity2::linear(linear_vel.x, linear_vel.y);
 
             let bullet = Bullet::new(entity, self.bullet_radius, start_position, velocity, &mut self.physics_sim);
-            vacant_entry.insert(bullet);
-
-            audio.play_sound(Sound::Blast);
+            if vacant_entry.insert(bullet) {
+                audio.play_sound(Sound::Blast);
+            } else {
+                self.current_delay = None;
+            }
         }
     }
 
     pub fn get_attack(&self, bullet_id: BulletId) -> Option<Attack> {
         self.bullets
-            .get(bullet_id.to_usize())
+            .get(bullet_id.to_key())
             .and_then(|bullet| {
                 bullet.get_attack(self.stats.get_bullet_damage(), self.stats.get_knockback_strength())
             })
