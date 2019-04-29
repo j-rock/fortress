@@ -68,6 +68,10 @@ impl Map {
         self.map_state.spawns()
     }
 
+    pub fn treasure_chests(&self) -> Vec<Point2<f64>> {
+        self.map_state.treasure_chests()
+    }
+
     fn redeploy(&mut self, physics_sim: &mut PhysicsSimulation) {
         {
             let config = self.map_config_manager.get();

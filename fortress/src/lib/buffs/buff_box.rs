@@ -44,11 +44,6 @@ impl BuffBox {
         }
     }
 
-    pub fn register(&mut self) {
-        let buff_box: *const BuffBox = self as *const BuffBox;
-        self.body.register(buff_box);
-    }
-
     pub fn post_update(&mut self, config: &BuffDropConfig, physics_sim: &mut PhysicsSimulation) {
         if self.needs_to_drop {
             self.needs_to_drop = false;
@@ -56,7 +51,6 @@ impl BuffBox {
             if !self.has_dropped {
                 self.has_dropped = true;
 
-                let buff_box: *const BuffBox = self as *const BuffBox;
                 let entity = Entity::new(EntityType::BuffDrop, buff_box);
                 self.body.launch_drop(config, entity, physics_sim);
             }

@@ -20,8 +20,12 @@ use crate::{
         SpriteSheetTextureManager,
         Viewport,
     },
+    treasures::TreasureSystem,
     weapons::WeaponMatchers,
-    world::WorldView,
+    world::{
+        RandGen,
+        WorldView
+    },
 };
 use glm;
 
@@ -33,6 +37,7 @@ struct WorldConfig {
 pub struct WorldState {
     config_manager: SimpleConfigManager<WorldConfig>,
     camera: Camera,
+    rng: RandGen,
 
     textures: SpriteSheetTextureManager,
     background_renderer: Option<BackgroundRenderer>,
@@ -43,6 +48,7 @@ pub struct WorldState {
 
     map: Map,
     players: PlayerSystem,
+    treasures: TreasureSystem,
 
     // Declare physics simulation last so it is dropped last.
     physics_sim: PhysicsSimulation,
@@ -58,12 +64,16 @@ impl WorldState {
         physics_sim.borrow_mut().add_proximity_matchers(vec!(
         ));
 
+        let mut rng = RandGen::new();
+
         let map = Map::new(config_watcher, &mut physics_sim)?;
         let players = PlayerSystem::new(config_watcher, map.spawns())?;
+        let treasures = TreasureSystem::new(config_watcher, map.treasure_chests(), &mut rng, &mut physics_sim)?;
 
         Ok(WorldState {
             config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
             camera: Camera::new(config_watcher)?,
+            rng,
             textures: SpriteSheetTextureManager::new(config_watcher)?,
             background_renderer: None,
             hex_renderer: HexRenderer::new()?,
@@ -72,6 +82,7 @@ impl WorldState {
             lights: vec!(),
             map,
             players,
+            treasures,
             physics_sim
         })
     }
@@ -85,8 +96,10 @@ impl WorldState {
         {
             if self.map.pre_update(&mut self.physics_sim) {
                 self.players.respawn(self.map.spawns());
+                self.treasures.respawn(self.map.treasure_chests(), &mut self.rng, &mut self.physics_sim);
             } else {
                 self.players.pre_update(audio, controller, &mut self.physics_sim, dt);
+                self.treasures.pre_update(controller, &mut self.rng, &mut self.physics_sim);
             }
         }
 
@@ -94,6 +107,7 @@ impl WorldState {
             let world_view = WorldView {
                 audio,
                 players: &mut self.players,
+                treasures: &mut self.treasures,
                 dt
             };
             self.physics_sim.borrow_mut().step(world_view);
@@ -102,6 +116,7 @@ impl WorldState {
         // Post-update.
         {
             self.players.post_update(audio);
+            self.treasures.post_update(&mut self.physics_sim);
         }
     }
 
@@ -110,14 +125,15 @@ impl WorldState {
     }
 
     pub fn draw(&mut self, screen_size: glm::IVec2) {
+        self.lights.clear();
         self.populate_lights();
         self.draw_geometry(screen_size);
-        self.lights.clear();
     }
 
     fn populate_lights(&mut self) {
         self.map.populate_lights(&mut self.lights);
         self.players.populate_lights(&mut self.lights);
+        self.treasures.populate_lights(&mut self.lights);
     }
 
     fn draw_geometry(&mut self, screen_size: glm::IVec2) {
@@ -126,6 +142,7 @@ impl WorldState {
 
         self.map.queue_draw(&mut self.hex_renderer, &mut self.full_light_sprite);
         self.players.queue_draw(&mut self.full_light_sprite, &mut self.light_dependent_sprite);
+        self.treasures.queue_draw(&mut self.full_light_sprite, &mut self.light_dependent_sprite);
 
         if let Some(background_renderer) = self.background_renderer.as_mut() {
             background_renderer.draw();

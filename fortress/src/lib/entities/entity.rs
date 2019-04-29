@@ -1,14 +1,13 @@
 use crate::{
     players::PlayerId,
+    treasures::TreasureChestId,
     weapons::BulletId,
 };
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum Entity {
-    BuffBox,
-    BuffDrop,
-    MapWall,
     Bullet(PlayerId, BulletId),
+    MapWall,
     Player,
-    Wraith,
+    TreasureChest(TreasureChestId),
 }

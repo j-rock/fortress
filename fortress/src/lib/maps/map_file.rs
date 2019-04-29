@@ -8,11 +8,19 @@ pub struct MapFileCell {
     pub elevation: f32,
     pub rgba_color: (f32, f32, f32, f32),
     spawn: Option<bool>,
+    treasure: Option<bool>
 }
 
 impl MapFileCell {
     pub fn is_spawn(&self) -> bool {
         match self.spawn {
+            Some(true) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_treasure_chest(&self) -> bool {
+        match self.treasure {
             Some(true) => true,
             _ => false,
         }

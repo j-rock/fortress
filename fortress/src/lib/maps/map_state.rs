@@ -26,6 +26,7 @@ use nalgebra::Point2;
 pub struct MapState {
     cells: HashMap<GridIndex, MapCell>,
     spawns: HashSet<GridIndex>,
+    treasure_chests: HashSet<GridIndex>,
     light_positions: Vec<(f32, f32)>,
     _body: MapBody,
     hex_cell_length: f64,
@@ -50,6 +51,16 @@ impl MapState {
             })
             .collect();
 
+        let treasure_chests: HashSet<_> = map_file.cells
+            .iter()
+            .filter_map(|map_file_cell| {
+                if !map_file_cell.is_treasure_chest() {
+                    return None;
+                }
+                return Some(map_file_cell.grid_index());
+            })
+            .collect();
+
         let light_positions = map_file.lights
             .iter()
             .map(|map_file_light| -> (f32, f32) {
@@ -62,6 +73,7 @@ impl MapState {
         MapState {
             cells,
             spawns,
+            treasure_chests,
             light_positions,
             _body: body,
             hex_cell_length: config.cell_length
@@ -71,6 +83,16 @@ impl MapState {
     pub fn spawns(&self) -> Vec<Point2<f64>> {
         let axial_to_cartesian = GridIndex::axial_to_cartesian(self.hex_cell_length);
         self.spawns
+            .iter()
+            .map(|grid_index| {
+                grid_index.index_center(&axial_to_cartesian)
+            })
+            .collect()
+    }
+
+    pub fn treasure_chests(&self) -> Vec<Point2<f64>> {
+        let axial_to_cartesian = GridIndex::axial_to_cartesian(self.hex_cell_length);
+        self.treasure_chests
             .iter()
             .map(|grid_index| {
                 grid_index.index_center(&axial_to_cartesian)
