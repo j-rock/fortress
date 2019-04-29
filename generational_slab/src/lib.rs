@@ -179,6 +179,14 @@ impl<T> Slab<T> {
             _ => false,
         }
     }
+
+    pub fn reserve(&mut self, additional: usize) {
+        if self.capacity() - self.len >= additional {
+            return;
+        }
+        let need_add = self.len + additional - self.entries.len();
+        self.entries.reserve(need_add);
+    }
 }
 
 impl<T> IntoIterator for Slab<T> {
