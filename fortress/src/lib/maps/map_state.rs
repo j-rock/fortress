@@ -1,5 +1,6 @@
 use crate::{
     dimensions::GridIndex,
+    enemies::EnemyGeneratorSpawn,
     maps::{
         MapCell,
         MapConfig,
@@ -27,6 +28,7 @@ pub struct MapState {
     cells: HashMap<GridIndex, MapCell>,
     spawns: HashSet<GridIndex>,
     light_positions: Vec<(f32, f32)>,
+    enemy_generator_spawns: Vec<EnemyGeneratorSpawn>,
     _body: MapBody,
     hex_cell_length: f64,
 }
@@ -50,6 +52,8 @@ impl MapState {
             })
             .collect();
 
+        let enemy_generator_spawns: Vec<_> = map_file.enemy_generator_spawns.clone();
+
         let light_positions = map_file.lights
             .iter()
             .map(|map_file_light| -> (f32, f32) {
@@ -63,6 +67,7 @@ impl MapState {
             cells,
             spawns,
             light_positions,
+            enemy_generator_spawns,
             _body: body,
             hex_cell_length: config.cell_length
         }
@@ -76,6 +81,10 @@ impl MapState {
                 grid_index.index_center(&axial_to_cartesian)
             })
             .collect()
+    }
+
+    pub fn enemy_generator_spawns(&self) -> Vec<EnemyGeneratorSpawn> {
+        self.enemy_generator_spawns.clone()
     }
 
     pub fn populate_lights(&self, config: &MapConfig, lights: &mut Vec<PointLight>) {

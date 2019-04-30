@@ -6,6 +6,7 @@ use crate::{
         ControllerId,
     },
     dimensions::{
+        Attack,
         OctoDirection,
         UpDownLeftRight,
         time::DeltaTime
@@ -128,6 +129,10 @@ impl PlayerState {
 
     pub fn bullet_hit(&mut self, bullet_id: BulletId) {
         self.weapon.bullet_hit(bullet_id);
+    }
+
+    pub fn bullet_attack(&self, bullet_id: BulletId) -> Option<Attack> {
+        self.weapon.bullet_attack(bullet_id)
     }
 
     pub fn compute_move_direction(controller_id: ControllerId, controller: &Controller) -> Option<OctoDirection> {

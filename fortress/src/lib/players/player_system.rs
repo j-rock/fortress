@@ -10,7 +10,10 @@ use crate::{
         ControlEvent,
         ControllerEvent,
     },
-    dimensions::time::DeltaTime,
+    dimensions::{
+        Attack,
+        time::DeltaTime
+    },
     file::{
         ConfigWatcher,
         SimpleConfigManager,
@@ -27,6 +30,7 @@ use crate::{
         FullyIlluminatedSpriteRenderer,
         LightDependentSpriteRenderer,
     },
+    weapons::BulletId,
 };
 use generational_slab::Slab;
 use hashbrown::HashMap;
@@ -103,8 +107,8 @@ impl PlayerSystem {
             }
         }
 
-        for (player_idx, player) in self.players.iter_mut() {
-            let controller_id = self.player_to_controller[player_idx];
+        for (player_key, player) in self.players.iter_mut() {
+            let controller_id = self.player_to_controller[player_key.to_raw()];
             player.pre_update(audio, controller_id, controller, dt);
         }
     }
@@ -115,8 +119,15 @@ impl PlayerSystem {
         }
     }
 
-    pub fn player_mut(&mut self, player_id: PlayerId) -> &mut Player {
-        self.players.get_mut(player_id.to_key()).expect("Invalid player id.")
+    pub fn bullet_hit(&mut self, player_id: PlayerId, bullet_id: BulletId) {
+        if let Some(player) = self.players.get_mut(player_id.to_key()) {
+            player.bullet_hit(bullet_id);
+        }
+    }
+
+    pub fn bullet_attack(&self, player_id: PlayerId, bullet_id: BulletId) -> Option<Attack> {
+        let player = self.players.get(player_id.to_key())?;
+        player.bullet_attack(bullet_id)
     }
 
     pub fn populate_lights(&self, lights: &mut Vec<PointLight>) {

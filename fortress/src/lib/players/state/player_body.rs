@@ -47,7 +47,7 @@ impl PlayerBody {
             .density(config.physical_density)
             .collision_groups(CollisionGroups::new()
                 .with_membership(&[collision_category::PLAYER_BODY])
-                .with_whitelist(&[collision_category::BARRIER, collision_category::PICKUP]));
+                .with_whitelist(&[collision_category::BARRIER]));
 
         let mut rigid_body_desc = RigidBodyDesc::new()
             .status(BodyStatus::Dynamic)

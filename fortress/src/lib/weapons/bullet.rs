@@ -70,7 +70,7 @@ impl Bullet {
             .density(radius)
             .collision_groups(CollisionGroups::new()
                 .with_membership(&[collision_category::PLAYER_WEAPON])
-                .with_whitelist(&[collision_category::BARRIER]));
+                .with_whitelist(&[collision_category::BARRIER, collision_category::ENEMY_BODY, collision_category::ENEMY_GENERATOR]));
 
         let mut rigid_body_desc = RigidBodyDesc::new()
             .status(BodyStatus::Dynamic)
@@ -93,10 +93,10 @@ impl Bullet {
     }
 
     pub fn get_attack(&self, damage: Damage, knockback_strength: f64) -> Option<Attack> {
-        let mut physics_sim = self.body.physics_sim.borrow_mut();
+        let physics_sim = self.body.physics_sim.borrow();
         physics_sim
-            .world_mut()
-            .rigid_body_mut(self.body.handle)
+            .world()
+            .rigid_body(self.body.handle)
             .map(|body| {
                 let velocity = body.velocity().linear;
                 let velocity_mag = velocity.norm();

@@ -103,7 +103,6 @@ impl RawPhysicsSimulation {
         Self::update_world_from_config(config, &mut self.world);
         self.world.set_timestep(world.dt.as_f64_seconds());
         self.world.step();
-        self.process_contacts(world);
     }
 
     pub fn add_contact_matchers(&mut self, matchers: Vec<ContactMatcher>) {
@@ -152,7 +151,7 @@ impl RawPhysicsSimulation {
         return self.registrar.resolve(EntityId::from_body_handle(body_handle));
     }
 
-    fn process_contacts<'a>(&mut self, world: WorldView) {
+    pub fn process_contacts<'a>(&self, world: WorldView) {
         // Resolve all entities first to avoid ABA problem.
         let proximity_events: HashSet<_> =
             self.world.proximity_events()

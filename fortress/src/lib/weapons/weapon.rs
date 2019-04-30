@@ -96,16 +96,16 @@ impl Weapon {
         }
     }
 
-    pub fn get_attack(&self, bullet_id: BulletId) -> Option<Attack> {
+    pub fn bullet_hit(&mut self, bullet_id: BulletId) {
+        self.bullets_to_remove.push(bullet_id);
+    }
+
+    pub fn bullet_attack(&self, bullet_id: BulletId) -> Option<Attack> {
         self.bullets
             .get(bullet_id.to_key())
             .and_then(|bullet| {
                 bullet.get_attack(self.stats.get_bullet_damage(), self.stats.get_knockback_strength())
             })
-    }
-
-    pub fn bullet_hit(&mut self, bullet_id: BulletId) {
-        self.bullets_to_remove.push(bullet_id);
     }
 
     pub fn populate_lights(&self, config: &PlayerConfig, lights: &mut Vec<PointLight>) {

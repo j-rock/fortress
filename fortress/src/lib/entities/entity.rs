@@ -1,4 +1,8 @@
 use crate::{
+    enemies::{
+        EnemyGeneratorId,
+        EnemyId,
+    },
     players::PlayerId,
     weapons::BulletId,
 };
@@ -7,8 +11,9 @@ use crate::{
 pub enum Entity {
     BuffBox,
     BuffDrop,
-    MapWall,
     Bullet(PlayerId, BulletId),
+    Enemy(EnemyId),
+    EnemyGenerator(EnemyGeneratorId),
+    MapWall,
     Player,
-    Wraith,
 }

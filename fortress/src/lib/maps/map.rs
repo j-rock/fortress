@@ -1,5 +1,6 @@
 use crate::{
     app::StatusOr,
+    enemies::EnemyGeneratorSpawn,
     file::{
         ConfigWatcher,
         SimpleConfigManager,
@@ -66,6 +67,10 @@ impl Map {
 
     pub fn spawns(&self) -> Vec<Point2<f64>> {
         self.map_state.spawns()
+    }
+
+    pub fn enemy_generator_spawns(&self) -> Vec<EnemyGeneratorSpawn> {
+        self.map_state.enemy_generator_spawns()
     }
 
     fn redeploy(&mut self, physics_sim: &mut PhysicsSimulation) {

@@ -6,6 +6,10 @@
        , { "position": [24.5, -28.0] }
     ],
 
+    "enemy_generator_spawns": [
+        { "position": [-4.0, -10.0], "orientation": 0.0 }
+    ],
+
     "cells": [
          { "q": -11, "r":  0, "height": 1.0, "elevation": 0.0, "rgba_color": [1.0, 0.2, 0.2, 1.0], "spawn": true }
        , { "q": -10, "r":  0, "height": 1.0, "elevation": 0.0, "rgba_color": [1.0, 0.2, 0.2, 1.0], "spawn": false }

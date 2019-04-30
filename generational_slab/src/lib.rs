@@ -190,7 +190,7 @@ impl<T> Slab<T> {
 }
 
 impl<T> IntoIterator for Slab<T> {
-    type Item = (usize, T);
+    type Item = (Key, T);
     type IntoIter = IntoIter<T>;
 
     fn into_iter(self) -> IntoIter<T> {
@@ -202,7 +202,7 @@ impl<T> IntoIterator for Slab<T> {
 }
 
 impl<'a, T> IntoIterator for &'a Slab<T> {
-    type Item = (usize, &'a T);
+    type Item = (Key, &'a T);
     type IntoIter = Iter<'a, T>;
 
     fn into_iter(self) -> Iter<'a, T> {
@@ -211,7 +211,7 @@ impl<'a, T> IntoIterator for &'a Slab<T> {
 }
 
 impl<'a, T> IntoIterator for &'a mut Slab<T> {
-    type Item = (usize, &'a mut T);
+    type Item = (Key, &'a mut T);
     type IntoIter = IterMut<'a, T>;
 
     fn into_iter(self) -> IterMut<'a, T> {
@@ -244,15 +244,19 @@ impl<'a, T> VacantEntry<'a, T> {
 }
 
 impl<T> Iterator for IntoIter<T> {
-    type Item = (usize, T);
+    type Item = (Key, T);
 
-    fn next(&mut self) -> Option<(usize, T)> {
+    fn next(&mut self) -> Option<(Key, T)> {
         while let Some(entry) = self.entries.next() {
             let curr = self.curr;
             self.curr += 1;
 
-            if let Entry::Occupied(v, _) = entry {
-                return Some((curr, v));
+            if let Entry::Occupied(v, generation) = entry {
+                let key = Key {
+                    index: curr,
+                    generation
+                };
+                return Some((key, v));
             }
         }
 
@@ -265,15 +269,19 @@ impl<T> Iterator for IntoIter<T> {
 }
 
 impl<'a, T> Iterator for Iter<'a, T> {
-    type Item = (usize, &'a T);
+    type Item = (Key, &'a T);
 
-    fn next(&mut self) -> Option<(usize, &'a T)> {
+    fn next(&mut self) -> Option<(Key, &'a T)> {
         while let Some(entry) = self.entries.next() {
             let curr = self.curr;
             self.curr += 1;
 
-            if let Entry::Occupied(ref v, _) = *entry {
-                return Some((curr, v));
+            if let Entry::Occupied(ref v, generation) = *entry {
+                let key = Key {
+                    index: curr,
+                    generation,
+                };
+                return Some((key, v));
             }
         }
 
@@ -286,15 +294,19 @@ impl<'a, T> Iterator for Iter<'a, T> {
 }
 
 impl<'a, T> Iterator for IterMut<'a, T> {
-    type Item = (usize, &'a mut T);
+    type Item = (Key, &'a mut T);
 
-    fn next(&mut self) -> Option<(usize, &'a mut T)> {
+    fn next(&mut self) -> Option<(Key, &'a mut T)> {
         while let Some(entry) = self.entries.next() {
             let curr = self.curr;
             self.curr += 1;
 
-            if let Entry::Occupied(ref mut v, _) = *entry {
-                return Some((curr, v));
+            if let Entry::Occupied(ref mut v, generation) = *entry {
+                let key = Key {
+                    index: curr,
+                    generation,
+                };
+                return Some((key, v));
             }
         }
 

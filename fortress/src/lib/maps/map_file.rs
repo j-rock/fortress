@@ -1,4 +1,7 @@
-use crate::dimensions::GridIndex;
+use crate::{
+    dimensions::GridIndex,
+    enemies::EnemyGeneratorSpawn,
+};
 
 #[derive(Clone, Deserialize)]
 pub struct MapFileCell {
@@ -32,4 +35,5 @@ pub struct MapFileLight {
 pub struct MapFile {
     pub cells: Vec<MapFileCell>,
     pub lights: Vec<MapFileLight>,
+    pub enemy_generator_spawns: Vec<EnemyGeneratorSpawn>,
 }

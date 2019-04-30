@@ -4,7 +4,10 @@ use crate::{
         Controller,
         ControllerId,
     },
-    dimensions::time::DeltaTime,
+    dimensions::{
+        Attack,
+        time::DeltaTime
+    },
     physics::PhysicsSimulation,
     players::{
         PlayerConfig,
@@ -79,5 +82,9 @@ impl Player {
 
     pub fn bullet_hit(&mut self, bullet_id: BulletId) {
         self.player_state.bullet_hit(bullet_id);
+    }
+
+    pub fn bullet_attack(&self, bullet_id: BulletId) -> Option<Attack> {
+        self.player_state.bullet_attack(bullet_id)
     }
 }
