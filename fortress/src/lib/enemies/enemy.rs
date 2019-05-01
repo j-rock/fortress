@@ -25,17 +25,18 @@ pub struct Enemy {
 
 impl Enemy {
     pub fn new(config: &EnemyConfig, enemy_id: EnemyId, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) -> Enemy {
+        let enemy_state = EnemyState::new(config);
         let enemy_body = EnemyBody::new(config, enemy_id, spawn, physics_sim);
-        let enemy_state = EnemyState::new(config, enemy_body);
+        let enemy_state_machine = EnemyStateMachine::new(enemy_body);
 
         Enemy {
             enemy_state,
-            enemy_state_machine: EnemyStateMachine::default(),
+            enemy_state_machine
         }
     }
 
-    pub fn pre_update(&mut self, dt: DeltaTime) {
-        if let Some(enemy_state_machine) = self.enemy_state_machine.pre_update(dt) {
+    pub fn pre_update(&mut self, config: &EnemyConfig, dt: DeltaTime, player_locs: &Vec<Point2<f64>>) {
+        if let Some(enemy_state_machine) = self.enemy_state_machine.pre_update(config, dt, player_locs) {
             self.enemy_state_machine = enemy_state_machine;
         }
     }
@@ -47,7 +48,7 @@ impl Enemy {
     }
 
     pub fn queue_draw(&self, config: &EnemyConfig, sprite_renderer: &mut LightDependentSpriteRenderer) {
-        self.enemy_state_machine.queue_draw(config, &self.enemy_state, sprite_renderer);
+        self.enemy_state_machine.queue_draw(config, sprite_renderer);
     }
 
     pub fn take_attack(&mut self, attack: Attack) {
@@ -55,12 +56,12 @@ impl Enemy {
     }
 
     pub fn dead(&self) -> bool {
-        self.enemy_state_machine == EnemyStateMachine::Dead
+        self.enemy_state_machine.dead()
     }
 
     pub fn redeploy(&mut self, config: &EnemyConfig, enemy_id: EnemyId, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) {
+        self.enemy_state = EnemyState::new(config);
         let enemy_body = EnemyBody::new(config, enemy_id, spawn, physics_sim);
-        self.enemy_state = EnemyState::new(config, enemy_body);
-        self.enemy_state_machine = EnemyStateMachine::default();
+        self.enemy_state_machine = EnemyStateMachine::new(enemy_body);
     }
 }

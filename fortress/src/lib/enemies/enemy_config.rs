@@ -11,10 +11,11 @@ pub struct EnemyConfig {
 
     // Enemies
     pub enemies_slab_initial_capacity_guess: usize,
-
     pub enemy_starting_health: i64,
     pub enemy_dying_duration_micros: i64,
-
+    pub enemy_stop_and_hit_distance: f64,
+    pub enemy_anger_distance: f64,
+    pub enemy_move_speed: f64,
     pub enemy_physical_radius: f64,
     pub enemy_physical_density: f64,
 }

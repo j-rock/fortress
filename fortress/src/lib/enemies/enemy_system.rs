@@ -26,6 +26,7 @@ use crate::{
     render::LightDependentSpriteRenderer,
 };
 use generational_slab::Slab;
+use nalgebra::Point2;
 
 pub struct EnemySystem {
     config_manager: SimpleConfigManager<EnemyConfig>,
@@ -56,7 +57,7 @@ impl EnemySystem {
         Ok(enemy_system)
     }
 
-    pub fn pre_update(&mut self, controller: &Controller, dt: DeltaTime, physics_sim: &mut PhysicsSimulation) {
+    pub fn pre_update(&mut self, controller: &Controller, dt: DeltaTime, player_locs: Vec<Point2<f64>>, physics_sim: &mut PhysicsSimulation) {
         if self.config_manager.update() || controller.just_pressed(ControllerId::Keyboard, ControlEvent::RedeployEntities) {
             self.redeploy(physics_sim);
         }
@@ -67,7 +68,7 @@ impl EnemySystem {
         }
 
         for (_key , enemy) in self.enemies.iter_mut() {
-            enemy.pre_update(dt);
+            enemy.pre_update(config, dt, &player_locs);
         }
     }
 

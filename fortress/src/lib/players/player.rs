@@ -87,4 +87,8 @@ impl Player {
     pub fn bullet_attack(&self, bullet_id: BulletId) -> Option<Attack> {
         self.player_state.bullet_attack(bullet_id)
     }
+
+    pub fn position(&self) -> Option<Point2<f64>> {
+        self.player_state.position()
+    }
 }

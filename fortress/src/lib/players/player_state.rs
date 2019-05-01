@@ -143,4 +143,8 @@ impl PlayerState {
 
         OctoDirection::from(up, down, left, right)
     }
+
+    pub fn position(&self) -> Option<Point2<f64>> {
+        self.body.position()
+    }
 }

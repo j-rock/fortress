@@ -152,6 +152,15 @@ impl PlayerSystem {
         }
     }
 
+    pub fn player_locs(&self) -> Vec<Point2<f64>> {
+        self.players
+            .iter()
+            .filter_map(|(_i, player)| {
+                player.position()
+            })
+            .collect()
+    }
+
     fn redeploy(&mut self, physics_sim: &mut PhysicsSimulation) {
         let config = self.config_manager.get();
         for (_i, player) in self.players.iter_mut() {
