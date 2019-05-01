@@ -19,5 +19,9 @@ impl Health {
     pub fn withdraw(&mut self, damage: Damage) {
         self.amount -= damage.value();
     }
+
+    pub fn amount(&self) -> i64 {
+        self.amount
+    }
 }
 

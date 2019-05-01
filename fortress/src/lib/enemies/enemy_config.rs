@@ -5,9 +5,11 @@ pub struct EnemyConfig {
 
     pub generator_starting_health: i64,
     pub generator_cooldown_duration_micros: i64,
+    pub generator_offset_distance: f64,
     pub generator_physical_radius: f64,
     pub generator_physical_density: f64,
-    pub generator_offset_distance: f64,
+    pub generator_render_scale: f32,
+    pub generator_num_sprite_frames: usize,
 
     // Enemies
     pub enemies_slab_initial_capacity_guess: usize,

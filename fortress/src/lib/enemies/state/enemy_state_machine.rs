@@ -59,7 +59,7 @@ impl EnemyStateMachine {
     pub fn post_update(&mut self, config: &EnemyConfig, audio: &AudioPlayer, enemy_state: &EnemyState) -> Option<EnemyStateMachine> {
         match self {
             EnemyStateMachine::Base(body, _) if !enemy_state.health().alive() => {
-                audio.play_sound(Sound::Raygun);
+                audio.play_sound(Sound::Slash);
                 let position = body.position();
                 Some(EnemyStateMachine::Dying(position, 0))
             },

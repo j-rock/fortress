@@ -68,7 +68,7 @@ impl WorldState {
             config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
             camera: Camera::new(config_watcher)?,
             textures: SpriteSheetTextureManager::new(config_watcher)?,
-            background_renderer: None,
+            background_renderer: None, // Some(BackgroundRenderer::new()?),
             hex_renderer: HexRenderer::new()?,
             full_light_sprite: FullyIlluminatedSpriteRenderer::new()?,
             light_dependent_sprite: LightDependentSpriteRenderer::new()?,

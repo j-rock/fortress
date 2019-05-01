@@ -63,23 +63,24 @@ impl EnemyGeneratorStateMachine {
     }
 
     pub fn queue_draw(&self, config: &EnemyConfig, generator_state: &EnemyGeneratorState, sprite_renderer: &mut LightDependentSpriteRenderer) {
-        let image_name = match self {
-            EnemyGeneratorStateMachine::Dead => String::from("enemy_generator_dead.png"),
-            _ => String::from("enemy_generator.png")
+        let health_frac = generator_state.health().amount() as f64 / config.generator_starting_health as f64;
+        let frame = match self {
+            EnemyGeneratorStateMachine::Dead => config.generator_num_sprite_frames - 1,
+            _ => ((1.0 - health_frac) * config.generator_num_sprite_frames as f64).floor() as usize,
         };
 
         if let Some(position) = generator_state.position() {
             let world_bottom_center_position = glm::vec3(position.x as f32, 0.0, -position.y as f32);
-            let world_half_size = glm::vec2(config.generator_physical_radius as f32, config.generator_physical_radius as f32);
+            let world_half_size = glm::vec2(config.generator_physical_radius as f32, config.generator_physical_radius as f32) * config.generator_render_scale;
 
             sprite_renderer.queue(vec![LightDependentSpriteData {
                 world_bottom_center_position,
                 world_half_size,
                 sprite_frame_id: SpriteSheetFrameId {
-                    name: image_name,
+                    name: String::from("enemy_generator.png"),
                     sprite_sheet: NamedSpriteSheet::SpriteSheet1,
                 },
-                frame: 0,
+                frame,
             }]);
         }
     }
