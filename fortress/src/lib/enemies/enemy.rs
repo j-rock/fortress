@@ -14,7 +14,10 @@ use crate::{
         }
     },
     physics::PhysicsSimulation,
-    render::LightDependentSpriteRenderer,
+    render::{
+        LightDependentSpriteRenderer,
+        PointLight,
+    },
 };
 use nalgebra::Point2;
 
@@ -36,7 +39,7 @@ impl Enemy {
     }
 
     pub fn pre_update(&mut self, config: &EnemyConfig, dt: DeltaTime, player_locs: &Vec<Point2<f64>>) {
-        if let Some(enemy_state_machine) = self.enemy_state_machine.pre_update(config, dt, player_locs) {
+        if let Some(enemy_state_machine) = self.enemy_state_machine.pre_update(config, dt, player_locs, &mut self.enemy_state) {
             self.enemy_state_machine = enemy_state_machine;
         }
     }
@@ -45,6 +48,10 @@ impl Enemy {
         if let Some(enemy_state_machine) = self.enemy_state_machine.post_update(config, audio, &self.enemy_state) {
             self.enemy_state_machine = enemy_state_machine;
         }
+    }
+
+    pub fn populate_lights(&self, config: &EnemyConfig, lights: &mut Vec<PointLight>) {
+        self.enemy_state_machine.populate_lights(config, &self.enemy_state, lights);
     }
 
     pub fn queue_draw(&self, config: &EnemyConfig, sprite_renderer: &mut LightDependentSpriteRenderer) {

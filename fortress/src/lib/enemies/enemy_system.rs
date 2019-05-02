@@ -23,7 +23,10 @@ use crate::{
         EnemyGeneratorSpawn,
     },
     physics::PhysicsSimulation,
-    render::LightDependentSpriteRenderer,
+    render::{
+        LightDependentSpriteRenderer,
+        PointLight,
+    },
 };
 use generational_slab::Slab;
 use nalgebra::Point2;
@@ -92,6 +95,16 @@ impl EnemySystem {
 
         for enemy_key in dead_enemy_keys.into_iter() {
             self.enemies.remove(enemy_key);
+        }
+    }
+
+    pub fn populate_lights(&self, lights: &mut Vec<PointLight>) {
+        let config = self.config_manager.get();
+        for (_key, generator) in self.generators.iter() {
+            generator.populate_lights(config, lights);
+        }
+        for (_key, enemy) in self.enemies.iter() {
+            enemy.populate_lights(config, lights);
         }
     }
 

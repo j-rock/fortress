@@ -55,9 +55,10 @@ impl WorldState {
         let mut physics_sim = PhysicsSimulation::new(config_watcher)?;
 
         physics_sim.borrow_mut().add_contact_matchers(vec!(
-            WeaponMatchers::bullet_hit(),
+            WeaponMatchers::bullet_hit_contact_matcher(),
         ));
         physics_sim.borrow_mut().add_proximity_matchers(vec!(
+            WeaponMatchers::bullet_hit_proximity_matcher(),
         ));
 
         let map = Map::new(config_watcher, &mut physics_sim)?;
@@ -135,6 +136,7 @@ impl WorldState {
     fn populate_lights(&mut self) {
         self.map.populate_lights(&mut self.lights);
         self.players.populate_lights(&mut self.lights);
+        self.enemies.populate_lights(&mut self.lights);
     }
 
     fn draw_geometry(&mut self, screen_size: glm::IVec2) {

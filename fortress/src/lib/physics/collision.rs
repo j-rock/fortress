@@ -21,6 +21,13 @@ impl ProximityType {
             ncollide2d::query::Proximity::Disjoint => ProximityType::Disjoint,
         }
     }
+
+    pub fn basically_touching(self) -> bool {
+        match self {
+            ProximityType::Intersecting | ProximityType::WithinMargin => true,
+            _ => false
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]

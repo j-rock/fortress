@@ -18,6 +18,7 @@ use crate::{
         LightDependentSpriteData,
         LightDependentSpriteRenderer,
         NamedSpriteSheet,
+        PointLight,
         SpriteSheetFrameId,
     },
 };
@@ -62,11 +63,27 @@ impl EnemyGeneratorStateMachine {
        }
     }
 
+    pub fn populate_lights(&self, config: &EnemyConfig, generator_state: &EnemyGeneratorState, lights: &mut Vec<PointLight>) {
+        match self {
+            EnemyGeneratorStateMachine::ReadyToGenerate| EnemyGeneratorStateMachine::Cooldown(_) => {
+                if let Some(position) = generator_state.position() {
+                    let position = glm::vec3(position.x as f32, config.generator_light_elevation, -position.y as f32);
+                    lights.push(PointLight {
+                        position,
+                        color: glm::vec3(config.generator_light_color.0, config.generator_light_color.1, config.generator_light_color.2),
+                        attenuation: glm::vec3(config.generator_light_attenuation.0, config.generator_light_attenuation.1, config.generator_light_attenuation.2),
+                    });
+                }
+            },
+            EnemyGeneratorStateMachine::Dead => {},
+        }
+    }
+
     pub fn queue_draw(&self, config: &EnemyConfig, generator_state: &EnemyGeneratorState, sprite_renderer: &mut LightDependentSpriteRenderer) {
         let health_frac = generator_state.health().amount() as f64 / config.generator_starting_health as f64;
         let frame = match self {
             EnemyGeneratorStateMachine::Dead => config.generator_num_sprite_frames - 1,
-            _ => ((1.0 - health_frac) * config.generator_num_sprite_frames as f64).floor() as usize,
+            _ => ((1.0 - health_frac) * (config.generator_num_sprite_frames - 1) as f64).floor() as usize,
         };
 
         if let Some(position) = generator_state.position() {

@@ -15,7 +15,10 @@ use crate::{
         }
     },
     physics::PhysicsSimulation,
-    render::LightDependentSpriteRenderer,
+    render::{
+        LightDependentSpriteRenderer,
+        PointLight,
+    },
 };
 use generational_slab::Slab;
 
@@ -49,6 +52,10 @@ impl EnemyGenerator {
         if let Some(state) = self.generator_state_machine.post_update(audio, &mut self.generator_state) {
             self.generator_state_machine = state;
         }
+    }
+
+    pub fn populate_lights(&self, config: &EnemyConfig, lights: &mut Vec<PointLight>) {
+        self.generator_state_machine.populate_lights(config, &self.generator_state, lights);
     }
 
     pub fn queue_draw(&self, config: &EnemyConfig, sprite_renderer: &mut LightDependentSpriteRenderer) {

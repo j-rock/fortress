@@ -40,6 +40,7 @@ impl EnemyGeneratorBody {
         let ball_shape = Ball::new(config.generator_physical_radius);
         let collider_desc = ColliderDesc::new(ShapeHandle::new(ball_shape))
             .density(config.generator_physical_density)
+            .sensor(true)
             .collision_groups(CollisionGroups::new()
                 .with_membership(&[collision_category::ENEMY_GENERATOR])
                 .with_whitelist(&[collision_category::BARRIER, collision_category::PLAYER_WEAPON]));

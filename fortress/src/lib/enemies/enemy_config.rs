@@ -10,6 +10,9 @@ pub struct EnemyConfig {
     pub generator_physical_density: f64,
     pub generator_render_scale: f32,
     pub generator_num_sprite_frames: usize,
+    pub generator_light_elevation: f32,
+    pub generator_light_color: (f32, f32, f32),
+    pub generator_light_attenuation: (f32, f32, f32),
 
     // Enemies
     pub enemies_slab_initial_capacity_guess: usize,
@@ -23,4 +26,8 @@ pub struct EnemyConfig {
     pub enemy_physical_radius: f64,
     pub enemy_physical_density: f64,
     pub enemy_render_scale: f32,
+    pub enemy_light_duration_micros: i64,
+    pub enemy_light_elevation: f32,
+    pub enemy_light_color: (f32, f32, f32),
+    pub enemy_light_attenuation: (f32, f32, f32),
 }

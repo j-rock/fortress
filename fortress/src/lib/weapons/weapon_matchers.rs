@@ -6,7 +6,8 @@ use crate::{
     entities::Entity,
     physics::{
         Contact,
-        ContactMatcher
+        ContactMatcher,
+        ProximityMatcher,
     },
     players::PlayerId,
     weapons::BulletId,
@@ -16,24 +17,35 @@ use crate::{
 pub struct WeaponMatchers;
 
 impl WeaponMatchers {
-    pub fn bullet_hit() -> ContactMatcher {
+    pub fn bullet_hit_proximity_matcher() -> ProximityMatcher {
+        ProximityMatcher::new(Box::new(|proximity, world: &mut WorldView| {
+            if proximity.curr_type.basically_touching() {
+                if let (Entity::Bullet(player_id, bullet_id), Entity::EnemyGenerator(generator_id)) = (proximity.entity1, proximity.entity2) {
+                    Self::process_bullet_hit(player_id, bullet_id, world);
+                    Self::bullet_hit_enemy_generator(player_id, bullet_id, generator_id, world);
+                }
+                if let (Entity::Bullet(player_id, bullet_id), Entity::EnemyGenerator(generator_id)) = (proximity.entity2, proximity.entity1) {
+                    Self::process_bullet_hit(player_id, bullet_id, world);
+                    Self::bullet_hit_enemy_generator(player_id, bullet_id, generator_id, world);
+                }
+            }
+        }))
+    }
+
+    pub fn bullet_hit_contact_matcher() -> ContactMatcher {
         ContactMatcher::new(Box::new(|contact, world: &mut WorldView| {
             if let Contact::Started(entity1, entity2) = contact {
                 if let Entity::Bullet(player_id, bullet_id) = entity1 {
                     Self::process_bullet_hit(player_id, bullet_id, world);
-                    match entity2 {
-                        Entity::Enemy(enemy_id) => Self::bullet_hit_enemy(player_id, bullet_id, enemy_id, world),
-                        Entity::EnemyGenerator(generator_id) => Self::bullet_hit_enemy_generator(player_id, bullet_id, generator_id, world),
-                        _ => {}
+                    if let Entity::Enemy(enemy_id) = entity2 {
+                        Self::bullet_hit_enemy(player_id, bullet_id, enemy_id, world);
                     }
                 }
 
                 if let Entity::Bullet(player_id, bullet_id) = entity2 {
                     Self::process_bullet_hit(player_id, bullet_id, world);
-                    match entity1 {
-                        Entity::Enemy(enemy_id) => Self::bullet_hit_enemy(player_id, bullet_id, enemy_id, world),
-                        Entity::EnemyGenerator(generator_id) => Self::bullet_hit_enemy_generator(player_id, bullet_id, generator_id, world),
-                        _ => {}
+                    if let Entity::Enemy(enemy_id) = entity1 {
+                        Self::bullet_hit_enemy(player_id, bullet_id, enemy_id, world);
                     }
                 }
             }
