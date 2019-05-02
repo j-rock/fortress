@@ -3,9 +3,12 @@ pub struct PlayerConfig {
     pub physical_radius: f64,
     pub physical_density: f64,
     pub base_move_speed: f64,
-
     pub weapon_physical_offset: f64,
     pub firing_period_ms: i64,
+    pub player_render_offset: (f32, f32),
+    pub player_render_scale: (f32, f32),
+    pub player_idle_frame_duration_micros: i64,
+    pub player_running_frame_duration_micros: i64,
 
     pub bullet_physical_radius: f64,
     pub bullet_speed: f64,

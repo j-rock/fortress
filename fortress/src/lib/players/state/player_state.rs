@@ -1,14 +1,8 @@
 use crate::{
     audio::AudioPlayer,
-    control::{
-        ControlEvent::PlayerMove,
-        Controller,
-        ControllerId,
-    },
     dimensions::{
         Attack,
         OctoDirection,
-        UpDownLeftRight,
         time::DeltaTime
     },
     physics::PhysicsSimulation,
@@ -19,11 +13,8 @@ use crate::{
         state::PlayerBody
     },
     render::{
-        NamedSpriteSheet,
-        LightDependentSpriteData,
-        LightDependentSpriteRenderer,
+        FullyIlluminatedSpriteRenderer,
         PointLight,
-        SpriteSheetFrameId,
     },
     weapons::{
         BulletId,
@@ -34,7 +25,6 @@ use nalgebra::{
     Point2,
     Vector2,
 };
-use crate::render::FullyIlluminatedSpriteRenderer;
 
 pub struct PlayerState {
     player_id: PlayerId,
@@ -91,23 +81,8 @@ impl PlayerState {
         self.weapon.populate_lights(config, lights);
     }
 
-    pub fn queue_draw(&self, config: &PlayerConfig, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {
-        if let Some(position) = self.body.position() {
-            let world_bottom_center_position = glm::vec3(position.x as f32, 0.0, -position.y as f32);
-            let world_half_size = glm::vec2(config.physical_radius as f32, 2.0 * config.physical_radius as f32);
-
-            light_dependent.queue(vec![LightDependentSpriteData {
-                world_bottom_center_position,
-                world_half_size,
-                sprite_frame_id: SpriteSheetFrameId {
-                    name: String::from("player.png"),
-                    sprite_sheet: NamedSpriteSheet::SpriteSheet1,
-                },
-                frame: 0,
-            }]);
-
-            self.weapon.queue_draw(config, full_light);
-        }
+    pub fn queue_draw_weapon(&self, config: &PlayerConfig, full_light: &mut FullyIlluminatedSpriteRenderer) {
+        self.weapon.queue_draw(config, full_light);
     }
 
     pub fn set_velocity(&mut self, dir: Option<OctoDirection>) {
@@ -133,15 +108,6 @@ impl PlayerState {
 
     pub fn bullet_attack(&self, bullet_id: BulletId) -> Option<Attack> {
         self.weapon.bullet_attack(bullet_id)
-    }
-
-    pub fn compute_move_direction(controller_id: ControllerId, controller: &Controller) -> Option<OctoDirection> {
-        let up = controller.is_pressed(controller_id, PlayerMove(UpDownLeftRight::Up));
-        let down = controller.is_pressed(controller_id, PlayerMove(UpDownLeftRight::Down));
-        let left = controller.is_pressed(controller_id, PlayerMove(UpDownLeftRight::Left));
-        let right = controller.is_pressed(controller_id, PlayerMove(UpDownLeftRight::Right));
-
-        OctoDirection::from(up, down, left, right)
     }
 
     pub fn position(&self) -> Option<Point2<f64>> {
