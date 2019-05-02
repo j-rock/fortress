@@ -11,7 +11,6 @@ in VS_OUT {
 
 out GS_OUT {
   vec3 world_space_position;
-  vec3 normal;
   vec2 texel;
 } gs_out;
 
@@ -30,8 +29,6 @@ void EmitQuad() {
 
   vec2 texel_top_left = vec2(gs_in[0].texel_bottom_left.x, gs_in[0].texel_top_right.y);
   vec2 texel_bottom_right = vec2(gs_in[0].texel_top_right.x, gs_in[0].texel_bottom_left.y);
-
-  gs_out.normal = cross(camera_right, camera_up);
 
   gl_Position = projection_view * vec4(world_top_left, 1.0);
   gs_out.world_space_position = world_top_left;

@@ -1,5 +1,6 @@
 pub mod attribute;
 pub mod cameras;
+pub mod easing_functions;
 pub mod instanced_mesh;
 pub mod opengl;
 pub mod point_light;
@@ -15,6 +16,7 @@ pub use self::attribute::AttributeProgram;
 pub use self::attribute::AttributeProgramBuilder;
 pub use self::cameras::Camera;
 pub use self::cameras::CameraConfig;
+pub use self::easing_functions::EasingFn;
 pub use self::instanced_mesh::InstancedMesh;
 pub use self::point_light::PointLight;
 pub use self::renderer::BackgroundRenderer;
