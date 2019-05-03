@@ -78,8 +78,8 @@ impl PlayerStateMachine {
 
     pub fn queue_draw(&self, config: &PlayerConfig, player_state: &PlayerState, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {
         if let Some(position) = player_state.position() {
-            let world_bottom_center_position = glm::vec3(position.x as f32 + config.player_render_offset.0, 0.0, -(position.y as f32 + config.player_render_offset.1));
             let world_half_size = glm::vec2(config.physical_radius as f32 * config.player_render_scale.0, config.physical_radius as f32 * config.player_render_scale.1);
+            let world_center_position = glm::vec3(position.x as f32 + config.player_render_offset.0, world_half_size.y, -(position.y as f32 + config.player_render_offset.1));
 
             let image_name = match self {
                 PlayerStateMachine::Idle(_) => String::from("warrior_idle.png"),
@@ -92,13 +92,14 @@ impl PlayerStateMachine {
             };
 
             light_dependent.queue(vec![LightDependentSpriteData {
-                world_bottom_center_position,
+                world_center_position,
                 world_half_size,
                 sprite_frame_id: SpriteSheetFrameId {
                     name: image_name,
                     sprite_sheet: NamedSpriteSheet::SpriteSheet1,
                 },
                 frame,
+                rotation: 0.0,
             }]);
 
             player_state.queue_draw_weapon(config, full_light);

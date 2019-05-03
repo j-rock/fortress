@@ -105,17 +105,18 @@ impl EnemyStateMachine {
         };
 
         if let Some(position) = self.position() {
-            let world_bottom_center_position = glm::vec3(position.x as f32, 0.0, -position.y as f32);
             let world_half_size = glm::vec2(config.enemy_physical_radius as f32, config.enemy_physical_radius as f32) * config.enemy_render_scale;
+            let world_center_position = glm::vec3(position.x as f32, world_half_size.y, -position.y as f32);
 
             sprite_renderer.queue(vec![LightDependentSpriteData {
-                world_bottom_center_position,
+                world_center_position,
                 world_half_size,
                 sprite_frame_id: SpriteSheetFrameId {
                     name: image_name,
                     sprite_sheet: NamedSpriteSheet::SpriteSheet1,
                 },
-                frame
+                frame,
+                rotation: 0.0,
             }]);
         }
     }
