@@ -113,4 +113,8 @@ impl PlayerState {
     pub fn position(&self) -> Option<Point2<f64>> {
         self.body.position()
     }
+
+    pub fn facing_dir(&self) -> Vector2<f64> {
+        self.facing_dir
+    }
 }

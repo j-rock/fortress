@@ -9,10 +9,12 @@ use crate::{
     },
     enemies::EnemyConfig,
 };
+use nalgebra::Vector2;
 
 pub struct EnemyState {
     health: Health,
     age: Microseconds,
+    facing_dir: Option<Vector2<f64>>,
 }
 
 impl EnemyState {
@@ -20,6 +22,7 @@ impl EnemyState {
         EnemyState {
             health: Health::new(config.enemy_starting_health),
             age: 0,
+            facing_dir: None,
         }
     }
 
@@ -37,5 +40,13 @@ impl EnemyState {
 
     pub fn take_attack(&mut self, attack: Attack) {
         self.health.withdraw(attack.damage);
+    }
+
+    pub fn facing_dir(&self) -> Option<Vector2<f64>> {
+        self.facing_dir
+    }
+
+    pub fn set_facing_dir(&mut self, dir: Vector2<f64>) {
+        self.facing_dir = Some(dir);
     }
 }

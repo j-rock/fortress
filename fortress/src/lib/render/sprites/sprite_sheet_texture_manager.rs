@@ -1,5 +1,6 @@
 use crate::{
     app::StatusOr,
+    dimensions::Reverse,
     file::{
         ConfigWatcher,
         SimpleConfigManager
@@ -64,8 +65,8 @@ impl SpriteSheetTextureManager {
         self.textures.get(&sprite_sheet).expect("Missing texture!")
     }
 
-    pub fn frame(&self, frame_id: &SpriteSheetFrameId, frame: usize) -> Texel {
+    pub fn frame(&self, frame_id: &SpriteSheetFrameId, frame: usize, reverse: Reverse) -> Texel {
         let frame_info = self.frames.get(frame_id).expect("Missing frame id!");
-        frame_info.texel(frame)
+        frame_info.texel(frame, reverse)
     }
 }

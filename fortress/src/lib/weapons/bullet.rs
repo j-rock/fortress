@@ -3,6 +3,7 @@ use crate::{
         Attack,
         Damage,
         OctoDirection,
+        Reverse,
         time::{
             DeltaTime,
             Microseconds,
@@ -128,6 +129,7 @@ impl Bullet {
             },
             frame,
             rotation: Self::choose_rotation(direction),
+            reverse: Reverse::none(),
         }
     }
 

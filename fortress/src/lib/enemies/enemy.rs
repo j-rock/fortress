@@ -55,7 +55,7 @@ impl Enemy {
     }
 
     pub fn queue_draw(&self, config: &EnemyConfig, sprite_renderer: &mut LightDependentSpriteRenderer) {
-        self.enemy_state_machine.queue_draw(config, sprite_renderer);
+        self.enemy_state_machine.queue_draw(config, &self.enemy_state, sprite_renderer);
     }
 
     pub fn take_attack(&mut self, attack: Attack) {

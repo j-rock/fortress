@@ -1,5 +1,6 @@
 use crate::{
     app::StatusOr,
+    dimensions::Reverse,
     file,
     render::{
         attribute,
@@ -26,6 +27,7 @@ pub struct FullyIlluminatedSpriteData {
     pub sprite_frame_id: SpriteSheetFrameId,
     pub frame: usize,
     pub rotation: f32,
+    pub reverse: Reverse,
 }
 
 pub struct FullyIlluminatedSpriteRenderer {
@@ -86,7 +88,7 @@ impl FullyIlluminatedSpriteRenderer {
             texture.activate(&mut self.shader_program);
 
             for datum in queued_draw.iter() {
-                let texel = textures.frame(&datum.sprite_frame_id, datum.frame);
+                let texel = textures.frame(&datum.sprite_frame_id, datum.frame, datum.reverse);
 
                 self.attr_pos.data.push(SpritePositionAttr {
                     world_center_position: datum.world_center_position,

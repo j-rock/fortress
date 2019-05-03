@@ -8,6 +8,7 @@ use crate::{
     dimensions::{
         Attack,
         OctoDirection,
+        Reverse,
         time::{
             DeltaTime,
             Microseconds,
@@ -91,6 +92,12 @@ impl PlayerStateMachine {
                 PlayerStateMachine::Walking(time_elapsed) => (*time_elapsed / config.player_running_frame_duration_micros) as usize,
             };
 
+            let reverse = if player_state.facing_dir().x < 0.0 {
+                Reverse::horizontally()
+            } else {
+                Reverse::none()
+            };
+
             light_dependent.queue(vec![LightDependentSpriteData {
                 world_center_position,
                 world_half_size,
@@ -100,6 +107,7 @@ impl PlayerStateMachine {
                 },
                 frame,
                 rotation: 0.0,
+                reverse,
             }]);
 
             player_state.queue_draw_weapon(config, full_light);

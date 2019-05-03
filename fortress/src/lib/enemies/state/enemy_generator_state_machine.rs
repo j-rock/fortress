@@ -2,6 +2,7 @@ use crate::{
     audio::AudioPlayer,
     dimensions::{
         Attack,
+        Reverse,
         time::{
             DeltaTime,
             Microseconds,
@@ -99,6 +100,7 @@ impl EnemyGeneratorStateMachine {
                 },
                 frame,
                 rotation: 0.0,
+                reverse: Reverse::none(),
             }]);
         }
     }

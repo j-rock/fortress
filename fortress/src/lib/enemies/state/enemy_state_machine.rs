@@ -5,6 +5,7 @@ use crate::{
     },
     dimensions::{
         Attack,
+        Reverse,
         time::{
             DeltaTime,
             Microseconds,
@@ -45,6 +46,9 @@ impl EnemyStateMachine {
             EnemyStateMachine::Base(body, time_elapsed) => {
                 *time_elapsed += dt.as_microseconds();
                 body.move_to_target(config, player_locs);
+                if let Some(direction) = body.velocity() {
+                    enemy_state.set_facing_dir(direction);
+                }
             },
             EnemyStateMachine::Dying(_, time_elapsed) => {
                 *time_elapsed += dt.as_microseconds();
@@ -92,7 +96,7 @@ impl EnemyStateMachine {
         }
     }
 
-    pub fn queue_draw(&self, config: &EnemyConfig, sprite_renderer: &mut LightDependentSpriteRenderer) {
+    pub fn queue_draw(&self, config: &EnemyConfig, enemy_state: &EnemyState, sprite_renderer: &mut LightDependentSpriteRenderer) {
         let image_name = match self {
             EnemyStateMachine::Dying(_, _) => String::from("enemy1_dying.png"),
             _ => String::from("enemy1.png")
@@ -102,6 +106,12 @@ impl EnemyStateMachine {
             EnemyStateMachine::Base(_, time_elapsed) => (*time_elapsed / config.enemy_walk_frame_duration_micros) as usize,
             EnemyStateMachine::Dying(_, time_elapsed) => (*time_elapsed / config.enemy_dying_frame_duration_micros) as usize,
             _ => 0,
+        };
+
+        let facing_dir = enemy_state.facing_dir();
+        let reverse = match facing_dir {
+            Some(dir) if dir.x >= 0.0 => Reverse::horizontally(),
+            _ => Reverse::none(),
         };
 
         if let Some(position) = self.position() {
@@ -117,6 +127,7 @@ impl EnemyStateMachine {
                 },
                 frame,
                 rotation: 0.0,
+                reverse,
             }]);
         }
     }

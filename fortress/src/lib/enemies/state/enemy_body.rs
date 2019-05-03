@@ -73,6 +73,16 @@ impl EnemyBody {
             })
     }
 
+    pub fn velocity(&self) -> Option<Vector2<f64>> {
+        let physics_sim = self.body.physics_sim.borrow();
+        physics_sim
+            .world()
+            .rigid_body(self.body.handle)
+            .map(|body| {
+                body.velocity().linear
+            })
+    }
+
     pub fn move_to_target(&mut self, config: &EnemyConfig, player_locs: &Vec<Point2<f64>>) {
         if let Some(position) = self.position() {
             player_locs

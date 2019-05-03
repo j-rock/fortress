@@ -1,5 +1,8 @@
 use crate::{
-    dimensions::GridIndex,
+    dimensions::{
+        GridIndex,
+        Reverse,
+    },
     enemies::EnemyGeneratorSpawn,
     maps::{
         MapCell,
@@ -120,6 +123,7 @@ impl MapState {
                 },
                 frame: 0,
                 rotation: 0.0,
+                reverse: Reverse::none(),
             })
         }
         sprite_renderer.queue(sprite_data);
