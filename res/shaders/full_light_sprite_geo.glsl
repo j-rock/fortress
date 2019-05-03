@@ -12,7 +12,6 @@ in VS_OUT {
 
 out GS_OUT {
     vec3 world_space_position;
-    vec3 normal;
     vec2 texel;
 } gs_out;
 
@@ -37,11 +36,10 @@ mat3 RotationMatrix(vec3 axis, float angle) {
 }
 
 void EmitQuad() {
-    gs_out.normal = cross(camera_right, camera_up);
-
+    vec3 normal = cross(camera_right, camera_up);
     vec3 world_bottom_center = gs_in[0].world_center_position;
 
-    mat3 rot = RotationMatrix(gs_out.normal, gs_in[0].rotation);
+    mat3 rot = RotationMatrix(normal, gs_in[0].rotation);
     vec3 rot_camera_right = rot * camera_right;
     vec3 rot_camera_up = rot * camera_up;
 
