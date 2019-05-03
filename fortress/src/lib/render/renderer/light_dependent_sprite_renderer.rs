@@ -105,6 +105,7 @@ impl LightDependentSpriteRenderer {
             self.attr_pos.prepare_buffer();
             self.attr_size.prepare_buffer();
             self.attr_texel.prepare_buffer();
+            self.attr_rot.prepare_buffer();
 
             unsafe {
                 gl::DrawArraysInstanced(gl::POINTS, 0, 4, self.attr_pos.data.len() as GLsizei);
@@ -113,7 +114,7 @@ impl LightDependentSpriteRenderer {
             self.attr_pos.data.clear();
             self.attr_size.data.clear();
             self.attr_texel.data.clear();
-            self.attr_rot.prepare_buffer();
+            self.attr_rot.data.clear();
         }
 
         self.per_pack_attrs.clear();
