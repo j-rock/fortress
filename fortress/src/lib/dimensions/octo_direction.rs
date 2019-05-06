@@ -1,3 +1,4 @@
+use crate::dimensions::LrDirection;
 use nalgebra::Vector2;
 
 #[derive(Copy, Clone)]
@@ -16,6 +17,14 @@ impl OctoDirection {
             OctoDirection::UpRight => Vector2::new(1.0, 1.0),
             OctoDirection::DownLeft => Vector2::new(-1.0, -1.0),
             OctoDirection::DownRight => Vector2::new(1.0, -1.0),
+        }
+    }
+
+    pub fn to_lr_direction(self) -> Option<LrDirection> {
+        match self {
+            OctoDirection::Left | OctoDirection::UpLeft | OctoDirection::DownLeft => Some(LrDirection::Left),
+            OctoDirection::Right | OctoDirection::UpRight | OctoDirection::DownRight => Some(LrDirection::Right),
+            _ => None,
         }
     }
 

@@ -2,6 +2,7 @@ use crate::{
     dimensions::{
         Attack,
         Health,
+        LrDirection,
         time::{
             DeltaTime,
             Microseconds
@@ -14,7 +15,7 @@ use nalgebra::Vector2;
 pub struct EnemyState {
     health: Health,
     age: Microseconds,
-    facing_dir: Option<Vector2<f64>>,
+    facing_dir: LrDirection,
 }
 
 impl EnemyState {
@@ -22,7 +23,7 @@ impl EnemyState {
         EnemyState {
             health: Health::new(config.enemy_starting_health),
             age: 0,
-            facing_dir: None,
+            facing_dir: LrDirection::Right,
         }
     }
 
@@ -42,11 +43,16 @@ impl EnemyState {
         self.health.withdraw(attack.damage);
     }
 
-    pub fn facing_dir(&self) -> Option<Vector2<f64>> {
+    pub fn facing_dir(&self) -> LrDirection {
         self.facing_dir
     }
 
     pub fn set_facing_dir(&mut self, dir: Vector2<f64>) {
-        self.facing_dir = Some(dir);
+        if dir.x < 0.0 {
+            self.facing_dir = LrDirection::Left;
+        }
+        if dir.x > 0.0 {
+            self.facing_dir = LrDirection::Right;
+        }
     }
 }

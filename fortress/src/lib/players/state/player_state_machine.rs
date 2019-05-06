@@ -79,8 +79,14 @@ impl PlayerStateMachine {
 
     pub fn queue_draw(&self, config: &PlayerConfig, player_state: &PlayerState, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {
         if let Some(position) = player_state.position() {
+            let (reverse, render_offset) = if player_state.lr_dir().is_left() {
+                (Reverse::horizontally(), glm::vec2(-config.player_render_offset.0, config.player_render_offset.1))
+            } else {
+                (Reverse::none(), glm::vec2(config.player_render_offset.0, config.player_render_offset.1))
+            };
+
             let world_half_size = glm::vec2(config.physical_radius as f32 * config.player_render_scale.0, config.physical_radius as f32 * config.player_render_scale.1);
-            let world_center_position = glm::vec3(position.x as f32 + config.player_render_offset.0, world_half_size.y, -(position.y as f32 + config.player_render_offset.1));
+            let world_center_position = glm::vec3(position.x as f32 + render_offset.x, world_half_size.y, -(position.y as f32 + render_offset.y));
 
             let image_name = match self {
                 PlayerStateMachine::Idle(_) => String::from("warrior_idle.png"),
@@ -90,12 +96,6 @@ impl PlayerStateMachine {
             let frame = match self {
                 PlayerStateMachine::Idle(time_elapsed) => (*time_elapsed / config.player_idle_frame_duration_micros) as usize,
                 PlayerStateMachine::Walking(time_elapsed) => (*time_elapsed / config.player_running_frame_duration_micros) as usize,
-            };
-
-            let reverse = if player_state.facing_dir().x < 0.0 {
-                Reverse::horizontally()
-            } else {
-                Reverse::none()
             };
 
             light_dependent.queue(vec![LightDependentSpriteData {

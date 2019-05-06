@@ -108,10 +108,10 @@ impl EnemyStateMachine {
             _ => 0,
         };
 
-        let facing_dir = enemy_state.facing_dir();
-        let reverse = match facing_dir {
-            Some(dir) if dir.x >= 0.0 => Reverse::horizontally(),
-            _ => Reverse::none(),
+        let reverse = if enemy_state.facing_dir().is_left() {
+            Reverse::none()
+        } else {
+            Reverse::horizontally()
         };
 
         if let Some(position) = self.position() {

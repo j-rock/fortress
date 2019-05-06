@@ -2,6 +2,7 @@ use crate::{
     audio::AudioPlayer,
     dimensions::{
         Attack,
+        LrDirection,
         OctoDirection,
         time::DeltaTime
     },
@@ -33,6 +34,7 @@ pub struct PlayerState {
     body: PlayerBody,
 
     facing_dir: Vector2<f64>,
+    lr_dir: LrDirection,
     weapon_physical_offset: f64,
     weapon: Weapon,
 }
@@ -48,6 +50,7 @@ impl PlayerState {
             stats,
             body,
             facing_dir: Vector2::new(1.0, 0.0),
+            lr_dir: LrDirection::Right,
             weapon_physical_offset: config.weapon_physical_offset,
             weapon,
         }
@@ -90,6 +93,9 @@ impl PlayerState {
             None => self.body.set_velocity(Vector2::new(0.0, 0.0)),
             Some(dir) => {
                 self.facing_dir = dir.to_direction();
+                if let Some(lr_dir) = dir.to_lr_direction() {
+                    self.lr_dir = lr_dir;
+                }
                 self.body.set_velocity(self.stats.get_move_speed() * self.facing_dir);
             },
         }
@@ -114,7 +120,7 @@ impl PlayerState {
         self.body.position()
     }
 
-    pub fn facing_dir(&self) -> Vector2<f64> {
-        self.facing_dir
+    pub fn lr_dir(&self) -> LrDirection {
+        self.lr_dir
     }
 }
