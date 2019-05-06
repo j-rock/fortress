@@ -83,11 +83,12 @@ impl WorldState {
 
     pub fn update(&mut self, audio: &AudioPlayer, controller: &Controller, dt: DeltaTime) {
         self.config_manager.update();
-        self.camera.update();
         self.textures.update();
 
         // Pre-update.
         {
+            self.camera.pre_update();
+
             if self.map.pre_update(&mut self.physics_sim) {
                 self.players.respawn(self.map.spawns());
                 self.enemies.respawn(self.map.enemy_generator_spawns(), &mut self.physics_sim);
@@ -99,26 +100,25 @@ impl WorldState {
         }
 
         {
-            let world_view = WorldView {
+            self.physics_sim.borrow_mut().step(WorldView {
                 audio,
                 players: &mut self.players,
                 enemies: &mut self.enemies,
                 dt
-            };
-            self.physics_sim.borrow_mut().step(world_view);
+            });
 
-            let world_view = WorldView {
+            self.physics_sim.borrow().process_contacts(WorldView {
                 audio,
                 players: &mut self.players,
                 enemies: &mut self.enemies,
                 dt
-            };
-            self.physics_sim.borrow().process_contacts(world_view);
+            });
         }
 
         // Post-update.
         {
             self.players.post_update(audio);
+            self.camera.post_update(self.players.player_locs());
             self.enemies.post_update(audio);
         }
     }
