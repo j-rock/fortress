@@ -18,6 +18,7 @@ use crate::{
         ConfigWatcher,
         SimpleConfigManager,
     },
+    items::ItemType,
     physics::PhysicsSimulation,
     players::{
         Player,
@@ -159,6 +160,12 @@ impl PlayerSystem {
                 player.position()
             })
             .collect()
+    }
+
+    pub fn collect_item(&mut self, player_id: PlayerId, item_type: ItemType) {
+        if let Some(player) = self.players.get_mut(player_id.to_key()) {
+            player.collect_item(item_type);
+        }
     }
 
     fn redeploy(&mut self, physics_sim: &mut PhysicsSimulation) {

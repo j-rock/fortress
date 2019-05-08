@@ -8,6 +8,7 @@ use crate::{
         Attack,
         time::DeltaTime
     },
+    items::ItemType,
     physics::PhysicsSimulation,
     players::{
         PlayerConfig,
@@ -85,5 +86,9 @@ impl Player {
 
     pub fn position(&self) -> Option<Point2<f64>> {
         self.player_state_machine.position(&self.player_state)
+    }
+
+    pub fn collect_item(&mut self, item_type: ItemType) {
+        self.player_state_machine.collect_item(item_type, &mut self.player_state);
     }
 }

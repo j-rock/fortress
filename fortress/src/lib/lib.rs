@@ -26,6 +26,7 @@ pub mod enemies;
 pub mod entities;
 pub mod file;
 pub mod image;
+pub mod items;
 pub mod maps;
 pub mod physics;
 pub mod players;

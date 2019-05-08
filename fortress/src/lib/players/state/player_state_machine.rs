@@ -15,6 +15,7 @@ use crate::{
         },
         UpDownLeftRight,
     },
+    items::ItemType,
     players::{
         PlayerConfig,
         state::PlayerState,
@@ -126,6 +127,10 @@ impl PlayerStateMachine {
         player_state.position()
     }
 
+    pub fn collect_item(&self, item_type: ItemType, player_state: &mut PlayerState) {
+        player_state.collect_item(item_type);
+    }
+
     fn compute_move_direction(controller_id: ControllerId, controller: &Controller) -> Option<OctoDirection> {
         let up = controller.is_pressed(controller_id, ControlEvent::PlayerMove(UpDownLeftRight::Up));
         let down = controller.is_pressed(controller_id, ControlEvent::PlayerMove(UpDownLeftRight::Down));
@@ -134,5 +139,4 @@ impl PlayerStateMachine {
 
         OctoDirection::from(up, down, left, right)
     }
-
 }

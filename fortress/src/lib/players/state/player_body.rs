@@ -7,7 +7,10 @@ use crate::{
         collision_category,
         PhysicsSimulation,
     },
-    players::PlayerConfig,
+    players::{
+        PlayerConfig,
+        PlayerId,
+    },
 };
 use nalgebra::{
     Isometry2,
@@ -41,13 +44,13 @@ pub struct PlayerBody {
 }
 
 impl PlayerBody {
-    pub fn new(config: &PlayerConfig, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) -> PlayerBody {
+    pub fn new(config: &PlayerConfig, player_id: PlayerId, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) -> PlayerBody {
         let ball_shape = Ball::new(config.physical_radius);
         let collider_desc = ColliderDesc::new(ShapeHandle::new(ball_shape))
             .density(config.physical_density)
             .collision_groups(CollisionGroups::new()
                 .with_membership(&[collision_category::PLAYER_BODY])
-                .with_whitelist(&[collision_category::BARRIER]));
+                .with_whitelist(&[collision_category::BARRIER, collision_category::ITEM]));
 
         let mut rigid_body_desc = RigidBodyDesc::new()
             .status(BodyStatus::Dynamic)
@@ -59,7 +62,7 @@ impl PlayerBody {
             .handle();
 
         PlayerBody {
-            body: RegisteredBody::new(body_handle, Entity::Player, physics_sim),
+            body: RegisteredBody::new(body_handle, Entity::Player(player_id), physics_sim),
         }
     }
 

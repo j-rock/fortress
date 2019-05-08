@@ -10,10 +10,6 @@ use crate::{
         Attack,
         time::DeltaTime
     },
-    file::{
-        ConfigWatcher,
-        SimpleConfigManager,
-    },
     enemies::{
         Enemy,
         EnemyId,
@@ -22,6 +18,11 @@ use crate::{
         EnemyGeneratorId,
         EnemyGeneratorSpawn,
     },
+    file::{
+        ConfigWatcher,
+        SimpleConfigManager,
+    },
+    items::ItemSystem,
     physics::PhysicsSimulation,
     render::{
         LightDependentSpriteRenderer,
@@ -75,7 +76,7 @@ impl EnemySystem {
         }
     }
 
-    pub fn post_update(&mut self, audio: &AudioPlayer) {
+    pub fn post_update(&mut self, audio: &AudioPlayer, items: &mut ItemSystem, physics_sim: &mut PhysicsSimulation) {
         let config = self.config_manager.get();
 
         for (_key, generator) in self.generators.iter_mut() {
@@ -85,7 +86,7 @@ impl EnemySystem {
         let dead_enemy_keys: Vec<_> = self.enemies
             .iter_mut()
             .filter_map(|(enemy_key, enemy)| {
-                enemy.post_update(config, audio);
+                enemy.post_update(config, audio, items, physics_sim);
                 if !enemy.dead() {
                     return None;
                 }

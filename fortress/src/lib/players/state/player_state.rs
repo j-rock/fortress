@@ -6,12 +6,15 @@ use crate::{
         OctoDirection,
         time::DeltaTime
     },
+    items::ItemType,
     physics::PhysicsSimulation,
     players::{
-        PlayerStats,
         PlayerId,
         PlayerConfig,
-        state::PlayerBody
+        state::{
+            PlayerBody,
+            PlayerStats,
+        }
     },
     render::{
         FullyIlluminatedSpriteRenderer,
@@ -41,7 +44,7 @@ pub struct PlayerState {
 
 impl PlayerState {
     pub fn new(player_id: PlayerId, config: &PlayerConfig, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) -> PlayerState {
-        let body = PlayerBody::new(config, spawn, physics_sim);
+        let body = PlayerBody::new(config, player_id, spawn, physics_sim);
         let stats = PlayerStats::new(config);
         let weapon = Weapon::new(config, physics_sim);
         PlayerState {
@@ -65,7 +68,7 @@ impl PlayerState {
     }
 
     pub fn redeploy(&mut self, config: &PlayerConfig, physics_sim: &mut PhysicsSimulation) {
-        self.body = PlayerBody::new(config, self.spawn.clone(), physics_sim);
+        self.body = PlayerBody::new(config, self.player_id, self.spawn.clone(), physics_sim);
         self.stats = PlayerStats::new(config);
         self.weapon_physical_offset = config.weapon_physical_offset;
         self.weapon = Weapon::new(config, physics_sim);
@@ -122,5 +125,13 @@ impl PlayerState {
 
     pub fn lr_dir(&self) -> LrDirection {
         self.lr_dir
+    }
+
+    pub fn collect_item(&mut self, item_type: ItemType) {
+        match item_type {
+            ItemType::Skull => {
+                self.stats.collect_skull();
+            }
+        }
     }
 }

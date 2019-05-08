@@ -8,9 +8,13 @@ use crate::{
         ConfigWatcher,
         SimpleConfigManager,
     },
+    items::ItemSystem,
     maps::Map,
     physics::PhysicsSimulation,
-    players::PlayerSystem,
+    players::{
+        PlayerMatchers,
+        PlayerSystem,
+    },
     render::{
         BackgroundRenderer,
         Camera,
@@ -45,6 +49,7 @@ pub struct WorldState {
     map: Map,
     players: PlayerSystem,
     enemies: EnemySystem,
+    items: ItemSystem,
 
     // Declare physics simulation last so it is dropped last.
     physics_sim: PhysicsSimulation,
@@ -59,11 +64,13 @@ impl WorldState {
         ));
         physics_sim.borrow_mut().add_proximity_matchers(vec!(
             WeaponMatchers::bullet_hit_proximity_matcher(),
+            PlayerMatchers::player_collected_item(),
         ));
 
         let map = Map::new(config_watcher, &mut physics_sim)?;
         let players = PlayerSystem::new(config_watcher, map.spawns())?;
         let enemies = EnemySystem::new(config_watcher, map.enemy_generator_spawns(), &mut physics_sim)?;
+        let items = ItemSystem::new(config_watcher)?;
 
         Ok(WorldState {
             config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
@@ -77,6 +84,7 @@ impl WorldState {
             map,
             players,
             enemies,
+            items,
             physics_sim
         })
     }
@@ -92,10 +100,12 @@ impl WorldState {
             if self.map.pre_update(&mut self.physics_sim) {
                 self.players.respawn(self.map.spawns());
                 self.enemies.respawn(self.map.enemy_generator_spawns(), &mut self.physics_sim);
+                self.items.respawn();
             } else {
                 self.players.pre_update(audio, controller, &mut self.physics_sim, dt);
                 let player_locs = self.players.player_locs();
                 self.enemies.pre_update(controller, dt, player_locs, &mut self.physics_sim);
+                self.items.pre_update();
             }
         }
 
@@ -104,6 +114,7 @@ impl WorldState {
                 audio,
                 players: &mut self.players,
                 enemies: &mut self.enemies,
+                items: &mut self.items,
                 dt
             });
 
@@ -111,6 +122,7 @@ impl WorldState {
                 audio,
                 players: &mut self.players,
                 enemies: &mut self.enemies,
+                items: &mut self.items,
                 dt
             });
         }
@@ -119,7 +131,8 @@ impl WorldState {
         {
             self.players.post_update(audio);
             self.camera.post_update(self.players.player_locs());
-            self.enemies.post_update(audio);
+            self.items.post_update();
+            self.enemies.post_update(audio, &mut self.items, &mut self.physics_sim);
         }
     }
 
@@ -146,6 +159,7 @@ impl WorldState {
         self.map.queue_draw(&mut self.hex_renderer, &mut self.full_light_sprite);
         self.players.queue_draw(&mut self.full_light_sprite, &mut self.light_dependent_sprite);
         self.enemies.queue_draw(&mut self.light_dependent_sprite);
+        self.items.queue_draw(&mut self.light_dependent_sprite);
 
         if let Some(background_renderer) = self.background_renderer.as_mut() {
             background_renderer.draw();

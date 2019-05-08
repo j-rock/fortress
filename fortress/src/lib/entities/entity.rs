@@ -3,6 +3,7 @@ use crate::{
         EnemyGeneratorId,
         EnemyId,
     },
+    items::ItemId,
     players::PlayerId,
     weapons::BulletId,
 };
@@ -14,6 +15,7 @@ pub enum Entity {
     Bullet(PlayerId, BulletId),
     Enemy(EnemyId),
     EnemyGenerator(EnemyGeneratorId),
+    Item(ItemId),
     MapWall,
-    Player,
+    Player(PlayerId),
 }

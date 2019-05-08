@@ -13,6 +13,7 @@ use crate::{
             EnemyStateMachine,
         }
     },
+    items::ItemSystem,
     physics::PhysicsSimulation,
     render::{
         LightDependentSpriteRenderer,
@@ -44,8 +45,8 @@ impl Enemy {
         }
     }
 
-    pub fn post_update(&mut self, config: &EnemyConfig, audio: &AudioPlayer) {
-        if let Some(enemy_state_machine) = self.enemy_state_machine.post_update(config, audio, &self.enemy_state) {
+    pub fn post_update(&mut self, config: &EnemyConfig, audio: &AudioPlayer, items: &mut ItemSystem, physics_sim: &mut PhysicsSimulation) {
+        if let Some(enemy_state_machine) = self.enemy_state_machine.post_update(config, audio, &self.enemy_state, items, physics_sim) {
             self.enemy_state_machine = enemy_state_machine;
         }
     }

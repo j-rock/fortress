@@ -16,6 +16,11 @@ use crate::{
         EnemyState,
         state::EnemyBody,
     },
+    items::{
+        ItemSystem,
+        ItemType,
+    },
+    physics::PhysicsSimulation,
     render::{
         EasingFn,
         LightDependentSpriteData,
@@ -64,14 +69,17 @@ impl EnemyStateMachine {
         }
     }
 
-    pub fn post_update(&mut self, config: &EnemyConfig, audio: &AudioPlayer, enemy_state: &EnemyState) -> Option<EnemyStateMachine> {
+    pub fn post_update(&mut self, config: &EnemyConfig, audio: &AudioPlayer, enemy_state: &EnemyState, items: &mut ItemSystem, physics_sim: &mut PhysicsSimulation) -> Option<EnemyStateMachine> {
         match self {
             EnemyStateMachine::Base(body, _) if !enemy_state.health().alive() => {
                 audio.play_sound(Sound::Slash);
                 let position = body.position();
                 Some(EnemyStateMachine::Dying(position, 0))
             },
-            EnemyStateMachine::Dying(_, time_elapsed) if *time_elapsed >= config.enemy_dying_duration_micros => {
+            EnemyStateMachine::Dying(position, time_elapsed) if *time_elapsed >= config.enemy_dying_duration_micros => {
+                if let Some(position) = position {
+                    items.spawn_item(ItemType::Skull, position.clone(), enemy_state.facing_dir(), physics_sim);
+                }
                 Some(EnemyStateMachine::Dead)
             },
             _ => None
