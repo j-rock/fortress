@@ -79,8 +79,19 @@ impl EnemySystem {
     pub fn post_update(&mut self, audio: &AudioPlayer, items: &mut ItemSystem, physics_sim: &mut PhysicsSimulation) {
         let config = self.config_manager.get();
 
-        for (_key, generator) in self.generators.iter_mut() {
-            generator.post_update(audio);
+        let dead_enemy_generator_keys: Vec<_> = self.generators
+            .iter_mut()
+            .filter_map(|(generator_key, generator)| {
+                generator.post_update(audio, items, physics_sim);
+                if !generator.dead() {
+                    return None;
+                }
+                Some(generator_key)
+            })
+            .collect();
+
+        for generator_key in dead_enemy_generator_keys.into_iter() {
+            self.generators.remove(generator_key);
         }
 
         let dead_enemy_keys: Vec<_> = self.enemies

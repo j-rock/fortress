@@ -2,6 +2,7 @@ use crate::{
     audio::AudioPlayer,
     dimensions::{
         Attack,
+        LrDirection,
         Reverse,
         time::{
             DeltaTime,
@@ -13,6 +14,10 @@ use crate::{
         EnemyConfig,
         EnemyId,
         state::EnemyGeneratorState,
+    },
+    items::{
+        ItemSystem,
+        ItemType,
     },
     physics::PhysicsSimulation,
     render::{
@@ -51,10 +56,12 @@ impl EnemyGeneratorStateMachine {
         }
     }
 
-    pub fn post_update(&self, _audio: &AudioPlayer, generator_state: &mut EnemyGeneratorState) -> Option<EnemyGeneratorStateMachine> {
+    pub fn post_update(&self, _audio: &AudioPlayer, generator_state: &mut EnemyGeneratorState, items: &mut ItemSystem, physics_sim: &mut PhysicsSimulation) -> Option<EnemyGeneratorStateMachine> {
         match self {
            EnemyGeneratorStateMachine::ReadyToGenerate | EnemyGeneratorStateMachine::Cooldown(_) if !generator_state.health().alive() => {
-               generator_state.stop_interacting_physically();
+               if let Some(position) = generator_state.position() {
+                   items.spawn_item(ItemType::MegaSkull, position, LrDirection::from_radians(generator_state.orientation()), physics_sim);
+               }
                Some(EnemyGeneratorStateMachine::Dead)
            },
            EnemyGeneratorStateMachine::Cooldown(time_elapsed) if *time_elapsed <= 0 => {
@@ -84,7 +91,7 @@ impl EnemyGeneratorStateMachine {
         let health_frac = generator_state.health().amount() as f64 / config.generator_starting_health as f64;
         let frame = match self {
             EnemyGeneratorStateMachine::Dead => config.generator_num_sprite_frames - 1,
-            _ => ((1.0 - health_frac) * (config.generator_num_sprite_frames - 1) as f64).floor() as usize,
+            _ => ((1.0 - health_frac) * (config.generator_num_sprite_frames) as f64).floor() as usize,
         };
 
         if let Some(position) = generator_state.position() {
@@ -107,6 +114,13 @@ impl EnemyGeneratorStateMachine {
 
     pub fn take_attack(&self, attack: Attack, generator_state: &mut EnemyGeneratorState) {
         generator_state.take_attack(attack);
+    }
+
+    pub fn dead(&self) -> bool {
+        match self {
+            EnemyGeneratorStateMachine::Dead => true,
+            _ => false,
+        }
     }
 
     fn new_enemy(config: &EnemyConfig, generator_state: &EnemyGeneratorState, enemies: &mut Slab<Enemy>, physics_sim: &mut PhysicsSimulation) {

@@ -8,7 +8,6 @@ use crate::{
     render::{
         LightDependentSpriteRenderer,
         LightDependentSpriteData,
-        NamedSpriteSheet,
         SpriteSheetFrameId,
     },
 };
@@ -44,12 +43,14 @@ impl ItemStateMachine {
                 Reverse::none()
             };
 
+            let (name, sprite_sheet) = state.item_type().sprite_info();
+
             sprite_renderer.queue(vec![LightDependentSpriteData {
                 world_center_position,
                 world_half_size,
                 sprite_frame_id: SpriteSheetFrameId {
-                    name: String::from("item_skull.png"),
-                    sprite_sheet: NamedSpriteSheet::SpriteSheet1,
+                    name,
+                    sprite_sheet,
                 },
                 frame: 0,
                 rotation: 0.0,

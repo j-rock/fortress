@@ -129,9 +129,12 @@ impl PlayerState {
 
     pub fn collect_item(&mut self, item_type: ItemType) {
         match item_type {
+            ItemType::MegaSkull => {
+                self.stats.collect_mega_skull();
+            },
             ItemType::Skull => {
                 self.stats.collect_skull();
-            }
+            },
         }
     }
 }

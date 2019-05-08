@@ -10,4 +10,12 @@ impl LrDirection {
             _ => false,
         }
     }
+
+    pub fn from_radians(angle: f64) -> LrDirection {
+        if angle.cos() <= 0.0 {
+            LrDirection::Left
+        } else {
+            LrDirection::Right
+        }
+    }
 }

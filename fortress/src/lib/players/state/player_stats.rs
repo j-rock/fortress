@@ -20,6 +20,10 @@ impl PlayerStats {
         self.base_move_speed * (self.move_speed_level as f64)
     }
 
+    pub fn collect_mega_skull(&mut self) {
+        self.skulls_collected += 5;
+    }
+
     pub fn collect_skull(&mut self) {
         self.skulls_collected += 1;
     }

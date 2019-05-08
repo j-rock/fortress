@@ -14,6 +14,7 @@ use crate::{
             EnemyGeneratorStateMachine,
         }
     },
+    items::ItemSystem,
     physics::PhysicsSimulation,
     render::{
         LightDependentSpriteRenderer,
@@ -48,8 +49,8 @@ impl EnemyGenerator {
         }
     }
 
-    pub fn post_update(&mut self, audio: &AudioPlayer) {
-        if let Some(state) = self.generator_state_machine.post_update(audio, &mut self.generator_state) {
+    pub fn post_update(&mut self, audio: &AudioPlayer, items: &mut ItemSystem, physics_sim: &mut PhysicsSimulation) {
+        if let Some(state) = self.generator_state_machine.post_update(audio, &mut self.generator_state, items, physics_sim) {
             self.generator_state_machine = state;
         }
     }
@@ -60,6 +61,10 @@ impl EnemyGenerator {
 
     pub fn queue_draw(&self, config: &EnemyConfig, sprite_renderer: &mut LightDependentSpriteRenderer) {
         self.generator_state_machine.queue_draw(config, &self.generator_state, sprite_renderer);
+    }
+
+    pub fn dead(&self) -> bool {
+        self.generator_state_machine.dead()
     }
 
     pub fn take_attack(&mut self, attack: Attack) {
