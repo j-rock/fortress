@@ -1,6 +1,10 @@
 use crate::{
     app::StatusOr,
-    file,
+    file::{
+        self,
+        ConfigWatcher,
+        SimpleConfigManager,
+    },
     render::{
         attribute,
         Attribute,
@@ -9,10 +13,19 @@ use crate::{
         NamedSpriteSheet,
         ShaderProgram,
         SpriteSheetTextureManager,
+        Texture,
     }
 };
 
+#[derive(Deserialize)]
+struct BackgroundRendererConfig {
+    pub camera_speed: f32,
+    // Screen pixels / pixels sampled.
+    pub zoom: f32
+}
+
 pub struct BackgroundRenderer {
+    config_manager: SimpleConfigManager<BackgroundRendererConfig>,
     shader_program: ShaderProgram,
     attribute_program: AttributeProgram,
     attr_vertex: Attribute<VertexAttr>,
@@ -20,14 +33,16 @@ pub struct BackgroundRenderer {
 }
 
 impl BackgroundRenderer {
-    pub fn new() -> StatusOr<BackgroundRenderer> {
+    pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<BackgroundRenderer> {
+        let config_manager = SimpleConfigManager::from_config_resource(config_watcher, "background_renderer.conf")?;
+
         let vertex = file::util::resource_path("shaders", "background_vert.glsl");
         let fragment = file::util::resource_path("shaders", "background_frag.glsl");
         let shader_program = ShaderProgram::from_short_pipeline(&vertex, &fragment)?;
 
         let mut attribute_program_builder = AttributeProgram::builder();
         let mut attr_vertex = attribute_program_builder.add_attribute_with_advance(AttributeAdvance::PerVertex);
-        let mut attr_texel = attribute_program_builder.add_attribute_with_advance(AttributeAdvance::PerVertex);
+        let attr_texel = attribute_program_builder.add_attribute_with_advance(AttributeAdvance::PerVertex);
         let attribute_program = attribute_program_builder.build();
 
         for vertex in [
@@ -40,17 +55,8 @@ impl BackgroundRenderer {
             });
         }
 
-        for texel in [
-            glm::vec2(0.0, 1.0),
-            glm::vec2(0.0, 0.0),
-            glm::vec2(1.0, 1.0),
-            glm::vec2(1.0, 0.0)].iter() {
-            attr_texel.data.push( TexelAttr {
-                texel: *texel,
-            });
-        }
-
         Ok(BackgroundRenderer {
+            config_manager,
             shader_program,
             attribute_program,
             attr_vertex,
@@ -58,13 +64,19 @@ impl BackgroundRenderer {
         })
     }
 
-    pub fn draw(&mut self, textures: &SpriteSheetTextureManager) {
+    pub fn pre_update(&mut self) {
+        self.config_manager.update();
+    }
+
+    pub fn draw(&mut self, textures: &SpriteSheetTextureManager, camera_pos: glm::Vec3) {
+        let texture = textures.texture(NamedSpriteSheet::GalaxyGround);
+        self.set_texels(texture, camera_pos);
+
         self.shader_program.activate();
         self.attribute_program.activate();
         self.attr_vertex.prepare_buffer();
         self.attr_texel.prepare_buffer();
 
-        let texture = textures.texture(NamedSpriteSheet::GalaxyGround);
         texture.activate(&mut self.shader_program);
 
         unsafe {
@@ -74,6 +86,28 @@ impl BackgroundRenderer {
         self.attribute_program.deactivate();
         self.shader_program.deactivate();
     }
+
+     fn set_texels(&mut self, texture: &Texture, camera_pos: glm::Vec3) {
+         self.attr_texel.data.clear();
+
+         let config = self.config_manager.get();
+         let (image_width, image_height) = texture.dimensions();
+         let texel_width = config.zoom / image_width as f32;
+         let texel_height = config.zoom / image_height as f32;
+
+         let bottom_left = glm::vec2(camera_pos.x, camera_pos.z) * config.camera_speed;
+         let top_right = bottom_left + glm::vec2(texel_width, texel_height);
+
+         for texel in [
+             glm::vec2(bottom_left.x, top_right.y),
+             bottom_left,
+             top_right,
+             glm::vec2(top_right.x, bottom_left.y)].into_iter() {
+             self.attr_texel.data.push( TexelAttr {
+                 texel: *texel,
+             });
+         }
+     }
 }
 
 #[repr(C)]

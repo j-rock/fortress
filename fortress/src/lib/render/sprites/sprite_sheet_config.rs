@@ -1,10 +1,14 @@
-use crate::render::NamedSpriteSheet;
+use crate::render::{
+    NamedSpriteSheet,
+    TextureStyle,
+};
 use std::collections::HashMap;
 
 #[derive(Clone, Deserialize)]
 pub struct SheetConfig {
     pub width: usize,
     pub height: usize,
+    pub style: TextureStyle,
     pub sprites: HashMap<String, SpriteConfig>,
 }
 

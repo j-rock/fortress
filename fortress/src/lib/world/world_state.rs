@@ -76,7 +76,7 @@ impl WorldState {
             config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
             camera: Camera::new(config_watcher)?,
             textures: SpriteSheetTextureManager::new(config_watcher)?,
-            background_renderer: BackgroundRenderer::new()?,
+            background_renderer: BackgroundRenderer::new(config_watcher)?,
             hex_renderer: HexRenderer::new()?,
             full_light_sprite: FullyIlluminatedSpriteRenderer::new()?,
             light_dependent_sprite: LightDependentSpriteRenderer::new()?,
@@ -92,6 +92,7 @@ impl WorldState {
     pub fn update(&mut self, audio: &AudioPlayer, controller: &Controller, dt: DeltaTime) {
         self.config_manager.update();
         self.textures.update();
+        self.background_renderer.pre_update();
 
         // Pre-update.
         {
@@ -162,7 +163,7 @@ impl WorldState {
         self.items.queue_draw(&mut self.light_dependent_sprite);
 
         if self.textures.render_background() {
-            self.background_renderer.draw(&self.textures);
+            self.background_renderer.draw(&self.textures, self.camera.position());
         }
         self.full_light_sprite.draw(&self.textures, &projection_view, right, up);
         self.light_dependent_sprite.draw(&self.lights, &self.textures, &projection_view, right, up);

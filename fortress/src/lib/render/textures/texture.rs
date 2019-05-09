@@ -1,6 +1,9 @@
 use crate::{
     image::Png,
-    render::ShaderProgram,
+    render::{
+        ShaderProgram,
+        TextureStyle,
+    },
 };
 use gl::{
     self,
@@ -35,11 +38,13 @@ impl TextureUnit {
 pub struct Texture {
     texture_id: TextureId,
     texture_unit: TextureUnit,
+    width: usize,
+    height: usize,
     _png_vec: Vec<u8>,
 }
 
 impl Texture {
-    pub fn new(png: Png, texture_unit: usize) -> Texture {
+    pub fn new(png: Png, texture_style: TextureStyle, texture_unit: usize) -> Texture {
         let (width, height) = png.size();
         let png_vec = png.flattened_copy_bytes();
 
@@ -52,10 +57,7 @@ impl Texture {
             gl::GenTextures(1, &mut texture_id);
             gl::BindTexture(gl::TEXTURE_2D, texture_id);
 
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE as i32);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE as i32);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
+            texture_style.set_parameters();
 
             gl::TexImage2D(gl::TEXTURE_2D, 0, gl::SRGB_ALPHA as i32,
                            width as i32, height as i32,
@@ -67,6 +69,8 @@ impl Texture {
         Texture {
             texture_id: TextureId(texture_id),
             texture_unit,
+            width,
+            height,
             _png_vec: png_vec,
         }
     }
@@ -89,6 +93,10 @@ impl Texture {
 
     pub fn texture_id(&self) -> TextureId {
         self.texture_id
+    }
+
+    pub fn dimensions(&self) -> (usize, usize) {
+        (self.width, self.height)
     }
 }
 

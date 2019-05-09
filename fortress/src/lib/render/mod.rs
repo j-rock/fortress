@@ -38,5 +38,6 @@ pub use self::sprites::SpriteSheetTextureManager;
 pub use self::textures::Texel;
 pub use self::textures::Texture;
 pub use self::textures::TextureId;
+pub use self::textures::TextureStyle;
 pub use self::textures::TextureUnit;
 pub use self::viewport::Viewport;

@@ -48,6 +48,10 @@ impl Camera {
         (lookat, right, up)
     }
 
+    pub fn position(&self) -> glm::Vec3 {
+        self.position
+    }
+
     pub fn pre_update(&mut self) {
         self.config_manager.update();
     }

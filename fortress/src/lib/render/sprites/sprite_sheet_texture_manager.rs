@@ -57,7 +57,7 @@ impl SpriteSheetTextureManager {
         for sprite_sheet in sprite_sheets.into_iter() {
             let sheet_config = config.sheets.get(&sprite_sheet).ok_or(format!("No sheet data for {:?}", sprite_sheet))?;
             let packed = PackedSpriteSheet::new(sheet_config, sprite_sheet)?;
-            self.textures.insert(sprite_sheet, Texture::new(packed.image, 0));
+            self.textures.insert(sprite_sheet, Texture::new(packed.image, sheet_config.style, 0));
 
             for (sprite_sheet_frame_id, frame_info) in packed.mappings.into_iter() {
                 self.frames.insert(sprite_sheet_frame_id, frame_info);
