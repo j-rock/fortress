@@ -1,14 +1,12 @@
 use crate::{
-    dimensions::Reverse,
     items::{
         ItemConfig,
-        ItemType,
+        ItemPickup,
         state::ItemState,
     },
     render::{
         LightDependentSpriteRenderer,
         LightDependentSpriteData,
-        SpriteSheetFrameId,
     },
 };
 
@@ -37,24 +35,13 @@ impl ItemStateMachine {
             let world_half_size = glm::vec2(config.item_physical_radius as f32, config.item_physical_radius as f32) * config.item_render_scale;
             let world_center_position = glm::vec3(position.x as f32, world_half_size.y, -position.y as f32);
 
-            let reverse = if state.facing_dir().is_left() {
-                Reverse::horizontally()
-            } else {
-                Reverse::none()
-            };
-
-            let (name, sprite_sheet) = state.item_type().sprite_info();
-
             sprite_renderer.queue(vec![LightDependentSpriteData {
                 world_center_position,
                 world_half_size,
-                sprite_frame_id: SpriteSheetFrameId {
-                    name,
-                    sprite_sheet,
-                },
+                sprite_frame_id: state.item_pickup().sprite_frame_id(),
                 frame: 0,
                 rotation: 0.0,
-                reverse,
+                reverse: state.item_pickup().reverse(),
             }]);
         }
     }
@@ -70,7 +57,7 @@ impl ItemStateMachine {
         }
     }
 
-    pub fn item_type(&self, state: &ItemState) -> ItemType {
-        state.item_type()
+    pub fn item_pickup(&self, state: &ItemState) -> ItemPickup {
+        state.item_pickup()
     }
 }

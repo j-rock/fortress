@@ -15,12 +15,16 @@ use crate::{
     players::{
         PlayerConfig,
         PlayerId,
+        state::PlayerStats,
     },
-    render::PointLight,
+    render::{
+        FullyIlluminatedSpriteRenderer,
+        FullyIlluminatedSpriteData,
+        PointLight,
+    },
     weapons::{
         BulletId,
         Bullet,
-        WeaponStats,
     },
 };
 use generational_slab::Slab;
@@ -29,10 +33,8 @@ use nalgebra::{
     Vector2
 };
 use nphysics2d::algebra::Velocity2;
-use crate::render::{FullyIlluminatedSpriteRenderer, FullyIlluminatedSpriteData};
 
 pub struct Weapon {
-    stats: WeaponStats,
     bullets: Slab<Bullet>,
     bullets_to_remove: Vec<BulletId>,
     current_delay: Option<time::Microseconds>,
@@ -44,7 +46,6 @@ pub struct Weapon {
 impl Weapon {
     pub fn new(config: &PlayerConfig, physics_sim: &PhysicsSimulation) -> Weapon {
         Weapon {
-            stats: WeaponStats::new(config),
             bullets: Slab::new(),
             bullets_to_remove: vec!(),
             current_delay: None,
@@ -75,15 +76,15 @@ impl Weapon {
         self.bullets_to_remove.clear();
     }
 
-    pub fn try_fire(&mut self, audio: &AudioPlayer, player_id: PlayerId, start_position: Point2<f64>, direction: Vector2<f64>) {
+    pub fn try_fire(&mut self, audio: &AudioPlayer, stats: &PlayerStats, player_id: PlayerId, start_position: Point2<f64>, direction: Vector2<f64>) {
         if self.current_delay.is_none() {
-            self.current_delay = Some(self.stats.get_firing_period());
+            self.current_delay = Some(stats.get_firing_period());
 
             let vacant_entry = self.bullets.vacant_entry();
             let bullet_id = BulletId::new(vacant_entry.key());
             let entity = Entity::Bullet(player_id, bullet_id);
 
-            let bullet_speed = self.stats.get_bullet_speed();
+            let bullet_speed = stats.get_bullet_speed();
             let linear_vel = bullet_speed * direction;
             let velocity = Velocity2::linear(linear_vel.x, linear_vel.y);
 
@@ -100,11 +101,11 @@ impl Weapon {
         self.bullets_to_remove.push(bullet_id);
     }
 
-    pub fn bullet_attack(&self, bullet_id: BulletId) -> Option<Attack> {
+    pub fn bullet_attack(&self, stats: &PlayerStats, bullet_id: BulletId) -> Option<Attack> {
         self.bullets
             .get(bullet_id.to_key())
             .and_then(|bullet| {
-                bullet.get_attack(self.stats.get_bullet_damage(), self.stats.get_knockback_strength())
+                bullet.get_attack(stats.get_bullet_damage(), stats.get_knockback_strength())
             })
     }
 

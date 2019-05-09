@@ -6,7 +6,7 @@ use crate::{
         OctoDirection,
         time::DeltaTime
     },
-    items::ItemType,
+    items::ItemPickup,
     physics::PhysicsSimulation,
     players::{
         PlayerId,
@@ -59,8 +59,9 @@ impl PlayerState {
         }
     }
 
-    pub fn pre_update(&mut self, dt: DeltaTime) {
+    pub fn pre_update(&mut self, config: &PlayerConfig, dt: DeltaTime) {
         self.weapon.pre_update(dt);
+        self.stats.pre_update(config, dt);
     }
 
     pub fn post_update(&mut self) {
@@ -85,10 +86,19 @@ impl PlayerState {
 
     pub fn populate_lights(&self, config: &PlayerConfig, lights: &mut Vec<PointLight>) {
         self.weapon.populate_lights(config, lights);
+        if let Some(position) = self.position() {
+            self.stats.populate_lights(config, position, lights);
+        }
     }
 
     pub fn queue_draw_weapon(&self, config: &PlayerConfig, full_light: &mut FullyIlluminatedSpriteRenderer) {
         self.weapon.queue_draw(config, full_light);
+    }
+
+    pub fn queue_draw_stats(&self, config: &PlayerConfig, full_light: &mut FullyIlluminatedSpriteRenderer) {
+        if let Some(position) = self.position() {
+            self.stats.queue_draw(config, position, full_light);
+        }
     }
 
     pub fn set_velocity(&mut self, dir: Option<OctoDirection>) {
@@ -105,9 +115,9 @@ impl PlayerState {
     }
 
     pub fn try_fire(&mut self, audio: &AudioPlayer) {
-        for position in self.body.position().iter() {
+        for position in self.position().iter() {
             let start_position = Point2::from(position.coords + self.weapon_physical_offset * self.facing_dir);
-            self.weapon.try_fire(audio, self.player_id, start_position, self.facing_dir);
+            self.weapon.try_fire(audio, &self.stats, self.player_id, start_position, self.facing_dir);
         }
     }
 
@@ -116,7 +126,7 @@ impl PlayerState {
     }
 
     pub fn bullet_attack(&self, bullet_id: BulletId) -> Option<Attack> {
-        self.weapon.bullet_attack(bullet_id)
+        self.weapon.bullet_attack(&self.stats, bullet_id)
     }
 
     pub fn position(&self) -> Option<Point2<f64>> {
@@ -127,14 +137,7 @@ impl PlayerState {
         self.lr_dir
     }
 
-    pub fn collect_item(&mut self, item_type: ItemType) {
-        match item_type {
-            ItemType::MegaSkull => {
-                self.stats.collect_mega_skull();
-            },
-            ItemType::Skull => {
-                self.stats.collect_skull();
-            },
-        }
+    pub fn collect_item(&mut self, item_pickup: ItemPickup) {
+        self.stats.collect_item(item_pickup);
     }
 }

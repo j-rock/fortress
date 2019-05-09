@@ -17,6 +17,7 @@ use crate::{
         state::EnemyBody,
     },
     items::{
+        ItemPickup,
         ItemSystem,
         ItemType,
     },
@@ -78,7 +79,8 @@ impl EnemyStateMachine {
             },
             EnemyStateMachine::Dying(position, time_elapsed) if *time_elapsed >= config.enemy_dying_duration_micros => {
                 if let Some(position) = position {
-                    items.spawn_item(ItemType::Skull, position.clone(), enemy_state.facing_dir(), physics_sim);
+                    let item_pickup = ItemPickup::new(ItemType::Skull, enemy_state.facing_dir());
+                    items.spawn_item(item_pickup, position.clone(), physics_sim);
                 }
                 Some(EnemyStateMachine::Dead)
             },

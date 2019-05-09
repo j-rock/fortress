@@ -20,5 +20,13 @@ pub struct PlayerConfig {
     pub bullet_light_color: (f32, f32, f32),
     pub bullet_light_attenuation: (f32, f32, f32),
     pub bullet_sprite_frame_duration_micros: i64,
+
+    pub item_collection_animation_num_concurrent_guess: usize,
+    pub item_collection_animation_duration_micros: i64,
+    pub item_collection_render_radius: f32,
+    pub item_collection_animation_spin_radius: f32,
+    pub item_collection_animation_spin_max_speed: f32,
+    pub item_collection_animation_max_height: f32,
+    pub item_collection_attenuation: (f32, f32, f32),
 }
 

@@ -1,9 +1,8 @@
 use crate::{
-    dimensions::LrDirection,
     items::{
         ItemConfig,
         ItemId,
-        ItemType,
+        ItemPickup,
         state::{
             ItemBody,
             ItemState,
@@ -21,9 +20,9 @@ pub struct Item {
 }
 
 impl Item {
-    pub fn new(config: &ItemConfig, item_id: ItemId, item_type: ItemType, spawn: Point2<f64>, facing_dir: LrDirection, physics_sim: &mut PhysicsSimulation) -> Item {
+    pub fn new(config: &ItemConfig, item_id: ItemId, item_pickup: ItemPickup, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) -> Item {
         let item_body = ItemBody::new(config, item_id, spawn, physics_sim);
-        let item_state = ItemState::new(item_body, item_type, facing_dir);
+        let item_state = ItemState::new(item_body, item_pickup);
         let item_state_machine = ItemStateMachine::default();
         Item {
             item_state,
@@ -55,7 +54,7 @@ impl Item {
         self.item_state_machine.collected()
     }
 
-    pub fn item_type(&self) -> ItemType {
-        self.item_state_machine.item_type(&self.item_state)
+    pub fn item_pickup(&self) -> ItemPickup {
+        self.item_state_machine.item_pickup(&self.item_state)
     }
 }

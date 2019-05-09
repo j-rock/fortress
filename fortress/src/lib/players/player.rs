@@ -8,7 +8,7 @@ use crate::{
         Attack,
         time::DeltaTime
     },
-    items::ItemType,
+    items::ItemPickup,
     physics::PhysicsSimulation,
     players::{
         PlayerConfig,
@@ -43,8 +43,8 @@ impl Player {
         }
     }
 
-    pub fn pre_update(&mut self, audio: &AudioPlayer, controller_id: ControllerId, controller: &Controller, dt: DeltaTime) {
-        if let Some(player_state_machine) = self.player_state_machine.pre_update(audio, controller_id, controller, dt, &mut self.player_state) {
+    pub fn pre_update(&mut self, config: &PlayerConfig, audio: &AudioPlayer, controller_id: ControllerId, controller: &Controller, dt: DeltaTime) {
+        if let Some(player_state_machine) = self.player_state_machine.pre_update(config, audio, controller_id, controller, dt, &mut self.player_state) {
             self.player_state_machine = player_state_machine;
         }
     }
@@ -88,7 +88,7 @@ impl Player {
         self.player_state_machine.position(&self.player_state)
     }
 
-    pub fn collect_item(&mut self, item_type: ItemType) {
-        self.player_state_machine.collect_item(item_type, &mut self.player_state);
+    pub fn collect_item(&mut self, item_pickup: ItemPickup) {
+        self.player_state_machine.collect_item(item_pickup, &mut self.player_state);
     }
 }

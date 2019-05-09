@@ -16,6 +16,7 @@ use crate::{
         state::EnemyGeneratorState,
     },
     items::{
+        ItemPickup,
         ItemSystem,
         ItemType,
     },
@@ -60,7 +61,8 @@ impl EnemyGeneratorStateMachine {
         match self {
            EnemyGeneratorStateMachine::ReadyToGenerate | EnemyGeneratorStateMachine::Cooldown(_) if !generator_state.health().alive() => {
                if let Some(position) = generator_state.position() {
-                   items.spawn_item(ItemType::MegaSkull, position, LrDirection::from_radians(generator_state.orientation()), physics_sim);
+                   let item_pickup = ItemPickup::new(ItemType::MegaSkull, LrDirection::from_radians(generator_state.orientation()));
+                   items.spawn_item(item_pickup, position.clone(), physics_sim);
                }
                Some(EnemyGeneratorStateMachine::Dead)
            },

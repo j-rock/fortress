@@ -1,36 +1,27 @@
-use crate::{
-    dimensions::LrDirection,
-    items::{
-        ItemType,
-        state::ItemBody,
-    }
+use crate::items::{
+    ItemPickup,
+    state::ItemBody,
 };
 use nalgebra::Point2;
 
 pub struct ItemState {
     body: ItemBody,
-    item_type: ItemType,
-    facing_dir: LrDirection,
+    item_pickup: ItemPickup,
 }
 
 impl ItemState {
-    pub fn new(body: ItemBody, item_type: ItemType, facing_dir: LrDirection) -> ItemState {
+    pub fn new(body: ItemBody, item_pickup: ItemPickup) -> ItemState {
         ItemState {
             body,
-            item_type,
-            facing_dir,
+            item_pickup,
         }
     }
 
-    pub fn item_type(&self) -> ItemType {
-        self.item_type
+    pub fn item_pickup(&self) -> ItemPickup {
+        self.item_pickup
     }
 
     pub fn position(&self) -> Option<Point2<f64>> {
         self.body.position()
-    }
-
-    pub fn facing_dir(&self) -> LrDirection {
-        self.facing_dir
     }
 }

@@ -15,7 +15,7 @@ use crate::{
         },
         UpDownLeftRight,
     },
-    items::ItemType,
+    items::ItemPickup,
     players::{
         PlayerConfig,
         state::PlayerState,
@@ -42,9 +42,9 @@ impl PlayerStateMachine {
         PlayerStateMachine::Idle(0)
     }
 
-    pub fn pre_update(&mut self, audio: &AudioPlayer, controller_id: ControllerId, controller: &Controller, dt: DeltaTime, player_state: &mut PlayerState) -> Option<PlayerStateMachine> {
+    pub fn pre_update(&mut self, config: &PlayerConfig, audio: &AudioPlayer, controller_id: ControllerId, controller: &Controller, dt: DeltaTime, player_state: &mut PlayerState) -> Option<PlayerStateMachine> {
         let move_direction = Self::compute_move_direction(controller_id, controller);
-        player_state.pre_update(dt);
+        player_state.pre_update(config, dt);
         player_state.set_velocity(move_direction);
 
         if controller.is_pressed(controller_id, ControlEvent::PlayerFireWeapon) {
@@ -112,6 +112,7 @@ impl PlayerStateMachine {
             }]);
 
             player_state.queue_draw_weapon(config, full_light);
+            player_state.queue_draw_stats(config, full_light);
         }
     }
 
@@ -127,8 +128,8 @@ impl PlayerStateMachine {
         player_state.position()
     }
 
-    pub fn collect_item(&self, item_type: ItemType, player_state: &mut PlayerState) {
-        player_state.collect_item(item_type);
+    pub fn collect_item(&self, item_pickup: ItemPickup, player_state: &mut PlayerState) {
+        player_state.collect_item(item_pickup);
     }
 
     fn compute_move_direction(controller_id: ControllerId, controller: &Controller) -> Option<OctoDirection> {

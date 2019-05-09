@@ -18,7 +18,7 @@ use crate::{
         ConfigWatcher,
         SimpleConfigManager,
     },
-    items::ItemType,
+    items::ItemPickup,
     physics::PhysicsSimulation,
     players::{
         Player,
@@ -108,9 +108,10 @@ impl PlayerSystem {
             }
         }
 
+        let config = self.config_manager.get();
         for (player_key, player) in self.players.iter_mut() {
             let controller_id = self.player_to_controller[player_key.to_raw()];
-            player.pre_update(audio, controller_id, controller, dt);
+            player.pre_update(config, audio, controller_id, controller, dt);
         }
     }
 
@@ -162,9 +163,9 @@ impl PlayerSystem {
             .collect()
     }
 
-    pub fn collect_item(&mut self, player_id: PlayerId, item_type: ItemType) {
+    pub fn collect_item(&mut self, player_id: PlayerId, item_pickup: ItemPickup) {
         if let Some(player) = self.players.get_mut(player_id.to_key()) {
-            player.collect_item(item_type);
+            player.collect_item(item_pickup);
         }
     }
 
