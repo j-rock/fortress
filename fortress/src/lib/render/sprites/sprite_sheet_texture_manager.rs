@@ -43,12 +43,18 @@ impl SpriteSheetTextureManager {
         }
     }
 
+    pub fn render_background(&self) -> bool {
+        self.config.get().render_background
+    }
+
     pub fn recompute_data(&mut self) -> StatusOr<()> {
         self.textures.clear();
         self.frames.clear();
 
+        let sprite_sheets = NamedSpriteSheet::all_values(self.render_background());
+
         let config = self.config.get();
-        for sprite_sheet in NamedSpriteSheet::all_values() {
+        for sprite_sheet in sprite_sheets.into_iter() {
             let sheet_config = config.sheets.get(&sprite_sheet).ok_or(format!("No sheet data for {:?}", sprite_sheet))?;
             let packed = PackedSpriteSheet::new(sheet_config, sprite_sheet)?;
             self.textures.insert(sprite_sheet, Texture::new(packed.image, 0));

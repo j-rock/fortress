@@ -1,19 +1,18 @@
 use crate::{
     app::StatusOr,
     file,
-    image::Png,
     render::{
         attribute,
         Attribute,
         AttributeAdvance,
         AttributeProgram,
-        Texture,
+        NamedSpriteSheet,
         ShaderProgram,
+        SpriteSheetTextureManager,
     }
 };
 
 pub struct BackgroundRenderer {
-    texture: Texture,
     shader_program: ShaderProgram,
     attribute_program: AttributeProgram,
     attr_vertex: Attribute<VertexAttr>,
@@ -25,10 +24,6 @@ impl BackgroundRenderer {
         let vertex = file::util::resource_path("shaders", "background_vert.glsl");
         let fragment = file::util::resource_path("shaders", "background_frag.glsl");
         let shader_program = ShaderProgram::from_short_pipeline(&vertex, &fragment)?;
-
-        let image_path = file::util::resource_path("images", "galaxy_ground.png");
-        let image = Png::from_file(&image_path)?;
-        let texture = Texture::new(image, 0);
 
         let mut attribute_program_builder = AttributeProgram::builder();
         let mut attr_vertex = attribute_program_builder.add_attribute_with_advance(AttributeAdvance::PerVertex);
@@ -56,7 +51,6 @@ impl BackgroundRenderer {
         }
 
         Ok(BackgroundRenderer {
-            texture,
             shader_program,
             attribute_program,
             attr_vertex,
@@ -64,12 +58,14 @@ impl BackgroundRenderer {
         })
     }
 
-    pub fn draw(&mut self) {
+    pub fn draw(&mut self, textures: &SpriteSheetTextureManager) {
         self.shader_program.activate();
-        self.texture.activate(&mut self.shader_program);
         self.attribute_program.activate();
         self.attr_vertex.prepare_buffer();
         self.attr_texel.prepare_buffer();
+
+        let texture = textures.texture(NamedSpriteSheet::GalaxyGround);
+        texture.activate(&mut self.shader_program);
 
         unsafe {
             gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);
