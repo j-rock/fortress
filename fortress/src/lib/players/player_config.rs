@@ -10,6 +10,7 @@ pub struct PlayerConfig {
     pub player_idle_frame_duration_micros: i64,
     pub player_running_frame_duration_micros: i64,
 
+    pub bullet_lifetime_duration_micros: i64,
     pub bullet_physical_radius: f64,
     pub bullet_speed: f64,
     pub bullet_damage: i64,

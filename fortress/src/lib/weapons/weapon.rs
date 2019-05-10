@@ -54,7 +54,7 @@ impl Weapon {
         }
     }
 
-    pub fn pre_update(&mut self, dt: DeltaTime) {
+    pub fn pre_update(&mut self, config: &PlayerConfig, dt: DeltaTime) {
         if let Some(delay) = self.current_delay {
             let new_delay = delay - dt.as_microseconds();
             self.current_delay = if new_delay <= 0 {
@@ -64,8 +64,11 @@ impl Weapon {
             };
         }
 
-        for (_idx, bullet) in self.bullets.iter_mut() {
+        for (key, bullet) in self.bullets.iter_mut() {
             bullet.pre_update(dt);
+            if bullet.expired(config) {
+               self.bullets_to_remove.push(BulletId::new(key));
+            }
         }
     }
 

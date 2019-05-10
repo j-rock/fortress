@@ -60,7 +60,7 @@ impl PlayerState {
     }
 
     pub fn pre_update(&mut self, config: &PlayerConfig, dt: DeltaTime) {
-        self.weapon.pre_update(dt);
+        self.weapon.pre_update(config, dt);
         self.stats.pre_update(config, dt);
     }
 

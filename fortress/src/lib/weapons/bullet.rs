@@ -71,7 +71,7 @@ impl Bullet {
             .density(radius)
             .collision_groups(CollisionGroups::new()
                 .with_membership(&[collision_category::PLAYER_WEAPON])
-                .with_whitelist(&[collision_category::BARRIER, collision_category::ENEMY_BODY, collision_category::ENEMY_GENERATOR]));
+                .with_whitelist(&[collision_category::ENEMY_BODY, collision_category::ENEMY_GENERATOR]));
 
         let mut rigid_body_desc = RigidBodyDesc::new()
             .status(BodyStatus::Dynamic)
@@ -91,6 +91,10 @@ impl Bullet {
 
     pub fn pre_update(&mut self, dt: DeltaTime) {
         self.time_elapsed += dt.as_microseconds();
+    }
+
+    pub fn expired(&self, config: &PlayerConfig) -> bool {
+        self.time_elapsed >= config.bullet_lifetime_duration_micros
     }
 
     pub fn get_attack(&self, damage: Damage, knockback_strength: f64) -> Option<Attack> {
