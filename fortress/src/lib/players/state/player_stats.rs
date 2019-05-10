@@ -32,8 +32,10 @@ pub struct PlayerStats {
     bullet_damage_level: usize,
     base_bullet_knockback_strength: f64,
     bullet_knockback_strength_level: usize,
-    base_firing_period: Microseconds,
-    firing_period_level: usize,
+    base_normal_firing_period: Microseconds,
+    normal_firing_period_level: usize,
+    base_special_firing_period: Microseconds,
+    special_firing_period_level: usize,
     skulls_collected: usize,
 
     collected_item_animations: Slab<CollectedItemAnimation>,
@@ -50,8 +52,10 @@ impl PlayerStats {
             bullet_damage_level: 1,
             base_bullet_knockback_strength: config.bullet_knockback_strength,
             bullet_knockback_strength_level: 1,
-            base_firing_period: time::milliseconds(config.firing_period_ms),
-            firing_period_level: 1,
+            base_normal_firing_period: config.bullet_normal_firing_period_micros,
+            normal_firing_period_level: 1,
+            base_special_firing_period: config.bullet_special_firing_period_micros,
+            special_firing_period_level: 1,
             skulls_collected: 0,
 
             collected_item_animations: Slab::with_capacity(config.item_collection_animation_num_concurrent_guess),
@@ -101,8 +105,12 @@ impl PlayerStats {
         self.base_bullet_speed * (self.bullet_speed_level as f64)
     }
 
-    pub fn get_firing_period(&self) -> time::Microseconds {
-        self.base_firing_period - (self.firing_period_level as time::Microseconds) * time::milliseconds(5)
+    pub fn get_normal_firing_period(&self) -> time::Microseconds {
+        self.base_normal_firing_period - (self.normal_firing_period_level as time::Microseconds) * time::milliseconds(5)
+    }
+
+    pub fn get_special_firing_period(&self) -> time::Microseconds {
+        self.base_special_firing_period - (self.special_firing_period_level as time::Microseconds) * time::milliseconds(5)
     }
 
     pub fn get_bullet_damage(&self) -> Damage {

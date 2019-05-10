@@ -60,7 +60,7 @@ impl PlayerState {
     }
 
     pub fn pre_update(&mut self, config: &PlayerConfig, dt: DeltaTime) {
-        self.weapon.pre_update(config, dt);
+        self.weapon.pre_update(config, &self.stats, dt);
         self.stats.pre_update(config, dt);
     }
 
@@ -115,9 +115,16 @@ impl PlayerState {
     }
 
     pub fn try_fire(&mut self, audio: &AudioPlayer) {
-        for position in self.position().iter() {
+        if let Some(position) = self.position() {
             let start_position = Point2::from(position.coords + self.weapon_physical_offset * self.facing_dir);
-            self.weapon.try_fire(audio, &self.stats, self.player_id, start_position, self.facing_dir);
+            self.weapon.try_fire_normal(audio, &self.stats, self.player_id, start_position, self.facing_dir);
+        }
+    }
+
+    pub fn try_fire_special(&mut self, config: &PlayerConfig, audio: &AudioPlayer) {
+        if let Some(position) = self.position() {
+            let start_position = Point2::from(position.coords + self.weapon_physical_offset * self.facing_dir);
+            self.weapon.try_fire_special(config, audio, &self.stats, self.player_id, start_position, self.facing_dir);
         }
     }
 

@@ -47,7 +47,9 @@ impl PlayerStateMachine {
         player_state.pre_update(config, dt);
         player_state.set_velocity(move_direction);
 
-        if controller.is_pressed(controller_id, ControlEvent::PlayerFireWeapon) {
+        if controller.is_pressed(controller_id, ControlEvent::PlayerFireSpecial) {
+            player_state.try_fire_special(config, audio);
+        } else if controller.is_pressed(controller_id, ControlEvent::PlayerFireWeapon) {
             player_state.try_fire(audio);
         }
 

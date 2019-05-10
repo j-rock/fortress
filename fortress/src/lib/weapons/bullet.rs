@@ -2,7 +2,6 @@ use crate::{
     dimensions::{
         Attack,
         Damage,
-        OctoDirection,
         Reverse,
         time::{
             DeltaTime,
@@ -122,7 +121,7 @@ impl Bullet {
     pub fn render_info(&self, config: &PlayerConfig) -> FullyIlluminatedSpriteData {
         let world_position = self.get_render_world_position(config);
         let frame = (self.time_elapsed / config.bullet_sprite_frame_duration_micros) as usize;
-        let direction = self.get_direction();
+        let direction = self.get_unit_direction();
 
         FullyIlluminatedSpriteData {
             world_center_position: world_position,
@@ -139,7 +138,7 @@ impl Bullet {
 
     pub fn point_light(&self, config: &PlayerConfig) -> PointLight {
         let world_position = self.get_render_world_position(config);
-        let direction = self.get_direction().to_direction();
+        let direction = self.get_unit_direction();
         let light_position_x = world_position.x + (direction.x as f32) * config.bullet_render_width * 0.75;
         let light_position_z = world_position.z - (direction.y as f32) * config.bullet_render_width * 0.75;
 
@@ -162,36 +161,32 @@ impl Bullet {
             .unwrap_or(glm::vec3(0.0, config.bullet_render_elevation, 0.0))
     }
 
-    fn get_direction(&self) -> OctoDirection {
-        let velocity = {
-            let physics_sim = self.body.physics_sim.borrow();
-            physics_sim
-                .world()
-                .rigid_body(self.body.handle)
-                .map(|body| {
-                    body.velocity().linear
-                })
-                .unwrap_or(Vector2::new(0.0, 0.0))
-        };
-
-        let up = velocity.y > 0.0;
-        let down = velocity.y < 0.0;
-        let left = velocity.x < 0.0;
-        let right = velocity.x > 0.0;
-        OctoDirection::from(up, down, left, right)
-            .unwrap_or(OctoDirection::Right)
+    fn get_unit_direction(&self) -> Vector2<f64> {
+        let physics_sim = self.body.physics_sim.borrow();
+        physics_sim
+            .world()
+            .rigid_body(self.body.handle)
+            .and_then(|body| {
+                let velocity = body.velocity().linear;
+                let speed = velocity.norm();
+                if !speed.is_normal() {
+                    return None;
+                }
+                Some(velocity / speed)
+            })
+            .unwrap_or(Vector2::new(0.0, 0.0))
     }
 
-    fn choose_rotation(direction: OctoDirection) -> f32 {
-        match direction {
-            OctoDirection::Up => 90.0,
-            OctoDirection::Down => -90.0,
-            OctoDirection::Left => 0.0,
-            OctoDirection::Right => 180.0,
-            OctoDirection::UpLeft => 35.0,
-            OctoDirection::UpRight => 145.0,
-            OctoDirection::DownLeft => -35.0,
-            OctoDirection::DownRight => -145.0,
+    fn choose_rotation(direction: Vector2<f64>) -> f32 {
+        let direction = Vector2::new(-direction.x as f32, direction.y as f32);
+
+        180.0 / std::f32::consts::PI * match (direction.x.is_sign_positive(), direction.y.is_sign_positive()) {
+            // Quadrant I + Quadrant IV
+            (true, _) => direction.y.asin(),
+            // Quadrant II
+            (false, true) => std::f32::consts::PI / 2.0 + (-direction.x).asin(),
+            // Quadrant III
+            (false, false) => (-direction.x).acos() - std::f32::consts::PI,
         }
     }
 }
