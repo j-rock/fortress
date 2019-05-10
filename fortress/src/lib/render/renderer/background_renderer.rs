@@ -95,7 +95,7 @@ impl BackgroundRenderer {
          let texel_width = config.zoom / image_width as f32;
          let texel_height = config.zoom / image_height as f32;
 
-         let bottom_left = glm::vec2(camera_pos.x, camera_pos.z) * config.camera_speed;
+         let bottom_left = glm::vec2(camera_pos.x, -camera_pos.z) * config.camera_speed;
          let top_right = bottom_left + glm::vec2(texel_width, texel_height);
 
          for texel in [
