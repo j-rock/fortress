@@ -21,7 +21,10 @@ use crate::{
 };
 use generational_slab::Slab;
 use glm;
-use nalgebra::Point2;
+use nalgebra::{
+    Point2,
+    Vector2,
+};
 
 pub struct PlayerStats {
     base_move_speed: f64,
@@ -158,7 +161,7 @@ impl CollectedItemAnimation {
             world_half_size: glm::vec2(config.item_collection_render_radius, config.item_collection_render_radius),
             sprite_frame_id: self.item_pickup.sprite_frame_id(),
             frame: 0,
-            rotation: 0.0,
+            unit_world_rotation: Vector2::new(0.0, 0.0),
             reverse: self.item_pickup.reverse(),
         }
     }

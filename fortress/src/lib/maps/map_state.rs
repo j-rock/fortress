@@ -25,7 +25,10 @@ use hashbrown::{
     HashMap,
     HashSet,
 };
-use nalgebra::Point2;
+use nalgebra::{
+    Point2,
+    Vector2,
+};
 
 pub struct MapState {
     cells: HashMap<GridIndex, MapCell>,
@@ -122,7 +125,7 @@ impl MapState {
                     sprite_sheet: NamedSpriteSheet::SpriteSheet1,
                 },
                 frame: 0,
-                rotation: 0.0,
+                unit_world_rotation: Vector2::new(0.0, 0.0),
                 reverse: Reverse::none(),
             })
         }

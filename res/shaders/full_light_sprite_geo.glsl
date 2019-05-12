@@ -7,7 +7,7 @@ in VS_OUT {
     vec2 half_size;
     vec2 texel_bottom_left;
     vec2 texel_top_right;
-    float rotation;
+    vec2 unit_world_rotation_xz;
 } gs_in[];
 
 out GS_OUT {
@@ -16,13 +16,13 @@ out GS_OUT {
 } gs_out;
 
 uniform mat4 projection_view;
+uniform mat4 camera_view;
 uniform vec3 camera_right;
 uniform vec3 camera_up;
 
-mat3 RotationMatrix(vec3 axis, float angle) {
-    float deg_to_rad = 0.0174533;
-    float cos_rot = cos(gs_in[0].rotation * deg_to_rad);
-    float sin_rot = sin(gs_in[0].rotation * deg_to_rad);
+mat3 RotationMatrix(vec3 axis, float radian_angle) {
+    float cos_rot = cos(radian_angle);
+    float sin_rot = sin(radian_angle);
     float o_m_cos = 1 - cos_rot;
     float x_om_cos = axis.x * o_m_cos;
     float y_om_cos = axis.y * o_m_cos;
@@ -39,7 +39,9 @@ void EmitQuad() {
     vec3 normal = cross(camera_right, camera_up);
     vec3 world_bottom_center = gs_in[0].world_center_position;
 
-    mat3 rot = RotationMatrix(normal, gs_in[0].rotation);
+    vec4 view_rotated_world_rotation = vec4(gs_in[0].unit_world_rotation_xz.x, 0.0, gs_in[0].unit_world_rotation_xz.y, 1.0);
+    float rotation_angle = atan(view_rotated_world_rotation.z, view_rotated_world_rotation.x);
+    mat3 rot = RotationMatrix(normal, rotation_angle);
     vec3 rot_camera_right = rot * camera_right;
     vec3 rot_camera_up = rot * camera_up;
 

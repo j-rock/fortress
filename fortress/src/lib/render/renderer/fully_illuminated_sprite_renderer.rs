@@ -19,6 +19,7 @@ use gl::{
 };
 use glm;
 use hashbrown::HashMap;
+use nalgebra;
 
 #[derive(Clone)]
 pub struct FullyIlluminatedSpriteData {
@@ -26,7 +27,7 @@ pub struct FullyIlluminatedSpriteData {
     pub world_half_size: glm::Vec2,
     pub sprite_frame_id: SpriteSheetFrameId,
     pub frame: usize,
-    pub rotation: f32,
+    pub unit_world_rotation: nalgebra::Vector2<f64>,
     pub reverse: Reverse,
 }
 
@@ -75,11 +76,12 @@ impl FullyIlluminatedSpriteRenderer {
         }
     }
 
-    pub fn draw(&mut self, textures: &SpriteSheetTextureManager, projection_view: &glm::Mat4, camera_right: glm::Vec3, camera_up: glm::Vec3) {
+    pub fn draw(&mut self, textures: &SpriteSheetTextureManager, projection_view: &glm::Mat4, _view: &glm::Mat4, camera_right: glm::Vec3, camera_up: glm::Vec3) {
         self.shader_program.activate();
         self.attribute_program.activate();
 
         self.shader_program.set_mat4("projection_view", projection_view);
+        // self.shader_program.set_mat4("camera_view", view);
         self.shader_program.set_vec3("camera_right", &camera_right);
         self.shader_program.set_vec3("camera_up", &camera_up);
 
@@ -98,7 +100,7 @@ impl FullyIlluminatedSpriteRenderer {
                 });
                 self.attr_texel.data.push(texel);
                 self.attr_rot.data.push(RotationAttr {
-                    rotation: datum.rotation
+                    unit_world_rotation_xz: glm::vec2(datum.unit_world_rotation.x as f32, -datum.unit_world_rotation.y as f32)
                 });
             }
 
@@ -147,11 +149,11 @@ impl attribute::KnownComponent for SpriteSizeAttr {
 
 #[repr(C)]
 struct RotationAttr {
-    rotation: f32,
+    unit_world_rotation_xz: glm::Vec2,
 }
 
 impl attribute::KnownComponent for RotationAttr {
     fn component() -> (attribute::NumComponents, attribute::ComponentType) {
-        (attribute::NumComponents::S1, attribute::ComponentType::Float)
+        (attribute::NumComponents::S2, attribute::ComponentType::Float)
     }
 }

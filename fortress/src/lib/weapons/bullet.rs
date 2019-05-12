@@ -121,7 +121,6 @@ impl Bullet {
     pub fn render_info(&self, config: &PlayerConfig) -> FullyIlluminatedSpriteData {
         let world_position = self.get_render_world_position(config);
         let frame = (self.time_elapsed / config.bullet_sprite_frame_duration_micros) as usize;
-        let direction = self.get_unit_direction();
 
         FullyIlluminatedSpriteData {
             world_center_position: world_position,
@@ -131,7 +130,7 @@ impl Bullet {
                 sprite_sheet: NamedSpriteSheet::SpriteSheet1
             },
             frame,
-            rotation: Self::choose_rotation(direction),
+            unit_world_rotation: self.get_unit_direction(),
             reverse: Reverse::none(),
         }
     }
@@ -175,18 +174,5 @@ impl Bullet {
                 Some(velocity / speed)
             })
             .unwrap_or(Vector2::new(0.0, 0.0))
-    }
-
-    fn choose_rotation(direction: Vector2<f64>) -> f32 {
-        let direction = Vector2::new(-direction.x as f32, direction.y as f32);
-
-        180.0 / std::f32::consts::PI * match (direction.x.is_sign_positive(), direction.y.is_sign_positive()) {
-            // Quadrant I + Quadrant IV
-            (true, _) => direction.y.asin(),
-            // Quadrant II
-            (false, true) => std::f32::consts::PI / 2.0 + (-direction.x).asin(),
-            // Quadrant III
-            (false, false) => (-direction.x).acos() - std::f32::consts::PI,
-        }
     }
 }
