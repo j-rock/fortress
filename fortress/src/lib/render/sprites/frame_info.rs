@@ -21,9 +21,9 @@ impl FrameInfo {
         let frame_y = (frame / self.num_sub_frames_horizontal) as f32;
 
         let mut sub_frame_left = self.bottom_left.x + frame_x * self.sub_frame_width;
-        let mut sub_frame_right = self.bottom_left.x + (frame_x + 1.0) * self.sub_frame_width - 0.00001;
+        let mut sub_frame_right = self.bottom_left.x + (frame_x + 1.0) * self.sub_frame_width;
         let mut sub_frame_top = self.top_right.y - frame_y * self.sub_frame_height;
-        let mut sub_frame_bottom = self.top_right.y - (frame_y + 1.0) * self.sub_frame_height + 0.00001;
+        let mut sub_frame_bottom = self.top_right.y - (frame_y + 1.0) * self.sub_frame_height;
 
         if reverse.horizontally {
            std::mem::swap(&mut sub_frame_left, &mut sub_frame_right);

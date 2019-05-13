@@ -95,16 +95,16 @@ impl PackedSpriteSheet {
         let top_right_pixel = (rect.x + rect.width - 1, config.height as i32 - rect.y);
 
         let bottom_left = glm::vec2(
-            bottom_left_pixel.0 as f32 / config.width as f32,
+            (bottom_left_pixel.0 as f32 + 0.5) / config.width as f32,
             bottom_left_pixel.1 as f32 / config.height as f32);
 
         let top_right = glm::vec2(
-            top_right_pixel.0 as f32 / config.width as f32,
+            (top_right_pixel.0 as f32 + 0.5) / config.width as f32,
             top_right_pixel.1 as f32 / config.height as f32);
 
         let num_sub_frames_horizontal = (rect.width as usize) / sprite.frame_width;
         if num_sub_frames_horizontal == 0 {
-            println!("Rect: {}, {}", rect.width as usize, sprite.frame_width);
+            panic!("Rect: {}, {}", rect.width as usize, sprite.frame_width);
         }
         let num_sub_frames_vertical = (rect.height as usize) / sprite.frame_height;
 
