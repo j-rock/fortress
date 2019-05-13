@@ -32,7 +32,10 @@ use crate::{
     },
 };
 use glm;
-use nalgebra::Point2;
+use nalgebra::{
+    Point2,
+    Vector2,
+};
 
 pub enum EnemyStateMachine {
     Base(EnemyBody, Microseconds),
@@ -136,7 +139,7 @@ impl EnemyStateMachine {
                     sprite_sheet: NamedSpriteSheet::SpriteSheet1,
                 },
                 frame,
-                rotation: 0.0,
+                unit_world_rotation: Vector2::new(0.0, 0.0),
                 reverse,
             }]);
         }

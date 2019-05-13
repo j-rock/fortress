@@ -16,7 +16,7 @@ out GS_OUT {
 } gs_out;
 
 uniform mat4 projection_view;
-uniform mat4 camera_view;
+uniform mat4 position_independent_view;
 uniform vec3 camera_right;
 uniform vec3 camera_up;
 
@@ -39,7 +39,7 @@ void EmitQuad() {
     vec3 normal = cross(camera_right, camera_up);
     vec3 world_bottom_center = gs_in[0].world_center_position;
 
-    vec4 view_rotated_world_rotation = vec4(gs_in[0].unit_world_rotation_xz.x, 0.0, gs_in[0].unit_world_rotation_xz.y, 1.0);
+    vec4 view_rotated_world_rotation = position_independent_view * vec4(gs_in[0].unit_world_rotation_xz.x, 0.0, gs_in[0].unit_world_rotation_xz.y, 1.0);
     float rotation_angle = atan(view_rotated_world_rotation.z, view_rotated_world_rotation.x);
     mat3 rot = RotationMatrix(normal, rotation_angle);
     vec3 rot_camera_right = rot * camera_right;

@@ -9,6 +9,7 @@ use crate::{
         LightDependentSpriteData,
     },
 };
+use nalgebra::Vector2;
 
 pub enum ItemStateMachine {
     AwaitingCollection,
@@ -40,7 +41,7 @@ impl ItemStateMachine {
                 world_half_size,
                 sprite_frame_id: state.item_pickup().sprite_frame_id(),
                 frame: 0,
-                rotation: 0.0,
+                unit_world_rotation: Vector2::new(0.0, 0.0),
                 reverse: state.item_pickup().reverse(),
             }]);
         }

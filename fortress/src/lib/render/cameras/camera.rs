@@ -40,6 +40,10 @@ impl Camera {
         glm::ext::look_at(self.position, self.position + lookat, up)
     }
 
+    pub fn position_independent_view(&self, lookat: glm::Vec3, up: glm::Vec3) -> glm::Mat4 {
+        glm::ext::look_at(glm::vec3(0.0, 0.0, 0.0), lookat, up)
+    }
+
     pub fn lookat_right_and_up(&self) -> (glm::Vec3, glm::Vec3, glm::Vec3) {
         let config = self.config_manager.get();
         let lookat = glm::builtin::normalize(glm::vec3(config.lookat.0, config.lookat.1, config.lookat.2));

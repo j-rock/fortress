@@ -30,6 +30,7 @@ use crate::{
     },
 };
 use generational_slab::Slab;
+use nalgebra::Vector2;
 
 pub enum EnemyGeneratorStateMachine {
     ReadyToGenerate,
@@ -108,7 +109,7 @@ impl EnemyGeneratorStateMachine {
                     sprite_sheet: NamedSpriteSheet::SpriteSheet1,
                 },
                 frame,
-                rotation: 0.0,
+                unit_world_rotation: Vector2::new(0.0, 0.0),
                 reverse: Reverse::none(),
             }]);
         }

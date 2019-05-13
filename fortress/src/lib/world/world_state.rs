@@ -155,8 +155,8 @@ impl WorldState {
 
     fn draw_geometry(&mut self, screen_size: glm::IVec2) {
         let (lookat, right, up) = self.camera.lookat_right_and_up();
-        let view = self.camera.view(lookat, up);
-        let projection_view = self.camera.projection(screen_size) * view;
+        let position_independent_view = self.camera.position_independent_view(lookat, up);
+        let projection_view = self.camera.projection(screen_size) * self.camera.view(lookat, up);
 
         self.map.queue_draw(&mut self.hex_renderer, &mut self.full_light_sprite);
         self.players.queue_draw(&mut self.full_light_sprite, &mut self.light_dependent_sprite);
@@ -166,8 +166,8 @@ impl WorldState {
         if self.textures.render_background() {
             self.background_renderer.draw(&self.textures, self.camera.position());
         }
-        self.full_light_sprite.draw(&self.textures, &projection_view, &view, right, up);
-        self.light_dependent_sprite.draw(&self.lights, &self.textures, &projection_view, right, up);
+        self.full_light_sprite.draw(&self.textures, &projection_view, &position_independent_view, right, up);
+        self.light_dependent_sprite.draw(&self.lights, &self.textures, &projection_view, &position_independent_view, right, up);
         self.hex_renderer.draw(&self.lights, &projection_view);
 
         // Fix viewport at the end.
