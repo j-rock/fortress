@@ -4,12 +4,10 @@ layout (triangle_strip, max_vertices = 3) out;
 
 in VS_OUT {
     vec3 world_space_position;
-    vec4 rgba_color;
 } gs_in[];
 
 out GS_OUT {
     vec3 world_space_position;
-    vec4 rgba_color;
     vec3 normal;
 } gs_out;
 
@@ -22,7 +20,6 @@ vec3 GetNormal() {
 void EmitV(int index) {
     gl_Position = gl_in[index].gl_Position;
     gs_out.world_space_position = gs_in[index].world_space_position;
-    gs_out.rgba_color = gs_in[index].rgba_color;
     EmitVertex();
 }
 

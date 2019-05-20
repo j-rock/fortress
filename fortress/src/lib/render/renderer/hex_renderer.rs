@@ -3,6 +3,7 @@ use crate::{
     dimensions::{
         GridDirection,
         GridIndex,
+        Reverse,
     },
     file,
     render::{
@@ -10,8 +11,11 @@ use crate::{
         Attribute,
         AttributeProgram,
         InstancedMesh,
+        NamedSpriteSheet,
         PointLight,
         ShaderProgram,
+        SpriteSheetFrameId,
+        SpriteSheetTextureManager,
     }
 };
 use gl::types::GLuint;
@@ -21,7 +25,6 @@ pub struct HexData {
     pub position: GridIndex,
     pub height: f32,
     pub elevation: f32,
-    pub rgba_color: glm::Vec4,
 }
 
 pub struct HexRenderer {
@@ -30,7 +33,6 @@ pub struct HexRenderer {
     mesh: InstancedMesh,
     attribute_program: AttributeProgram,
     attr_transform: Attribute<HexTransformAttr>,
-    attr_color: Attribute<HexColorAttr>,
     attr_scale: Attribute<HexScaleAttr>,
 }
 
@@ -44,7 +46,6 @@ impl HexRenderer {
         // The InstancedMesh will take up the first vertex attrib slot.
         let mut attribute_program_builder = AttributeProgram::builder_with_offset(1);
         let attr_transform = attribute_program_builder.add_attribute();
-        let attr_color = attribute_program_builder.add_attribute();
         let attr_scale = attribute_program_builder.add_attribute();
         let attribute_program = attribute_program_builder.build();
 
@@ -57,7 +58,6 @@ impl HexRenderer {
             mesh,
             attribute_program,
             attr_transform,
-            attr_color,
             attr_scale,
         })
     }
@@ -72,22 +72,29 @@ impl HexRenderer {
                 height: datum.height,
                 elevation: datum.elevation,
             });
-            self.attr_color.data.push(HexColorAttr {
-                rgba_color: datum.rgba_color
-            });
             self.attr_scale.data.push(HexScaleAttr {
                 scale: hex_cell_length as f32,
             });
         }
     }
 
-    pub fn draw(&mut self, lights: &Vec<PointLight>, projection_view: &glm::Mat4) {
+    pub fn draw(&mut self, textures: &SpriteSheetTextureManager, lights: &Vec<PointLight>, projection_view: &glm::Mat4) {
         self.shader_program.activate();
         self.attribute_program.activate();
         self.attr_transform.prepare_buffer();
-        self.attr_color.prepare_buffer();
         self.attr_scale.prepare_buffer();
 
+        let texture = textures.texture(NamedSpriteSheet::SpriteSheet1);
+        texture.activate(&mut self.shader_program);
+
+        let tile_frame_id = SpriteSheetFrameId {
+            name: String::from("rock_texture.png"),
+            sprite_sheet: NamedSpriteSheet::SpriteSheet1,
+        };
+        let texel = textures.frame(&tile_frame_id, 0, Reverse::none());
+
+        self.shader_program.set_vec2("tile_bottom_left", texel.bottom_left);
+        self.shader_program.set_vec2("tile_top_right", texel.top_right);
         self.shader_program.set_mat4("projection_view", projection_view);
         PointLight::set_lights(lights, &mut self.shader_program);
 
@@ -96,7 +103,6 @@ impl HexRenderer {
         self.attribute_program.deactivate();
         self.shader_program.deactivate();
         self.attr_transform.data.clear();
-        self.attr_color.data.clear();
         self.attr_scale.data.clear();
     }
 
@@ -136,6 +142,7 @@ impl HexRenderer {
 }
 
 #[repr(C)]
+#[derive(Debug)]
 struct HexTransformAttr {
     position: glm::Vec2,
     height: f32,
@@ -143,17 +150,6 @@ struct HexTransformAttr {
 }
 
 impl attribute::KnownComponent for HexTransformAttr {
-    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
-        (attribute::NumComponents::S4, attribute::ComponentType::Float)
-    }
-}
-
-#[repr(C)]
-struct HexColorAttr {
-    rgba_color: glm::Vec4,
-}
-
-impl attribute::KnownComponent for HexColorAttr {
     fn component() -> (attribute::NumComponents, attribute::ComponentType) {
         (attribute::NumComponents::S4, attribute::ComponentType::Float)
     }

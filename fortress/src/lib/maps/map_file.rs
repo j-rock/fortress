@@ -9,7 +9,6 @@ pub struct MapFileCell {
     pub r: i64,
     pub height: f32,
     pub elevation: f32,
-    pub rgba_color: (f32, f32, f32, f32),
     spawn: Option<bool>,
 }
 

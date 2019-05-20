@@ -110,7 +110,6 @@ impl MapState {
                 position: *grid_index,
                 height: map_cell.height,
                 elevation: map_cell.elevation,
-                rgba_color: map_cell.rgba_color
             });
         }
         hex_renderer.queue(self.hex_cell_length, &data);

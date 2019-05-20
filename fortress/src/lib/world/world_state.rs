@@ -168,7 +168,7 @@ impl WorldState {
         }
         self.full_light_sprite.draw(&self.textures, &projection_view, &position_independent_view, right, up);
         self.light_dependent_sprite.draw(&self.lights, &self.textures, &projection_view, &position_independent_view, right, up);
-        self.hex_renderer.draw(&self.lights, &projection_view);
+        self.hex_renderer.draw(&self.textures, &self.lights, &projection_view);
 
         // Fix viewport at the end.
         Viewport::default(screen_size).set();

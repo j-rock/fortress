@@ -4,7 +4,6 @@ out vec4 frag_color;
 
 in GS_OUT {
     vec3 world_space_position;
-    vec4 rgba_color;
     vec3 normal;
 } fs_in;
 
@@ -17,13 +16,37 @@ const int MAX_NUM_LIGHTS = 100;
 
 uniform PointLight lights[MAX_NUM_LIGHTS];
 uniform int num_lights;
+uniform sampler2D texture0;
+uniform vec2 tile_bottom_left;
+uniform vec2 tile_top_right;
+
+vec2 ComputeFractional(vec2 in_tex) {
+    vec2 gap = tile_top_right - tile_bottom_left;
+    vec2 cleaned = in_tex * vec2(0.007, 0.01);
+    return fract(cleaned / gap);
+}
+
+vec2 ComputeTexelCoords(vec2 in_tex) {
+    vec2 fractional = ComputeFractional(in_tex);
+    float epsilon = 0.001;
+    return vec2(mix(tile_bottom_left.x, tile_top_right.x, fractional.x),
+                mix(1.0 - (tile_top_right.y - epsilon), 1.0 - (tile_bottom_left.y + epsilon), fractional.y));
+}
+
+vec4 ComputeColor(vec2 in_tex) {
+    vec2 fractional = ComputeFractional(in_tex);
+    return vec4(fractional.x, fractional.y, 0.4, 1.0);
+}
 
 void main() {
     vec3 position = fs_in.world_space_position;
     vec3 normal = fs_in.normal;
-    vec3 diffuse_color = fs_in.rgba_color.rgb;
+    vec2 texel_coords = vec2(position.x, position.z - position.y);
+    // vec4 color = ComputeColor(texel_coords);
+    vec4 color = texture(texture0, ComputeTexelCoords(texel_coords));
+    vec3 diffuse_color = color.rgb;
 
-    if (fs_in.rgba_color.a < 0.01) {
+    if (color.a < 0.01) {
         discard;
     }
 
