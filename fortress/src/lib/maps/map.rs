@@ -62,6 +62,7 @@ impl Map {
 
     pub fn queue_draw(&mut self, hex_renderer: &mut HexRenderer, sprite_renderer: &mut FullyIlluminatedSpriteRenderer) {
         let config = self.map_config_manager.get();
+        hex_renderer.set_tile_scale(glm::vec2(config.tile_scale.0, config.tile_scale.1));
         self.map_state.queue_draw(config, hex_renderer, sprite_renderer);
     }
 

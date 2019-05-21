@@ -34,6 +34,8 @@ pub struct HexRenderer {
     attribute_program: AttributeProgram,
     attr_transform: Attribute<HexTransformAttr>,
     attr_scale: Attribute<HexScaleAttr>,
+
+    tile_scale: glm::Vec2,
 }
 
 impl HexRenderer {
@@ -59,6 +61,7 @@ impl HexRenderer {
             attribute_program,
             attr_transform,
             attr_scale,
+            tile_scale: glm::vec2(1.0, 1.0),
         })
     }
 
@@ -95,6 +98,7 @@ impl HexRenderer {
 
         self.shader_program.set_vec2("tile_bottom_left", texel.bottom_left);
         self.shader_program.set_vec2("tile_top_right", texel.top_right);
+        self.shader_program.set_vec2("tile_scale", self.tile_scale);
         self.shader_program.set_mat4("projection_view", projection_view);
         PointLight::set_lights(lights, &mut self.shader_program);
 
@@ -104,6 +108,10 @@ impl HexRenderer {
         self.shader_program.deactivate();
         self.attr_transform.data.clear();
         self.attr_scale.data.clear();
+    }
+
+    pub fn set_tile_scale(&mut self, tile_scale: glm::Vec2) {
+        self.tile_scale = tile_scale;
     }
 
     fn compute_hexagon_vertices() -> Vec<glm::Vec3> {

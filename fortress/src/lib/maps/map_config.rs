@@ -9,6 +9,7 @@ pub struct MapConfig {
     pub light_half_size: (f32, f32),
     pub light_color: (f32, f32, f32),
     pub light_attenuation: (f32, f32, f32),
+    pub tile_scale: (f32, f32),
 }
 
 #[derive(Copy, Clone, Deserialize)]

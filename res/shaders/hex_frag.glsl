@@ -19,10 +19,11 @@ uniform int num_lights;
 uniform sampler2D texture0;
 uniform vec2 tile_bottom_left;
 uniform vec2 tile_top_right;
+uniform vec2 tile_scale;
 
 vec2 ComputeFractional(vec2 in_tex) {
     vec2 gap = tile_top_right - tile_bottom_left;
-    vec2 cleaned = in_tex * vec2(0.007, 0.01);
+    vec2 cleaned = in_tex * tile_scale;
     return fract(cleaned / gap);
 }
 
