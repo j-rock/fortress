@@ -1,60 +1,45 @@
 use crate::{
     app::StatusOr,
-    image::Rgba,
+    file,
 };
-use lodepng;
+use png;
 use std::path::PathBuf;
 
 pub struct Png {
-    img: Vec<Rgba>,
+    img: Vec<u8>,
     width: usize,
     height: usize,
 }
 
 impl Png {
     pub fn empty(width: usize, height: usize) -> Png {
-        let empty = Rgba::from_bytes(0, 0, 0, 0);
-        let len = width * height;
+        let len = 4 * width * height;
 
         Png {
-            img: vec![empty; len],
+            img: vec![0; len],
             width,
             height
         }
     }
 
     pub fn from_file(path: &PathBuf) -> StatusOr<Png> {
-        let bitmap = lodepng::decode32_file(path)
-            .map_err(|err| format!("Failed to open PNG path {:?}: {}", path, err))?;
+        let buf_reader = file::util::reader(path)?;
+        let decoder = png::Decoder::new(buf_reader);
+        let (info, mut reader) = decoder.read_info()
+            .map_err(|err| format!("Couldn't read png file: {}", err))?;
+        let mut buf = vec![0; info.buffer_size()];
+        reader.next_frame(&mut buf)
+            .map_err(|err| format!("Couldn't read next frame: {}", err))?;
 
-        let bitmap_len = bitmap.width * bitmap.height;
-        let mut img = Vec::with_capacity(bitmap_len);
-        for idx in 0..bitmap_len {
-            let rgba = bitmap.buffer[idx];
-            img.push(Rgba::from_bytes(rgba.r, rgba.g, rgba.b, rgba.a));
-        }
         Ok(Png {
-            img,
-            width: bitmap.width,
-            height: bitmap.height,
+            img: buf,
+            width: info.width as usize,
+            height: info.height as usize,
         })
     }
 
-    pub fn flattened_copy_bytes(&self) -> Vec<u8> {
-        let (width, height) = self.size();
-        let mut out = Vec::with_capacity(4 * width * height);
-        for pixel in self.img.iter() {
-            let mut v = pixel.as_byte_vec();
-            out.append(&mut v);
-        }
-        out
-    }
-
-    pub fn save(&self, path: &PathBuf) -> StatusOr<()> {
-        let (width, height) = self.size();
-        let bytes = self.flattened_copy_bytes();
-        lodepng::encode32_file(path, bytes.as_slice(), width, height)
-            .map_err(|err| format!("Problem saving png to {:?}: {}", path, err))
+    pub fn bytes(&self) -> &Vec<u8> {
+        &self.img
     }
 
     pub fn size(&self) -> (usize, usize) {
@@ -76,7 +61,9 @@ impl Png {
             for x in 0..other_width {
                 let other_idx = y * other_width + x;
                 let self_idx = (y + top_left_y) * self_width + x + top_left_x;
-                self.img[self_idx] = other.img[other_idx];
+                for i in 0..4 {
+                    self.img[self_idx + i] = other.img[other_idx + i];
+                }
             }
         }
 

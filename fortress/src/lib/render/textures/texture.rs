@@ -40,13 +40,12 @@ pub struct Texture {
     texture_unit: TextureUnit,
     width: usize,
     height: usize,
-    _png_vec: Vec<u8>,
 }
 
 impl Texture {
     pub fn new(png: Png, texture_style: TextureStyle, texture_unit: usize) -> Texture {
         let (width, height) = png.size();
-        let png_vec = png.flattened_copy_bytes();
+        let png_vec = png.bytes();
 
         let mut texture_id = 0;
         let texture_unit = TextureUnit(texture_unit);
@@ -71,7 +70,6 @@ impl Texture {
             texture_unit,
             width,
             height,
-            _png_vec: png_vec,
         }
     }
 
