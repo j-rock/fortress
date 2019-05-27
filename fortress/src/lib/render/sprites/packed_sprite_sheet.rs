@@ -1,9 +1,9 @@
 use crate::{
     app::StatusOr,
     file,
-    image::Png,
     render::{
         NamedSpriteSheet,
+        Png,
         SheetConfig,
         SpriteConfig,
         SpriteSheetFrameId,

@@ -1,9 +1,7 @@
-use crate::{
-    image::Png,
-    render::{
-        ShaderProgram,
-        TextureStyle,
-    },
+use crate::render::{
+    Png,
+    ShaderProgram,
+    TextureStyle,
 };
 use gl::{
     self,

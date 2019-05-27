@@ -59,8 +59,8 @@ impl Png {
 
         for y in 0..other_height {
             for x in 0..other_width {
-                let other_idx = y * other_width + x;
-                let self_idx = (y + top_left_y) * self_width + x + top_left_x;
+                let other_idx = 4 * (y * other_width + x);
+                let self_idx = 4 * ((y + top_left_y) * self_width + x + top_left_x);
                 for i in 0..4 {
                     self.img[self_idx + i] = other.img[other_idx + i];
                 }
