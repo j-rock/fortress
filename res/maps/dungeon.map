@@ -1,7 +1,11 @@
 {
     "lights": [
-         { "position": [-30.0, -13.0] }
-       , { "position": [25.0, 27.0] }
+         { "position": [-60.0, -17.0] }
+       , { "position": [-30.0, -13.0] }
+       , { "position": [-30.0, 18.0] }
+       , { "position": [-7.0, 50.0] }
+       , { "position": [15.0, -30.0] }
+       , { "position": [24.0, 24.0] }
     ],
 
     "enemy_generator_spawns": [
