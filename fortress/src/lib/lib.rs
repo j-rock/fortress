@@ -4,6 +4,7 @@ extern crate gl;
 extern crate glm;
 extern crate hashbrown;
 #[macro_use] extern crate lazy_static;
+extern crate memmap;
 extern crate nalgebra;
 extern crate ncollide2d;
 extern crate notify;

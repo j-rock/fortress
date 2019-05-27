@@ -3,3 +3,6 @@ members = [
     "fortress",
     "generational_slab",
 ]
+
+[profile.release]
+debug = true

@@ -23,8 +23,8 @@ impl Png {
     }
 
     pub fn from_file(path: &PathBuf) -> StatusOr<Png> {
-        let buf_reader = file::util::reader(path)?;
-        let decoder = png::Decoder::new(buf_reader);
+        let mmapped_file = file::util::mmap(path)?;
+        let decoder = png::Decoder::new(mmapped_file.bytes());
         let (info, mut reader) = decoder.read_info()
             .map_err(|err| format!("Couldn't read png file: {}", err))?;
         let mut buf = vec![0; info.buffer_size()];
@@ -61,9 +61,10 @@ impl Png {
             for x in 0..other_width {
                 let other_idx = 4 * (y * other_width + x);
                 let self_idx = 4 * ((y + top_left_y) * self_width + x + top_left_x);
-                for i in 0..4 {
-                    self.img[self_idx + i] = other.img[other_idx + i];
-                }
+                self.img[self_idx + 0] = other.img[other_idx + 0];
+                self.img[self_idx + 1] = other.img[other_idx + 1];
+                self.img[self_idx + 2] = other.img[other_idx + 2];
+                self.img[self_idx + 3] = other.img[other_idx + 3];
             }
         }
 

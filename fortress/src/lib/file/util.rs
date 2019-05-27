@@ -1,4 +1,7 @@
-use crate::app::StatusOr;
+use crate::{
+    app::StatusOr,
+    file::MmapFile,
+};
 use std::{
     ffi::OsString,
     fs::{
@@ -37,6 +40,10 @@ pub fn slurp_file(path: &PathBuf) -> StatusOr<String> {
     buf_reader.read_to_string(&mut contents)
         .map_err(|e| format!("Error reading to string from slurp_file {:?}: {}", path, e))?;
     Ok(contents)
+}
+
+pub fn mmap(path: &PathBuf) -> StatusOr<MmapFile> {
+    MmapFile::read(path)
 }
 
 pub fn resource_path(parent_folder: &'static str, resource_name: &'static str) -> PathBuf {
