@@ -14,12 +14,15 @@ use crate::{
         NamedSpriteSheet,
         PointLight,
         ShaderProgram,
+        ShaderUniformKey,
         SpriteSheetFrameId,
         SpriteSheetTextureManager,
+        TextureUnit,
     }
 };
 use gl::types::GLuint;
 use glm;
+use std::ffi::CString;
 
 pub struct HexData {
     pub position: GridIndex,
@@ -27,8 +30,46 @@ pub struct HexData {
     pub elevation: f32,
 }
 
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+enum UniformKey {
+    LightsPosition(usize),
+    LightsColor(usize),
+    LightsAttenuation(usize),
+    NumLights,
+    Texture(TextureUnit),
+    TileBottomLeft,
+    TileTopRight,
+    TileScale,
+    ProjectionView,
+}
+
+impl ShaderUniformKey for UniformKey {
+    fn to_cstring(self) -> CString {
+        match self {
+            UniformKey::LightsPosition(idx) => {
+                let s = format!("lights[{}].position", idx);
+                CString::new(s).expect("Bad cstring")
+            },
+            UniformKey::LightsColor(idx) => {
+                let s = format!("lights[{}].color", idx);
+                CString::new(s).expect("Bad cstring")
+            },
+            UniformKey::LightsAttenuation(idx) => {
+                let s = format!("lights[{}].attenuation", idx);
+                CString::new(s).expect("Bad cstring")
+            },
+            UniformKey::NumLights => CString::new("num_lights").expect("Bad cstring"),
+            UniformKey::Texture(texture_unit) => CString::new(texture_unit.uniform_name()).expect("Bad cstring"),
+            UniformKey::TileBottomLeft => CString::new("tile_bottom_left").expect("Bad cstring"),
+            UniformKey::TileTopRight => CString::new("tile_top_right").expect("Bad cstring"),
+            UniformKey::TileScale => CString::new("tile_scale").expect("Bad cstring"),
+            UniformKey::ProjectionView => CString::new("projection_view").expect("Bad cstring"),
+        }
+    }
+}
+
 pub struct HexRenderer {
-    shader_program: ShaderProgram,
+    shader_program: ShaderProgram<UniformKey>,
     // InstancedMesh should be destructed before AttributeProgram.
     mesh: InstancedMesh,
     attribute_program: AttributeProgram,
@@ -88,7 +129,8 @@ impl HexRenderer {
         self.attr_scale.prepare_buffer();
 
         let texture = textures.texture(NamedSpriteSheet::SpriteSheet1);
-        texture.activate(&mut self.shader_program);
+        let texture_unit = texture.activate();
+        self.shader_program.set_gluint(UniformKey::Texture(texture_unit), texture_unit.to_gluint());
 
         let tile_frame_id = SpriteSheetFrameId {
             name: String::from("rock_texture.png"),
@@ -96,11 +138,20 @@ impl HexRenderer {
         };
         let texel = textures.frame(&tile_frame_id, 0, Reverse::none());
 
-        self.shader_program.set_vec2("tile_bottom_left", texel.bottom_left);
-        self.shader_program.set_vec2("tile_top_right", texel.top_right);
-        self.shader_program.set_vec2("tile_scale", self.tile_scale);
-        self.shader_program.set_mat4("projection_view", projection_view);
-        PointLight::set_lights(lights, &mut self.shader_program);
+        self.shader_program.set_vec2(UniformKey::TileBottomLeft, texel.bottom_left);
+        self.shader_program.set_vec2(UniformKey::TileTopRight, texel.top_right);
+        self.shader_program.set_vec2(UniformKey::TileScale, self.tile_scale);
+        self.shader_program.set_mat4(UniformKey::ProjectionView, projection_view);
+
+        if lights.len() > 100 {
+            panic!("Need to update shaders to support more than {} lights", lights.len());
+        }
+        self.shader_program.set_i32(UniformKey::NumLights, lights.len() as i32);
+        for (idx, point_light) in lights.iter().enumerate() {
+            self.shader_program.set_vec3(UniformKey::LightsPosition(idx), &point_light.position);
+            self.shader_program.set_vec3(UniformKey::LightsColor(idx), &point_light.color);
+            self.shader_program.set_vec3(UniformKey::LightsAttenuation(idx), &point_light.attenuation);
+        }
 
         self.mesh.draw(self.attr_transform.data.len());
 

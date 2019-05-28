@@ -11,7 +11,9 @@ use crate::{
         SpriteSheetTextureManager,
         PointLight,
         ShaderProgram,
+        ShaderUniformKey,
         Texel,
+        TextureUnit,
     }
 };
 use gl::{
@@ -21,6 +23,7 @@ use gl::{
 use glm;
 use hashbrown::HashMap;
 use nalgebra;
+use std::ffi::CString;
 
 #[derive(Clone)]
 pub struct LightDependentSpriteData {
@@ -32,8 +35,46 @@ pub struct LightDependentSpriteData {
     pub reverse: Reverse,
 }
 
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+enum UniformKey {
+    LightsPosition(usize),
+    LightsColor(usize),
+    LightsAttenuation(usize),
+    NumLights,
+    ProjectionView,
+    PositionIndependentView,
+    CameraRight,
+    CameraUp,
+    Texture(TextureUnit),
+}
+
+impl ShaderUniformKey for UniformKey {
+    fn to_cstring(self) -> CString {
+        match self {
+            UniformKey::NumLights => CString::new("num_lights").expect("Bad cstring"),
+            UniformKey::LightsPosition(idx) => {
+                let s = format!("lights[{}].position", idx);
+                CString::new(s).expect("Bad cstring")
+            },
+            UniformKey::LightsColor(idx) => {
+                let s = format!("lights[{}].color", idx);
+                CString::new(s).expect("Bad cstring")
+            },
+            UniformKey::LightsAttenuation(idx) => {
+                let s = format!("lights[{}].attenuation", idx);
+                CString::new(s).expect("Bad cstring")
+            },
+            UniformKey::ProjectionView => CString::new("projection_view").expect("Bad cstring"),
+            UniformKey::PositionIndependentView => CString::new("position_independent_view").expect("Bad cstring"),
+            UniformKey::CameraRight => CString::new("camera_right").expect("Bad cstring"),
+            UniformKey::CameraUp => CString::new("camera_up").expect("Bad cstring"),
+            UniformKey::Texture(texture_unit) => CString::new(texture_unit.uniform_name()).expect("Bad cstring"),
+        }
+    }
+}
+
 pub struct LightDependentSpriteRenderer {
-    shader_program: ShaderProgram,
+    shader_program: ShaderProgram<UniformKey>,
     attribute_program: AttributeProgram,
     attr_pos: Attribute<SpritePositionAttr>,
     attr_size: Attribute<SpriteSizeAttr>,
@@ -81,15 +122,25 @@ impl LightDependentSpriteRenderer {
         self.shader_program.activate();
         self.attribute_program.activate();
 
-        self.shader_program.set_mat4("projection_view", projection_view);
-        self.shader_program.set_mat4("position_independent_view", position_independent_view);
-        self.shader_program.set_vec3("camera_right", &camera_right);
-        self.shader_program.set_vec3("camera_up", &camera_up);
-        PointLight::set_lights(lights, &mut self.shader_program);
+        self.shader_program.set_mat4(UniformKey::ProjectionView, projection_view);
+        self.shader_program.set_mat4(UniformKey::PositionIndependentView, position_independent_view);
+        self.shader_program.set_vec3(UniformKey::CameraRight, &camera_right);
+        self.shader_program.set_vec3(UniformKey::CameraUp, &camera_up);
+
+        if lights.len() > 100 {
+            panic!("Need to update shaders to support more than {} lights", lights.len());
+        }
+        self.shader_program.set_i32(UniformKey::NumLights, lights.len() as i32);
+        for (idx, point_light) in lights.iter().enumerate() {
+            self.shader_program.set_vec3(UniformKey::LightsPosition(idx), &point_light.position);
+            self.shader_program.set_vec3(UniformKey::LightsColor(idx), &point_light.color);
+            self.shader_program.set_vec3(UniformKey::LightsAttenuation(idx), &point_light.attenuation);
+        }
 
         for (named_texture, queued_draw) in self.per_pack_attrs.iter() {
             let texture = textures.texture(*named_texture);
-            texture.activate(&mut self.shader_program);
+            let texture_unit = texture.activate();
+            self.shader_program.set_gluint(UniformKey::Texture(texture_unit), texture_unit.to_gluint());
 
             for datum in queued_draw.iter() {
                 let texel = textures.frame(&datum.sprite_frame_id, datum.frame, datum.reverse);

@@ -10,7 +10,9 @@ use crate::{
         SpriteSheetFrameId,
         SpriteSheetTextureManager,
         ShaderProgram,
+        ShaderUniformKey,
         Texel,
+        TextureUnit,
     }
 };
 use gl::{
@@ -20,6 +22,7 @@ use gl::{
 use glm;
 use hashbrown::HashMap;
 use nalgebra;
+use std::ffi::CString;
 
 #[derive(Clone)]
 pub struct FullyIlluminatedSpriteData {
@@ -31,8 +34,30 @@ pub struct FullyIlluminatedSpriteData {
     pub reverse: Reverse,
 }
 
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+enum UniformKey {
+    ProjectionView,
+    PositionIndependentView,
+    CameraRight,
+    CameraUp,
+    Texture(TextureUnit)
+}
+
+impl ShaderUniformKey for UniformKey {
+    fn to_cstring(self) -> CString {
+        let string = match self {
+            UniformKey::ProjectionView => "projection_view",
+            UniformKey::PositionIndependentView => "position_independent_view",
+            UniformKey::CameraRight => "camera_right",
+            UniformKey::CameraUp => "camera_up",
+            UniformKey::Texture(texture_unit) => texture_unit.uniform_name(),
+        };
+        CString::new(string).expect("Bad cstring")
+    }
+}
+
 pub struct FullyIlluminatedSpriteRenderer {
-    shader_program: ShaderProgram,
+    shader_program: ShaderProgram<UniformKey>,
     attribute_program: AttributeProgram,
     attr_pos: Attribute<SpritePositionAttr>,
     attr_size: Attribute<SpriteSizeAttr>,
@@ -80,14 +105,15 @@ impl FullyIlluminatedSpriteRenderer {
         self.shader_program.activate();
         self.attribute_program.activate();
 
-        self.shader_program.set_mat4("projection_view", projection_view);
-        self.shader_program.set_mat4("position_independent_view", position_independent_view);
-        self.shader_program.set_vec3("camera_right", &camera_right);
-        self.shader_program.set_vec3("camera_up", &camera_up);
+        self.shader_program.set_mat4(UniformKey::ProjectionView, projection_view);
+        self.shader_program.set_mat4(UniformKey::PositionIndependentView, position_independent_view);
+        self.shader_program.set_vec3(UniformKey::CameraRight, &camera_right);
+        self.shader_program.set_vec3(UniformKey::CameraUp, &camera_up);
 
         for (named_texture, queued_draw) in self.per_pack_attrs.iter() {
             let texture = textures.texture(*named_texture);
-            texture.activate(&mut self.shader_program);
+            let texture_unit = texture.activate();
+            self.shader_program.set_gluint(UniformKey::Texture(texture_unit), texture_unit.to_gluint());
 
             for datum in queued_draw.iter() {
                 let texel = textures.frame(&datum.sprite_frame_id, datum.frame, datum.reverse);

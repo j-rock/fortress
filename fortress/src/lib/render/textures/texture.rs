@@ -1,6 +1,5 @@
 use crate::render::{
     Png,
-    ShaderProgram,
     TextureStyle,
 };
 use gl::{
@@ -10,7 +9,7 @@ use gl::{
 
 #[derive(Copy, Clone)]
 pub struct TextureId(GLuint);
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct TextureUnit(usize);
 
 impl TextureUnit {
@@ -71,14 +70,14 @@ impl Texture {
         }
     }
 
-    pub fn activate(&self, shader_program: &mut ShaderProgram) {
+    pub fn activate(&self) -> TextureUnit {
         let raw_texture_unit = self.texture_unit.to_gluint();
         unsafe {
             gl::ActiveTexture(raw_texture_unit);
             gl::BindTexture(gl::TEXTURE_2D, self.texture_id.0);
         }
 
-        shader_program.set_gluint(self.texture_unit.uniform_name(), raw_texture_unit);
+        self.texture_unit
     }
 
     pub fn deactivate(&self) {

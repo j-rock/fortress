@@ -12,10 +12,13 @@ use crate::{
         AttributeProgram,
         NamedSpriteSheet,
         ShaderProgram,
+        ShaderUniformKey,
         SpriteSheetTextureManager,
         Texture,
+        TextureUnit,
     }
 };
+use std::ffi::CString;
 
 #[derive(Deserialize)]
 struct BackgroundRendererConfig {
@@ -24,9 +27,24 @@ struct BackgroundRendererConfig {
     pub zoom: f32
 }
 
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+enum UniformKey {
+    Texture(TextureUnit)
+}
+
+impl ShaderUniformKey for UniformKey {
+   fn to_cstring(self) -> CString {
+       match self {
+          UniformKey::Texture(texture_unit) => {
+              CString::new(texture_unit.uniform_name()).expect("Bad texture")
+          }
+       }
+   }
+}
+
 pub struct BackgroundRenderer {
     config_manager: SimpleConfigManager<BackgroundRendererConfig>,
-    shader_program: ShaderProgram,
+    shader_program: ShaderProgram<UniformKey>,
     attribute_program: AttributeProgram,
     attr_vertex: Attribute<VertexAttr>,
     attr_texel: Attribute<TexelAttr>,
@@ -77,7 +95,8 @@ impl BackgroundRenderer {
         self.attr_vertex.prepare_buffer();
         self.attr_texel.prepare_buffer();
 
-        texture.activate(&mut self.shader_program);
+        let texture_unit = texture.activate();
+        self.shader_program.set_gluint(UniformKey::Texture(texture_unit), texture_unit.to_gluint());
 
         unsafe {
             gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);

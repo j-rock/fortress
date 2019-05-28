@@ -10,8 +10,13 @@ use glm;
 use hashbrown::HashMap;
 use std::{
     ffi::CString,
+    hash::Hash,
     path::PathBuf,
 };
+
+pub trait ShaderUniformKey {
+    fn to_cstring(self) -> CString;
+}
 
 fn compile_shader(path: &PathBuf, shader_type: GLenum) -> StatusOr<GLuint> {
     let slurped_shader_code = file::util::slurp_file(path)
@@ -67,13 +72,13 @@ fn compile_program(shaders: &[GLuint]) -> StatusOr<GLuint> {
     }
 }
 
-pub struct ShaderProgram {
+pub struct ShaderProgram<T> {
     pub program: GLuint,
-    uniform_cache: HashMap<CString, GLint>,
+    uniform_cache: HashMap<T, GLint>,
 }
 
-impl ShaderProgram {
-    pub fn from_short_pipeline(vertex_filepath: &PathBuf, fragment_filepath: &PathBuf) -> StatusOr<ShaderProgram> {
+impl <T> ShaderProgram<T> {
+    pub fn from_short_pipeline(vertex_filepath: &PathBuf, fragment_filepath: &PathBuf) -> StatusOr<ShaderProgram<T>> {
         let vertex = compile_shader(vertex_filepath, gl::VERTEX_SHADER)?;
         let fragment = compile_shader(fragment_filepath, gl::FRAGMENT_SHADER)?;
         let shader_program = ShaderProgram {
@@ -89,7 +94,7 @@ impl ShaderProgram {
 
     pub fn from_long_pipeline(vertex_filepath: &PathBuf,
                               geometry_filepath: &PathBuf,
-                              fragment_filepath: &PathBuf) -> StatusOr<ShaderProgram> {
+                              fragment_filepath: &PathBuf) -> StatusOr<ShaderProgram<T>> {
         let vertex = compile_shader(vertex_filepath, gl::VERTEX_SHADER)?;
         let geometry = compile_shader(geometry_filepath, gl::GEOMETRY_SHADER)?;
         let fragment = compile_shader(fragment_filepath, gl::FRAGMENT_SHADER)?;
@@ -105,90 +110,6 @@ impl ShaderProgram {
         Ok(shader_program)
     }
 
-    unsafe fn get_uniform_location(&mut self, name: &str) -> GLint {
-        let c_str = CString::new(name)
-            .map_err(|err| format!("Couldn't uniform name {} into a C string. Reason: {}", name, err)).unwrap();
-        let c_str_ptr = c_str.as_ptr() as *const GLchar;
-
-        let program = self.program;
-
-        let cached = self.uniform_cache.entry(c_str).or_insert_with(|| {
-            let res = gl::GetUniformLocation(program, c_str_ptr);
-            if res < 0 {
-                panic!("Uniform: {}, {:?}", res, *c_str_ptr);
-            }
-            res
-        });
-
-        *cached
-    }
-
-    pub fn set_bool(&mut self, name: &str, b: bool) {
-       unsafe {
-           gl::Uniform1i(self.get_uniform_location(name), if b { 1 } else { 0 });
-       }
-    }
-
-    pub fn set_i32(&mut self, name: &str, i: i32) {
-        unsafe {
-            gl::Uniform1i(self.get_uniform_location(name), i);
-        }
-    }
-
-    pub fn set_f32(&mut self, name: &str, f: f32) {
-        unsafe {
-            gl::Uniform1f(self.get_uniform_location(name), f);
-        }
-    }
-
-    pub fn set_vec2(&mut self, name: &str, v: glm::Vec2) {
-        let value_ptr = &v as *const glm::Vec2 as *const f32;
-        unsafe {
-            gl::Uniform2fv(self.get_uniform_location(name), 1, value_ptr);
-        }
-    }
-
-    pub fn set_vec3(&mut self, name: &str, v: &glm::Vec3) {
-        let value_ptr = v as *const glm::Vec3 as *const f32;
-        unsafe {
-            gl::Uniform3fv(self.get_uniform_location(name), 1, value_ptr);
-        }
-    }
-
-    pub fn set_vec4(&mut self, name: &str, v: &glm::Vec4) {
-        let value_ptr = v as *const glm::Vec4 as *const f32;
-        unsafe {
-            gl::Uniform4fv(self.get_uniform_location(name), 1, value_ptr);
-        }
-    }
-
-    pub fn set_mat2(&mut self, name: &str, m: &glm::Mat2) {
-        let value_ptr = m as *const glm::Mat2 as *const f32;
-        unsafe {
-            gl::UniformMatrix2fv(self.get_uniform_location(name), 1, gl::FALSE, value_ptr);
-        }
-    }
-
-    pub fn set_mat3(&mut self, name: &str, m: &glm::Mat3) {
-        let value_ptr = m as *const glm::Mat3 as *const f32;
-        unsafe {
-            gl::UniformMatrix3fv(self.get_uniform_location(name), 1, gl::FALSE, value_ptr);
-        }
-    }
-
-    pub fn set_mat4(&mut self, name: &str, m: &glm::Mat4) {
-        let value_ptr = m as *const glm::Mat4 as *const f32;
-        unsafe {
-            gl::UniformMatrix4fv(self.get_uniform_location(name), 1, gl::FALSE, value_ptr);
-        }
-    }
-
-    pub fn set_gluint(&mut self, name: &str, gluint: GLuint) {
-        unsafe {
-            gl::Uniform1ui(self.get_uniform_location(name), gluint);
-        }
-    }
-
     pub fn activate(&self) {
         unsafe {
             gl::UseProgram(self.program);
@@ -202,7 +123,90 @@ impl ShaderProgram {
     }
 }
 
-impl Drop for ShaderProgram {
+impl <T:ShaderUniformKey + Eq + Hash + Copy> ShaderProgram<T> {
+    unsafe fn get_uniform_location(&mut self, key: T) -> GLint {
+        let program = self.program;
+        let cached = self.uniform_cache.entry(key).or_insert_with(|| {
+            let c_str = key.to_cstring();
+            let c_str_ptr = c_str.as_ptr() as *const GLchar;
+            let res = gl::GetUniformLocation(program, c_str_ptr);
+            if res < 0 {
+                panic!("Uniform: {}, {:?}", res, *c_str_ptr);
+            }
+            res
+        });
+
+        *cached
+    }
+
+    pub fn set_bool(&mut self, key: T, b: bool) {
+       unsafe {
+           gl::Uniform1i(self.get_uniform_location(key), if b { 1 } else { 0 });
+       }
+    }
+
+    pub fn set_i32(&mut self, key: T, i: i32) {
+        unsafe {
+            gl::Uniform1i(self.get_uniform_location(key), i);
+        }
+    }
+
+    pub fn set_f32(&mut self, key: T, f: f32) {
+        unsafe {
+            gl::Uniform1f(self.get_uniform_location(key), f);
+        }
+    }
+
+    pub fn set_vec2(&mut self, key: T, v: glm::Vec2) {
+        let value_ptr = &v as *const glm::Vec2 as *const f32;
+        unsafe {
+            gl::Uniform2fv(self.get_uniform_location(key), 1, value_ptr);
+        }
+    }
+
+    pub fn set_vec3(&mut self, key: T, v: &glm::Vec3) {
+        let value_ptr = v as *const glm::Vec3 as *const f32;
+        unsafe {
+            gl::Uniform3fv(self.get_uniform_location(key), 1, value_ptr);
+        }
+    }
+
+    pub fn set_vec4(&mut self, key: T, v: &glm::Vec4) {
+        let value_ptr = v as *const glm::Vec4 as *const f32;
+        unsafe {
+            gl::Uniform4fv(self.get_uniform_location(key), 1, value_ptr);
+        }
+    }
+
+    pub fn set_mat2(&mut self, key: T, m: &glm::Mat2) {
+        let value_ptr = m as *const glm::Mat2 as *const f32;
+        unsafe {
+            gl::UniformMatrix2fv(self.get_uniform_location(key), 1, gl::FALSE, value_ptr);
+        }
+    }
+
+    pub fn set_mat3(&mut self, key: T, m: &glm::Mat3) {
+        let value_ptr = m as *const glm::Mat3 as *const f32;
+        unsafe {
+            gl::UniformMatrix3fv(self.get_uniform_location(key), 1, gl::FALSE, value_ptr);
+        }
+    }
+
+    pub fn set_mat4(&mut self, key: T, m: &glm::Mat4) {
+        let value_ptr = m as *const glm::Mat4 as *const f32;
+        unsafe {
+            gl::UniformMatrix4fv(self.get_uniform_location(key), 1, gl::FALSE, value_ptr);
+        }
+    }
+
+    pub fn set_gluint(&mut self, key: T, gluint: GLuint) {
+        unsafe {
+            gl::Uniform1ui(self.get_uniform_location(key), gluint);
+        }
+    }
+}
+
+impl <T> Drop for ShaderProgram<T> {
    fn drop(&mut self) {
        if self.program != 0 {
            unsafe {
