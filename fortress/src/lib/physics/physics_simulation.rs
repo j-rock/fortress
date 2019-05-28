@@ -1,5 +1,6 @@
 use crate::{
     app::StatusOr,
+    dimensions::time::DeltaTime,
     entities::{
         Entity,
         EntityId,
@@ -97,11 +98,11 @@ impl RawPhysicsSimulation {
         })
     }
 
-    pub fn step(&mut self, world: WorldView) {
+    pub fn step(&mut self, dt: DeltaTime) {
         self.config.update();
         let config = self.config.get();
         Self::update_world_from_config(config, &mut self.world);
-        self.world.set_timestep(world.dt.as_f64_seconds());
+        self.world.set_timestep(dt.as_f64_seconds());
         self.world.step();
     }
 

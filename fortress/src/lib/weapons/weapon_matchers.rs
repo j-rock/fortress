@@ -58,7 +58,7 @@ impl WeaponMatchers {
 
     fn bullet_hit_enemy(player_id: PlayerId, bullet_id: BulletId, enemy_id: EnemyId, world: &mut WorldView) {
         if let Some(attack) = world.players.bullet_attack(player_id, bullet_id) {
-            world.enemies.enemy_hit(enemy_id, attack);
+            world.enemies.enemy_hit(enemy_id, attack, world.particles);
         }
     }
 

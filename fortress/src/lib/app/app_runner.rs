@@ -2,6 +2,7 @@ use crate::{
     app::{
         AppContext,
         Clock,
+        RandGen,
         StatusOr,
     },
     audio::AudioPlayer,
@@ -32,6 +33,7 @@ pub struct AppRunner {
     audio: AudioPlayer,
     clock: Clock,
     controller: Controller,
+    rng: RandGen,
     world: WorldState,
     config_watcher: ConfigWatcher,
 
@@ -56,6 +58,7 @@ impl AppRunner {
             context,
             clock: Clock::start(),
             controller,
+            rng: RandGen::new(),
             world,
         })
     }
@@ -104,7 +107,7 @@ impl AppRunner {
         let dt = self.clock.restart();
         self.config_watcher.update();
         self.controller.update(&self.context.events);
-        self.world.update(&self.audio, &self.controller, dt);
+        self.world.update(&self.audio, &self.controller, &mut self.rng, dt);
     }
 
     fn draw(&mut self) {

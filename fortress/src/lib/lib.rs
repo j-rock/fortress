@@ -28,6 +28,7 @@ pub mod entities;
 pub mod file;
 pub mod items;
 pub mod maps;
+pub mod particles;
 pub mod physics;
 pub mod players;
 pub mod render;

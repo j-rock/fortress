@@ -1,5 +1,8 @@
 use crate::{
-    app::StatusOr,
+    app::{
+        RandGen,
+        StatusOr
+    },
     audio::AudioPlayer,
     control::Controller,
     dimensions::time::DeltaTime,
@@ -10,6 +13,7 @@ use crate::{
     },
     items::ItemSystem,
     maps::Map,
+    particles::ParticleSystem,
     physics::PhysicsSimulation,
     players::{
         PlayerMatchers,
@@ -50,6 +54,7 @@ pub struct WorldState {
     players: PlayerSystem,
     enemies: EnemySystem,
     items: ItemSystem,
+    particles: ParticleSystem,
 
     // Declare physics simulation last so it is dropped last.
     physics_sim: PhysicsSimulation,
@@ -71,6 +76,7 @@ impl WorldState {
         let players = PlayerSystem::new(config_watcher, map.spawns())?;
         let enemies = EnemySystem::new(config_watcher, map.enemy_generator_spawns(), &mut physics_sim)?;
         let items = ItemSystem::new(config_watcher)?;
+        let particles = ParticleSystem::new(config_watcher)?;
 
         Ok(WorldState {
             config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
@@ -85,11 +91,12 @@ impl WorldState {
             players,
             enemies,
             items,
+            particles,
             physics_sim
         })
     }
 
-    pub fn update(&mut self, audio: &AudioPlayer, controller: &Controller, dt: DeltaTime) {
+    pub fn update(&mut self, audio: &AudioPlayer, controller: &Controller, rng: &mut RandGen, dt: DeltaTime) {
         self.config_manager.update();
         self.textures.update();
         self.background_renderer.pre_update();
@@ -102,28 +109,24 @@ impl WorldState {
                 self.players.respawn(self.map.spawns());
                 self.enemies.respawn(self.map.enemy_generator_spawns(), &mut self.physics_sim);
                 self.items.respawn();
+                self.particles.respawn();
             } else {
                 self.players.pre_update(audio, controller, &mut self.physics_sim, dt);
                 let player_locs = self.players.player_locs();
                 self.enemies.pre_update(controller, dt, player_locs, &mut self.physics_sim);
                 self.items.pre_update();
+                self.particles.pre_update(dt);
             }
         }
 
         {
-            self.physics_sim.borrow_mut().step(WorldView {
-                audio,
-                players: &mut self.players,
-                enemies: &mut self.enemies,
-                items: &mut self.items,
-                dt
-            });
-
+            self.physics_sim.borrow_mut().step(dt);
             self.physics_sim.borrow().process_contacts(WorldView {
                 audio,
                 players: &mut self.players,
                 enemies: &mut self.enemies,
                 items: &mut self.items,
+                particles: &mut self.particles,
                 dt
             });
         }
@@ -134,6 +137,7 @@ impl WorldState {
             self.camera.post_update(self.players.player_locs());
             self.items.post_update();
             self.enemies.post_update(audio, &mut self.items, &mut self.physics_sim);
+            self.particles.post_update(rng);
         }
     }
 
@@ -162,6 +166,7 @@ impl WorldState {
         self.players.queue_draw(&mut self.full_light_sprite, &mut self.light_dependent_sprite);
         self.enemies.queue_draw(&mut self.light_dependent_sprite);
         self.items.queue_draw(&mut self.light_dependent_sprite);
+        self.particles.draw(&projection_view);
 
         if self.textures.render_background() {
             self.background_renderer.draw(&self.textures, self.camera.position());

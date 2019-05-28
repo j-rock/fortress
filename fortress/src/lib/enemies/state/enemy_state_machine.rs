@@ -21,6 +21,10 @@ use crate::{
         ItemSystem,
         ItemType,
     },
+    particles::{
+        ParticleEvent,
+        ParticleSystem,
+    },
     physics::PhysicsSimulation,
     render::{
         EasingFn,
@@ -67,9 +71,16 @@ impl EnemyStateMachine {
         None
     }
 
-    pub fn take_attack(&self, attack: Attack, enemy_state: &mut EnemyState) {
-        if let EnemyStateMachine::Base(_, _) = self {
+    pub fn take_attack(&self, config: &EnemyConfig, attack: Attack, enemy_state: &mut EnemyState, particles: &mut ParticleSystem) {
+        if let EnemyStateMachine::Base(body, _) = self {
             enemy_state.take_attack(attack);
+            if let Some(position) = body.position() {
+                particles.queue_event(ParticleEvent {
+                    position,
+                    color: glm::vec3(config.enemy_hit_particle_color.0, config.enemy_hit_particle_color.1, config.enemy_hit_particle_color.2),
+                    radius: config.enemy_hit_particle_radius,
+                });
+            }
         }
     }
 

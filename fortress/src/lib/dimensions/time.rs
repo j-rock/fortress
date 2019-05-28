@@ -27,6 +27,10 @@ impl DeltaTime {
         self.microseconds_elapsed
     }
 
+    pub fn as_f32_seconds(self) -> f32 {
+        self.microseconds_elapsed as f32 / 1_000_000.0
+    }
+
     pub fn as_f64_seconds(self) -> f64 {
         self.microseconds_elapsed as f64 / 1_000_000.0
     }

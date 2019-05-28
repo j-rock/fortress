@@ -23,6 +23,7 @@ use crate::{
         SimpleConfigManager,
     },
     items::ItemSystem,
+    particles::ParticleSystem,
     physics::PhysicsSimulation,
     render::{
         LightDependentSpriteRenderer,
@@ -130,9 +131,10 @@ impl EnemySystem {
         }
     }
 
-    pub fn enemy_hit(&mut self, enemy_id: EnemyId, attack: Attack) {
+    pub fn enemy_hit(&mut self, enemy_id: EnemyId, attack: Attack, particles: &mut ParticleSystem) {
         if let Some(enemy) = self.enemies.get_mut(enemy_id.key()) {
-            enemy.take_attack(attack);
+            let config = self.config_manager.get();
+            enemy.take_attack(config, attack, particles);
         }
     }
 
