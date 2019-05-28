@@ -58,14 +58,11 @@ impl Png {
         }
 
         for y in 0..other_height {
-            for x in 0..other_width {
-                let other_idx = 4 * (y * other_width + x);
-                let self_idx = 4 * ((y + top_left_y) * self_width + x + top_left_x);
-                self.img[self_idx + 0] = other.img[other_idx + 0];
-                self.img[self_idx + 1] = other.img[other_idx + 1];
-                self.img[self_idx + 2] = other.img[other_idx + 2];
-                self.img[self_idx + 3] = other.img[other_idx + 3];
-            }
+            let other_idx_start = 4 * y * other_width;
+            let other_idx_end = other_idx_start + 4 * other_width - 1;
+            let self_idx_start = 4 * ((y + top_left_y) * self_width + top_left_x);
+            let self_idx_end = self_idx_start + 4 * other_width - 1;
+            self.img[self_idx_start..=self_idx_end].copy_from_slice(&other.img[other_idx_start..=other_idx_end]);
         }
 
         Ok(())
