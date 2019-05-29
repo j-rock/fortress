@@ -8,7 +8,7 @@ use sdl2::mixer::{
     self,
 };
 
-const CHUNK_SIZE: i32 = 512;
+const CHUNK_SIZE: i32 = 2048;
 
 pub struct AudioPlayer {
     chunks: HashMap<Sound, Chunk>
