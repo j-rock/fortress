@@ -1,6 +1,6 @@
 #[derive(Deserialize)]
 pub struct ParticleConfig {
-    pub initial_particle_capacity_guess: usize,
+    pub particle_capacity: usize,
     pub initial_particle_events_guess: usize,
     pub particle_max_age: i64,
     pub particle_start_height: f32,

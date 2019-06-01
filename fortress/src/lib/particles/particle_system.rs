@@ -3,10 +3,7 @@ use crate::{
         RandGen,
         StatusOr,
     },
-    dimensions::time::{
-        DeltaTime,
-        Microseconds,
-    },
+    dimensions::time::DeltaTime,
     file::{
         self,
         ConfigWatcher,
@@ -15,6 +12,7 @@ use crate::{
     particles::{
         ParticleConfig,
         ParticleEvent,
+        RingBufferView,
     },
     render::{
         attribute,
@@ -51,8 +49,7 @@ pub struct ParticleSystem {
     attr_pos: Attribute<Vec3Attr>,
     attr_color: Attribute<Vec3Attr>,
     velocity: Vec<glm::Vec3>,
-    age: Vec<Microseconds>,
-
+    ring_buffer_view: RingBufferView,
     queued_events: Vec<ParticleEvent>,
 }
 
@@ -68,13 +65,13 @@ impl ParticleSystem {
         let mut attr_color = attribute_program_builder.add_attribute();
         let attribute_program = attribute_program_builder.build();
 
-        let (age, velocity, queued_events) = {
+        let (velocity, queued_events, ring_buffer_view) = {
             let config = config.get();
-            attr_pos.data.reserve(config.initial_particle_capacity_guess);
-            attr_color.data.reserve(config.initial_particle_capacity_guess);
-            (Vec::with_capacity(config.initial_particle_capacity_guess),
-             Vec::with_capacity(config.initial_particle_capacity_guess),
-             Vec::with_capacity(config.initial_particle_events_guess))
+            attr_pos.data.reserve(config.particle_capacity);
+            attr_color.data.reserve(config.particle_capacity);
+            (Vec::with_capacity(config.particle_capacity),
+             Vec::with_capacity(config.initial_particle_events_guess),
+             RingBufferView::with_capacity(config.particle_capacity))
         };
 
         Ok(ParticleSystem {
@@ -84,7 +81,7 @@ impl ParticleSystem {
             attr_pos,
             attr_color,
             velocity,
-            age,
+            ring_buffer_view,
             queued_events,
         })
     }
@@ -93,24 +90,14 @@ impl ParticleSystem {
         self.attr_pos.data.clear();
         self.attr_color.data.clear();
         self.velocity.clear();
-        self.age.clear();
+        self.ring_buffer_view.clear();
         self.queued_events.clear();
     }
 
     pub fn pre_update(&mut self, dt: DeltaTime) {
         self.config.update();
         let config = self.config.get();
-        for idx in (0..self.age.len()).rev() {
-            let new_age = self.age[idx] + dt.as_microseconds();
-            if new_age >= config.particle_max_age {
-                self.attr_pos.data.remove(idx);
-                self.attr_color.data.remove(idx);
-                self.velocity.remove(idx);
-                self.age.remove(idx);
-                continue;
-            }
-            self.age[idx] = new_age;
-
+        for idx in 0..self.ring_buffer_view.len() {
             let position = self.attr_pos.data[idx].val;
             if position.y <= 0.0 {
                 continue;
@@ -145,10 +132,10 @@ impl ParticleSystem {
                               config.particle_start_height,
                               radius.y - event.position.y as f32);
 
-                self.attr_pos.data.push(Vec3Attr::new(position));
-                self.attr_color.data.push(Vec3Attr::new(event.color * rng.unit_f32()));
-                self.velocity.push(velocity);
-                self.age.push(0);
+                self.ring_buffer_view.add_element_at_head(Vec3Attr::new(position), &mut self.attr_pos.data);
+                self.ring_buffer_view.add_element_at_head(Vec3Attr::new(event.color * rng.unit_f32()), &mut self.attr_color.data);
+                self.ring_buffer_view.add_element_at_head(velocity, &mut self.velocity);
+                self.ring_buffer_view.increment_head();
             }
         }
         self.queued_events.clear();
