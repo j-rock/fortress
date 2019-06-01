@@ -22,6 +22,7 @@ use crate::{
     },
 };
 use generational_slab::Slab;
+use nalgebra::Point2;
 
 #[derive(Copy, Clone, Deserialize)]
 pub struct EnemyGeneratorSpawn {
@@ -43,8 +44,8 @@ impl EnemyGenerator {
         }
     }
 
-    pub fn pre_update(&mut self, config: &EnemyConfig, dt: DeltaTime, enemies: &mut Slab<Enemy>, physics_sim: &mut PhysicsSimulation) {
-        if let Some(state) = self.generator_state_machine.pre_update(config, dt, &self.generator_state, enemies, physics_sim) {
+    pub fn pre_update(&mut self, config: &EnemyConfig, dt: DeltaTime, player_locs: &Vec<Point2<f64>>, enemies: &mut Slab<Enemy>, physics_sim: &mut PhysicsSimulation) {
+        if let Some(state) = self.generator_state_machine.pre_update(config, dt, &self.generator_state, player_locs, enemies, physics_sim) {
             self.generator_state_machine = state;
         }
     }

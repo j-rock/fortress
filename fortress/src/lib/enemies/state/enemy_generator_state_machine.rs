@@ -30,7 +30,10 @@ use crate::{
     },
 };
 use generational_slab::Slab;
-use nalgebra::Vector2;
+use nalgebra::{
+    Point2,
+    Vector2
+};
 
 pub enum EnemyGeneratorStateMachine {
     ReadyToGenerate,
@@ -45,10 +48,10 @@ impl Default for EnemyGeneratorStateMachine {
 }
 
 impl EnemyGeneratorStateMachine {
-    pub fn pre_update(&self, config: &EnemyConfig, dt: DeltaTime, generator_state: &EnemyGeneratorState, enemies: &mut Slab<Enemy>, physics_sim: &mut PhysicsSimulation) -> Option<EnemyGeneratorStateMachine> {
+    pub fn pre_update(&self, config: &EnemyConfig, dt: DeltaTime, generator_state: &EnemyGeneratorState, player_locs: &Vec<Point2<f64>>, enemies: &mut Slab<Enemy>, physics_sim: &mut PhysicsSimulation) -> Option<EnemyGeneratorStateMachine> {
         match self {
             EnemyGeneratorStateMachine::ReadyToGenerate => {
-                Self::new_enemy(config, generator_state, enemies, physics_sim);
+                Self::new_enemy(config, generator_state, player_locs, enemies, physics_sim);
                 Some(EnemyGeneratorStateMachine::Cooldown(config.generator_cooldown_duration_micros))
             },
             EnemyGeneratorStateMachine::Cooldown(time_left) => {
@@ -126,12 +129,27 @@ impl EnemyGeneratorStateMachine {
         }
     }
 
-    fn new_enemy(config: &EnemyConfig, generator_state: &EnemyGeneratorState, enemies: &mut Slab<Enemy>, physics_sim: &mut PhysicsSimulation) {
-        if let Some(spawn) = generator_state.compute_spawn(config) {
-            let enemy_entry = enemies.vacant_entry();
-            let enemy_id = EnemyId::from_key(enemy_entry.key());
-            let enemy = Enemy::new(config, enemy_id, spawn, physics_sim);
-            enemy_entry.insert(enemy);
+    fn new_enemy(config: &EnemyConfig, generator_state: &EnemyGeneratorState, player_locs: &Vec<Point2<f64>>, enemies: &mut Slab<Enemy>, physics_sim: &mut PhysicsSimulation) {
+        if let Some(position) = generator_state.position() {
+            player_locs
+                .iter()
+                .min_by_key(|player_loc| {
+                    let diff = position - **player_loc;
+                    (diff.x * diff.x + diff.y * diff.y).round() as i64
+                })
+                .and_then(|closest_player_loc| -> Option<()> {
+                    let displacement = *closest_player_loc - position;
+                    let distance = displacement.norm();
+                    if distance < config.generator_generate_distance {
+                        if let Some(spawn) = generator_state.compute_spawn(config) {
+                            let enemy_entry = enemies.vacant_entry();
+                            let enemy_id = EnemyId::from_key(enemy_entry.key());
+                            let enemy = Enemy::new(config, enemy_id, spawn, physics_sim);
+                            enemy_entry.insert(enemy);
+                        }
+                    }
+                    None
+                });
         }
     }
 }

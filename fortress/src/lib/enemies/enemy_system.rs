@@ -69,7 +69,7 @@ impl EnemySystem {
 
         let config = self.config_manager.get();
         for (_key, generator) in self.generators.iter_mut() {
-            generator.pre_update(config, dt, &mut self.enemies, physics_sim);
+            generator.pre_update(config, dt, &player_locs, &mut self.enemies, physics_sim);
         }
 
         for (_key , enemy) in self.enemies.iter_mut() {
