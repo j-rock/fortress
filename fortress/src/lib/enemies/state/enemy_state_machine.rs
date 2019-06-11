@@ -142,7 +142,7 @@ impl EnemyStateMachine {
             let world_half_size = glm::vec2(config.enemy_physical_radius as f32, config.enemy_physical_radius as f32) * config.enemy_render_scale;
             let world_center_position = glm::vec3(position.x as f32, world_half_size.y, -position.y as f32);
 
-            sprite_renderer.queue(vec![LightDependentSpriteData {
+            sprite_renderer.queue(LightDependentSpriteData {
                 world_center_position,
                 world_half_size,
                 sprite_frame_id: SpriteSheetFrameId {
@@ -152,7 +152,7 @@ impl EnemyStateMachine {
                 frame,
                 unit_world_rotation: Vector2::new(0.0, 0.0),
                 reverse,
-            }]);
+            });
         }
     }
 

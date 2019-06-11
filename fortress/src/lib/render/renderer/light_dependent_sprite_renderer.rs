@@ -108,14 +108,11 @@ impl LightDependentSpriteRenderer {
         })
     }
 
-    pub fn queue(&mut self, data: Vec<LightDependentSpriteData>) {
-        for datum in data.into_iter() {
-            let pack_attrs = self.per_pack_attrs
-                .entry(datum.sprite_frame_id.sprite_sheet)
-                .or_insert(Vec::new());
-
-            pack_attrs.push(datum);
-        }
+    pub fn queue(&mut self, datum: LightDependentSpriteData) {
+        self.per_pack_attrs
+            .entry(datum.sprite_frame_id.sprite_sheet)
+            .or_insert(Vec::new())
+            .push(datum);
     }
 
     pub fn draw(&mut self, lights: &Vec<PointLight>, textures: &SpriteSheetTextureManager, projection_view: &glm::Mat4, position_independent_view: &glm::Mat4, camera_right: glm::Vec3, camera_up: glm::Vec3) {

@@ -91,8 +91,8 @@ impl FullyIlluminatedSpriteRenderer {
         })
     }
 
-    pub fn queue(&mut self, data: Vec<FullyIlluminatedSpriteData>) {
-        for datum in data.into_iter() {
+    pub fn queue(&mut self, data: impl IntoIterator<Item = FullyIlluminatedSpriteData>) {
+        for datum in data {
             let pack_attrs = self.per_pack_attrs
                 .entry(datum.sprite_frame_id.sprite_sheet)
                 .or_insert(Vec::new());

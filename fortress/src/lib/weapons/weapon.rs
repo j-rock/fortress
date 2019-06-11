@@ -137,9 +137,9 @@ impl Weapon {
     }
 
     pub fn queue_draw(&self, config: &PlayerConfig, full_light: &mut FullyIlluminatedSpriteRenderer) {
-        let sprites: Vec<_> = self.bullets.iter().map(|(_idx, bullet)| -> FullyIlluminatedSpriteData {
+        let sprites = self.bullets.iter().map(|(_idx, bullet)| -> FullyIlluminatedSpriteData {
             bullet.render_info(config)
-        }).collect();
+        });
 
         full_light.queue(sprites);
     }

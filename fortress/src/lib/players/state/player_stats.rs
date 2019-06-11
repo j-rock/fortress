@@ -92,11 +92,10 @@ impl PlayerStats {
     }
 
     pub fn queue_draw(&self, config: &PlayerConfig, player_center: Point2<f64>, full_light: &mut FullyIlluminatedSpriteRenderer) {
-        let queue_data: Vec<_> = self.collected_item_animations.iter()
+        let queue_data = self.collected_item_animations.iter()
             .map(|(_key, collected_item_animation)| {
                 collected_item_animation.sprite_data(config, player_center)
-            })
-            .collect();
+            });
         full_light.queue(queue_data);
     }
 

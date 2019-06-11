@@ -104,19 +104,17 @@ impl MapState {
     }
 
     pub fn queue_draw(&self, config: &MapConfig, hex_renderer: &mut HexRenderer, sprite_renderer: &mut FullyIlluminatedSpriteRenderer) {
-        let mut data = Vec::with_capacity(self.cells.len());
-        for (grid_index, map_cell) in self.cells.iter() {
-            data.push(HexData {
+        let data = self.cells.iter().map(|(grid_index, map_cell)| {
+            HexData {
                 position: *grid_index,
                 height: map_cell.height,
                 elevation: map_cell.elevation,
-            });
-        }
-        hex_renderer.queue(self.hex_cell_length, &data);
+            }
+        });
+        hex_renderer.queue(self.hex_cell_length, data);
 
-        let mut sprite_data = Vec::with_capacity(self.light_positions.len());
-        for position in self.light_positions.iter() {
-            sprite_data.push(FullyIlluminatedSpriteData {
+        let sprite_data = self.light_positions.iter().map(|position| {
+            FullyIlluminatedSpriteData {
                 world_center_position: glm::vec3(position.0, config.light_center_height, -position.1),
                 world_half_size: glm::vec2(config.light_half_size.0, config.light_half_size.1),
                 sprite_frame_id: SpriteSheetFrameId {
@@ -126,8 +124,8 @@ impl MapState {
                 frame: 0,
                 unit_world_rotation: Vector2::new(0.0, 0.0),
                 reverse: Reverse::none(),
-            })
-        }
+            }
+        });
         sprite_renderer.queue(sprite_data);
     }
 }

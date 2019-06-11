@@ -106,10 +106,10 @@ impl HexRenderer {
         })
     }
 
-    pub fn queue(&mut self, hex_cell_length: f64, data: &[HexData]) {
+    pub fn queue(&mut self, hex_cell_length: f64, data: impl Iterator<Item = HexData>) {
         let axial_to_cartesian = GridIndex::axial_to_cartesian(hex_cell_length);
 
-        for datum in data.iter() {
+        for datum in data {
             let hex_center = datum.position.index_center(&axial_to_cartesian);
             self.attr_transform.data.push(HexTransformAttr {
                 position: glm::vec2(hex_center.x as f32, -hex_center.y as f32),

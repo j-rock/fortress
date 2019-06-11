@@ -104,7 +104,7 @@ impl PlayerStateMachine {
                 PlayerStateMachine::Walking(time_elapsed) => (*time_elapsed / config.player_running_frame_duration_micros) as usize,
             };
 
-            light_dependent.queue(vec![LightDependentSpriteData {
+            light_dependent.queue(LightDependentSpriteData {
                 world_center_position,
                 world_half_size,
                 sprite_frame_id: SpriteSheetFrameId {
@@ -114,7 +114,7 @@ impl PlayerStateMachine {
                 frame,
                 unit_world_rotation: Vector2::new(0.0, 0.0),
                 reverse,
-            }]);
+            });
 
             player_state.queue_draw_weapon(config, full_light);
             player_state.queue_draw_stats(config, full_light);
