@@ -49,11 +49,12 @@ impl AppRunner {
         let config = AppRunnerConfig::from_path(&config_path)?;
 
         let context = AppContext::new(config.window_size)?;
-        let world = WorldState::new(&mut config_watcher)?;
+        let audio = AudioPlayer::new(&mut config_watcher)?;
         let controller = Controller::new(&mut config_watcher)?;
+        let world = WorldState::new(&mut config_watcher)?;
 
         Ok(AppRunner {
-            audio: AudioPlayer::new()?,
+            audio,
             config_watcher,
             context,
             clock: Clock::start(),
@@ -107,6 +108,7 @@ impl AppRunner {
         let dt = self.clock.restart();
         self.config_watcher.update();
         self.controller.update(&self.context.events);
+        self.audio.update();
         self.world.update(&self.audio, &self.controller, &mut self.rng, dt);
     }
 
