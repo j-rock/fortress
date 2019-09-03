@@ -123,7 +123,7 @@ impl ParticleSystem {
         let config = self.config.get();
         for event in self.queued_events.iter() {
             for _idx in 0..config.particles_per_event {
-                let vel_xz = rng.unit_circle_glm() * config.particle_max_spread_velocity;
+                let vel_xz = rng.unit_circle_glm() * rng.unit_f32() * config.particle_max_spread_velocity;
                 let velocity = glm::vec3(vel_xz.x, config.particle_start_velocity_y, vel_xz.y);
 
                 let radius = rng.unit_circle_glm() * event.radius;
