@@ -67,7 +67,7 @@ impl BackgroundRenderer {
             glm::vec2(-1.0,  1.0),
             glm::vec2(-1.0, -1.0),
             glm::vec2( 1.0,  1.0),
-            glm::vec2( 1.0, -1.0)].into_iter() {
+            glm::vec2( 1.0, -1.0)].iter() {
             attr_vertex.data.push( VertexAttr {
                 vertex: *vertex
             });
@@ -121,7 +121,7 @@ impl BackgroundRenderer {
              glm::vec2(bottom_left.x, top_right.y),
              bottom_left,
              top_right,
-             glm::vec2(top_right.x, bottom_left.y)].into_iter() {
+             glm::vec2(top_right.x, bottom_left.y)].iter() {
              self.attr_texel.data.push( TexelAttr {
                  texel: *texel,
              });

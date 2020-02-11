@@ -11,7 +11,7 @@ pub struct PhysicsMatcher<T> {
 }
 
 impl <T> PhysicsMatcher<T> {
-    pub fn new(closure: Box<Fn(T, &mut WorldView)>) -> PhysicsMatcher<T> {
+    pub fn new(closure: Box<dyn Fn(T, &mut WorldView)>) -> PhysicsMatcher<T> {
         PhysicsMatcher {
             closure
         }
