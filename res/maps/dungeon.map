@@ -87,7 +87,6 @@
        , { "q":   2, "r": -1, "height": 1.0, "elevation": 0.0 }
        , { "q":   2, "r":  1, "height": 1.0, "elevation": 0.0 }
        , { "q":   2, "r":  2, "height": 1.0, "elevation": 0.0 }
-       , { "q":   2, "r":  2, "height": 1.0, "elevation": 0.0 }
        , { "q":   3, "r": -5, "height": 1.0, "elevation": 0.0 }
        , { "q":   3, "r": -4, "height": 1.0, "elevation": 0.0 }
        , { "q":   3, "r": -3, "height": 1.0, "elevation": 0.0 }
