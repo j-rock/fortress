@@ -41,7 +41,7 @@ pub struct EnemySystem {
 }
 
 impl EnemySystem {
-    pub fn new(config_watcher: &mut ConfigWatcher, generator_spawns: Vec<EnemyGeneratorSpawn>, physics_sim: &mut PhysicsSimulation) -> StatusOr<EnemySystem> {
+    pub fn new(config_watcher: &mut ConfigWatcher, generator_spawns: &Vec<Point2<f64>>, physics_sim: &mut PhysicsSimulation) -> StatusOr<EnemySystem> {
         let config_manager: SimpleConfigManager<EnemyConfig> = SimpleConfigManager::from_config_resource(config_watcher, "enemy.conf")?;
 
         let (generators, enemies) = {
@@ -50,6 +50,13 @@ impl EnemySystem {
             let enemies = Slab::with_capacity(config.enemies_slab_initial_capacity_guess);
             (generators, enemies)
         };
+
+        let generator_spawns = generator_spawns.iter()
+            .map(|spawn_point| EnemyGeneratorSpawn {
+                position: (spawn_point.x, spawn_point.y),
+                orientation: 0.0,
+            })
+            .collect();
 
         let mut enemy_system = EnemySystem {
             config_manager,
@@ -144,8 +151,13 @@ impl EnemySystem {
         }
     }
 
-    pub fn respawn(&mut self, generator_spawns: Vec<EnemyGeneratorSpawn>, physics_sim: &mut PhysicsSimulation) {
-        self.generator_spawns = generator_spawns;
+    pub fn respawn(&mut self, generator_spawns: &Vec<Point2<f64>>, physics_sim: &mut PhysicsSimulation) {
+        self.generator_spawns = generator_spawns.iter()
+            .map(|spawn| EnemyGeneratorSpawn {
+                position: (spawn.x, spawn.y),
+                orientation: 0.0,
+            })
+            .collect();
         self.redeploy(physics_sim);
     }
 

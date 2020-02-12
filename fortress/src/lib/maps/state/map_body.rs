@@ -7,10 +7,7 @@ use crate::{
         Entity,
         RegisteredBody,
     },
-    maps::{
-        MapCell,
-        MapConfig,
-    },
+    maps::MapConfig,
     physics::{
         collision_category,
         PhysicsSimulation,
@@ -25,22 +22,22 @@ use nphysics2d::object::{
     ColliderDesc,
     RigidBodyDesc,
 };
-use hashbrown::HashMap;
+use std::collections::HashSet;
 
 pub struct MapBody {
     pub wall_body: RegisteredBody,
 }
 
 impl MapBody {
-    pub fn new(config: &MapConfig, cells: &HashMap<GridIndex, MapCell>, physics_sim: &mut PhysicsSimulation) -> MapBody {
+    pub fn new(config: &MapConfig, terrain: &HashSet<GridIndex>, physics_sim: &mut PhysicsSimulation) -> MapBody {
         let mut body_desc = RigidBodyDesc::new()
             .status(BodyStatus::Static);
 
         let mut collider_descs = Vec::new();
         let axial_to_cartesian = GridIndex::axial_to_cartesian(config.cell_length);
-        for (grid_index, _) in cells.iter() {
+        for grid_index in terrain.iter() {
            for grid_dir in GridDirection::all() {
-               if !cells.contains_key(&grid_index.neighbor(*grid_dir)) {
+               if !terrain.contains(&grid_index.neighbor(*grid_dir)) {
                    let segment = grid_index.edge_line_segment(*grid_dir, config.cell_length, &axial_to_cartesian);
                    let collider_desc = ColliderDesc::new(ShapeHandle::new(segment))
                        .collision_groups(CollisionGroups::new()

@@ -74,7 +74,7 @@ impl WorldState {
 
         let map = Map::new(config_watcher, &mut physics_sim)?;
         let players = PlayerSystem::new(config_watcher, map.spawns())?;
-        let enemies = EnemySystem::new(config_watcher, map.enemy_generator_spawns(), &mut physics_sim)?;
+        let enemies = EnemySystem::new(config_watcher, map.enemy_generators(), &mut physics_sim)?;
         let items = ItemSystem::new(config_watcher)?;
         let particles = ParticleSystem::new(config_watcher)?;
 
@@ -107,7 +107,7 @@ impl WorldState {
 
             if self.map.pre_update(&mut self.physics_sim) {
                 self.players.respawn(self.map.spawns());
-                self.enemies.respawn(self.map.enemy_generator_spawns(), &mut self.physics_sim);
+                self.enemies.respawn(self.map.enemy_generators(), &mut self.physics_sim);
                 self.items.respawn();
                 self.particles.respawn();
             } else {

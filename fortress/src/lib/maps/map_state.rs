@@ -3,9 +3,7 @@ use crate::{
         GridIndex,
         Reverse,
     },
-    enemies::EnemyGeneratorSpawn,
     maps::{
-        MapCell,
         MapConfig,
         MapFile,
         state::MapBody,
@@ -21,82 +19,74 @@ use crate::{
         SpriteSheetFrameId,
     }
 };
-use hashbrown::{
-    HashMap,
-    HashSet,
-};
 use nalgebra::{
     Point2,
     Vector2,
 };
+use std::collections::HashSet;
 
 pub struct MapState {
-    cells: HashMap<GridIndex, MapCell>,
-    spawns: HashSet<GridIndex>,
-    light_positions: Vec<(f32, f32)>,
-    enemy_generator_spawns: Vec<EnemyGeneratorSpawn>,
+    terrain: HashSet<GridIndex>,
+    player_spawns: Vec<Point2<f64>>,
+    lights: Vec<Point2<f32>>,
+    enemy_generators: Vec<Point2<f64>>,
     _body: MapBody,
-    hex_cell_length: f64,
 }
 
 impl MapState {
     pub fn new(config: &MapConfig, map_file: &MapFile, physics_sim: &mut PhysicsSimulation) -> MapState {
-        let cells: HashMap<_, _> = map_file.cells
+        let axial_to_cartesian = GridIndex::axial_to_cartesian(config.cell_length);
+
+        let terrain: HashSet<_> = map_file.terrain()
             .iter()
-            .map(|map_file_cell| {
-                (map_file_cell.grid_index(), MapCell::from_map_file_cell(map_file_cell))
-            })
+            .cloned()
             .collect();
 
-        let spawns: HashSet<_> = map_file.cells
-            .iter()
-            .filter_map(|map_file_cell| {
-                if !map_file_cell.is_spawn() {
-                    return None;
-                }
-                return Some(map_file_cell.grid_index());
-            })
-            .collect();
-
-        let enemy_generator_spawns: Vec<_> = map_file.enemy_generator_spawns.clone();
-
-        let light_positions = map_file.lights
-            .iter()
-            .map(|map_file_light| -> (f32, f32) {
-                map_file_light.position
-            })
-            .collect();
-
-        let body = MapBody::new(config, &cells, physics_sim);
-
-        MapState {
-            cells,
-            spawns,
-            light_positions,
-            enemy_generator_spawns,
-            _body: body,
-            hex_cell_length: config.cell_length
-        }
-    }
-
-    pub fn spawns(&self) -> Vec<Point2<f64>> {
-        let axial_to_cartesian = GridIndex::axial_to_cartesian(self.hex_cell_length);
-        self.spawns
+        let player_spawns: Vec<_> = map_file.player_spawns()
             .iter()
             .map(|grid_index| {
                 grid_index.index_center(&axial_to_cartesian)
             })
-            .collect()
+            .collect();
+
+        let lights = map_file.lights()
+            .iter()
+            .map(|grid_index| {
+                let p = grid_index.index_center(&axial_to_cartesian);
+                Point2::from(Vector2::new(p.x as f32, p.y as f32))
+            })
+            .collect();
+
+        let enemy_generators: Vec<_> = map_file.enemy_generators()
+            .iter()
+            .map(|grid_index| {
+                grid_index.index_center(&axial_to_cartesian)
+            })
+            .collect();
+
+        let body = MapBody::new(config, &terrain, physics_sim);
+
+        MapState {
+            terrain,
+            player_spawns,
+            lights,
+            enemy_generators,
+            _body: body,
+        }
     }
 
-    pub fn enemy_generator_spawns(&self) -> Vec<EnemyGeneratorSpawn> {
-        self.enemy_generator_spawns.clone()
+    pub fn player_spawns(&self) -> &Vec<Point2<f64>> {
+        &self.player_spawns
+    }
+
+    pub fn enemy_generators(&self) -> &Vec<Point2<f64>> {
+        &self.enemy_generators
     }
 
     pub fn populate_lights(&self, config: &MapConfig, lights: &mut Vec<PointLight>) {
-        for position in self.light_positions.iter() {
+        for position in self.lights.iter() {
             lights.push(PointLight {
-                position: glm::vec3(position.0, config.light_center_height, -position.1),
+                position: glm::vec3(position.x, config.light_center_height, -position.y),
                 color: glm::vec3(config.light_color.0, config.light_color.1, config.light_color.2),
                 attenuation: glm::vec3(config.light_attenuation.0, config.light_attenuation.1, config.light_attenuation.2),
             });
@@ -104,18 +94,18 @@ impl MapState {
     }
 
     pub fn queue_draw(&self, config: &MapConfig, hex_renderer: &mut HexRenderer, sprite_renderer: &mut FullyIlluminatedSpriteRenderer) {
-        let data = self.cells.iter().map(|(grid_index, map_cell)| {
+        let data = self.terrain.iter().map(|grid_index| {
             HexData {
                 position: *grid_index,
-                height: map_cell.height,
-                elevation: map_cell.elevation,
+                height: 1.0,
+                elevation: 0.0,
             }
         });
-        hex_renderer.queue(self.hex_cell_length, data);
+        hex_renderer.queue(config.cell_length, data);
 
-        let sprite_data = self.light_positions.iter().map(|position| {
+        let sprite_data = self.lights.iter().map(|position| {
             FullyIlluminatedSpriteData {
-                world_center_position: glm::vec3(position.0, config.light_center_height, -position.1),
+                world_center_position: glm::vec3(position.x, config.light_center_height, -position.y),
                 world_half_size: glm::vec2(config.light_half_size.0, config.light_half_size.1),
                 sprite_frame_id: SpriteSheetFrameId {
                     name: String::from("lantern.png"),
