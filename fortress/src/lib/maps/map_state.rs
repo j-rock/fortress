@@ -21,13 +21,13 @@ use crate::{
         SpriteSheetFrameId,
     }
 };
-use hashbrown::{
-    HashMap,
-    HashSet,
-};
 use nalgebra::{
     Point2,
     Vector2,
+};
+use std::collections::{
+    HashMap,
+    HashSet,
 };
 
 pub struct MapState {

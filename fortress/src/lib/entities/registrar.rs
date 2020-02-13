@@ -2,7 +2,7 @@ use crate::entities::{
     Entity,
     EntityId,
 };
-use hashbrown::HashMap;
+use std::collections::HashMap;
 
 pub struct EntityRegistrar {
     registrar: HashMap<EntityId, Entity>,

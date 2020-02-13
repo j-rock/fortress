@@ -25,7 +25,7 @@ use nphysics2d::object::{
     ColliderDesc,
     RigidBodyDesc,
 };
-use hashbrown::HashMap;
+use std::collections::HashMap;
 
 pub struct MapBody {
     pub wall_body: RegisteredBody,

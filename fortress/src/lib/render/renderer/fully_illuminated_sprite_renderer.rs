@@ -20,9 +20,11 @@ use gl::{
     types::*
 };
 use glm;
-use hashbrown::HashMap;
 use nalgebra;
-use std::ffi::CString;
+use std::{
+    collections::HashMap,
+    ffi::CString
+};
 
 #[derive(Clone)]
 pub struct FullyIlluminatedSpriteData {
