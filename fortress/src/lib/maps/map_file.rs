@@ -150,9 +150,10 @@ impl MapFileManager {
     }
 
     pub fn update(&mut self) -> bool {
-        let dirty = self.fragment_managers
-            .iter_mut()
-            .any(|manager| manager.update());
+        let mut dirty = false;
+        for manager in self.fragment_managers.iter_mut() {
+            dirty |= manager.update();
+        }
 
         if !dirty { return false; }
 
