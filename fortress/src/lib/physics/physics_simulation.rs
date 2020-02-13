@@ -19,10 +19,21 @@ use crate::{
     },
     world::WorldView,
 };
-use ncollide2d::events::ContactEvent;
+use nalgebra;
+use ncollide2d::narrow_phase::ContactEvent;
 use nphysics2d::{
-    object::ColliderHandle,
-    world::World
+    object::{
+        DefaultBodyHandle,
+        DefaultBodySet,
+        DefaultColliderSet,
+        DefaultColliderHandle,
+    },
+    force_generator::DefaultForceGeneratorSet,
+    joint::DefaultJointConstraintSet,
+    world::{
+        DefaultMechanicalWorld,
+        DefaultGeometricalWorld
+    },
 };
 use std::{
     cell::{
@@ -36,16 +47,7 @@ use std::{
 
 #[derive(Deserialize)]
 struct SimulationConfig {
-    error_reduction_coefficient: f64,
-    warm_start_coefficient: f64,
-    restitution_velocity_threshold: f64,
-    allowed_linear_error: f64,
-    allowed_angular_error: f64,
-    max_linear_correction: f64,
-    max_angular_correction: f64,
-    max_stabilization_multiplier: f64,
-    max_velocity_iterations: usize,
-    max_position_iterations: usize,
+    force_generator_initial_capacity: usize,
 }
 
 #[derive(Clone)]
@@ -72,7 +74,14 @@ impl PhysicsSimulation {
 
 pub struct RawPhysicsSimulation {
     config: SimpleConfigManager<SimulationConfig>,
-    world: World<f64>,
+
+    mechanical_world: DefaultMechanicalWorld<f64>,
+    geometrical_world: DefaultGeometricalWorld<f64>,
+    bodies: DefaultBodySet<f64>,
+    colliders: DefaultColliderSet<f64>,
+    joint_constraints: DefaultJointConstraintSet<f64>,
+    force_generators: DefaultForceGeneratorSet<f64>,
+
     registrar: EntityRegistrar,
     proximity_matchers: Vec<ProximityMatcher>,
     contact_matchers: Vec<ContactMatcher>
@@ -82,16 +91,19 @@ impl RawPhysicsSimulation {
     pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<RawPhysicsSimulation> {
         let config = SimpleConfigManager::<SimulationConfig>::from_config_resource(config_watcher, "physics_simulation.conf")?;
 
-        let world = {
+        let force_generators = {
             let config = config.get();
-            let mut world = World::new();
-            Self::update_world_from_config(config, &mut world);
-            world
+            DefaultForceGeneratorSet::with_capacity(config.force_generator_initial_capacity)
         };
 
         Ok(RawPhysicsSimulation {
             config,
-            world,
+            mechanical_world: DefaultMechanicalWorld::new(nalgebra::zero()),
+            geometrical_world: DefaultGeometricalWorld::new(),
+            bodies: DefaultBodySet::new(),
+            colliders: DefaultColliderSet::new(),
+            joint_constraints: DefaultJointConstraintSet::new(),
+            force_generators,
             registrar: EntityRegistrar::new(),
             proximity_matchers: vec!(),
             contact_matchers: vec!()
@@ -99,11 +111,16 @@ impl RawPhysicsSimulation {
     }
 
     pub fn step(&mut self, dt: DeltaTime) {
+        // Currently ignore config updates, since they aren't very useful.
         self.config.update();
-        let config = self.config.get();
-        Self::update_world_from_config(config, &mut self.world);
-        self.world.set_timestep(dt.as_f64_seconds());
-        self.world.step();
+
+        self.mechanical_world.set_timestep(dt.as_f64_seconds());
+        self.mechanical_world.step(
+            &mut self.geometrical_world,
+            &mut self.bodies,
+            &mut self.colliders,
+            &mut self.joint_constraints,
+            &mut self.force_generators);
     }
 
     pub fn add_contact_matchers(&mut self, matchers: Vec<ContactMatcher>) {
@@ -120,42 +137,34 @@ impl RawPhysicsSimulation {
         &mut self.registrar
     }
 
-    pub fn world(&self) -> &World<f64> {
-        &self.world
+    pub fn register(&mut self, entity_id: EntityId, entity: Entity) {
+        self.registrar.register(entity_id, entity);
     }
 
-    pub fn world_mut(&mut self) -> &mut World<f64> {
-        &mut self.world
+    pub fn drop_collider(&mut self, handle: DefaultColliderHandle) {
+        self.registrar.unregister(EntityId::from_collider_handle(handle));
+        self.colliders.remove(handle);
     }
 
-    fn update_world_from_config(config: &SimulationConfig, world: &mut World<f64>) {
-        let integration_parameters = world.integration_parameters_mut();
-        integration_parameters.erp = config.error_reduction_coefficient;
-        integration_parameters.warmstart_coeff = config.warm_start_coefficient;
-        integration_parameters.restitution_velocity_threshold = config.restitution_velocity_threshold;
-        integration_parameters.allowed_linear_error = config.allowed_linear_error;
-        integration_parameters.allowed_angular_error = config.allowed_angular_error;
-        integration_parameters.max_linear_correction = config.max_linear_correction;
-        integration_parameters.max_angular_correction = config.max_angular_correction;
-        integration_parameters.max_stabilization_multiplier = config.max_stabilization_multiplier;
-        integration_parameters.max_velocity_iterations = config.max_velocity_iterations;
-        integration_parameters.max_position_iterations = config.max_position_iterations;
+    pub fn drop_body(&mut self, handle: DefaultBodyHandle) {
+        self.registrar.unregister(EntityId::from_body_handle(handle));
+        self.bodies.remove(handle);
     }
 
-    fn try_resolve_collider(&self, handle: ColliderHandle) -> Option<Entity> {
+    fn try_resolve_collider(&self, handle: DefaultColliderHandle) -> Option<Entity> {
         let collider_entity = self.registrar.resolve(EntityId::from_collider_handle(handle));
         if collider_entity.is_some() {
             return collider_entity;
         }
 
-        let body_handle = self.world.collider_body_handle(handle)?;
-        return self.registrar.resolve(EntityId::from_body_handle(body_handle));
+        let body_handle = self.colliders.get(handle)?.body();
+        self.registrar.resolve(EntityId::from_body_handle(body_handle))
     }
 
-    pub fn process_contacts<'a>(&self, world: WorldView) {
+    pub fn process_contacts(&self, world: WorldView) {
         // Resolve all entities first to avoid ABA problem.
         let proximity_events: HashSet<_> =
-            self.world.proximity_events()
+            self.geometrical_world.proximity_events()
                 .iter()
                 .filter_map(|proximity| {
                     let entity1 = self.try_resolve_collider(proximity.collider1)?;
@@ -170,7 +179,7 @@ impl RawPhysicsSimulation {
                 .collect();
 
         let contact_events: HashSet<_> =
-            self.world.contact_events()
+            self.geometrical_world.contact_events()
             .iter()
             .filter_map(|contact| {
                 match contact {

@@ -14,11 +14,11 @@ use crate::{
 };
 use nalgebra::Point2;
 use ncollide2d::{
+    pipeline::object::CollisionGroups,
     shape::{
         Ball,
         ShapeHandle
     },
-    world::CollisionGroups
 };
 use nphysics2d::object::{
     BodyStatus,

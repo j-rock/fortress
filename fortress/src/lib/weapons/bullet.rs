@@ -30,11 +30,11 @@ use nalgebra::{
     Vector2,
 };
 use ncollide2d::{
+    pipeline::object::CollisionGroups,
     shape::{
         Ball,
         ShapeHandle
     },
-    world::CollisionGroups
 };
 use nphysics2d::{
     algebra::Velocity2,

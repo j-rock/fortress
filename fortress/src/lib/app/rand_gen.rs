@@ -2,10 +2,10 @@ use glm;
 use rand::{
     Rng,
     SeedableRng,
-    distributions::{
-        Distribution,
-        UnitCircle,
-    },
+};
+use rand_distr::{
+    Distribution,
+    UnitCircle,
 };
 use rand_xorshift::XorShiftRng;
 use std::{
@@ -15,7 +15,6 @@ use std::{
 
 pub struct RandGen {
     pub rng: XorShiftRng,
-    unit_circle: UnitCircle,
     _seed: [u8; 16],
 }
 
@@ -41,14 +40,13 @@ impl RandGen {
         let seed: [u8; 16] = unsafe { std::mem::transmute(seed) };
         RandGen {
             rng: XorShiftRng::from_seed(seed),
-            unit_circle: UnitCircle::new(),
             _seed: seed
         }
     }
 
     pub fn unit_circle_glm(&mut self) -> glm::Vec2 {
-        let [x, y] = self.unit_circle.sample(&mut self.rng);
-        glm::vec2(x as f32, y as f32)
+        let [x, y]: [f32; 2] = UnitCircle.sample(&mut self.rng);
+        glm::vec2(x, y)
     }
 
     pub fn unit_f32(&mut self) -> f32 {

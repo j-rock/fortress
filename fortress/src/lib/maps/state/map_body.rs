@@ -17,8 +17,8 @@ use crate::{
     }
 };
 use ncollide2d::{
+    pipeline::object::CollisionGroups,
     shape::ShapeHandle,
-    world::CollisionGroups
 };
 use nphysics2d::object::{
     BodyStatus,
