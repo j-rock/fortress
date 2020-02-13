@@ -15,7 +15,7 @@ use crate::{
         Texture,
     },
 };
-use hashbrown::HashMap;
+use std::collections::HashMap;
 
 pub struct SpriteSheetTextureManager {
     config: SimpleConfigManager<SpriteSheetConfig>,

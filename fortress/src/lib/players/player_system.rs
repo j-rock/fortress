@@ -34,8 +34,8 @@ use crate::{
     weapons::BulletId,
 };
 use generational_slab::Slab;
-use hashbrown::HashMap;
 use nalgebra::Point2;
+use std::collections::HashMap;
 
 pub struct PlayerSystem {
     config_manager: SimpleConfigManager<PlayerConfig>,

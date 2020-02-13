@@ -8,7 +8,7 @@ use crate::{
     dimensions::UpDownLeftRight,
     file::SimpleConfigManager,
 };
-use hashbrown::{
+use std::collections::{
     HashMap,
     HashSet,
 };

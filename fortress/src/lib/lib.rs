@@ -2,7 +2,6 @@ extern crate enum_iterator;
 extern crate generational_slab;
 extern crate gl;
 extern crate glm;
-extern crate hashbrown;
 #[macro_use] extern crate lazy_static;
 extern crate memmap;
 extern crate nalgebra;

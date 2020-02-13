@@ -19,7 +19,6 @@ use crate::{
     },
     world::WorldView,
 };
-use hashbrown::HashSet;
 use ncollide2d::events::ContactEvent;
 use nphysics2d::{
     object::ColliderHandle,
@@ -31,6 +30,7 @@ use std::{
         RefCell,
         RefMut,
     },
+    collections::HashSet,
     rc::Rc,
 };
 

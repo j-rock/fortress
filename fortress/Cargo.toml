@@ -9,7 +9,6 @@ enum-iterator = "0.3"
 generational_slab = { path = "../generational_slab"}
 gl = "0.12"
 glm = "0.2"
-hashbrown = "0.2"
 lazy_static = "1.3"
 memmap = "0.6"
 nalgebra = "0.18"

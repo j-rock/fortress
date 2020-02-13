@@ -7,8 +7,8 @@ use gl::{
     types::*,
 };
 use glm;
-use hashbrown::HashMap;
 use std::{
+    collections::HashMap,
     ffi::CString,
     hash::Hash,
     path::PathBuf,
@@ -77,7 +77,7 @@ pub struct ShaderProgram<T> {
     uniform_cache: HashMap<T, GLint>,
 }
 
-impl <T> ShaderProgram<T> {
+impl <T: std::cmp::Eq + std::hash::Hash> ShaderProgram<T> {
     pub fn from_short_pipeline(vertex_filepath: &PathBuf, fragment_filepath: &PathBuf) -> StatusOr<ShaderProgram<T>> {
         let vertex = compile_shader(vertex_filepath, gl::VERTEX_SHADER)?;
         let fragment = compile_shader(fragment_filepath, gl::FRAGMENT_SHADER)?;

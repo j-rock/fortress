@@ -2,11 +2,11 @@ use crate::{
     control::ControlEvent,
     dimensions::UpDownLeftRight,
 };
-use hashbrown::HashSet;
 use sdl2::{
     EventPump,
     keyboard::Scancode
 };
+use std::collections::HashSet;
 
 pub struct KeyboardControls {
     first_time_used: FirstTimeUsed,
