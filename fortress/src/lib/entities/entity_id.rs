@@ -1,20 +1,10 @@
-use nphysics2d::object::{
-    BodyHandle,
-    ColliderHandle
-};
+use nphysics2d::object::DefaultBodyHandle;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub enum EntityId {
-    Collider(ColliderHandle),
-    RigidBody(BodyHandle),
-}
+pub struct EntityId(DefaultBodyHandle);
 
 impl EntityId {
-    pub fn from_collider_handle(handle: ColliderHandle) -> EntityId {
-        EntityId::Collider(handle)
-    }
-
-    pub fn from_body_handle(handle: BodyHandle) -> EntityId {
-        EntityId::RigidBody(handle)
+    pub fn from_body_handle(handle: DefaultBodyHandle) -> EntityId {
+        EntityId(handle)
     }
 }

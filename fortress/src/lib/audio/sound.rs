@@ -27,7 +27,7 @@ impl Sound {
         file::util::resource_path("audio", filename)
     }
 
-    pub fn all_sounds() -> SoundEnumIterator {
+    pub fn all_sounds() -> <Self as IntoEnumIterator>::Iterator {
         Self::into_enum_iter()
     }
 }

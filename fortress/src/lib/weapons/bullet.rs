@@ -11,6 +11,7 @@ use crate::{
     entities::{
         Entity,
         RegisteredBody,
+        RegisteredBodyBuilder,
     },
     physics::{
         collision_category,
@@ -30,11 +31,11 @@ use nalgebra::{
     Vector2,
 };
 use ncollide2d::{
+    pipeline::object::CollisionGroups,
     shape::{
         Ball,
         ShapeHandle
     },
-    world::CollisionGroups
 };
 use nphysics2d::{
     algebra::Velocity2,
@@ -65,6 +66,12 @@ pub struct Bullet {
 
 impl Bullet {
     pub fn new(entity: Entity, radius: f64, start_position: Point2<f64>, velocity: Velocity2<f64>, physics_sim: &mut PhysicsSimulation) -> Bullet {
+        let rigid_body = RigidBodyDesc::new()
+            .status(BodyStatus::Dynamic)
+            .translation(start_position.coords)
+            .velocity(velocity)
+            .kinematic_rotations(true)
+            .build();
         let ball_shape = Ball::new(radius);
         let collider_desc = ColliderDesc::new(ShapeHandle::new(ball_shape))
             .density(radius)
@@ -72,18 +79,14 @@ impl Bullet {
                 .with_membership(&[collision_category::PLAYER_WEAPON])
                 .with_whitelist(&[collision_category::ENEMY_BODY, collision_category::ENEMY_GENERATOR]));
 
-        let mut rigid_body_desc = RigidBodyDesc::new()
-            .status(BodyStatus::Dynamic)
-            .translation(start_position.coords)
-            .velocity(velocity)
-            .collider(&collider_desc)
-            .kinematic_rotation(true);
-        let body_handle  = rigid_body_desc
-            .build(physics_sim.borrow_mut().world_mut())
-            .handle();
+        let body = RegisteredBodyBuilder::new()
+            .rigid_body(rigid_body)
+            .collider(collider_desc)
+            .entity(entity)
+            .build(physics_sim);
 
         Bullet {
-            body: RegisteredBody::new(body_handle, entity, physics_sim),
+            body,
             time_elapsed: 0,
         }
     }
@@ -97,25 +100,19 @@ impl Bullet {
     }
 
     pub fn get_attack(&self, damage: Damage, knockback_strength: f64) -> Option<Attack> {
-        let physics_sim = self.body.physics_sim.borrow();
-        physics_sim
-            .world()
-            .rigid_body(self.body.handle)
-            .map(|body| {
-                let velocity = body.velocity().linear;
-                let velocity_mag = velocity.norm();
-                let knockback_dir = if velocity_mag.is_normal() {
-                    velocity / velocity_mag
-                } else {
-                    Vector2::new(0.0, 0.0)
-                };
+        let velocity = self.body.default_velocity()?;
+        let velocity_mag = velocity.norm();
+        let knockback_dir = if velocity_mag.is_normal() {
+            velocity / velocity_mag
+        } else {
+            Vector2::new(0.0, 0.0)
+        };
 
-                Attack {
-                    damage,
-                    knockback_strength,
-                    knockback_dir,
-                }
-            })
+        Some(Attack {
+            damage,
+            knockback_strength,
+            knockback_dir,
+        })
     }
 
     pub fn render_info(&self, config: &PlayerConfig) -> FullyIlluminatedSpriteData {
@@ -149,24 +146,16 @@ impl Bullet {
     }
 
     fn get_render_world_position(&self, config: &PlayerConfig) -> glm::Vec3 {
-        let physics_sim = self.body.physics_sim.borrow();
-        physics_sim
-            .world()
-            .rigid_body(self.body.handle)
-            .map(|body| {
-                let body_position = body.position().translation.vector;
+        self.body.default_position()
+            .map(|body_position| {
                 glm::vec3(body_position.x as f32, config.bullet_render_elevation, -body_position.y as f32)
             })
             .unwrap_or(glm::vec3(0.0, config.bullet_render_elevation, 0.0))
     }
 
     fn get_unit_direction(&self) -> Vector2<f64> {
-        let physics_sim = self.body.physics_sim.borrow();
-        physics_sim
-            .world()
-            .rigid_body(self.body.handle)
-            .and_then(|body| {
-                let velocity = body.velocity().linear;
+        self.body.default_velocity()
+            .and_then(|velocity| {
                 let speed = velocity.norm();
                 if !speed.is_normal() {
                     return None;
