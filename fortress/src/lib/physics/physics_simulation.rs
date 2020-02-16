@@ -23,10 +23,12 @@ use nalgebra;
 use ncollide2d::narrow_phase::ContactEvent;
 use nphysics2d::{
     object::{
+        Collider,
         DefaultBodyHandle,
         DefaultBodySet,
         DefaultColliderSet,
         DefaultColliderHandle,
+        RigidBody,
     },
     force_generator::DefaultForceGeneratorSet,
     joint::DefaultJointConstraintSet,
@@ -133,17 +135,24 @@ impl RawPhysicsSimulation {
         self.proximity_matchers.append(&mut matchers);
     }
 
-    pub fn registrar_mut(&mut self) -> &mut EntityRegistrar {
-        &mut self.registrar
+    pub fn add_rigid_body(&mut self, rigid_body: RigidBody<f64>) -> DefaultBodyHandle {
+        self.bodies.insert(rigid_body)
+    }
+
+    pub fn add_collider(&mut self, collider: Collider<f64, DefaultBodyHandle>) -> DefaultColliderHandle {
+        self.colliders.insert(collider)
     }
 
     pub fn register(&mut self, entity_id: EntityId, entity: Entity) {
         self.registrar.register(entity_id, entity);
     }
 
-    pub fn drop_collider(&mut self, handle: DefaultColliderHandle) {
-        self.registrar.unregister(EntityId::from_collider_handle(handle));
-        self.colliders.remove(handle);
+    pub fn get_rigid_body(&self, handle: DefaultBodyHandle) -> Option<&RigidBody<f64>> {
+        self.bodies.rigid_body(handle)
+    }
+
+    pub fn get_rigid_body_mut(&mut self, handle: DefaultBodyHandle) -> Option<&mut RigidBody<f64>> {
+        self.bodies.rigid_body_mut(handle)
     }
 
     pub fn drop_body(&mut self, handle: DefaultBodyHandle) {
@@ -152,11 +161,6 @@ impl RawPhysicsSimulation {
     }
 
     fn try_resolve_collider(&self, handle: DefaultColliderHandle) -> Option<Entity> {
-        let collider_entity = self.registrar.resolve(EntityId::from_collider_handle(handle));
-        if collider_entity.is_some() {
-            return collider_entity;
-        }
-
         let body_handle = self.colliders.get(handle)?.body();
         self.registrar.resolve(EntityId::from_body_handle(body_handle))
     }

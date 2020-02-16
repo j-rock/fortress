@@ -7,6 +7,7 @@ use crate::{
     entities::{
         Entity,
         RegisteredBody
+        RegisteredBodyBuilder,
     },
     physics::{
         collision_category,
@@ -37,6 +38,11 @@ pub struct EnemyGeneratorBody {
 
 impl EnemyGeneratorBody {
     pub fn new(config: &EnemyConfig, generator_id: EnemyGeneratorId, spawn: EnemyGeneratorSpawn, physics_sim: &mut PhysicsSimulation) -> EnemyGeneratorBody {
+        let rigid_body = RigidBodyDesc::new()
+            .status(BodyStatus::Dynamic)
+            .translation(Vector2::new(spawn.position.0, spawn.position.1))
+            .kinematic_rotations(true)
+            .build();
         let ball_shape = Ball::new(config.generator_physical_radius);
         let collider_desc = ColliderDesc::new(ShapeHandle::new(ball_shape))
             .density(config.generator_physical_density)
@@ -45,29 +51,20 @@ impl EnemyGeneratorBody {
                 .with_membership(&[collision_category::ENEMY_GENERATOR])
                 .with_whitelist(&[collision_category::BARRIER, collision_category::PLAYER_WEAPON]));
 
-        let mut rigid_body_desc = RigidBodyDesc::new()
-            .status(BodyStatus::Dynamic)
-            .translation(Vector2::new(spawn.position.0, spawn.position.1))
-            .collider(&collider_desc)
-            .kinematic_rotation(true);
-        let body_handle = rigid_body_desc
-            .build(physics_sim.borrow_mut().world_mut())
-            .handle();
+        let body = RegisteredBodyBuilder::new()
+            .rigid_body(rigid_body)
+            .collider(collider_desc)
+            .entity(Entity::EnemyGenerator(generator_id))
+            .build(physics_sim);
 
         EnemyGeneratorBody {
-            body: RegisteredBody::new(body_handle, Entity::EnemyGenerator(generator_id), physics_sim),
+            body,
             orientation: spawn.orientation
         }
     }
 
     pub fn position(&self) -> Option<Point2<f64>> {
-        let physics_sim = self.body.physics_sim.borrow();
-        physics_sim
-            .world()
-            .rigid_body(self.body.handle)
-            .map(|body| {
-                Point2::from(body.position().translation.vector)
-            })
+        self.body.default_position()
     }
 
     pub fn orientation(&self) -> f64 {

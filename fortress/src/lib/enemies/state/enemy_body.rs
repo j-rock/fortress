@@ -6,6 +6,7 @@ use crate::{
     entities::{
         Entity,
         RegisteredBody,
+        RegisteredBodyBuilder,
     },
     physics::{
         collision_category,
@@ -23,17 +24,10 @@ use ncollide2d::{
         ShapeHandle
     },
 };
-use nphysics2d::{
-    algebra::{
-        Force2,
-        ForceType
-    },
-    object::{
-        Body,
-        BodyStatus,
-        ColliderDesc,
-        RigidBodyDesc,
-    }
+use nphysics2d::object::{
+    BodyStatus,
+    ColliderDesc,
+    RigidBodyDesc,
 };
 
 pub struct EnemyBody {
@@ -42,6 +36,12 @@ pub struct EnemyBody {
 
 impl EnemyBody {
     pub fn new(config: &EnemyConfig, enemy_id: EnemyId, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) -> EnemyBody {
+        let rigid_body = RigidBodyDesc::new()
+            .status(BodyStatus::Dynamic)
+            .translation(spawn.coords)
+            .kinematic_rotations(true)
+            .build();
+
         let ball_shape = Ball::new(config.enemy_physical_radius);
         let collider_desc = ColliderDesc::new(ShapeHandle::new(ball_shape))
             .density(config.enemy_physical_density)
@@ -49,38 +49,23 @@ impl EnemyBody {
                 .with_membership(&[collision_category::ENEMY_BODY])
                 .with_whitelist(&[collision_category::BARRIER, collision_category::ENEMY_BODY, collision_category::PLAYER_WEAPON]));
 
-        let mut rigid_body_desc = RigidBodyDesc::new()
-            .status(BodyStatus::Dynamic)
-            .translation(spawn.coords)
-            .collider(&collider_desc)
-            .kinematic_rotation(true);
-        let body_handle  = rigid_body_desc
-            .build(physics_sim.borrow_mut().world_mut())
-            .handle();
+        let body = RegisteredBodyBuilder::new()
+            .rigid_body(rigid_body)
+            .collider(collider_desc)
+            .entity(Entity::Enemy(enemy_id))
+            .build(physics_sim);
 
         EnemyBody {
-            body: RegisteredBody::new(body_handle, Entity::Enemy(enemy_id), physics_sim)
+            body
         }
     }
 
     pub fn position(&self) -> Option<Point2<f64>> {
-        let physics_sim = self.body.physics_sim.borrow();
-        physics_sim
-            .world()
-            .rigid_body(self.body.handle)
-            .map(|body| {
-                Point2::from(body.position().translation.vector)
-            })
+        self.body.default_position()
     }
 
     pub fn velocity(&self) -> Option<Vector2<f64>> {
-        let physics_sim = self.body.physics_sim.borrow();
-        physics_sim
-            .world()
-            .rigid_body(self.body.handle)
-            .map(|body| {
-                body.velocity().linear
-            })
+        self.body.default_velocity()
     }
 
     pub fn move_to_target(&mut self, config: &EnemyConfig, player_locs: &Vec<Point2<f64>>) {
@@ -96,21 +81,11 @@ impl EnemyBody {
                     let distance = displacement.norm();
                     if distance > config.enemy_stop_and_hit_distance && distance < config.enemy_anger_distance {
                         let desired_velocity = config.enemy_move_speed * displacement / distance;
-                        self.set_velocity(desired_velocity);
+                        self.body.default_set_velocity(desired_velocity);
                     }
 
                     None
                 });
-        }
-    }
-
-    fn set_velocity(&mut self, desired_velocity: Vector2<f64>) {
-        let mut physics_sim = self.body.physics_sim.borrow_mut();
-        if let Some(body) =  physics_sim.world_mut().rigid_body_mut(self.body.handle) {
-            let actual_body_velocity = body.velocity().linear;
-            let mass = body.augmented_mass().linear;
-            let impulse = Force2::linear(mass * (desired_velocity - actual_body_velocity));
-            body.apply_force(0 /*ignored part_id*/, &impulse, ForceType::Impulse, true /*one-time impulse*/);
         }
     }
 }
