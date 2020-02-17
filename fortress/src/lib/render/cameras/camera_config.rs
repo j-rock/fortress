@@ -8,9 +8,7 @@ pub struct CameraConfig {
     pub camera_pos_offset: (f32, f32),
     pub initial_position_when_no_players: (f64, f64, f64),
 
-    pub physical_min_half_lengths: (f64, f64),
-    pub physical_max_half_lengths: (f64, f64),
-    pub physical_no_move_ratios: (f64, f64),
-    pub physical_max_move_speed: f64
+    pub physical_no_move_half_lengths: (f64, f64),
+    pub physical_follow_player_factor: f64
 }
 

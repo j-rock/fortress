@@ -1,5 +1,6 @@
 use crate::{
     app::StatusOr,
+    dimensions::time::DeltaTime,
     file::{
         ConfigWatcher,
         SimpleConfigManager,
@@ -9,32 +10,28 @@ use crate::{
 use glm;
 use nalgebra::{
     Point2,
-    Vector2,
-    Vector3,
+    Point3,
 };
 
 pub struct Camera {
     config_manager: SimpleConfigManager<CameraConfig>,
-    world_position: Vector3<f64>,
-    curr_half_lengths: Vector2<f64>,
+    world_position: Point3<f64>,
 }
 
 impl Camera {
     pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<Camera> {
         let config_manager: SimpleConfigManager<CameraConfig> = SimpleConfigManager::from_config_resource(config_watcher, "camera.conf")?;
-        let (world_position, curr_half_lengths) = {
+        let world_position = {
             let config =  config_manager.get();
-            let world_position = Vector3::new(
+            let world_position = Point3::new(
                 config.initial_position_when_no_players.0,
                 config.initial_position_when_no_players.1,
                 config.initial_position_when_no_players.2);
-            let curr_half_lengths = Vector2::new(config.physical_min_half_lengths.0, config.physical_min_half_lengths.1);
-            (world_position, curr_half_lengths)
+            world_position
         };
         Ok(Camera {
             config_manager,
             world_position,
-            curr_half_lengths,
         })
     }
 
@@ -75,71 +72,30 @@ impl Camera {
         self.config_manager.update();
     }
 
-    pub fn post_update(&mut self, player_locs: Vec<Point2<f64>>) {
+    pub fn post_update(&mut self, player_locs: Vec<Point2<f64>>, dt: DeltaTime) {
         if player_locs.is_empty() {
             return;
         }
+        if player_locs.len() > 1 {
+            panic!("Can't support multiplayer");
+        }
 
         let config = self.config_manager.get();
-        let mut min_coords = Vector2::new(std::f64::MAX, std::f64::MAX);
-        let mut max_coords = Vector2::new(std::f64::MIN, std::f64::MIN);
-        for player_loc in player_locs.into_iter() {
-            min_coords.x = if min_coords.x < player_loc.coords.x { min_coords.x } else { player_loc.coords.x };
-            min_coords.y = if min_coords.y < player_loc.coords.y { min_coords.y } else { player_loc.coords.y };
-            max_coords.x = if max_coords.x > player_loc.coords.x { max_coords.x } else { player_loc.coords.x };
-            max_coords.y = if max_coords.y > player_loc.coords.y { max_coords.y } else { player_loc.coords.y };
+        let player_pos = player_locs[0];
+        let player_world_pos = Point3::new(player_pos.x, 0.0, player_pos.y);
+
+        let mut player_camera_displacement = player_world_pos - self.world_position;
+        player_camera_displacement.y = 0.0;
+
+        if player_camera_displacement.x.abs() < config.physical_no_move_half_lengths.0 {
+            player_camera_displacement.x = 0.0;
+        }
+        if player_camera_displacement.z.abs() < config.physical_no_move_half_lengths.1 {
+            player_camera_displacement.z = 0.0;
         }
 
-        let mut teleported = false;
-        if min_coords.x < self.world_position.x - self.curr_half_lengths.x {
-            self.world_position.x = min_coords.x;
-            teleported = true;
-        }
-        if max_coords.x > self.world_position.x + self.curr_half_lengths.x {
-            self.world_position.x = max_coords.x;
-            teleported = true;
-        }
-        if min_coords.y < self.world_position.z - self.curr_half_lengths.y {
-            self.world_position.z = min_coords.y;
-            teleported = true;
-        }
-        if max_coords.y > self.world_position.z + self.curr_half_lengths.y {
-            self.world_position.z = max_coords.y;
-            teleported = true;
-        }
-        if teleported {
-            return;
-        }
-
-        let x_no_move_half_length = config.physical_no_move_ratios.0 * self.curr_half_lengths.x;
-        let x_min_move = min_coords.x < self.world_position.x - x_no_move_half_length;
-        let x_max_move = max_coords.x > self.world_position.x + x_no_move_half_length;
-        if x_min_move && x_max_move {
-            println!("Expand x");
-        } else if x_min_move {
-            let small_window_x = self.world_position.x - x_no_move_half_length;
-            let large_window_x = self.world_position.x - self.curr_half_lengths.x;
-            self.world_position.x -= (small_window_x - min_coords.x) / (min_coords.x - large_window_x) * config.physical_max_move_speed;
-        } else if x_max_move {
-            let small_window_x = self.world_position.x + x_no_move_half_length;
-            let large_window_x = self.world_position.x + self.curr_half_lengths.x;
-            self.world_position.x += (max_coords.x - small_window_x) / (large_window_x - max_coords.x) * config.physical_max_move_speed;
-        }
-
-        let z_no_move_half_length = config.physical_no_move_ratios.1 * self.curr_half_lengths.y;
-        let z_min_move = min_coords.y < self.world_position.z - z_no_move_half_length;
-        let z_max_move = max_coords.y > self.world_position.z + z_no_move_half_length;
-        if z_min_move && z_max_move {
-            println!("Expand z");
-        } else if z_min_move {
-            let small_window_z = self.world_position.z - z_no_move_half_length;
-            let large_window_z = self.world_position.z - self.curr_half_lengths.y;
-            self.world_position.z -= (small_window_z - min_coords.y) / (min_coords.y - large_window_z) * config.physical_max_move_speed;
-        } else if z_max_move {
-            let small_window_z = self.world_position.z + z_no_move_half_length;
-            let large_window_z = self.world_position.z + self.curr_half_lengths.y;
-            self.world_position.z += (max_coords.y - small_window_z) / (large_window_z - max_coords.y) * config.physical_max_move_speed;
-        }
+        let move_multiplier = dt.as_f64_seconds() / config.physical_follow_player_factor;
+        self.world_position += move_multiplier * player_camera_displacement;
     }
 
     fn ortho(left: f32, right: f32, bottom: f32, top: f32, z_near: f32, z_far: f32) -> glm::Mat4 {
