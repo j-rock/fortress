@@ -1,4 +1,5 @@
 use crate::{
+    app::RandGen,
     audio::{
         AudioPlayer,
         Sound,
@@ -23,8 +24,9 @@ use crate::{
         PointLight,
     },
     weapons::{
-        BulletId,
         Bullet,
+        BulletId,
+        BulletType,
     },
 };
 use generational_slab::Slab;
@@ -43,6 +45,14 @@ pub struct Weapon {
     physics_sim: PhysicsSimulation,
 
     bullet_radius: f64,
+}
+
+struct FireBulletArgs<'a> {
+    stats: &'a PlayerStats,
+    player_id: PlayerId,
+    start_position: Point2<f64>,
+    direction: Vector2<f64>,
+    bullet_type: BulletType,
 }
 
 impl Weapon {
@@ -87,14 +97,23 @@ impl Weapon {
         self.bullets_to_remove.clear();
     }
 
-    pub fn try_fire_normal(&mut self, audio: &AudioPlayer, stats: &PlayerStats, player_id: PlayerId, start_position: Point2<f64>, direction: Vector2<f64>) {
-        if self.current_normal_delay.is_none() && self.fire_one(stats, player_id, start_position, direction) {
-            self.current_normal_delay = Some(0);
-            audio.play_sound(Sound::Blast);
+    pub fn try_fire_normal(&mut self, audio: &AudioPlayer, stats: &PlayerStats, player_id: PlayerId, start_position: Point2<f64>, direction: Vector2<f64>, rng: &mut RandGen) {
+        if self.current_normal_delay.is_none() {
+            let args = FireBulletArgs {
+                stats,
+                player_id,
+                start_position,
+                direction,
+                bullet_type: BulletType::Normal,
+            };
+            if self.fire_one(args, rng) {
+                self.current_normal_delay = Some(0);
+                audio.play_sound(Sound::Blast);
+            }
         }
     }
 
-    pub fn try_fire_special(&mut self, config: &PlayerConfig, audio: &AudioPlayer, stats: &PlayerStats, player_id: PlayerId, start_position: Point2<f64>, direction: Vector2<f64>) {
+    pub fn try_fire_special(&mut self, config: &PlayerConfig, audio: &AudioPlayer, stats: &PlayerStats, player_id: PlayerId, start_position: Point2<f64>, direction: Vector2<f64>, rng: &mut RandGen) {
         if self.current_special_delay.is_none() {
             let rot_left = Rotation2::new(config.bullet_special_spread_radians);
             let rot_right = Rotation2::new(-config.bullet_special_spread_radians);
@@ -110,7 +129,14 @@ impl Weapon {
             directions.push(direction);
 
             if directions.into_iter().all(|direction| {
-                self.fire_one(stats, player_id, start_position, direction)
+                let args = FireBulletArgs {
+                    stats,
+                    player_id,
+                    start_position,
+                    direction,
+                    bullet_type: BulletType::Special,
+                };
+                self.fire_one(args, rng)
             }) {
                 self.current_special_delay = Some(0);
                 audio.play_sound(Sound::Blast);
@@ -119,6 +145,12 @@ impl Weapon {
     }
 
     pub fn bullet_hit(&mut self, bullet_id: BulletId) {
+        if let Some(bullet) = self.bullets.get(bullet_id.to_key()) {
+           if bullet.is_special() {
+               return;
+           }
+        }
+
         self.bullets_to_remove.push(bullet_id);
     }
 
@@ -144,16 +176,16 @@ impl Weapon {
         full_light.queue(sprites);
     }
 
-    fn fire_one(&mut self, stats: &PlayerStats, player_id: PlayerId, start_position: Point2<f64>, direction: Vector2<f64>) -> bool {
+    fn fire_one(&mut self, args: FireBulletArgs, rng: &mut RandGen) -> bool {
         let vacant_entry = self.bullets.vacant_entry();
         let bullet_id = BulletId::new(vacant_entry.key());
-        let entity = Entity::Bullet(player_id, bullet_id);
+        let entity = Entity::Bullet(args.player_id, bullet_id);
 
-        let bullet_speed = stats.get_bullet_speed();
-        let linear_vel = bullet_speed * direction;
+        let bullet_speed = args.stats.get_bullet_speed();
+        let linear_vel = bullet_speed * args.direction;
         let velocity = Velocity2::linear(linear_vel.x, linear_vel.y);
 
-        let bullet = Bullet::new(entity, self.bullet_radius, start_position, velocity, &mut self.physics_sim);
+        let bullet = Bullet::new(entity, args.bullet_type, self.bullet_radius, args.start_position, velocity, rng, &mut self.physics_sim);
         vacant_entry.insert(bullet)
     }
 }

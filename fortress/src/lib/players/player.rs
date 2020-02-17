@@ -1,4 +1,5 @@
 use crate::{
+    app::RandGen,
     audio::AudioPlayer,
     control::{
         Controller,
@@ -43,8 +44,8 @@ impl Player {
         }
     }
 
-    pub fn pre_update(&mut self, config: &PlayerConfig, audio: &AudioPlayer, controller_id: ControllerId, controller: &Controller, dt: DeltaTime) {
-        if let Some(player_state_machine) = self.player_state_machine.pre_update(config, audio, controller_id, controller, dt, &mut self.player_state) {
+    pub fn pre_update(&mut self, config: &PlayerConfig, audio: &AudioPlayer, controller_id: ControllerId, controller: &Controller, dt: DeltaTime, rng: &mut RandGen) {
+        if let Some(player_state_machine) = self.player_state_machine.pre_update(config, audio, controller_id, controller, dt, rng, &mut self.player_state) {
             self.player_state_machine = player_state_machine;
         }
     }

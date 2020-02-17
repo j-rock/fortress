@@ -1,5 +1,8 @@
 use crate::{
-    app::StatusOr,
+    app::{
+        RandGen,
+        StatusOr,
+    },
     audio::{
         AudioPlayer,
         Sound
@@ -59,7 +62,7 @@ impl PlayerSystem {
         })
     }
 
-    pub fn pre_update(&mut self, audio: &AudioPlayer, controller: &Controller, physics_sim: &mut PhysicsSimulation, dt: DeltaTime) {
+    pub fn pre_update(&mut self, audio: &AudioPlayer, controller: &Controller, rng: &mut RandGen, physics_sim: &mut PhysicsSimulation, dt: DeltaTime) {
         let anyone_pressed_redeploy =
             self.controller_to_player
                 .keys()
@@ -111,7 +114,7 @@ impl PlayerSystem {
         let config = self.config_manager.get();
         for (player_key, player) in self.players.iter_mut() {
             let controller_id = self.player_to_controller[player_key.to_raw()];
-            player.pre_update(config, audio, controller_id, controller, dt);
+            player.pre_update(config, audio, controller_id, controller, dt, rng);
         }
     }
 

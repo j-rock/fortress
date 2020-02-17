@@ -1,4 +1,5 @@
 use crate::{
+    app::RandGen,
     audio::AudioPlayer,
     dimensions::{
         Attack,
@@ -114,17 +115,17 @@ impl PlayerState {
         }
     }
 
-    pub fn try_fire(&mut self, audio: &AudioPlayer) {
+    pub fn try_fire(&mut self, audio: &AudioPlayer, rng: &mut RandGen) {
         if let Some(position) = self.position() {
             let start_position = Point2::from(position.coords + self.weapon_physical_offset * self.facing_dir);
-            self.weapon.try_fire_normal(audio, &self.stats, self.player_id, start_position, self.facing_dir);
+            self.weapon.try_fire_normal(audio, &self.stats, self.player_id, start_position, self.facing_dir, rng);
         }
     }
 
-    pub fn try_fire_special(&mut self, config: &PlayerConfig, audio: &AudioPlayer) {
+    pub fn try_fire_special(&mut self, config: &PlayerConfig, audio: &AudioPlayer, rng: &mut RandGen) {
         if let Some(position) = self.position() {
             let start_position = Point2::from(position.coords + self.weapon_physical_offset * self.facing_dir);
-            self.weapon.try_fire_special(config, audio, &self.stats, self.player_id, start_position, self.facing_dir);
+            self.weapon.try_fire_special(config, audio, &self.stats, self.player_id, start_position, self.facing_dir, rng);
         }
     }
 
