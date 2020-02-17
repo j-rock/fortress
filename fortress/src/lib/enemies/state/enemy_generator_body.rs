@@ -6,7 +6,7 @@ use crate::{
     },
     entities::{
         Entity,
-        RegisteredBody
+        RegisteredBody,
         RegisteredBodyBuilder,
     },
     physics::{
