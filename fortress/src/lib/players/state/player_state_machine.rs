@@ -1,4 +1,5 @@
 use crate::{
+    app::RandGen,
     audio::AudioPlayer,
     control::{
         ControlEvent,
@@ -45,16 +46,16 @@ impl PlayerStateMachine {
         PlayerStateMachine::Idle(0)
     }
 
-    pub fn pre_update(&mut self, config: &PlayerConfig, audio: &AudioPlayer, controller_id: ControllerId, controller: &Controller, dt: DeltaTime, player_state: &mut PlayerState) -> Option<PlayerStateMachine> {
+    pub fn pre_update(&mut self, config: &PlayerConfig, audio: &AudioPlayer, controller_id: ControllerId, controller: &Controller, dt: DeltaTime, rng: &mut RandGen, player_state: &mut PlayerState) -> Option<PlayerStateMachine> {
         let move_direction = Self::compute_move_direction(controller_id, controller);
         player_state.pre_update(config, dt);
         player_state.set_velocity(move_direction);
 
         if controller.is_pressed(controller_id, ControlEvent::PlayerFireSpecial) {
-            player_state.try_fire_special(config, audio);
+            player_state.try_fire_special(config, audio, rng);
         }
         if controller.is_pressed(controller_id, ControlEvent::PlayerFireWeapon) {
-            player_state.try_fire(audio);
+            player_state.try_fire(audio, rng);
         }
 
         match self {

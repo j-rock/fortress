@@ -1,4 +1,5 @@
 use crate::{
+    app::RandGen,
     dimensions::{
         Attack,
         Damage,
@@ -78,10 +79,11 @@ pub struct Bullet {
     body: RegisteredBody,
     time_elapsed: Microseconds,
     bullet_type: BulletType,
+    unit_random: f32,
 }
 
 impl Bullet {
-    pub fn new(entity: Entity, bullet_type: BulletType, radius: f64, start_position: Point2<f64>, velocity: Velocity2<f64>, physics_sim: &mut PhysicsSimulation) -> Bullet {
+    pub fn new(entity: Entity, bullet_type: BulletType, radius: f64, start_position: Point2<f64>, velocity: Velocity2<f64>, rng: &mut RandGen, physics_sim: &mut PhysicsSimulation) -> Bullet {
         let rigid_body = RigidBodyDesc::new()
             .status(BodyStatus::Dynamic)
             .translation(start_position.coords)
@@ -105,6 +107,7 @@ impl Bullet {
         Bullet {
             body,
             time_elapsed: 0,
+            unit_random: rng.unit_f32(),
             bullet_type,
         }
     }
@@ -139,7 +142,11 @@ impl Bullet {
 
     pub fn render_info(&self, config: &PlayerConfig) -> FullyIlluminatedSpriteData {
         let world_position = self.get_render_world_position(config);
-        let frame = (self.time_elapsed / config.bullet_sprite_frame_duration_micros) as usize;
+
+        let rand_frame_offset = self.unit_random * (config.bullet_sprite_num_frames as f32 * config.bullet_sprite_frame_duration_micros as f32);
+        let rand_frame_offset = rand_frame_offset as Microseconds;
+        let frame_duration = self.time_elapsed + rand_frame_offset;
+        let frame = (frame_duration / config.bullet_sprite_frame_duration_micros) as usize;
 
         FullyIlluminatedSpriteData {
             world_center_position: world_position,
