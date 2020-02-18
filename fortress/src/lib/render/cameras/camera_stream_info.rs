@@ -11,7 +11,7 @@ use nalgebra::{
 
 pub enum CameraStreamBounds {
     Outside,
-    Margin(f64), // [0.0, 1.0)
+    Margin(f64), // [0.0, 1.0] - 0.0 meaning almost inside.
     Inside
 }
 
@@ -55,6 +55,13 @@ impl CameraStreamInfo {
         }
 
         let distance_from_inside = cell_bounds.min_distance_to(self.inside_bounds);
-        CameraStreamBounds::Margin(distance_from_inside / self.margin_length)
+        let analytical_distance = distance_from_inside / self.margin_length;
+        let mut clamped = analytical_distance;
+        if clamped < 0.0 {
+            clamped = 0.0;
+        } else if clamped > 1.0 {
+            clamped = 1.0;
+        }
+        CameraStreamBounds::Margin(clamped)
     }
 }

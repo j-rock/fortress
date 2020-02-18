@@ -28,12 +28,21 @@ impl BoundingBox2 {
     }
 
     pub fn overlap_with(&self, other: BoundingBox2) -> BoundingBoxOverlap {
-        if (self.min.x <= other.max.y && self.max.y >= other.min.x) &&
-           (self.min.y <= other.max.y && self.max.y >= other.min.y) {
-            BoundingBoxOverlap::Touching
-        } else {
-            BoundingBoxOverlap::Disjoint
+        let x_overlap =
+            (self.min.x <= other.max.x && self.max.x >= other.min.x) ||
+            (other.min.x <= self.max.x && other.max.x >= self.min.x);
+        if !x_overlap {
+            return BoundingBoxOverlap::Disjoint;
         }
+
+        let y_overlap =
+            (self.min.y <= other.max.y && self.max.y >= other.min.y) ||
+                (other.min.y <= self.max.y && other.max.y >= self.min.y);
+        if !y_overlap {
+            return BoundingBoxOverlap::Disjoint;
+        }
+
+        BoundingBoxOverlap::Touching
     }
 
     pub fn min_distance_to(&self, other: BoundingBox2) -> f64 {

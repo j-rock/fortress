@@ -49,7 +49,7 @@ impl Camera {
     }
 
     pub fn view(&self, lookat: glm::Vec3, up: glm::Vec3) -> glm::Mat4 {
-        let position = self.position();
+        let position = self.gl_position();
         glm::ext::look_at(position, position + lookat, up)
     }
 
@@ -65,7 +65,7 @@ impl Camera {
         (lookat, right, up)
     }
 
-    pub fn position(&self) -> glm::Vec3 {
+    pub fn gl_position(&self) -> glm::Vec3 {
         let config = self.config_manager.get();
         glm::vec3(self.world_position.x as f32 + config.camera_pos_offset.0,
                   self.world_position.y as f32,
@@ -104,7 +104,7 @@ impl Camera {
 
     pub fn stream_info(&self, hex_cell_length: f64) -> CameraStreamInfo {
         let config = self.config_manager.get();
-        let cam_pos = Point2::new(self.world_position.x, -self.world_position.z);
+        let cam_pos = Point2::new(self.world_position.x, self.world_position.z);
         let inside_half_extents = Vector2::new(config.stream_inside_half_extents.0, config.stream_inside_half_extents.1);
         CameraStreamInfo::new(cam_pos, inside_half_extents, config.stream_margin_length, hex_cell_length)
     }
