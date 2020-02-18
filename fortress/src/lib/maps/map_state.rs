@@ -10,6 +10,9 @@ use crate::{
     },
     physics::PhysicsSimulation,
     render::{
+        CameraStreamBounds,
+        CameraStreamInfo,
+        EasingFn,
         FullyIlluminatedSpriteData,
         FullyIlluminatedSpriteRenderer,
         HexData,
@@ -93,12 +96,27 @@ impl MapState {
         }
     }
 
-    pub fn queue_draw(&self, config: &MapConfig, hex_renderer: &mut HexRenderer, sprite_renderer: &mut FullyIlluminatedSpriteRenderer) {
-        let data = self.terrain.iter().map(|grid_index| {
-            HexData {
-                position: *grid_index,
-                height: 1.0,
-                elevation: 0.0,
+    pub fn queue_draw(&self, config: &MapConfig, camera_stream_info: &CameraStreamInfo, hex_renderer: &mut HexRenderer, sprite_renderer: &mut FullyIlluminatedSpriteRenderer) {
+        let data = self.terrain.iter().filter_map(|grid_index| {
+            match camera_stream_info.compute_bounds(*grid_index) {
+                CameraStreamBounds::Inside => {
+                    Some(HexData {
+                        position: *grid_index,
+                        height: 1.0,
+                        elevation: 0.0,
+                    })
+                },
+                CameraStreamBounds::Margin(f) => {
+                    let f = EasingFn::ease_out_quad(f as f32);
+                    let elevation = config.stream_cell_min_elevation * (1.0 - f);
+
+                    Some(HexData {
+                        position: *grid_index,
+                        height: 1.0,
+                        elevation,
+                    })
+                }
+                _ => None,
             }
         });
         hex_renderer.queue(config.cell_length, data);

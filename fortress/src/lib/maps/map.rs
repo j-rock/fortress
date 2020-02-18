@@ -11,6 +11,7 @@ use crate::{
     },
     physics::PhysicsSimulation,
     render::{
+        CameraStreamInfo,
         HexRenderer,
         PointLight,
         FullyIlluminatedSpriteRenderer,
@@ -56,10 +57,10 @@ impl Map {
        self.map_state.populate_lights(config, lights);
     }
 
-    pub fn queue_draw(&mut self, hex_renderer: &mut HexRenderer, sprite_renderer: &mut FullyIlluminatedSpriteRenderer) {
+    pub fn queue_draw(&mut self, camera_stream_info: &CameraStreamInfo, hex_renderer: &mut HexRenderer, sprite_renderer: &mut FullyIlluminatedSpriteRenderer) {
         let config = self.map_config_manager.get();
         hex_renderer.set_tile_scale(glm::vec2(config.tile_scale.0, config.tile_scale.1));
-        self.map_state.queue_draw(config, hex_renderer, sprite_renderer);
+        self.map_state.queue_draw(config, camera_stream_info, hex_renderer, sprite_renderer);
     }
 
     pub fn spawns(&self) -> &Vec<Point2<f64>> {
