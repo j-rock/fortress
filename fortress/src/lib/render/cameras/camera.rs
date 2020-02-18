@@ -5,12 +5,16 @@ use crate::{
         ConfigWatcher,
         SimpleConfigManager,
     },
-    render::CameraConfig
+    render::{
+        CameraConfig,
+        CameraStreamInfo,
+    },
 };
 use glm;
 use nalgebra::{
     Point2,
     Point3,
+    Vector2,
 };
 
 pub struct Camera {
@@ -96,6 +100,13 @@ impl Camera {
 
         let move_multiplier = dt.as_f64_seconds() / config.physical_follow_player_factor;
         self.world_position += move_multiplier * player_camera_displacement;
+    }
+
+    pub fn stream_info(&self, hex_cell_length: f64) -> CameraStreamInfo {
+        let config = self.config_manager.get();
+        let cam_pos = Point2::new(self.world_position.x, -self.world_position.z);
+        let inside_half_extents = Vector2::new(config.stream_inside_half_extents.0, config.stream_inside_half_extents.1);
+        CameraStreamInfo::new(cam_pos, inside_half_extents, config.stream_margin_length, hex_cell_length)
     }
 
     fn ortho(left: f32, right: f32, bottom: f32, top: f32, z_near: f32, z_far: f32) -> glm::Mat4 {

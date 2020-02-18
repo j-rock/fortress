@@ -1,4 +1,5 @@
 pub mod attack;
+pub mod bounding_box;
 pub mod damage;
 pub mod grid_index;
 pub mod health;
@@ -9,6 +10,8 @@ pub mod time;
 pub mod up_down_left_right;
 
 pub use self::attack::Attack;
+pub use self::bounding_box::BoundingBox2;
+pub use self::bounding_box::BoundingBoxOverlap;
 pub use self::damage::Damage;
 pub use self::grid_index::GridDirection;
 pub use self::grid_index::GridIndex;

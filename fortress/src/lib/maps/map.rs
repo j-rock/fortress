@@ -70,6 +70,10 @@ impl Map {
         self.map_state.enemy_generators()
     }
 
+    pub fn hex_cell_length(&self) -> f64 {
+        self.map_config_manager.get().cell_length
+    }
+
     fn redeploy(&mut self, physics_sim: &mut PhysicsSimulation) {
         let config = self.map_config_manager.get();
         let map_file = self.map_file_manager.get();

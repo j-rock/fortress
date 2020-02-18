@@ -17,6 +17,8 @@ pub use self::attribute::AttributeProgram;
 pub use self::attribute::AttributeProgramBuilder;
 pub use self::cameras::Camera;
 pub use self::cameras::CameraConfig;
+pub use self::cameras::CameraStreamBounds;
+pub use self::cameras::CameraStreamInfo;
 pub use self::easing_functions::EasingFn;
 pub use self::instanced_mesh::InstancedMesh;
 pub use self::png::Png;

@@ -9,6 +9,9 @@ pub struct CameraConfig {
     pub initial_position_when_no_players: (f64, f64, f64),
 
     pub physical_no_move_half_lengths: (f64, f64),
-    pub physical_follow_player_factor: f64
+    pub physical_follow_player_factor: f64,
+
+    pub stream_inside_half_extents: (f64, f64),
+    pub stream_margin_length: f64
 }
 
