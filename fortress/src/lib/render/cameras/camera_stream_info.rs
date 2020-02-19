@@ -11,7 +11,7 @@ use nalgebra::{
 
 pub enum CameraStreamBounds {
     Outside,
-    Margin(f64), // [0.0, 1.0] - 1.0 meaning almost inside.
+    Margin(f32), // [0.0, 1.0] - 1.0 meaning almost inside.
     Inside
 }
 
@@ -62,6 +62,6 @@ impl CameraStreamInfo {
         } else if clamped > 1.0 {
             clamped = 1.0;
         }
-        CameraStreamBounds::Margin(clamped)
+        CameraStreamBounds::Margin(clamped as f32)
     }
 }

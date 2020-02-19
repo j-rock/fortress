@@ -2,9 +2,11 @@
 layout (location = 0) in vec3 local_vertex_position;
 layout (location = 1) in vec4 transform; // x,y = 2D coords, z = height, w = elevation.
 layout (location = 2) in float hexagon_scale;
+layout (location = 3) in float hexagon_alpha;
 
 out VS_OUT {
     vec3 world_space_position;
+    float hexagon_alpha;
 } vs_out;
 
 uniform mat4 projection_view;
@@ -19,4 +21,5 @@ void main() {
 
     gl_Position = projection_view * vec4(world_space_position, 1.0);
     vs_out.world_space_position = world_space_position;
+    vs_out.hexagon_alpha = hexagon_alpha;
 }

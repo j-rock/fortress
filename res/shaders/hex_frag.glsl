@@ -5,6 +5,7 @@ out vec4 frag_color;
 in GS_OUT {
     vec3 world_space_position;
     vec3 normal;
+    float alpha;
 } fs_in;
 
 struct PointLight {
@@ -66,5 +67,5 @@ void main() {
 
     // Gamma correct
     lighting = pow(lighting, vec3(1.0/2.2));
-    frag_color = vec4(lighting, 1.0);
+    frag_color = vec4(lighting, fs_in.alpha);
 }

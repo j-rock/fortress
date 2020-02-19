@@ -4,11 +4,13 @@ layout (triangle_strip, max_vertices = 3) out;
 
 in VS_OUT {
     vec3 world_space_position;
+    float hexagon_alpha;
 } gs_in[];
 
 out GS_OUT {
     vec3 world_space_position;
     vec3 normal;
+    float alpha;
 } gs_out;
 
 vec3 GetNormal() {
@@ -25,6 +27,7 @@ void EmitV(int index) {
 
 void main() {
     gs_out.normal = GetNormal();
+    gs_out.alpha = gs_in[0].hexagon_alpha;
     EmitV(0);
     EmitV(1);
     EmitV(2);

@@ -104,16 +104,18 @@ impl MapState {
                         position: *grid_index,
                         height: 1.0,
                         elevation: 0.0,
+                        alpha: 1.0,
                     })
                 },
-                CameraStreamBounds::Margin(f) => {
-                    let f = EasingFn::ease_out_quad(f as f32);
-                    let elevation = config.stream_cell_min_elevation * (1.0 - f);
+                CameraStreamBounds::Margin(margin) => {
+                    let elevation = config.stream_cell_min_elevation * (1.0 - EasingFn::ease_out_quad(margin));
+                    let alpha = EasingFn::ease_in_cuartic(margin);
 
                     Some(HexData {
                         position: *grid_index,
                         height: 1.0,
                         elevation,
+                        alpha,
                     })
                 }
                 _ => None,

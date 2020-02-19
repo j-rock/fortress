@@ -28,6 +28,7 @@ pub struct HexData {
     pub position: GridIndex,
     pub height: f32,
     pub elevation: f32,
+    pub alpha: f32,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
@@ -75,6 +76,7 @@ pub struct HexRenderer {
     attribute_program: AttributeProgram,
     attr_transform: Attribute<HexTransformAttr>,
     attr_scale: Attribute<HexScaleAttr>,
+    attr_alpha: Attribute<HexAlphaAttr>,
 
     tile_scale: glm::Vec2,
 }
@@ -90,6 +92,7 @@ impl HexRenderer {
         let mut attribute_program_builder = AttributeProgram::builder_with_offset(1);
         let attr_transform = attribute_program_builder.add_attribute();
         let attr_scale = attribute_program_builder.add_attribute();
+        let attr_alpha = attribute_program_builder.add_attribute();
         let attribute_program = attribute_program_builder.build();
 
         let vertices = Self::compute_hexagon_vertices();
@@ -102,6 +105,7 @@ impl HexRenderer {
             attribute_program,
             attr_transform,
             attr_scale,
+            attr_alpha,
             tile_scale: glm::vec2(1.0, 1.0),
         })
     }
@@ -119,6 +123,9 @@ impl HexRenderer {
             self.attr_scale.data.push(HexScaleAttr {
                 scale: hex_cell_length as f32,
             });
+            self.attr_alpha.data.push(HexAlphaAttr {
+                alpha: datum.alpha,
+            });
         }
     }
 
@@ -127,6 +134,7 @@ impl HexRenderer {
         self.attribute_program.activate();
         self.attr_transform.prepare_buffer();
         self.attr_scale.prepare_buffer();
+        self.attr_alpha.prepare_buffer();
 
         let texture = textures.texture(NamedSpriteSheet::SpriteSheet1);
         let texture_unit = texture.activate();
@@ -159,6 +167,7 @@ impl HexRenderer {
         self.shader_program.deactivate();
         self.attr_transform.data.clear();
         self.attr_scale.data.clear();
+        self.attr_alpha.data.clear();
     }
 
     pub fn set_tile_scale(&mut self, tile_scale: glm::Vec2) {
@@ -220,6 +229,17 @@ struct HexScaleAttr {
 }
 
 impl attribute::KnownComponent for HexScaleAttr {
+    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
+        (attribute::NumComponents::S1, attribute::ComponentType::Float)
+    }
+}
+
+#[repr(C)]
+struct HexAlphaAttr {
+    alpha: f32,
+}
+
+impl attribute::KnownComponent for HexAlphaAttr {
     fn component() -> (attribute::NumComponents, attribute::ComponentType) {
         (attribute::NumComponents::S1, attribute::ComponentType::Float)
     }
