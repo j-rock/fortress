@@ -1,4 +1,3 @@
-use crate::dimensions::BoundingBox2;
 use nalgebra::{
     Matrix2,
     RowVector2,
@@ -129,11 +128,5 @@ impl GridIndex {
         let start_point = self_center_cartesian + start_offset;
         let end_point   = self_center_cartesian + end_offset;
         Segment::new(start_point, end_point)
-    }
-
-    pub fn bounding_box(&self, hex_side_length: f64, axial_to_cartesian: &Matrix2<f64>) -> BoundingBox2 {
-        let center = self.index_center(axial_to_cartesian);
-        let half_extents = Vector2::new(hex_side_length, HALF_ROOT_3 * hex_side_length);
-        BoundingBox2::new(center - half_extents, center + half_extents)
     }
 }

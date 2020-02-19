@@ -1,6 +1,5 @@
 use crate::dimensions::{
-    BoundingBox2,
-    BoundingBoxOverlap,
+    BoundingSquircle,
     GridIndex,
 };
 use nalgebra::{
@@ -16,11 +15,10 @@ pub enum CameraStreamBounds {
 }
 
 pub struct CameraStreamInfo {
-    inside_bounds: BoundingBox2,
-    margin_bounds: BoundingBox2,
+    inside_bounds: BoundingSquircle,
+    margin_bounds: BoundingSquircle,
     axial_to_cartesian: Matrix2<f64>,
     margin_length: f64,
-    hex_cell_length: f64,
 }
 
 impl CameraStreamInfo {
@@ -30,31 +28,30 @@ impl CameraStreamInfo {
                hex_cell_length: f64) -> Self {
         let axial_to_cartesian = GridIndex::axial_to_cartesian(hex_cell_length);
 
-        let inside_bounds = BoundingBox2::new(center.clone() - inside_half_extents.clone(), center.clone() + inside_half_extents.clone());
+        let inside_bounds = BoundingSquircle::new(center.clone(), inside_half_extents.clone());
         let margin_half_extents = Vector2::new(margin_length, margin_length) + inside_half_extents;
-        let margin_bounds = BoundingBox2::new(center.clone() - margin_half_extents.clone(), center + margin_half_extents);
+        let margin_bounds = BoundingSquircle::new(center, margin_half_extents);
 
         CameraStreamInfo {
             inside_bounds,
             margin_bounds,
             axial_to_cartesian,
             margin_length,
-            hex_cell_length,
         }
     }
 
     pub fn compute_bounds(&self, grid_index: GridIndex) -> CameraStreamBounds {
-        let cell_bounds = grid_index.bounding_box(self.hex_cell_length, &self.axial_to_cartesian);
+        let cell_center = grid_index.index_center(&self.axial_to_cartesian);
 
-        if let BoundingBoxOverlap::Touching = self.inside_bounds.overlap_with(cell_bounds) {
+        if self.inside_bounds.contains(cell_center) {
             return CameraStreamBounds::Inside;
         }
 
-        if let BoundingBoxOverlap::Disjoint = self.margin_bounds.overlap_with(cell_bounds) {
+        if !self.margin_bounds.contains(cell_center) {
             return CameraStreamBounds::Outside;
         }
 
-        let distance_from_inside = cell_bounds.min_distance_to(self.inside_bounds);
+        let distance_from_inside = self.inside_bounds.distance_to(cell_center);
         let analytical_distance = 1.0 - distance_from_inside / self.margin_length;
         let mut clamped = analytical_distance;
         if clamped < 0.0 {
