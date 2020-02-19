@@ -40,18 +40,16 @@ impl CameraStreamInfo {
         }
     }
 
-    pub fn compute_bounds(&self, grid_index: GridIndex) -> CameraStreamBounds {
-        let cell_center = grid_index.index_center(&self.axial_to_cartesian);
-
-        if self.inside_bounds.contains(cell_center) {
+    pub fn compute_bounds(&self, point: Point2<f64>) -> CameraStreamBounds {
+        if self.inside_bounds.contains(point.clone()) {
             return CameraStreamBounds::Inside;
         }
 
-        if !self.margin_bounds.contains(cell_center) {
+        if !self.margin_bounds.contains(point.clone()) {
             return CameraStreamBounds::Outside;
         }
 
-        let distance_from_inside = self.inside_bounds.distance_to(cell_center);
+        let distance_from_inside = self.inside_bounds.distance_to(point);
         let analytical_distance = 1.0 - distance_from_inside / self.margin_length;
         let mut clamped = analytical_distance;
         if clamped < 0.0 {
@@ -60,5 +58,10 @@ impl CameraStreamInfo {
             clamped = 1.0;
         }
         CameraStreamBounds::Margin(clamped as f32)
+    }
+
+    pub fn compute_grid_bounds(&self, grid_index: GridIndex) -> CameraStreamBounds {
+        let cell_center = grid_index.index_center(&self.axial_to_cartesian);
+        self.compute_bounds(cell_center)
     }
 }

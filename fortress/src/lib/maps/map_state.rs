@@ -98,7 +98,7 @@ impl MapState {
 
     pub fn queue_draw(&self, config: &MapConfig, camera_stream_info: &CameraStreamInfo, hex_renderer: &mut HexRenderer, sprite_renderer: &mut FullyIlluminatedSpriteRenderer) {
         let data = self.terrain.iter().filter_map(|grid_index| {
-            match camera_stream_info.compute_bounds(*grid_index) {
+            match camera_stream_info.compute_grid_bounds(*grid_index) {
                 CameraStreamBounds::Inside => {
                     Some(HexData {
                         position: *grid_index,
