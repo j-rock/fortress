@@ -21,7 +21,7 @@ use crate::{
     render::{
         FullyIlluminatedSpriteRenderer,
         FullyIlluminatedSpriteData,
-        PointLight,
+        PointLights,
     },
     weapons::{
         Bullet,
@@ -162,10 +162,13 @@ impl Weapon {
             })
     }
 
-    pub fn populate_lights(&self, config: &PlayerConfig, lights: &mut Vec<PointLight>) {
-        for (_idx, bullet) in self.bullets.iter() {
-            lights.push(bullet.point_light(config));
-        }
+    pub fn populate_lights(&self, config: &PlayerConfig, lights: &mut PointLights) {
+        let queue_data = self.bullets
+            .iter()
+            .map(|(_idx, bullet)| {
+                bullet.point_light(config)
+            });
+        lights.append(queue_data);
     }
 
     pub fn queue_draw(&self, config: &PlayerConfig, full_light: &mut FullyIlluminatedSpriteRenderer) {

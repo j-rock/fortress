@@ -12,7 +12,7 @@ use crate::{
         AttributeProgram,
         InstancedMesh,
         NamedSpriteSheet,
-        PointLight,
+        PointLights,
         ShaderProgram,
         ShaderUniformKey,
         SpriteSheetFrameId,
@@ -129,7 +129,7 @@ impl HexRenderer {
         }
     }
 
-    pub fn draw(&mut self, textures: &SpriteSheetTextureManager, lights: &Vec<PointLight>, projection_view: &glm::Mat4) {
+    pub fn draw(&mut self, textures: &SpriteSheetTextureManager, lights: &PointLights, projection_view: &glm::Mat4) {
         self.shader_program.activate();
         self.attribute_program.activate();
         self.attr_transform.prepare_buffer();
@@ -150,10 +150,6 @@ impl HexRenderer {
         self.shader_program.set_vec2(UniformKey::TileTopRight, texel.top_right);
         self.shader_program.set_vec2(UniformKey::TileScale, self.tile_scale);
         self.shader_program.set_mat4(UniformKey::ProjectionView, projection_view);
-
-        if lights.len() > 100 {
-            panic!("Need to update shaders to support more than {} lights", lights.len());
-        }
         self.shader_program.set_i32(UniformKey::NumLights, lights.len() as i32);
         for (idx, point_light) in lights.iter().enumerate() {
             self.shader_program.set_vec3(UniformKey::LightsPosition(idx), &point_light.position);

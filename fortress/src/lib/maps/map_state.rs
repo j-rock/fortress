@@ -19,6 +19,7 @@ use crate::{
         HexRenderer,
         NamedSpriteSheet,
         PointLight,
+        PointLights,
         SpriteSheetFrameId,
     }
 };
@@ -86,14 +87,17 @@ impl MapState {
         &self.enemy_generators
     }
 
-    pub fn populate_lights(&self, config: &MapConfig, lights: &mut Vec<PointLight>) {
-        for position in self.lights.iter() {
-            lights.push(PointLight {
-                position: glm::vec3(position.x, config.light_center_height, -position.y),
-                color: glm::vec3(config.light_color.0, config.light_color.1, config.light_color.2),
-                attenuation: glm::vec3(config.light_attenuation.0, config.light_attenuation.1, config.light_attenuation.2),
+    pub fn populate_lights(&self, config: &MapConfig, lights: &mut PointLights) {
+        let queue_data = self.lights
+            .iter()
+            .map(|position| {
+                PointLight {
+                    position: glm::vec3(position.x, config.light_center_height, -position.y),
+                    color: glm::vec3(config.light_color.0, config.light_color.1, config.light_color.2),
+                    attenuation: glm::vec3(config.light_attenuation.0, config.light_attenuation.1, config.light_attenuation.2),
+                }
             });
-        }
+        lights.append(queue_data);
     }
 
     pub fn queue_draw(&self, config: &MapConfig, camera_stream_info: &CameraStreamInfo, hex_renderer: &mut HexRenderer, sprite_renderer: &mut FullyIlluminatedSpriteRenderer) {

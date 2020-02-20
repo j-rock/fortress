@@ -102,22 +102,23 @@ impl EnemyStateMachine {
         }
     }
 
-    pub fn populate_lights(&self, config: &EnemyConfig, enemy_state: &EnemyState, lights: &mut Vec<PointLight>) {
-        if enemy_state.age() < config.enemy_light_duration_micros {
-            if let EnemyStateMachine::Base(body, _) = self {
-                if let Some(position) = body.position() {
-                    let age_frac = (config.enemy_light_duration_micros - enemy_state.age()) as f32 / config.enemy_light_duration_micros as f32;
-                    let glow_strength = EasingFn::ease_out_quad(age_frac);
-
-                    let position = glm::vec3(position.x as f32, config.enemy_light_elevation, -position.y as f32);
-                    lights.push(PointLight {
-                        position,
-                        color: glm::vec3(config.enemy_light_color.0, config.enemy_light_color.1, config.enemy_light_color.2) * glow_strength,
-                        attenuation: glm::vec3(config.enemy_light_attenuation.0, config.enemy_light_attenuation.1, config.enemy_light_attenuation.2),
-                    });
-                }
-            }
+    pub fn point_light(&self, config: &EnemyConfig, enemy_state: &EnemyState) -> Option<PointLight> {
+        if enemy_state.age() >= config.enemy_light_duration_micros {
+            return None;
         }
+
+        if let EnemyStateMachine::Base(body, _) = self {
+            let position = body.position()?;
+            let age_frac = (config.enemy_light_duration_micros - enemy_state.age()) as f32 / config.enemy_light_duration_micros as f32;
+            let glow_strength = EasingFn::ease_out_quad(age_frac);
+            return Some(PointLight {
+                position: glm::vec3(position.x as f32, config.enemy_light_elevation, -position.y as f32),
+                color: glm::vec3(config.enemy_light_color.0, config.enemy_light_color.1, config.enemy_light_color.2) * glow_strength,
+                attenuation: glm::vec3(config.enemy_light_attenuation.0, config.enemy_light_attenuation.1, config.enemy_light_attenuation.2),
+            });
+        }
+
+        None
     }
 
     pub fn queue_draw(&self, config: &EnemyConfig, enemy_state: &EnemyState, sprite_renderer: &mut LightDependentSpriteRenderer) {

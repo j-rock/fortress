@@ -22,7 +22,7 @@ use crate::{
     render::{
         FullyIlluminatedSpriteRenderer,
         LightDependentSpriteRenderer,
-        PointLight,
+        PointLights,
     },
     weapons::BulletId,
 };
@@ -69,7 +69,7 @@ impl Player {
         self.player_state.get_player_id()
     }
 
-    pub fn populate_lights(&self, config: &PlayerConfig, lights: &mut Vec<PointLight>) {
+    pub fn populate_lights(&self, config: &PlayerConfig, lights: &mut PointLights) {
         self.player_state_machine.populate_lights(config, &self.player_state, lights);
     }
 

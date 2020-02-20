@@ -22,10 +22,11 @@ use crate::{
     render::{
         BackgroundRenderer,
         Camera,
+        CameraStreamInfo,
         FullyIlluminatedSpriteRenderer,
         HexRenderer,
         LightDependentSpriteRenderer,
-        PointLight,
+        PointLights,
         SpriteSheetTextureManager,
         Viewport,
     },
@@ -48,7 +49,7 @@ pub struct WorldState {
     hex_renderer: HexRenderer,
     full_light_sprite: FullyIlluminatedSpriteRenderer,
     light_dependent_sprite: LightDependentSpriteRenderer,
-    lights: Vec<PointLight>,
+    lights: PointLights,
 
     map: Map,
     players: PlayerSystem,
@@ -77,6 +78,7 @@ impl WorldState {
         let enemies = EnemySystem::new(config_watcher, map.enemy_generators(), &mut physics_sim)?;
         let items = ItemSystem::new(config_watcher)?;
         let particles = ParticleSystem::new(config_watcher)?;
+        let lights = PointLights::new()?;
 
         Ok(WorldState {
             config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
@@ -86,7 +88,7 @@ impl WorldState {
             hex_renderer: HexRenderer::new()?,
             full_light_sprite: FullyIlluminatedSpriteRenderer::new()?,
             light_dependent_sprite: LightDependentSpriteRenderer::new()?,
-            lights: vec!(),
+            lights,
             map,
             players,
             enemies,
@@ -146,23 +148,25 @@ impl WorldState {
     }
 
     pub fn draw(&mut self, screen_size: glm::IVec2) {
-        self.populate_lights();
-        self.draw_geometry(screen_size);
+        let camera_stream_info = self.camera.stream_info(self.map.hex_cell_length());
+
+        self.populate_lights(&camera_stream_info);
+        self.draw_geometry(&camera_stream_info, screen_size);
         self.lights.clear();
     }
 
-    fn populate_lights(&mut self) {
+    fn populate_lights(&mut self, camera_stream_info: &CameraStreamInfo) {
+        self.lights.set_camera_stream_info(camera_stream_info.clone());
         self.map.populate_lights(&mut self.lights);
         self.players.populate_lights(&mut self.lights);
         self.enemies.populate_lights(&mut self.lights);
     }
 
-    fn draw_geometry(&mut self, screen_size: glm::IVec2) {
+    fn draw_geometry(&mut self, camera_stream_info: &CameraStreamInfo, screen_size: glm::IVec2) {
         let (lookat, right, up) = self.camera.lookat_right_and_up();
         let position_independent_view = self.camera.position_independent_view(lookat, up);
         let projection_view = self.camera.projection(screen_size) * self.camera.view(lookat, up);
 
-        let camera_stream_info = self.camera.stream_info(self.map.hex_cell_length());
         self.light_dependent_sprite.set_camera_stream_info(camera_stream_info.clone());
 
         self.map.queue_draw(&camera_stream_info, &mut self.hex_renderer, &mut self.full_light_sprite);

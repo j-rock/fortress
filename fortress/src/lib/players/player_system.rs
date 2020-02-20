@@ -30,9 +30,9 @@ use crate::{
         self,
     },
     render::{
-        PointLight,
         FullyIlluminatedSpriteRenderer,
         LightDependentSpriteRenderer,
+        PointLights,
     },
     weapons::BulletId,
 };
@@ -135,7 +135,7 @@ impl PlayerSystem {
         player.bullet_attack(bullet_id)
     }
 
-    pub fn populate_lights(&self, lights: &mut Vec<PointLight>) {
+    pub fn populate_lights(&self, lights: &mut PointLights) {
         let config = self.config_manager.get();
         for (_i, player) in self.players.iter() {
             player.populate_lights( config, lights);

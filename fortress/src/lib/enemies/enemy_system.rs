@@ -27,7 +27,7 @@ use crate::{
     physics::PhysicsSimulation,
     render::{
         LightDependentSpriteRenderer,
-        PointLight,
+        PointLights,
     },
 };
 use generational_slab::Slab;
@@ -118,14 +118,21 @@ impl EnemySystem {
         }
     }
 
-    pub fn populate_lights(&self, lights: &mut Vec<PointLight>) {
+    pub fn populate_lights(&self, lights: &mut PointLights) {
         let config = self.config_manager.get();
-        for (_key, generator) in self.generators.iter() {
-            generator.populate_lights(config, lights);
-        }
-        for (_key, enemy) in self.enemies.iter() {
-            enemy.populate_lights(config, lights);
-        }
+        let generator_lights = self.generators
+            .iter()
+            .filter_map(|(_key, generator)| {
+                generator.point_light(config)
+            });
+        lights.append(generator_lights);
+
+        let enemy_lights = self.enemies
+            .iter()
+            .filter_map(|(_key, enemy)| {
+                enemy.point_light(config)
+            });
+        lights.append(enemy_lights);
     }
 
     pub fn queue_draw(&self, light_dependent: &mut LightDependentSpriteRenderer) {

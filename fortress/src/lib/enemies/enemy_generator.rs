@@ -56,8 +56,8 @@ impl EnemyGenerator {
         }
     }
 
-    pub fn populate_lights(&self, config: &EnemyConfig, lights: &mut Vec<PointLight>) {
-        self.generator_state_machine.populate_lights(config, &self.generator_state, lights);
+    pub fn point_light(&self, config: &EnemyConfig) -> Option<PointLight> {
+        self.generator_state_machine.point_light(config, &self.generator_state)
     }
 
     pub fn queue_draw(&self, config: &EnemyConfig, sprite_renderer: &mut LightDependentSpriteRenderer) {

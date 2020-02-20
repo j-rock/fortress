@@ -26,7 +26,7 @@ use crate::{
         LightDependentSpriteData,
         LightDependentSpriteRenderer,
         NamedSpriteSheet,
-        PointLight,
+        PointLights,
         SpriteSheetFrameId,
     },
     weapons::BulletId,
@@ -81,7 +81,7 @@ impl PlayerStateMachine {
         None
     }
 
-    pub fn populate_lights(&self, config: &PlayerConfig, player_state: &PlayerState, lights: &mut Vec<PointLight>) {
+    pub fn populate_lights(&self, config: &PlayerConfig, player_state: &PlayerState, lights: &mut PointLights) {
         player_state.populate_lights(config, lights);
     }
 

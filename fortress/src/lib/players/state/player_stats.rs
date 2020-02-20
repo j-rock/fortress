@@ -17,6 +17,7 @@ use crate::{
         FullyIlluminatedSpriteData,
         FullyIlluminatedSpriteRenderer,
         PointLight,
+        PointLights,
     }
 };
 use generational_slab::Slab;
@@ -82,13 +83,12 @@ impl PlayerStats {
         }
     }
 
-    pub fn populate_lights(&self, config: &PlayerConfig, player_center: Point2<f64>, lights: &mut Vec<PointLight>) {
-        let mut queue_data: Vec<_> = self.collected_item_animations.iter()
+    pub fn populate_lights(&self, config: &PlayerConfig, player_center: Point2<f64>, lights: &mut PointLights) {
+        let queue_data = self.collected_item_animations.iter()
             .map(|(_key, collected_item_animation)| {
                 collected_item_animation.point_light(config, player_center)
-            })
-            .collect();
-        lights.append(&mut queue_data);
+            });
+        lights.append(queue_data);
     }
 
     pub fn queue_draw(&self, config: &PlayerConfig, player_center: Point2<f64>, full_light: &mut FullyIlluminatedSpriteRenderer) {

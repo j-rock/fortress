@@ -10,7 +10,7 @@ use crate::{
         NamedSpriteSheet,
         SpriteSheetFrameId,
         SpriteSheetTextureManager,
-        PointLight,
+        PointLights,
         ShaderProgram,
         ShaderUniformKey,
         Texel,
@@ -135,7 +135,7 @@ impl LightDependentSpriteRenderer {
             .push(datum);
     }
 
-    pub fn draw(&mut self, lights: &Vec<PointLight>, textures: &SpriteSheetTextureManager, projection_view: &glm::Mat4, position_independent_view: &glm::Mat4, camera_right: glm::Vec3, camera_up: glm::Vec3) {
+    pub fn draw(&mut self, lights: &PointLights, textures: &SpriteSheetTextureManager, projection_view: &glm::Mat4, position_independent_view: &glm::Mat4, camera_right: glm::Vec3, camera_up: glm::Vec3) {
         self.shader_program.activate();
         self.attribute_program.activate();
 
@@ -143,11 +143,8 @@ impl LightDependentSpriteRenderer {
         self.shader_program.set_mat4(UniformKey::PositionIndependentView, position_independent_view);
         self.shader_program.set_vec3(UniformKey::CameraRight, &camera_right);
         self.shader_program.set_vec3(UniformKey::CameraUp, &camera_up);
-
-        if lights.len() > 100 {
-            panic!("Need to update shaders to support more than {} lights", lights.len());
-        }
         self.shader_program.set_i32(UniformKey::NumLights, lights.len() as i32);
+
         for (idx, point_light) in lights.iter().enumerate() {
             self.shader_program.set_vec3(UniformKey::LightsPosition(idx), &point_light.position);
             self.shader_program.set_vec3(UniformKey::LightsColor(idx), &point_light.color);

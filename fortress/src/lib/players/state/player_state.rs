@@ -19,7 +19,7 @@ use crate::{
     },
     render::{
         FullyIlluminatedSpriteRenderer,
-        PointLight,
+        PointLights,
     },
     weapons::{
         BulletId,
@@ -85,7 +85,7 @@ impl PlayerState {
         self.player_id
     }
 
-    pub fn populate_lights(&self, config: &PlayerConfig, lights: &mut Vec<PointLight>) {
+    pub fn populate_lights(&self, config: &PlayerConfig, lights: &mut PointLights) {
         self.weapon.populate_lights(config, lights);
         if let Some(position) = self.position() {
             self.stats.populate_lights(config, position, lights);

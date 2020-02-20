@@ -45,13 +45,17 @@ impl CameraStreamInfo {
         self.inside_bounds.contains(point)
     }
 
+    pub fn is_point_outside_margin(&self, point: Point2<f64>) -> bool {
+        !self.margin_bounds.contains(point)
+    }
+
     pub fn compute_bounds(&self, point: Point2<f64>) -> CameraStreamBounds {
-        if self.is_point_inside(point.clone()) {
-            return CameraStreamBounds::Inside;
+        if self.is_point_outside_margin(point.clone()) {
+            return CameraStreamBounds::Outside;
         }
 
-        if !self.margin_bounds.contains(point.clone()) {
-            return CameraStreamBounds::Outside;
+        if self.is_point_inside(point.clone()) {
+            return CameraStreamBounds::Inside;
         }
 
         let distance_from_inside = self.inside_bounds.distance_to(point);

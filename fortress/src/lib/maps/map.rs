@@ -13,7 +13,7 @@ use crate::{
     render::{
         CameraStreamInfo,
         HexRenderer,
-        PointLight,
+        PointLights,
         FullyIlluminatedSpriteRenderer,
     },
 };
@@ -52,9 +52,9 @@ impl Map {
         }
     }
 
-    pub fn populate_lights(&self, lights: &mut Vec<PointLight>) {
+    pub fn populate_lights(&self, lights: &mut PointLights) {
         let config = self.map_config_manager.get();
-       self.map_state.populate_lights(config, lights);
+        self.map_state.populate_lights(config, lights);
     }
 
     pub fn queue_draw(&mut self, camera_stream_info: &CameraStreamInfo, hex_renderer: &mut HexRenderer, sprite_renderer: &mut FullyIlluminatedSpriteRenderer) {

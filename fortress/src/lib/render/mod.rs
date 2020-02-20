@@ -23,6 +23,7 @@ pub use self::easing_functions::EasingFn;
 pub use self::instanced_mesh::InstancedMesh;
 pub use self::png::Png;
 pub use self::point_light::PointLight;
+pub use self::point_light::PointLights;
 pub use self::renderer::BackgroundRenderer;
 pub use self::renderer::FullyIlluminatedSpriteData;
 pub use self::renderer::FullyIlluminatedSpriteRenderer;
