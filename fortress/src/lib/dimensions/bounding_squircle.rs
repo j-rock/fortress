@@ -6,6 +6,7 @@ use nalgebra::{
 // (x-h)^4   (y-k)^4
 // ------- + ------- = 1
 //   a^4       b^4
+#[derive(Clone)]
 pub struct BoundingSquircle {
     center: Point2<f64>,
     half_extents: Vector2<f64>,

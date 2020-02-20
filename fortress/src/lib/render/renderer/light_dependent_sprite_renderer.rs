@@ -6,6 +6,7 @@ use crate::{
         attribute,
         Attribute,
         AttributeProgram,
+        CameraStreamInfo,
         NamedSpriteSheet,
         SpriteSheetFrameId,
         SpriteSheetTextureManager,
@@ -21,7 +22,10 @@ use gl::{
     types::*
 };
 use glm;
-use nalgebra;
+use nalgebra::{
+    self,
+    Point2,
+};
 use std::{
     collections::HashMap,
     ffi::CString,
@@ -83,6 +87,7 @@ pub struct LightDependentSpriteRenderer {
     attr_texel: Attribute<Texel>,
     attr_rot: Attribute<RotationAttr>,
     per_pack_attrs: HashMap<NamedSpriteSheet, Vec<LightDependentSpriteData>>,
+    camera_stream_info: Option<CameraStreamInfo>,
 }
 
 impl LightDependentSpriteRenderer {
@@ -107,10 +112,23 @@ impl LightDependentSpriteRenderer {
             attr_texel,
             attr_rot,
             per_pack_attrs: HashMap::new(),
+            camera_stream_info: None,
         })
     }
 
+    pub fn set_camera_stream_info(&mut self, camera_stream_info: CameraStreamInfo) {
+        self.camera_stream_info = Some(camera_stream_info);
+    }
+
     pub fn queue(&mut self, datum: LightDependentSpriteData) {
+        if let Some(ref camera_stream_info) = self.camera_stream_info {
+            let world_position = Point2::new(datum.world_center_position.x as f64, -datum.world_center_position.z as f64);
+            if !camera_stream_info.is_point_inside(world_position) {
+                // Ignore points not inside camera stream inner bounds.
+                return;
+            }
+        }
+
         self.per_pack_attrs
             .entry(datum.sprite_frame_id.sprite_sheet)
             .or_insert(Vec::new())

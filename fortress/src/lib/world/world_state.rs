@@ -163,6 +163,8 @@ impl WorldState {
         let projection_view = self.camera.projection(screen_size) * self.camera.view(lookat, up);
 
         let camera_stream_info = self.camera.stream_info(self.map.hex_cell_length());
+        self.light_dependent_sprite.set_camera_stream_info(camera_stream_info.clone());
+
         self.map.queue_draw(&camera_stream_info, &mut self.hex_renderer, &mut self.full_light_sprite);
         self.players.queue_draw(&mut self.full_light_sprite, &mut self.light_dependent_sprite);
         self.enemies.queue_draw(&mut self.light_dependent_sprite);

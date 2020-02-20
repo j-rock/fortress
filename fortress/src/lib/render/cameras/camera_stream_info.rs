@@ -14,6 +14,7 @@ pub enum CameraStreamBounds {
     Inside
 }
 
+#[derive(Clone)]
 pub struct CameraStreamInfo {
     inside_bounds: BoundingSquircle,
     margin_bounds: BoundingSquircle,
@@ -40,8 +41,12 @@ impl CameraStreamInfo {
         }
     }
 
+    pub fn is_point_inside(&self, point: Point2<f64>) -> bool {
+        self.inside_bounds.contains(point)
+    }
+
     pub fn compute_bounds(&self, point: Point2<f64>) -> CameraStreamBounds {
-        if self.inside_bounds.contains(point.clone()) {
+        if self.is_point_inside(point.clone()) {
             return CameraStreamBounds::Inside;
         }
 
