@@ -2,10 +2,12 @@
 
 out vec4 frag_color;
 
-in VS_OUT {
+in GS_OUT {
     vec3 color;
-} vs_out;
+    float alpha;
+} gs_out;
 
 void main() {
-    frag_color = vec4(vs_out.color, 1.0);
+    frag_color.rgb = gs_out.color;
+    frag_color.a = gs_out.alpha;
 }

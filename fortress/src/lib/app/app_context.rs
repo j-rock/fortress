@@ -47,7 +47,6 @@ impl AppContext {
         canvas.window().gl_set_context_to_current()?;
         unsafe {
             gl::Enable(gl::DEPTH_TEST);
-            gl::Enable(gl::PROGRAM_POINT_SIZE);
             gl::Enable(gl::BLEND);
             gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
             gl::Viewport(0, 0, window_size.0, window_size.1);
