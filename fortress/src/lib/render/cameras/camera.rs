@@ -15,6 +15,7 @@ use nalgebra::{
     Point2,
     Point3,
     Vector2,
+    Vector3,
 };
 
 pub struct Camera {
@@ -86,20 +87,19 @@ impl Camera {
 
         let config = self.config_manager.get();
         let player_pos = player_locs[0];
-        let player_world_pos = Point3::new(player_pos.x, 0.0, player_pos.y);
+        let cam_planar_pos = Point2::new(self.world_position.x, self.world_position.z);
 
-        let mut player_camera_displacement = player_world_pos - self.world_position;
-        player_camera_displacement.y = 0.0;
-
-        if player_camera_displacement.x.abs() < config.physical_no_move_half_lengths.0 {
-            player_camera_displacement.x = 0.0;
+        let mut displacement = player_pos - cam_planar_pos;
+        if displacement.x.abs() < config.physical_no_move_half_lengths.0 {
+            displacement.x = 0.0;
         }
-        if player_camera_displacement.z.abs() < config.physical_no_move_half_lengths.1 {
-            player_camera_displacement.z = 0.0;
+        if displacement.y.abs() < config.physical_no_move_half_lengths.1 {
+            displacement.y = 0.0;
         }
+        let displacement = Vector3::new(displacement.x, 0.0, displacement.y);
 
         let move_multiplier = dt.as_f64_seconds() / config.physical_follow_player_factor;
-        self.world_position += move_multiplier * player_camera_displacement;
+        self.world_position += move_multiplier * displacement;
     }
 
     pub fn stream_info(&self, hex_cell_length: f64) -> CameraStreamInfo {
