@@ -12,6 +12,7 @@ pub struct CameraConfig {
     pub physical_follow_player_factor: f64,
 
     pub stream_inside_half_extents: (f64, f64),
-    pub stream_margin_length: f64
+    pub stream_margin_length: f64,
+    pub stream_light_margin_length: f64,
 }
 

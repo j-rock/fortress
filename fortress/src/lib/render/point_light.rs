@@ -60,7 +60,7 @@ impl PointLights {
             lights
                 .filter(|point_light| {
                     if let Some(ref camera_stream_info) = self.camera_stream_info {
-                        !camera_stream_info.is_point_outside_margin(Point2::new(point_light.position.x as f64, -point_light.position.z as f64))
+                        camera_stream_info.is_point_within_light_margin(Point2::new(point_light.position.x as f64, -point_light.position.z as f64))
                     } else {
                         true
                     }

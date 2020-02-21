@@ -106,7 +106,7 @@ impl Camera {
         let config = self.config_manager.get();
         let cam_pos = Point2::new(self.world_position.x, self.world_position.z);
         let inside_half_extents = Vector2::new(config.stream_inside_half_extents.0, config.stream_inside_half_extents.1);
-        CameraStreamInfo::new(cam_pos, inside_half_extents, config.stream_margin_length, hex_cell_length)
+        CameraStreamInfo::new(cam_pos, inside_half_extents, config.stream_margin_length, config.stream_light_margin_length, hex_cell_length)
     }
 
     fn ortho(left: f32, right: f32, bottom: f32, top: f32, z_near: f32, z_far: f32) -> glm::Mat4 {

@@ -18,6 +18,7 @@ pub enum CameraStreamBounds {
 pub struct CameraStreamInfo {
     inside_bounds: BoundingSquircle,
     margin_bounds: BoundingSquircle,
+    light_bounds: BoundingSquircle,
     axial_to_cartesian: Matrix2<f64>,
     margin_length: f64,
 }
@@ -26,16 +27,20 @@ impl CameraStreamInfo {
     pub fn new(center: Point2<f64>,
                inside_half_extents: Vector2<f64>,
                margin_length: f64,
+               light_margin_length: f64,
                hex_cell_length: f64) -> Self {
         let axial_to_cartesian = GridIndex::axial_to_cartesian(hex_cell_length);
 
         let inside_bounds = BoundingSquircle::new(center.clone(), inside_half_extents.clone());
         let margin_half_extents = Vector2::new(margin_length, margin_length) + inside_half_extents;
-        let margin_bounds = BoundingSquircle::new(center, margin_half_extents);
+        let margin_bounds = BoundingSquircle::new(center.clone(), margin_half_extents);
+        let light_margin_half_extents = Vector2::new(light_margin_length, light_margin_length) + margin_half_extents;
+        let light_bounds = BoundingSquircle::new(center, light_margin_half_extents);
 
         CameraStreamInfo {
             inside_bounds,
             margin_bounds,
+            light_bounds,
             axial_to_cartesian,
             margin_length,
         }
@@ -47,6 +52,10 @@ impl CameraStreamInfo {
 
     pub fn is_point_outside_margin(&self, point: Point2<f64>) -> bool {
         !self.margin_bounds.contains(point)
+    }
+
+    pub fn is_point_within_light_margin(&self, point: Point2<f64>) -> bool {
+        self.light_bounds.contains(point)
     }
 
     pub fn compute_bounds(&self, point: Point2<f64>) -> CameraStreamBounds {
