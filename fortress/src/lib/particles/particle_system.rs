@@ -80,7 +80,7 @@ impl ParticleSystem {
 
         let (blood_particles, snow_particles, queued_events) = {
             let config = config.get();
-            let total_particle_limit = config.blood.particle_limit;
+            let total_particle_limit = config.blood.particle_limit + config.snow.particle_limit;
             attr_pos.data.reserve(total_particle_limit);
             attr_color.data.reserve(total_particle_limit);
             attr_alpha.data.reserve(total_particle_limit);
