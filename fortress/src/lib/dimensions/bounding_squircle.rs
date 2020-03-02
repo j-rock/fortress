@@ -1,3 +1,4 @@
+use crate::app::RandGen;
 use nalgebra::{
     Point2,
     Vector2,
@@ -43,5 +44,14 @@ impl BoundingSquircle {
 
         let t = (numerator / denominator).sqrt().sqrt();
         (1.0 - t) * d.norm()
+    }
+
+    pub fn random_point_inside(&self, rng: &mut RandGen) -> Point2<f64> {
+        let unit_circle = rng.unit_circle_point();
+        let x = unit_circle.x * rng.unit_f64();
+        let y = unit_circle.y * rng.unit_f64();
+        let px = x * self.half_extents.x + self.center.x;
+        let py = y * self.half_extents.y + self.center.y;
+        Point2::new(px, py)
     }
 }

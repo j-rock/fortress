@@ -29,6 +29,18 @@ impl RingBufferView {
         self.curr_head = (self.curr_head + 1) % self.capacity;
     }
 
+    pub fn drop_last(&mut self) {
+        if self.len == 0 {
+            return;
+        }
+
+        if self.curr_head == self.len {
+            self.curr_head -= 1;
+        }
+
+        self.len -= 1;
+    }
+
     pub fn add_element_at_head<T>(&self, element: T, data: &mut Vec<T>) {
         if self.len < self.capacity {
             data.push(element);

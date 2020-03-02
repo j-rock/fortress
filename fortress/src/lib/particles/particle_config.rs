@@ -10,7 +10,21 @@ pub struct BloodParticleConfig {
 }
 
 #[derive(Deserialize)]
+pub struct SnowParticleConfig {
+    pub particle_limit: usize,
+    pub particle_generation_period_micros: i64,
+    pub wind_direction_raw: (f32, f32, f32),
+    pub wind_direction_max_angle_offset: f32,
+    pub speed_range: (f32, f32),
+    pub size_range: (f32, f32),
+    pub color: (f32, f32, f32),
+    pub start_position_offset: (f32, f32, f32),
+    pub height_above_which_alpha_is_full: f32,
+}
+
+#[derive(Deserialize)]
 pub struct ParticleConfig {
     pub initial_particle_events_limit_guess: usize,
     pub blood: BloodParticleConfig,
+    pub snow: SnowParticleConfig,
 }

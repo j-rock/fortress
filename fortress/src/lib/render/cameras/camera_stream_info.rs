@@ -1,6 +1,9 @@
-use crate::dimensions::{
-    BoundingSquircle,
-    GridIndex,
+use crate::{
+    app::RandGen,
+    dimensions::{
+        BoundingSquircle,
+        GridIndex,
+    }
 };
 use nalgebra::{
     Matrix2,
@@ -81,5 +84,9 @@ impl CameraStreamInfo {
     pub fn compute_grid_bounds(&self, grid_index: GridIndex) -> CameraStreamBounds {
         let cell_center = grid_index.index_center(&self.axial_to_cartesian);
         self.compute_bounds(cell_center)
+    }
+
+    pub fn random_point_inside_bounds(&self, rng: &mut RandGen) -> Point2<f64> {
+        self.inside_bounds.random_point_inside(rng)
     }
 }

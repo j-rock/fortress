@@ -1,4 +1,5 @@
 use glm;
+use nalgebra::Point2;
 use rand::{
     Rng,
     SeedableRng,
@@ -49,7 +50,16 @@ impl RandGen {
         glm::vec2(x, y)
     }
 
+    pub fn unit_circle_point(&mut self) -> Point2<f64> {
+        let [x, y]: [f64; 2] = UnitCircle.sample(&mut self.rng);
+        Point2::new(x, y)
+    }
+
     pub fn unit_f32(&mut self) -> f32 {
+        self.rng.gen_range(0.0, 1.0)
+    }
+
+    pub fn unit_f64(&mut self) -> f64 {
         self.rng.gen_range(0.0, 1.0)
     }
 }

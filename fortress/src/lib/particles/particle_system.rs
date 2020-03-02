@@ -17,7 +17,8 @@ use crate::{
         particle_render_view::{
             FloatAttr,
             Vec3Attr,
-        }
+        },
+        SnowParticles,
     },
     render::{
         Attribute,
@@ -59,6 +60,7 @@ pub struct ParticleSystem {
     attr_size: Attribute<FloatAttr>,
     queued_events: Vec<ParticleEvent>,
     blood_particles: BloodParticles,
+    snow_particles: SnowParticles,
 }
 
 impl ParticleSystem {
@@ -76,7 +78,7 @@ impl ParticleSystem {
         let mut attr_size = attribute_program_builder.add_attribute();
         let attribute_program = attribute_program_builder.build();
 
-        let (blood_particles, queued_events) = {
+        let (blood_particles, snow_particles, queued_events) = {
             let config = config.get();
             let total_particle_limit = config.blood.particle_limit;
             attr_pos.data.reserve(total_particle_limit);
@@ -85,6 +87,7 @@ impl ParticleSystem {
             attr_size.data.reserve(total_particle_limit);
 
             (BloodParticles::new(&config.blood),
+             SnowParticles::new(&config.snow),
              Vec::with_capacity(config.initial_particle_events_limit_guess))
         };
 
@@ -98,6 +101,7 @@ impl ParticleSystem {
             attr_size,
             queued_events,
             blood_particles,
+            snow_particles,
         })
     }
 
@@ -109,19 +113,21 @@ impl ParticleSystem {
         self.queued_events.clear();
 
         self.blood_particles.respawn();
+        self.snow_particles.respawn();
     }
 
     pub fn pre_update(&mut self, dt: DeltaTime) {
         self.config.update();
         let config = self.config.get();
         self.blood_particles.pre_update(&config.blood, dt);
+        self.snow_particles.pre_update(&config.snow, dt);
     }
 
     pub fn queue_event(&mut self, event: ParticleEvent) {
         self.queued_events.push(event);
     }
 
-    pub fn post_update(&mut self, rng: &mut RandGen) {
+    pub fn post_update(&mut self, camera_stream_info: &CameraStreamInfo, rng: &mut RandGen) {
         let config = self.config.get();
         for event in self.queued_events.iter() {
             match event {
@@ -129,18 +135,31 @@ impl ParticleSystem {
             }
         }
         self.queued_events.clear();
+
+        self.snow_particles.post_update(&config.snow, camera_stream_info, rng);
     }
 
     pub fn draw(&mut self, camera_stream_info: &CameraStreamInfo, projection_view: &glm::Mat4, camera_right: glm::Vec3, camera_up: glm::Vec3) {
         let config = self.config.get();
 
-        let render_view = ParticleRenderView {
-            attr_pos: &mut self.attr_pos.data,
-            attr_color: &mut self.attr_color.data,
-            attr_alpha: &mut self.attr_alpha.data,
-            attr_size: &mut self.attr_size.data,
-        };
-        self.blood_particles.queue_draw(&config.blood, camera_stream_info, render_view);
+        {
+            let render_view = ParticleRenderView {
+                attr_pos: &mut self.attr_pos.data,
+                attr_color: &mut self.attr_color.data,
+                attr_alpha: &mut self.attr_alpha.data,
+                attr_size: &mut self.attr_size.data,
+            };
+            self.blood_particles.queue_draw(&config.blood, camera_stream_info, render_view);
+        }
+        {
+            let render_view = ParticleRenderView {
+                attr_pos: &mut self.attr_pos.data,
+                attr_color: &mut self.attr_color.data,
+                attr_alpha: &mut self.attr_alpha.data,
+                attr_size: &mut self.attr_size.data,
+            };
+            self.snow_particles.queue_draw(&config.snow, render_view);
+        }
 
         self.shader_program.activate();
         self.attribute_program.activate();
