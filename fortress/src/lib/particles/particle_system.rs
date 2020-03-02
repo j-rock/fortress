@@ -10,30 +10,30 @@ use crate::{
         SimpleConfigManager,
     },
     particles::{
+        BloodParticles,
         ParticleConfig,
         ParticleEvent,
-        RingBufferView,
+        ParticleRenderView,
+        particle_render_view::{
+            FloatAttr,
+            Vec3Attr,
+        }
     },
     render::{
-        attribute,
         Attribute,
         AttributeProgram,
-        CameraStreamBounds,
         CameraStreamInfo,
-        EasingFn,
         ShaderProgram,
         ShaderUniformKey,
     },
 };
 use gl::types::GLsizei;
 use glm;
-use nalgebra::Point2;
 use std::ffi::CString;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 enum UniformKey {
     ProjectionView,
-    ParticleSize,
     CameraRight,
     CameraUp,
 }
@@ -42,7 +42,6 @@ impl ShaderUniformKey for UniformKey {
     fn to_cstring(self) -> CString {
         let s = match self {
             UniformKey::ProjectionView => "projection_view",
-            UniformKey::ParticleSize => "particle_size",
             UniformKey::CameraRight => "camera_right",
             UniformKey::CameraUp => "camera_up",
         };
@@ -56,10 +55,10 @@ pub struct ParticleSystem {
     attribute_program: AttributeProgram,
     attr_pos: Attribute<Vec3Attr>,
     attr_color: Attribute<Vec3Attr>,
-    attr_alpha: Attribute<AlphaAttr>,
-    velocity: Vec<glm::Vec3>,
-    ring_buffer_view: RingBufferView,
+    attr_alpha: Attribute<FloatAttr>,
+    attr_size: Attribute<FloatAttr>,
     queued_events: Vec<ParticleEvent>,
+    blood_particles: BloodParticles,
 }
 
 impl ParticleSystem {
@@ -74,16 +73,19 @@ impl ParticleSystem {
         let mut attr_pos = attribute_program_builder.add_attribute();
         let mut attr_color = attribute_program_builder.add_attribute();
         let mut attr_alpha = attribute_program_builder.add_attribute();
+        let mut attr_size = attribute_program_builder.add_attribute();
         let attribute_program = attribute_program_builder.build();
 
-        let (velocity, queued_events, ring_buffer_view) = {
+        let (blood_particles, queued_events) = {
             let config = config.get();
-            attr_pos.data.reserve(config.particle_capacity);
-            attr_color.data.reserve(config.particle_capacity);
-            attr_alpha.data.reserve(config.particle_capacity);
-            (Vec::with_capacity(config.particle_capacity),
-             Vec::with_capacity(config.initial_particle_events_guess),
-             RingBufferView::with_capacity(config.particle_capacity))
+            let total_particle_limit = config.blood.particle_limit;
+            attr_pos.data.reserve(total_particle_limit);
+            attr_color.data.reserve(total_particle_limit);
+            attr_alpha.data.reserve(total_particle_limit);
+            attr_size.data.reserve(total_particle_limit);
+
+            (BloodParticles::new(&config.blood),
+             Vec::with_capacity(config.initial_particle_events_limit_guess))
         };
 
         Ok(ParticleSystem {
@@ -93,9 +95,9 @@ impl ParticleSystem {
             attr_pos,
             attr_color,
             attr_alpha,
-            velocity,
-            ring_buffer_view,
+            attr_size,
             queued_events,
+            blood_particles,
         })
     }
 
@@ -103,30 +105,16 @@ impl ParticleSystem {
         self.attr_pos.data.clear();
         self.attr_color.data.clear();
         self.attr_alpha.data.clear();
-        self.velocity.clear();
-        self.ring_buffer_view.clear();
+        self.attr_size.data.clear();
         self.queued_events.clear();
+
+        self.blood_particles.respawn();
     }
 
     pub fn pre_update(&mut self, dt: DeltaTime) {
         self.config.update();
         let config = self.config.get();
-        for idx in 0..self.ring_buffer_view.len() {
-            let position = self.attr_pos.data[idx].val;
-            if position.y <= 0.0 {
-                continue;
-            }
-            let float_dt = dt.as_f32_seconds() as f32;
-            let velocity = self.velocity[idx];
-            let new_velocity = glm::vec3(velocity.x, velocity.y + config.particle_gravity * float_dt, velocity.z);
-            self.velocity[idx] = new_velocity;
-
-            let mut new_pos = position + (new_velocity * float_dt);
-            if new_pos.y < 0.0 {
-                new_pos.y = 0.0;
-            }
-            self.attr_pos.data[idx] = Vec3Attr::new(new_pos);
-        }
+        self.blood_particles.pre_update(&config.blood, dt);
     }
 
     pub fn queue_event(&mut self, event: ParticleEvent) {
@@ -136,21 +124,8 @@ impl ParticleSystem {
     pub fn post_update(&mut self, rng: &mut RandGen) {
         let config = self.config.get();
         for event in self.queued_events.iter() {
-            for _idx in 0..config.particles_per_event {
-                let vel_xz = rng.unit_circle_glm() * rng.unit_f32() * config.particle_max_spread_velocity;
-                let velocity = glm::vec3(vel_xz.x, config.particle_start_velocity_y, vel_xz.y);
-
-                let radius = rng.unit_circle_glm() * event.radius;
-                let position =
-                    glm::vec3(radius.x + event.position.x as f32,
-                              config.particle_start_height,
-                              radius.y - event.position.y as f32);
-
-                self.ring_buffer_view.add_element_at_head(Vec3Attr::new(position), &mut self.attr_pos.data);
-                self.ring_buffer_view.add_element_at_head(Vec3Attr::new(event.color * rng.unit_f32()), &mut self.attr_color.data);
-                self.ring_buffer_view.add_element_at_head(AlphaAttr::new(1.0), &mut self.attr_alpha.data);
-                self.ring_buffer_view.add_element_at_head(velocity, &mut self.velocity);
-                self.ring_buffer_view.increment_head();
+            match event {
+                ParticleEvent::Blood(ref event) => self.blood_particles.add_event(&config.blood, event, rng),
             }
         }
         self.queued_events.clear();
@@ -159,75 +134,36 @@ impl ParticleSystem {
     pub fn draw(&mut self, camera_stream_info: &CameraStreamInfo, projection_view: &glm::Mat4, camera_right: glm::Vec3, camera_up: glm::Vec3) {
         let config = self.config.get();
 
-        for idx in 0..self.ring_buffer_view.len() {
-            let position = self.attr_pos.data[idx].val;
-            let alpha = match camera_stream_info.compute_bounds(Point2::new(position.x as f64, -position.z as f64)) {
-                CameraStreamBounds::Outside => 0.0,
-                CameraStreamBounds::Inside => 1.0,
-                CameraStreamBounds::Margin(margin) => EasingFn::ease_in_cuartic(margin),
-            };
-            self.attr_alpha.data[idx].set_alpha(alpha);
-        }
+        let render_view = ParticleRenderView {
+            attr_pos: &mut self.attr_pos.data,
+            attr_color: &mut self.attr_color.data,
+            attr_alpha: &mut self.attr_alpha.data,
+            attr_size: &mut self.attr_size.data,
+        };
+        self.blood_particles.queue_draw(&config.blood, camera_stream_info, render_view);
 
         self.shader_program.activate();
         self.attribute_program.activate();
 
         self.shader_program.set_mat4(UniformKey::ProjectionView, projection_view);
-        self.shader_program.set_f32(UniformKey::ParticleSize, config.particle_size);
         self.shader_program.set_vec3(UniformKey::CameraRight, &camera_right);
         self.shader_program.set_vec3(UniformKey::CameraUp, &camera_up);
 
         self.attr_pos.prepare_buffer();
         self.attr_color.prepare_buffer();
         self.attr_alpha.prepare_buffer();
+        self.attr_size.prepare_buffer();
 
         unsafe {
             gl::DrawArraysInstanced(gl::POINTS, 0, 1, self.attr_pos.data.len() as GLsizei);
         }
 
+        self.attr_pos.data.clear();
+        self.attr_color.data.clear();
+        self.attr_alpha.data.clear();
+        self.attr_size.data.clear();
+
         self.attribute_program.deactivate();
         self.shader_program.deactivate();
-    }
-}
-
-#[repr(C)]
-struct Vec3Attr {
-    val: glm::Vec3,
-}
-
-impl Vec3Attr {
-    pub fn new(val: glm::Vec3) -> Vec3Attr {
-        Vec3Attr {
-            val
-        }
-    }
-}
-
-impl attribute::KnownComponent for Vec3Attr {
-    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
-        (attribute::NumComponents::S3, attribute::ComponentType::Float)
-    }
-}
-
-#[repr(C)]
-struct AlphaAttr {
-    alpha: f32,
-}
-
-impl AlphaAttr {
-    pub fn new(alpha: f32) -> Self {
-        AlphaAttr {
-            alpha
-        }
-    }
-
-    pub fn set_alpha(&mut self, alpha: f32) {
-        self.alpha = alpha;
-    }
-}
-
-impl attribute::KnownComponent for AlphaAttr {
-    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
-        (attribute::NumComponents::S1, attribute::ComponentType::Float)
     }
 }

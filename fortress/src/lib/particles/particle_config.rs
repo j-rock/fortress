@@ -1,11 +1,16 @@
 #[derive(Deserialize)]
-pub struct ParticleConfig {
-    pub particle_capacity: usize,
-    pub initial_particle_events_guess: usize,
-    pub particle_start_height: f32,
-    pub particle_max_spread_velocity: f32,
-    pub particle_start_velocity_y: f32,
+pub struct BloodParticleConfig {
+    pub particle_limit: usize,
     pub particles_per_event: usize,
-    pub particle_gravity: f32,
-    pub particle_size: f32,
+    pub size: f32,
+    pub gravity: f32,
+    pub max_spread_speed: f32,
+    pub start_height: f32,
+    pub start_velocity_y: f32,
+}
+
+#[derive(Deserialize)]
+pub struct ParticleConfig {
+    pub initial_particle_events_limit_guess: usize,
+    pub blood: BloodParticleConfig,
 }

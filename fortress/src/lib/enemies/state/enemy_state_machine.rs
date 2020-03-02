@@ -75,11 +75,14 @@ impl EnemyStateMachine {
         if let EnemyStateMachine::Base(body, _) = self {
             enemy_state.take_attack(attack);
             if let Some(position) = body.position() {
-                particles.queue_event(ParticleEvent {
-                    position,
-                    color: glm::vec3(config.enemy_hit_particle_color.0, config.enemy_hit_particle_color.1, config.enemy_hit_particle_color.2),
-                    radius: config.enemy_hit_particle_radius,
-                });
+                let blood_event =
+                    ParticleEvent::blood(position,
+                                         glm::vec3(
+                                            config.enemy_hit_particle_color.0,
+                                            config.enemy_hit_particle_color.1,
+                                            config.enemy_hit_particle_color.2),
+                                         config.enemy_hit_particle_radius);
+                particles.queue_event(blood_event);
             }
         }
     }
