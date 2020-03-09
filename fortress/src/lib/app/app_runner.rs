@@ -8,9 +8,8 @@ use crate::{
     audio::AudioPlayer,
     control::Controller,
     file::{
-        Config,
         ConfigWatcher,
-        self
+        SimpleConfigManager,
     },
     world::WorldState,
 };
@@ -26,7 +25,8 @@ use sdl2::{
 
 #[derive(Deserialize)]
 struct AppRunnerConfig {
-    window_size: (i32, i32)
+    window_size: (i32, i32),
+    sleep_to_frame_micros: i64,
 }
 
 pub struct AppRunner {
@@ -36,6 +36,7 @@ pub struct AppRunner {
     rng: RandGen,
     world: WorldState,
     config_watcher: ConfigWatcher,
+    config: SimpleConfigManager<AppRunnerConfig>,
 
     // Declare AppContext last so its dropped last.
     context: AppContext,
@@ -45,29 +46,31 @@ impl AppRunner {
     pub fn new() -> StatusOr<AppRunner> {
         let mut config_watcher = ConfigWatcher::new()?;
 
-        let config_path = file::util::resource_path("config", "app.conf");
-        let config = AppRunnerConfig::from_path(&config_path)?;
+        let config = SimpleConfigManager::from_config_resource(&mut config_watcher, "app.conf")?;
 
-        let context = AppContext::new(config.window_size)?;
+        let context = {
+            let config: &AppRunnerConfig = config.get();
+            AppContext::new(config.window_size)?
+        };
         let audio = AudioPlayer::new(&mut config_watcher)?;
         let controller = Controller::new(&mut config_watcher)?;
         let world = WorldState::new(&mut config_watcher)?;
 
         Ok(AppRunner {
             audio,
-            config_watcher,
-            context,
             clock: Clock::start(),
             controller,
             rng: RandGen::new(),
             world,
+            config_watcher,
+            config,
+            context,
         })
     }
 
     pub fn run(&mut self) -> StatusOr<()> {
         let _ = self.clock.restart();
         loop {
-            std::thread::sleep(std::time::Duration::from_millis(5));
             match self.process_events() {
                 Err(e) => return Err(e),
                 Ok(false) => return Ok(()),
@@ -75,6 +78,13 @@ impl AppRunner {
                     self.update();
                     self.draw();
                     self.context.canvas.present();
+
+                    let dt_micros = self.clock.restart().as_microseconds();
+                    if dt_micros < self.config.get().sleep_to_frame_micros {
+                        let sleep_time_micros = self.config.get().sleep_to_frame_micros - dt_micros;
+                        let sleep_duration = std::time::Duration::from_micros(sleep_time_micros as u64);
+                        std::thread::sleep(sleep_duration);
+                    }
                 }
             }
         }
@@ -107,6 +117,7 @@ impl AppRunner {
     fn update(&mut self) {
         let dt = self.clock.restart();
         self.config_watcher.update();
+        self.config.update();
         self.controller.update(&self.context.events);
         self.audio.update();
         self.world.update(&self.audio, &self.controller, &mut self.rng, dt);
