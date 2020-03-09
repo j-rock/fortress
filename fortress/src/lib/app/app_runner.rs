@@ -79,7 +79,7 @@ impl AppRunner {
                     self.draw();
                     self.context.canvas.present();
 
-                    let dt_micros = self.clock.restart().as_microseconds();
+                    let dt_micros = self.clock.peek().as_microseconds();
                     if dt_micros < self.config.get().sleep_to_frame_micros {
                         let sleep_time_micros = self.config.get().sleep_to_frame_micros - dt_micros;
                         let sleep_duration = std::time::Duration::from_micros(sleep_time_micros as u64);
