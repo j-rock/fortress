@@ -115,7 +115,7 @@ impl GamepadControls {
             match event {
                 Event::ControllerDeviceAdded { which, .. } => {
                     if let Ok(game_controller) = controller_subsystem.open(which) {
-                        let gamepad_id = GamepadId::from_i32(game_controller.instance_id());
+                        let gamepad_id = GamepadId::from_u32(game_controller.instance_id() as u32);
                         self.gamepads.insert(gamepad_id, game_controller);
                         self.controller_events.push(ControllerEvent::GamepadConnected(gamepad_id));
                     } else {
@@ -123,12 +123,12 @@ impl GamepadControls {
                     }
                 },
                 Event::ControllerDeviceRemoved { which, .. } => {
-                    let gamepad_id = GamepadId::from_i32(which);
+                    let gamepad_id = GamepadId::from_u32(which);
                     self.gamepads.remove(&gamepad_id);
                     self.controller_events.push(ControllerEvent::GamepadDisconnected(gamepad_id));
                 },
                 Event::ControllerButtonDown { which, button, .. } => {
-                    let gamepad_id = GamepadId::from_i32(which);
+                    let gamepad_id = GamepadId::from_u32(which);
                     let gamepad_button = GamepadButton {
                         gamepad_id,
                         button
@@ -137,7 +137,7 @@ impl GamepadControls {
                     self.just_pressed.insert(gamepad_button);
                 },
                 Event::ControllerButtonUp { which, button, .. } => {
-                    let gamepad_id = GamepadId::from_i32(which);
+                    let gamepad_id = GamepadId::from_u32(which);
                     let gamepad_button = GamepadButton {
                         gamepad_id,
                         button
@@ -146,7 +146,7 @@ impl GamepadControls {
                     self.just_released.insert(gamepad_button);
                 },
                 Event::ControllerAxisMotion { which, axis, value, .. } => {
-                    let gamepad_id = GamepadId::from_i32(which);
+                    let gamepad_id = GamepadId::from_u32(which);
                     let gamepad_axis = GamepadAxis {
                         gamepad_id,
                         axis
