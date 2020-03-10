@@ -1,11 +1,8 @@
 use crate::{
     app::RandGen,
-    dimensions::{
-        time::{
-            DeltaTime,
-            Microseconds,
-        },
-        UnitQuaternion,
+    dimensions::time::{
+        DeltaTime,
+        Microseconds,
     },
     particles::{
         ParticleRenderView,
@@ -30,14 +27,14 @@ pub struct SnowParticles {
     color: Vec<glm::Vec3>,
     size: Vec<f32>,
     time_since_last_snowflake: Microseconds,
-    wind_direction: glm::Vec3,
-    wind_up_direction: glm::Vec3,
+    wind_inclination: f32,
+    wind_azimuth: f32,
 }
 
 impl SnowParticles {
     pub fn new(config: &SnowParticleConfig) -> SnowParticles {
         let wind_direction = glm::normalize(glm::vec3(config.wind_direction_raw.0, config.wind_direction_raw.1, config.wind_direction_raw.2));
-        let wind_up_direction = glm::cross(glm::cross(wind_direction, glm::vec3(0.0, 1.0, 0.0)), wind_direction);
+        let (wind_inclination, wind_azimuth) = Self::compute_inclination_and_azimuth(wind_direction);
 
         let particle_limit = config.particle_limit;
         SnowParticles {
@@ -47,8 +44,8 @@ impl SnowParticles {
             color: Vec::with_capacity(particle_limit),
             size: Vec::with_capacity(particle_limit),
             time_since_last_snowflake: 0,
-            wind_direction,
-            wind_up_direction,
+            wind_inclination,
+            wind_azimuth,
         }
     }
 
@@ -61,8 +58,12 @@ impl SnowParticles {
     }
 
     pub fn pre_update(&mut self, config: &SnowParticleConfig, dt: DeltaTime) {
-        self.wind_direction = glm::normalize(glm::vec3(config.wind_direction_raw.0, config.wind_direction_raw.1, config.wind_direction_raw.2));
-        self.wind_up_direction = glm::cross(glm::cross(self.wind_direction, glm::vec3(0.0, 1.0, 0.0)), self.wind_direction);
+        {
+            let wind_direction = glm::normalize(glm::vec3(config.wind_direction_raw.0, config.wind_direction_raw.1, config.wind_direction_raw.2));
+            let (wind_inclination, wind_azimuth) = Self::compute_inclination_and_azimuth(wind_direction);
+            self.wind_inclination = wind_inclination;
+            self.wind_azimuth = wind_azimuth;
+        }
         self.time_since_last_snowflake += dt.as_microseconds();
 
         (0..self.ring_buffer_view.len())
@@ -93,11 +94,13 @@ impl SnowParticles {
         };
 
         let velocity = {
-            let rand_angle_offset = (2.0 * rng.unit_f32() - 1.0) * config.wind_direction_max_angle_offset;
-            let offset = UnitQuaternion::from_unit_axis_and_angle(self.wind_up_direction, rand_angle_offset);
-            let spin = UnitQuaternion::from_unit_axis_and_angle(self.wind_direction, 6.2831 * rng.unit_f32());
-            let quat = offset.then_rotate_by(spin);
-            let direction = quat.rotate(self.wind_direction);
+            let rand_azimuth = (2.0 * rng.unit_f32() - 1.0) * config.wind_direction_max_angle_offset + self.wind_azimuth;
+            let rand_inclination = (2.0 * rng.unit_f32() - 1.0) * config.wind_direction_max_angle_offset + self.wind_inclination;
+            let sin_inc = rand_inclination.sin();
+            let x_dir = sin_inc * rand_azimuth.cos();
+            let y_dir = rand_inclination.cos();
+            let z_dir = sin_inc * rand_azimuth.sin();
+            let direction = glm::vec3(x_dir, y_dir, z_dir);
             let speed = config.speed_range.0 + (config.speed_range.1 - config.speed_range.0) * rng.unit_f32();
             direction * speed
         };
@@ -138,5 +141,11 @@ impl SnowParticles {
         self.velocity.swap_remove(index);
         self.color.swap_remove(index);
         self.size.swap_remove(index);
+    }
+
+    fn compute_inclination_and_azimuth(wind_direction: glm::Vec3) -> (f32, f32) {
+        let inclination = wind_direction.y.acos();
+        let azimuth = wind_direction.z.atan2(wind_direction.x);
+        (inclination, azimuth)
     }
 }
