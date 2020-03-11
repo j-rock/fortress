@@ -18,6 +18,7 @@ use crate::{
             FloatAttr,
             Vec3Attr,
         },
+        HeroSwitchParticles,
         SnowParticles,
     },
     render::{
@@ -61,6 +62,7 @@ pub struct ParticleSystem {
     queued_events: Vec<ParticleEvent>,
     blood_particles: BloodParticles,
     snow_particles: SnowParticles,
+    hero_switch_particles: HeroSwitchParticles,
 }
 
 impl ParticleSystem {
@@ -78,9 +80,9 @@ impl ParticleSystem {
         let mut attr_size = attribute_program_builder.add_attribute();
         let attribute_program = attribute_program_builder.build();
 
-        let (blood_particles, snow_particles, queued_events) = {
+        let (blood_particles, snow_particles, hero_switch_particles, queued_events) = {
             let config = config.get();
-            let total_particle_limit = config.blood.particle_limit + config.snow.particle_limit;
+            let total_particle_limit = config.blood.particle_limit + config.snow.particle_limit + config.hero_switch.particle_limit;
             attr_pos.data.reserve(total_particle_limit);
             attr_color.data.reserve(total_particle_limit);
             attr_alpha.data.reserve(total_particle_limit);
@@ -88,6 +90,7 @@ impl ParticleSystem {
 
             (BloodParticles::new(&config.blood),
              SnowParticles::new(&config.snow),
+             HeroSwitchParticles::new(&config.hero_switch),
              Vec::with_capacity(config.initial_particle_events_limit_guess))
         };
 
@@ -102,6 +105,7 @@ impl ParticleSystem {
             queued_events,
             blood_particles,
             snow_particles,
+            hero_switch_particles,
         })
     }
 
@@ -114,6 +118,7 @@ impl ParticleSystem {
 
         self.blood_particles.respawn();
         self.snow_particles.respawn();
+        self.hero_switch_particles.respawn();
     }
 
     pub fn pre_update(&mut self, dt: DeltaTime) {
@@ -121,17 +126,28 @@ impl ParticleSystem {
         let config = self.config.get();
         self.blood_particles.pre_update(&config.blood, dt);
         self.snow_particles.pre_update(&config.snow, dt);
+        self.hero_switch_particles.pre_update(&config.hero_switch, dt);
     }
 
     pub fn queue_event(&mut self, event: ParticleEvent) {
         self.queued_events.push(event);
     }
 
+    pub fn queue_events(&mut self, events: Vec<ParticleEvent>) {
+        let mut events = events;
+        self.queued_events.append(&mut events);
+    }
+
     pub fn post_update(&mut self, camera_stream_info: &CameraStreamInfo, rng: &mut RandGen) {
         let config = self.config.get();
         for event in self.queued_events.iter() {
             match event {
-                ParticleEvent::Blood(ref event) => self.blood_particles.add_event(&config.blood, event, rng),
+                ParticleEvent::Blood(ref event) => {
+                    self.blood_particles.add_event(&config.blood, event, rng);
+                },
+                ParticleEvent::HeroSwitch(ref event) => {
+                    self.hero_switch_particles.add_event(&config.hero_switch, event, rng);
+                }
             }
         }
         self.queued_events.clear();
@@ -159,6 +175,15 @@ impl ParticleSystem {
                 attr_size: &mut self.attr_size.data,
             };
             self.snow_particles.queue_draw(&config.snow, render_view);
+        }
+        {
+            let render_view = ParticleRenderView {
+                attr_pos: &mut self.attr_pos.data,
+                attr_color: &mut self.attr_color.data,
+                attr_alpha: &mut self.attr_alpha.data,
+                attr_size: &mut self.attr_size.data,
+            };
+            self.hero_switch_particles.queue_draw(&config.hero_switch, camera_stream_info, render_view);
         }
 
         self.shader_program.activate();

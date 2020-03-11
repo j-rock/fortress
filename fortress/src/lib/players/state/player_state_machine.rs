@@ -17,6 +17,7 @@ use crate::{
         UpDownLeftRight,
     },
     items::ItemPickup,
+    particles::ParticleEvent,
     players::{
         PlayerConfig,
         state::PlayerState,
@@ -57,20 +58,23 @@ impl PlayerStateMachine {
         if controller.is_pressed(controller_id, ControlEvent::PlayerFireWeapon) {
             player_state.try_fire(audio, rng);
         }
+        if controller.is_pressed(controller_id, ControlEvent::PlayerSwitchHero) {
+            player_state.try_switch_hero(config, audio);
+        }
 
         match self {
-            PlayerStateMachine::Idle(time_elapsed) => {
+            Self::Idle(time_elapsed) => {
                 *time_elapsed += dt.as_microseconds();
                 if move_direction.is_some() {
-                    return Some(PlayerStateMachine::Walking(0));
+                    return Some(Self::Walking(0));
                 }
             },
-            PlayerStateMachine::Walking(time_elapsed) => {
+            Self::Walking(time_elapsed) => {
                 *time_elapsed += dt.as_microseconds();
                 if move_direction.is_none() {
-                    return Some(PlayerStateMachine::Idle(0));
+                    return Some(Self::Idle(0));
                 }
-            }
+            },
         }
 
         None
@@ -79,6 +83,10 @@ impl PlayerStateMachine {
     pub fn post_update(&self, player_state: &mut PlayerState, _audio: &AudioPlayer) -> Option<PlayerStateMachine> {
         player_state.post_update();
         None
+    }
+
+    pub fn hero_switch_particle_event(&self, config: &PlayerConfig, player_state: &PlayerState) -> Option<ParticleEvent> {
+        player_state.hero_switch_particle_event(config)
     }
 
     pub fn populate_lights(&self, config: &PlayerConfig, player_state: &PlayerState, lights: &mut PointLights) {

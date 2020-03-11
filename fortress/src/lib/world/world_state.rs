@@ -118,6 +118,7 @@ impl WorldState {
                 self.enemies.pre_update(controller, dt, player_locs, &mut self.physics_sim);
                 self.items.pre_update();
                 self.particles.pre_update(dt);
+                self.particles.queue_events(self.players.hero_switch_events());
             }
         }
 

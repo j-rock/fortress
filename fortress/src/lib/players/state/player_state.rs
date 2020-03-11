@@ -1,13 +1,20 @@
 use crate::{
     app::RandGen,
-    audio::AudioPlayer,
+    audio::{
+        AudioPlayer,
+        Sound,
+    },
     dimensions::{
         Attack,
         LrDirection,
         OctoDirection,
-        time::DeltaTime
+        time::{
+            DeltaTime,
+            Microseconds,
+        }
     },
     items::ItemPickup,
+    particles::ParticleEvent,
     physics::PhysicsSimulation,
     players::{
         PlayerId,
@@ -41,6 +48,8 @@ pub struct PlayerState {
     lr_dir: LrDirection,
     weapon_physical_offset: f64,
     weapon: Weapon,
+
+    hero_switch_time_left: Option<Microseconds>,
 }
 
 impl PlayerState {
@@ -57,12 +66,22 @@ impl PlayerState {
             lr_dir: LrDirection::Right,
             weapon_physical_offset: config.weapon_physical_offset,
             weapon,
+            hero_switch_time_left: None,
         }
     }
 
     pub fn pre_update(&mut self, config: &PlayerConfig, dt: DeltaTime) {
         self.weapon.pre_update(config, &self.stats, dt);
         self.stats.pre_update(config, dt);
+
+        if let Some(time_left) = self.hero_switch_time_left {
+            let new_time_left = time_left - dt.as_microseconds();
+            if new_time_left < 0 {
+                self.hero_switch_time_left = None;
+            } else {
+                self.hero_switch_time_left = Some(new_time_left);
+            }
+        }
     }
 
     pub fn post_update(&mut self) {
@@ -127,6 +146,22 @@ impl PlayerState {
             let start_position = Point2::from(position.coords + self.weapon_physical_offset * self.facing_dir);
             self.weapon.try_fire_special(config, audio, &self.stats, self.player_id, start_position, self.facing_dir, rng);
         }
+    }
+
+    pub fn try_switch_hero(&mut self, config: &PlayerConfig, audio: &AudioPlayer) {
+        if let None = self.hero_switch_time_left {
+            self.hero_switch_time_left = Some(config.player_switch_hero_duration_micros);
+            audio.play_sound(Sound::HeroSwitch);
+        }
+    }
+
+    pub fn hero_switch_particle_event(&self, config: &PlayerConfig) -> Option<ParticleEvent> {
+        if let Some(time_elapsed) = self.hero_switch_time_left {
+            if time_elapsed == config.player_switch_hero_duration_micros {
+                return Some(ParticleEvent::hero_switch(self.position()?));
+            }
+        }
+        None
     }
 
     pub fn bullet_hit(&mut self, bullet_id: BulletId) {

@@ -10,6 +10,7 @@ use crate::{
         time::DeltaTime
     },
     items::ItemPickup,
+    particles::ParticleEvent,
     physics::PhysicsSimulation,
     players::{
         PlayerConfig,
@@ -91,5 +92,9 @@ impl Player {
 
     pub fn collect_item(&mut self, item_pickup: ItemPickup) {
         self.player_state_machine.collect_item(item_pickup, &mut self.player_state);
+    }
+
+    pub fn hero_switch_event(&self, config: &PlayerConfig) -> Option<ParticleEvent> {
+        self.player_state_machine.hero_switch_particle_event(config, &self.player_state)
     }
 }

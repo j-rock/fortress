@@ -23,8 +23,24 @@ pub struct SnowParticleConfig {
 }
 
 #[derive(Deserialize)]
+pub struct HeroSwitchParticleConfig {
+    pub particle_limit: usize,
+    pub particles_per_event: usize,
+    pub size: f32,
+    pub color: (f32, f32, f32),
+    pub max_age_seconds: f64,
+    pub starting_radial_offset: f64,
+    pub starting_height_band: (f64, f64),
+    pub xz_speed_band: (f64, f64),
+    pub wave_speed_band: (f64, f64),
+    pub wave_amplitude: f64,
+    pub wave_phase_shift: f64,
+}
+
+#[derive(Deserialize)]
 pub struct ParticleConfig {
     pub initial_particle_events_limit_guess: usize,
     pub blood: BloodParticleConfig,
     pub snow: SnowParticleConfig,
+    pub hero_switch: HeroSwitchParticleConfig,
 }

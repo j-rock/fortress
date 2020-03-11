@@ -74,6 +74,7 @@ impl KeyboardControls {
             ControlEvent::PlayerMove(UpDownLeftRight::Right) => Scancode::D,
             ControlEvent::PlayerFireWeapon => Scancode::I,
             ControlEvent::PlayerFireSpecial => Scancode::J,
+            ControlEvent::PlayerSwitchHero => Scancode::O,
             ControlEvent::RedeployEntities => Scancode::R,
         }
     }

@@ -7,8 +7,13 @@ pub struct BloodParticleEvent {
     pub radius: f32,
 }
 
+pub struct HeroSwitchParticleEvent {
+    pub position: Point2<f64>,
+}
+
 pub enum ParticleEvent {
     Blood(BloodParticleEvent),
+    HeroSwitch(HeroSwitchParticleEvent),
 }
 
 impl ParticleEvent {
@@ -17,6 +22,12 @@ impl ParticleEvent {
             position,
             color,
             radius
+        })
+    }
+
+    pub fn hero_switch(position: Point2<f64>) -> Self {
+        Self::HeroSwitch(HeroSwitchParticleEvent {
+            position
         })
     }
 }

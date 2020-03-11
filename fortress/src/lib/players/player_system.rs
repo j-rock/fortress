@@ -23,6 +23,7 @@ use crate::{
     },
     items::ItemPickup,
     physics::PhysicsSimulation,
+    particles::ParticleEvent,
     players::{
         Player,
         PlayerConfig,
@@ -122,6 +123,14 @@ impl PlayerSystem {
         for (_i, player) in self.players.iter_mut() {
             player.post_update(audio);
         }
+    }
+
+    pub fn hero_switch_events(&self) -> Vec<ParticleEvent> {
+        let config =  self.config_manager.get();
+        self.players
+            .iter()
+            .filter_map(|(_, player)| player.hero_switch_event(config))
+            .collect()
     }
 
     pub fn bullet_hit(&mut self, player_id: PlayerId, bullet_id: BulletId) {

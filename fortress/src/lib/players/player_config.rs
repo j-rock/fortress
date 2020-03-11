@@ -9,6 +9,8 @@ pub struct PlayerConfig {
     pub player_idle_frame_duration_micros: i64,
     pub player_running_frame_duration_micros: i64,
 
+    pub player_switch_hero_duration_micros: i64,
+
     pub bullet_normal_firing_period_micros: i64,
     pub bullet_special_firing_period_micros: i64,
     pub bullet_special_spread_radians: f64,
