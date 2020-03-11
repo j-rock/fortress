@@ -25,8 +25,8 @@ use crate::{
         PointLight,
         SpriteSheetFrameId,
     },
+    weapons::BulletType,
 };
-use generational_slab::Key;
 use nalgebra::{
     Point2,
     Vector2,
@@ -46,34 +46,6 @@ use nphysics2d::{
         RigidBodyDesc,
     }
 };
-
-#[derive(Copy, Clone)]
-pub enum BulletType {
-    Normal,
-    Special
-}
-
-impl BulletType {
-    pub fn is_special(self) -> bool {
-        match self {
-            Self::Special => true,
-            _ => false,
-        }
-    }
-}
-
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct BulletId(Key);
-
-impl BulletId {
-    pub fn new(key: Key) -> BulletId {
-        BulletId(key)
-    }
-
-    pub fn to_key(self) -> Key {
-       self.0
-   }
-}
 
 pub struct Bullet {
     body: RegisteredBody,
