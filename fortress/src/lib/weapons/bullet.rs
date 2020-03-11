@@ -25,7 +25,10 @@ use crate::{
         PointLight,
         SpriteSheetFrameId,
     },
-    weapons::BulletType,
+    weapons::{
+        BulletElement,
+        BulletTraits,
+    },
 };
 use nalgebra::{
     Point2,
@@ -50,12 +53,12 @@ use nphysics2d::{
 pub struct Bullet {
     body: RegisteredBody,
     time_elapsed: Microseconds,
-    bullet_type: BulletType,
+    bullet_traits: BulletTraits,
     unit_random: f32,
 }
 
 impl Bullet {
-    pub fn new(entity: Entity, bullet_type: BulletType, radius: f64, start_position: Point2<f64>, velocity: Velocity2<f64>, rng: &mut RandGen, physics_sim: &mut PhysicsSimulation) -> Bullet {
+    pub fn new(entity: Entity, bullet_traits: BulletTraits, radius: f64, start_position: Point2<f64>, velocity: Velocity2<f64>, rng: &mut RandGen, physics_sim: &mut PhysicsSimulation) -> Bullet {
         let rigid_body = RigidBodyDesc::new()
             .status(BodyStatus::Dynamic)
             .translation(start_position.coords)
@@ -65,7 +68,7 @@ impl Bullet {
         let ball_shape = Ball::new(radius);
         let collider_desc = ColliderDesc::new(ShapeHandle::new(ball_shape))
             .density(radius)
-            .sensor(bullet_type.is_special())
+            .sensor(bullet_traits.is_collision_sensor())
             .collision_groups(CollisionGroups::new()
                 .with_membership(&[collision_category::PLAYER_WEAPON])
                 .with_whitelist(&[collision_category::ENEMY_BODY, collision_category::ENEMY_GENERATOR]));
@@ -80,7 +83,7 @@ impl Bullet {
             body,
             time_elapsed: 0,
             unit_random: rng.unit_f32(),
-            bullet_type,
+            bullet_traits,
         }
     }
 
@@ -92,8 +95,8 @@ impl Bullet {
         self.time_elapsed >= config.bullet_lifetime_duration_micros
     }
 
-    pub fn is_special(&self) -> bool {
-        self.bullet_type.is_special()
+    pub fn remove_on_collision(&self) -> bool {
+        self.bullet_traits.remove_on_collision()
     }
 
     pub fn get_attack(&self, damage: Damage, knockback_strength: f64) -> Option<Attack> {
@@ -120,11 +123,17 @@ impl Bullet {
         let frame_duration = self.time_elapsed + rand_frame_offset;
         let frame = (frame_duration / config.bullet_sprite_frame_duration_micros) as usize;
 
+        let sprite_name = match self.bullet_traits.element() {
+            BulletElement::Fire => "shooting_fireball.png",
+            BulletElement::Poison => "shooting_poisonball.png",
+            BulletElement::Ice => "shooting_iceball.png",
+        };
+
         FullyIlluminatedSpriteData {
             world_center_position: world_position,
             world_half_size: glm::vec2(config.bullet_render_width, config.bullet_render_height),
             sprite_frame_id: SpriteSheetFrameId {
-                name: String::from("shooting_fireball.png"),
+                name: String::from(sprite_name),
                 sprite_sheet: NamedSpriteSheet::SpriteSheet1
             },
             frame,
@@ -138,10 +147,11 @@ impl Bullet {
         let direction = self.get_unit_direction();
         let light_position_x = world_position.x + (direction.x as f32) * config.bullet_render_width * 0.75;
         let light_position_z = world_position.z - (direction.y as f32) * config.bullet_render_width * 0.75;
+        let color = self.bullet_traits.light_color(config);
 
         PointLight {
             position: glm::vec3(light_position_x, world_position.y, light_position_z),
-            color: glm::vec3(config.bullet_light_color.0, config.bullet_light_color.1, config.bullet_light_color.2),
+            color,
             attenuation: glm::vec3(config.bullet_light_attenuation.0, config.bullet_light_attenuation.1, config.bullet_light_attenuation.2),
         }
     }

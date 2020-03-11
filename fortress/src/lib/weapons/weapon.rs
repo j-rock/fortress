@@ -25,8 +25,10 @@ use crate::{
     },
     weapons::{
         Bullet,
+        BulletAttackType,
+        BulletElement,
         BulletId,
-        BulletType,
+        BulletTraits,
     },
 };
 use generational_slab::Slab;
@@ -45,6 +47,7 @@ pub struct Weapon {
     physics_sim: PhysicsSimulation,
 
     bullet_radius: f64,
+    bullet_element: BulletElement,
 }
 
 struct FireBulletArgs<'a> {
@@ -52,7 +55,7 @@ struct FireBulletArgs<'a> {
     player_id: PlayerId,
     start_position: Point2<f64>,
     direction: Vector2<f64>,
-    bullet_type: BulletType,
+    bullet_traits: BulletTraits,
 }
 
 impl Weapon {
@@ -64,6 +67,7 @@ impl Weapon {
             current_special_delay: None,
             physics_sim: physics_sim.clone(),
             bullet_radius: config.bullet_physical_radius,
+            bullet_element: BulletElement::Fire,
         }
     }
 
@@ -104,7 +108,7 @@ impl Weapon {
                 player_id,
                 start_position,
                 direction,
-                bullet_type: BulletType::Normal,
+                bullet_traits: BulletTraits::new(BulletAttackType::Regular, self.bullet_element),
             };
             if self.fire_one(args, rng) {
                 self.current_normal_delay = Some(0);
@@ -134,7 +138,7 @@ impl Weapon {
                     player_id,
                     start_position,
                     direction,
-                    bullet_type: BulletType::Special,
+                    bullet_traits: BulletTraits::new(BulletAttackType::Special, self.bullet_element),
                 };
                 self.fire_one(args, rng)
             }) {
@@ -144,9 +148,17 @@ impl Weapon {
         }
     }
 
+    pub fn switch_bullet_element(&mut self) {
+        self.bullet_element = match self.bullet_element {
+            BulletElement::Fire => BulletElement::Poison,
+            BulletElement::Poison => BulletElement::Ice,
+            BulletElement::Ice => BulletElement::Fire,
+        }
+    }
+
     pub fn bullet_hit(&mut self, bullet_id: BulletId) {
         if let Some(bullet) = self.bullets.get(bullet_id.to_key()) {
-           if bullet.is_special() {
+           if !bullet.remove_on_collision() {
                return;
            }
         }
@@ -188,7 +200,7 @@ impl Weapon {
         let linear_vel = bullet_speed * args.direction;
         let velocity = Velocity2::linear(linear_vel.x, linear_vel.y);
 
-        let bullet = Bullet::new(entity, args.bullet_type, self.bullet_radius, args.start_position, velocity, rng, &mut self.physics_sim);
+        let bullet = Bullet::new(entity, args.bullet_traits, self.bullet_radius, args.start_position, velocity, rng, &mut self.physics_sim);
         vacant_entry.insert(bullet)
     }
 }

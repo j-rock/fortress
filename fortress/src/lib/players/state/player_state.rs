@@ -151,6 +151,7 @@ impl PlayerState {
     pub fn try_switch_hero(&mut self, config: &PlayerConfig, audio: &AudioPlayer) {
         if let None = self.hero_switch_time_left {
             self.hero_switch_time_left = Some(config.player_switch_hero_duration_micros);
+            self.weapon.switch_bullet_element();
             audio.play_sound(Sound::HeroSwitch);
         }
     }
