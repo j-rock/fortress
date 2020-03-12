@@ -147,8 +147,7 @@ impl EnemySystem {
 
     pub fn enemy_hit(&mut self, enemy_id: EnemyId, attack: Attack, particles: &mut ParticleSystem) {
         if let Some(enemy) = self.enemies.get_mut(enemy_id.key()) {
-            let config = self.config_manager.get();
-            enemy.take_attack(config, attack, particles);
+            enemy.take_attack(attack, particles);
         }
     }
 

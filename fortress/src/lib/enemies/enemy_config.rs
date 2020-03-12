@@ -31,6 +31,4 @@ pub struct EnemyConfig {
     pub enemy_light_elevation: f32,
     pub enemy_light_color: (f32, f32, f32),
     pub enemy_light_attenuation: (f32, f32, f32),
-    pub enemy_hit_particle_color: (f32, f32, f32),
-    pub enemy_hit_particle_radius: f32,
 }

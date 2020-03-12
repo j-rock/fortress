@@ -2,11 +2,13 @@
 pub struct BloodParticleConfig {
     pub particle_limit: usize,
     pub particles_per_event: usize,
+    pub color: (f32, f32, f32),
     pub size: f32,
     pub gravity: f32,
     pub max_spread_speed: f32,
     pub start_height: f32,
     pub start_velocity_y: f32,
+    pub start_position_radius: f32,
 }
 
 #[derive(Deserialize)]

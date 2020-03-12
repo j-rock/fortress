@@ -70,12 +70,12 @@ impl BloodParticles {
                 let vel_xz = rng.unit_circle_glm() * rng.unit_f32() * config.max_spread_speed;
                 let velocity = glm::vec3(vel_xz.x, config.start_velocity_y, vel_xz.y);
 
-                let radius = rng.unit_circle_glm() * event.radius;
+                let radius = rng.unit_circle_glm() * config.start_position_radius;
                 let position =
                     glm::vec3(radius.x + event.position.x as f32,
                               config.start_height,
                               radius.y - event.position.y as f32);
-                let color = event.color * rng.unit_f32();
+                let color = glm::vec3(config.color.0, config.color.1, config.color.2) * rng.unit_f32();
 
                 self.ring_buffer_view.add_element_at_head(position, &mut self.position);
                 self.ring_buffer_view.add_element_at_head(color, &mut self.color);
@@ -94,11 +94,12 @@ impl BloodParticles {
                     CameraStreamBounds::Margin(margin) => EasingFn::ease_in_cuartic(margin),
                 };
                 let color = self.color[idx];
+                let size = config.size;
 
                 render_view.attr_pos.push(Vec3Attr::new(position));
                 render_view.attr_color.push(Vec3Attr::new(color));
                 render_view.attr_alpha.push(FloatAttr::new(alpha));
-                render_view.attr_size.push(FloatAttr::new(config.size));
+                render_view.attr_size.push(FloatAttr::new(size));
             });
     }
 }

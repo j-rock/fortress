@@ -71,17 +71,11 @@ impl EnemyStateMachine {
         None
     }
 
-    pub fn take_attack(&self, config: &EnemyConfig, attack: Attack, enemy_state: &mut EnemyState, particles: &mut ParticleSystem) {
+    pub fn take_attack(&self, attack: Attack, enemy_state: &mut EnemyState, particles: &mut ParticleSystem) {
         if let EnemyStateMachine::Base(body, _) = self {
             enemy_state.take_attack(attack);
             if let Some(position) = body.position() {
-                let blood_event =
-                    ParticleEvent::blood(position,
-                                         glm::vec3(
-                                            config.enemy_hit_particle_color.0,
-                                            config.enemy_hit_particle_color.1,
-                                            config.enemy_hit_particle_color.2),
-                                         config.enemy_hit_particle_radius);
+                let blood_event = ParticleEvent::blood(position);
                 particles.queue_event(blood_event);
             }
         }
