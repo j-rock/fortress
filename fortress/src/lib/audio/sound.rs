@@ -4,27 +4,21 @@ use std::path::PathBuf;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, IntoEnumIterator)]
 pub enum Sound {
-    Blast,
+    CollectItem,
+    EnemyKilled,
     HeroSwitch,
     JoinGame,
-    Jump,
-    Plop,
-    Powerup,
-    Raygun,
-    Slash,
+    ShootSingleFireball,
 }
 
 impl Sound {
     pub fn to_path_buf(self) -> PathBuf {
         let filename = match self {
-            Sound::Blast => "blast.wav",
+            Sound::CollectItem => "collect_item.wav",
+            Sound::EnemyKilled => "enemy_killed.wav",
             Sound::HeroSwitch => "hero_switch.wav",
             Sound::JoinGame => "join_game.wav",
-            Sound::Jump => "jump.wav",
-            Sound::Plop => "plop.wav",
-            Sound::Powerup => "powerup.wav",
-            Sound::Raygun => "raygun.wav",
-            Sound::Slash => "slash.wav",
+            Sound::ShootSingleFireball => "shoot_single_fireball.wav",
         };
         file::util::resource_path("audio", filename)
     }

@@ -112,7 +112,7 @@ impl Weapon {
             };
             if self.fire_one(args, rng) {
                 self.current_normal_delay = Some(0);
-                audio.play_sound(Sound::Blast);
+                audio.play_sound(Sound::ShootSingleFireball);
             }
         }
     }
@@ -132,7 +132,8 @@ impl Weapon {
             }
             directions.push(direction);
 
-            if directions.into_iter().all(|direction| {
+            let mut fired_any = false;
+            for direction in directions.into_iter() {
                 let args = FireBulletArgs {
                     stats,
                     player_id,
@@ -140,10 +141,11 @@ impl Weapon {
                     direction,
                     bullet_traits: BulletTraits::new(BulletAttackType::Special, self.bullet_element),
                 };
-                self.fire_one(args, rng)
-            }) {
+                fired_any |= self.fire_one(args, rng);
+            }
+            if fired_any {
                 self.current_special_delay = Some(0);
-                audio.play_sound(Sound::Blast);
+                audio.play_sound(Sound::ShootSingleFireball);
             }
         }
     }

@@ -25,7 +25,7 @@ impl PlayerMatchers {
 
     fn process_player_collected_item(item_id: ItemId, player_id: PlayerId, world: &mut WorldView) {
         if let Some(item_pickup) = world.items.collect(item_id) {
-            world.audio.play_sound(Sound::Powerup);
+            world.audio.play_sound(Sound::CollectItem);
             world.players.collect_item(player_id, item_pickup);
         }
     }

@@ -84,7 +84,7 @@ impl EnemyStateMachine {
     pub fn post_update(&mut self, config: &EnemyConfig, audio: &AudioPlayer, enemy_state: &EnemyState, items: &mut ItemSystem, physics_sim: &mut PhysicsSimulation) -> Option<EnemyStateMachine> {
         match self {
             EnemyStateMachine::Base(body, _) if !enemy_state.health().alive() => {
-                audio.play_sound(Sound::Slash);
+                audio.play_sound(Sound::EnemyKilled);
                 let position = body.position();
                 Some(EnemyStateMachine::Dying(position, 0))
             },
