@@ -10,7 +10,7 @@ use crate::{
         time::DeltaTime
     },
     items::ItemPickup,
-    particles::ParticleEvent,
+    particles::ParticleSystem,
     physics::PhysicsSimulation,
     players::{
         PlayerConfig,
@@ -45,8 +45,15 @@ impl Player {
         }
     }
 
-    pub fn pre_update(&mut self, config: &PlayerConfig, audio: &AudioPlayer, controller_id: ControllerId, controller: &Controller, dt: DeltaTime, rng: &mut RandGen) {
-        if let Some(player_state_machine) = self.player_state_machine.pre_update(config, audio, controller_id, controller, dt, rng, &mut self.player_state) {
+    pub fn pre_update(&mut self,
+                      config: &PlayerConfig,
+                      audio: &AudioPlayer,
+                      controller_id: ControllerId,
+                      controller: &Controller,
+                      dt: DeltaTime,
+                      particles: &mut ParticleSystem,
+                      rng: &mut RandGen) {
+        if let Some(player_state_machine) = self.player_state_machine.pre_update(config, audio, controller_id, controller, dt, particles, rng, &mut self.player_state) {
             self.player_state_machine = player_state_machine;
         }
     }
@@ -92,9 +99,5 @@ impl Player {
 
     pub fn collect_item(&mut self, item_pickup: ItemPickup) {
         self.player_state_machine.collect_item(item_pickup, &mut self.player_state);
-    }
-
-    pub fn hero_switch_event(&self, config: &PlayerConfig) -> Option<ParticleEvent> {
-        self.player_state_machine.hero_switch_particle_event(config, &self.player_state)
     }
 }

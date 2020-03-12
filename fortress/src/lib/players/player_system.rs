@@ -23,7 +23,7 @@ use crate::{
     },
     items::ItemPickup,
     physics::PhysicsSimulation,
-    particles::ParticleEvent,
+    particles::ParticleSystem,
     players::{
         Player,
         PlayerConfig,
@@ -63,7 +63,13 @@ impl PlayerSystem {
         })
     }
 
-    pub fn pre_update(&mut self, audio: &AudioPlayer, controller: &Controller, rng: &mut RandGen, physics_sim: &mut PhysicsSimulation, dt: DeltaTime) {
+    pub fn pre_update(&mut self,
+                      audio: &AudioPlayer,
+                      controller: &Controller,
+                      particles: &mut ParticleSystem,
+                      rng: &mut RandGen,
+                      physics_sim: &mut PhysicsSimulation,
+                      dt: DeltaTime) {
         let anyone_pressed_redeploy =
             self.controller_to_player
                 .keys()
@@ -115,7 +121,7 @@ impl PlayerSystem {
         let config = self.config_manager.get();
         for (player_key, player) in self.players.iter_mut() {
             let controller_id = self.player_to_controller[player_key.to_raw()];
-            player.pre_update(config, audio, controller_id, controller, dt, rng);
+            player.pre_update(config, audio, controller_id, controller, dt, particles, rng);
         }
     }
 
@@ -123,14 +129,6 @@ impl PlayerSystem {
         for (_i, player) in self.players.iter_mut() {
             player.post_update(audio);
         }
-    }
-
-    pub fn hero_switch_events(&self) -> Vec<ParticleEvent> {
-        let config =  self.config_manager.get();
-        self.players
-            .iter()
-            .filter_map(|(_, player)| player.hero_switch_event(config))
-            .collect()
     }
 
     pub fn bullet_hit(&mut self, player_id: PlayerId, bullet_id: BulletId) {

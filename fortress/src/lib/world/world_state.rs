@@ -113,12 +113,11 @@ impl WorldState {
                 self.items.respawn();
                 self.particles.respawn();
             } else {
-                self.players.pre_update(audio, controller, rng, &mut self.physics_sim, dt);
+                self.players.pre_update(audio, controller, &mut self.particles, rng, &mut self.physics_sim, dt);
                 let player_locs = self.players.player_locs();
                 self.enemies.pre_update(controller, dt, player_locs, &mut self.physics_sim);
                 self.items.pre_update();
                 self.particles.pre_update(dt);
-                self.particles.queue_events(self.players.hero_switch_events());
             }
         }
 

@@ -17,7 +17,7 @@ use crate::{
         UpDownLeftRight,
     },
     items::ItemPickup,
-    particles::ParticleEvent,
+    particles::ParticleSystem,
     players::{
         PlayerConfig,
         state::PlayerState,
@@ -47,7 +47,15 @@ impl PlayerStateMachine {
         PlayerStateMachine::Idle(0)
     }
 
-    pub fn pre_update(&mut self, config: &PlayerConfig, audio: &AudioPlayer, controller_id: ControllerId, controller: &Controller, dt: DeltaTime, rng: &mut RandGen, player_state: &mut PlayerState) -> Option<PlayerStateMachine> {
+    pub fn pre_update(&mut self,
+                      config: &PlayerConfig,
+                      audio: &AudioPlayer,
+                      controller_id: ControllerId,
+                      controller: &Controller,
+                      dt: DeltaTime,
+                      particles: &mut ParticleSystem,
+                      rng: &mut RandGen,
+                      player_state: &mut PlayerState) -> Option<PlayerStateMachine> {
         let move_direction = Self::compute_move_direction(controller_id, controller);
         player_state.pre_update(config, dt);
         player_state.set_velocity(move_direction);
@@ -59,7 +67,7 @@ impl PlayerStateMachine {
             player_state.try_fire(audio, rng);
         }
         if controller.is_pressed(controller_id, ControlEvent::PlayerSwitchHero) {
-            player_state.try_switch_hero(config, audio);
+            player_state.try_switch_hero(config, audio, particles);
         }
 
         match self {
@@ -83,10 +91,6 @@ impl PlayerStateMachine {
     pub fn post_update(&self, player_state: &mut PlayerState, _audio: &AudioPlayer) -> Option<PlayerStateMachine> {
         player_state.post_update();
         None
-    }
-
-    pub fn hero_switch_particle_event(&self, config: &PlayerConfig, player_state: &PlayerState) -> Option<ParticleEvent> {
-        player_state.hero_switch_particle_event(config)
     }
 
     pub fn populate_lights(&self, config: &PlayerConfig, player_state: &PlayerState, lights: &mut PointLights) {

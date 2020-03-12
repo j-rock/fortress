@@ -14,7 +14,10 @@ use crate::{
         }
     },
     items::ItemPickup,
-    particles::ParticleEvent,
+    particles::{
+        ParticleEvent,
+        ParticleSystem,
+    },
     physics::PhysicsSimulation,
     players::{
         PlayerId,
@@ -148,21 +151,15 @@ impl PlayerState {
         }
     }
 
-    pub fn try_switch_hero(&mut self, config: &PlayerConfig, audio: &AudioPlayer) {
+    pub fn try_switch_hero(&mut self, config: &PlayerConfig, audio: &AudioPlayer, particles: &mut ParticleSystem) {
         if let None = self.hero_switch_time_left {
             self.hero_switch_time_left = Some(config.player_switch_hero_duration_micros);
             self.weapon.switch_bullet_element();
             audio.play_sound(Sound::HeroSwitch);
-        }
-    }
-
-    pub fn hero_switch_particle_event(&self, config: &PlayerConfig) -> Option<ParticleEvent> {
-        if let Some(time_elapsed) = self.hero_switch_time_left {
-            if time_elapsed == config.player_switch_hero_duration_micros {
-                return Some(ParticleEvent::hero_switch(self.position()?));
+            if let Some(position) = self.position() {
+                particles.queue_event(ParticleEvent::hero_switch(position));
             }
         }
-        None
     }
 
     pub fn bullet_hit(&mut self, bullet_id: BulletId) {

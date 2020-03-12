@@ -133,11 +133,6 @@ impl ParticleSystem {
         self.queued_events.push(event);
     }
 
-    pub fn queue_events(&mut self, events: Vec<ParticleEvent>) {
-        let mut events = events;
-        self.queued_events.append(&mut events);
-    }
-
     pub fn post_update(&mut self, camera_stream_info: &CameraStreamInfo, rng: &mut RandGen) {
         let config = self.config.get();
         for event in self.queued_events.iter() {
