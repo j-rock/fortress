@@ -1,5 +1,8 @@
 use crate::{
-    audio::AudioPlayer,
+    audio::{
+        AudioPlayer,
+        Sound,
+    },
     dimensions::{
         Attack,
         LrDirection,
@@ -61,13 +64,14 @@ impl EnemyGeneratorStateMachine {
         }
     }
 
-    pub fn post_update(&self, _audio: &AudioPlayer, generator_state: &mut EnemyGeneratorState, items: &mut ItemSystem, physics_sim: &mut PhysicsSimulation) -> Option<EnemyGeneratorStateMachine> {
+    pub fn post_update(&self, audio: &AudioPlayer, generator_state: &mut EnemyGeneratorState, items: &mut ItemSystem, physics_sim: &mut PhysicsSimulation) -> Option<EnemyGeneratorStateMachine> {
         match self {
            EnemyGeneratorStateMachine::ReadyToGenerate | EnemyGeneratorStateMachine::Cooldown(_) if !generator_state.health().alive() => {
                if let Some(position) = generator_state.position() {
                    let item_pickup = ItemPickup::new(ItemType::MegaSkull, LrDirection::from_radians(generator_state.orientation()));
                    items.spawn_item(item_pickup, position.clone(), physics_sim);
                }
+               audio.play_sound(Sound::EnemyGeneratorKilled);
                Some(EnemyGeneratorStateMachine::Dead)
            },
            EnemyGeneratorStateMachine::Cooldown(time_elapsed) if *time_elapsed <= 0 => {
