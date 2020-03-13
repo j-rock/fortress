@@ -60,8 +60,8 @@ impl Enemy {
         self.enemy_state_machine.queue_draw(config, &self.enemy_state, sprite_renderer);
     }
 
-    pub fn take_attack(&mut self, attack: Attack, particles: &mut ParticleSystem) {
-        self.enemy_state_machine.take_attack(attack, &mut self.enemy_state, particles);
+    pub fn take_attack(&mut self, config: &EnemyConfig, attack: Attack, particles: &mut ParticleSystem) {
+        self.enemy_state_machine.take_attack(config, attack, &mut self.enemy_state, particles);
     }
 
     pub fn dead(&self) -> bool {

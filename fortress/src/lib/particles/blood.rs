@@ -65,7 +65,7 @@ impl BloodParticles {
     }
 
     pub fn add_event(&mut self, config: &BloodParticleConfig, event: &BloodParticleEvent, rng: &mut RandGen) {
-        (0..config.particles_per_event)
+        (0..event.num_particles_to_generate)
             .for_each(|_idx| {
                 let vel_xz = rng.unit_circle_glm() * rng.unit_f32() * config.max_spread_speed;
                 let velocity = glm::vec3(vel_xz.x, config.start_velocity_y, vel_xz.y);
@@ -75,7 +75,7 @@ impl BloodParticles {
                     glm::vec3(radius.x + event.position.x as f32,
                               config.start_height,
                               radius.y - event.position.y as f32);
-                let color = glm::vec3(config.color.0, config.color.1, config.color.2) * rng.unit_f32();
+                let color = event.color * rng.unit_f32();
 
                 self.ring_buffer_view.add_element_at_head(position, &mut self.position);
                 self.ring_buffer_view.add_element_at_head(color, &mut self.color);

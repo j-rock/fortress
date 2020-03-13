@@ -43,7 +43,7 @@ impl WeaponMatchers {
         match something {
             Entity::EnemyGenerator(generator_id) => {
                 if let Some(attack) = world.players.bullet_attack(player_id, bullet_id) {
-                    world.enemies.enemy_generator_hit(generator_id, attack);
+                    world.enemies.enemy_generator_hit(generator_id, attack, world.particles);
                 }
             },
             Entity::Enemy(enemy_id) => {

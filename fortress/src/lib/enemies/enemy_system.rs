@@ -147,13 +147,15 @@ impl EnemySystem {
 
     pub fn enemy_hit(&mut self, enemy_id: EnemyId, attack: Attack, particles: &mut ParticleSystem) {
         if let Some(enemy) = self.enemies.get_mut(enemy_id.key()) {
-            enemy.take_attack(attack, particles);
+            let config = self.config_manager.get();
+            enemy.take_attack(config, attack, particles);
         }
     }
 
-    pub fn enemy_generator_hit(&mut self, generator_id: EnemyGeneratorId, attack: Attack) {
+    pub fn enemy_generator_hit(&mut self, generator_id: EnemyGeneratorId, attack: Attack, particles: &mut ParticleSystem) {
         if let Some(generator) = self.generators.get_mut(generator_id.key()) {
-            generator.take_attack(attack);
+            let config = self.config_manager.get();
+            generator.take_attack(config, attack, particles);
         }
     }
 

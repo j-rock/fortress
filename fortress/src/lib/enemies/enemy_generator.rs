@@ -15,6 +15,7 @@ use crate::{
         }
     },
     items::ItemSystem,
+    particles::ParticleSystem,
     physics::PhysicsSimulation,
     render::{
         LightDependentSpriteRenderer,
@@ -68,7 +69,7 @@ impl EnemyGenerator {
         self.generator_state_machine.dead()
     }
 
-    pub fn take_attack(&mut self, attack: Attack) {
-        self.generator_state_machine.take_attack(attack, &mut self.generator_state);
+    pub fn take_attack(&mut self, config: &EnemyConfig, attack: Attack, particles: &mut ParticleSystem) {
+        self.generator_state_machine.take_attack(config, attack, &mut self.generator_state, particles);
     }
 }

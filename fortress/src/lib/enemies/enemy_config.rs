@@ -14,6 +14,8 @@ pub struct EnemyConfig {
     pub generator_light_elevation: f32,
     pub generator_light_color: (f32, f32, f32),
     pub generator_light_attenuation: (f32, f32, f32),
+    pub generator_blood_color: (f32, f32, f32),
+    pub generator_num_blood_particles_per_hit: u32,
 
     // Enemies
     pub enemies_slab_initial_capacity_guess: usize,
@@ -31,4 +33,6 @@ pub struct EnemyConfig {
     pub enemy_light_elevation: f32,
     pub enemy_light_color: (f32, f32, f32),
     pub enemy_light_attenuation: (f32, f32, f32),
+    pub enemy_blood_color: (f32, f32, f32),
+    pub enemy_num_blood_particles_per_hit: u32,
 }
