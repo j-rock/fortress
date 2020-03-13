@@ -145,7 +145,7 @@ impl Weapon {
             }
             if fired_any {
                 self.current_special_delay = Some(0);
-                audio.play_sound(Sound::ShootSingleFireball);
+                audio.play_sound(Sound::ShootSpecial);
             }
         }
     }

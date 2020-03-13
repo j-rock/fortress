@@ -9,6 +9,7 @@ pub enum Sound {
     HeroSwitch,
     JoinGame,
     ShootSingleFireball,
+    ShootSpecial,
 }
 
 impl Sound {
@@ -19,6 +20,7 @@ impl Sound {
             Sound::HeroSwitch => "hero_switch.wav",
             Sound::JoinGame => "join_game.wav",
             Sound::ShootSingleFireball => "shoot_single_fireball.wav",
+            Sound::ShootSpecial => "shoot_special.wav",
         };
         file::util::resource_path("audio", filename)
     }
