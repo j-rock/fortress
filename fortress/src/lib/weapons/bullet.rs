@@ -25,10 +25,7 @@ use crate::{
         PointLight,
         SpriteSheetFrameId,
     },
-    weapons::{
-        BulletElement,
-        BulletTraits,
-    },
+    weapons::BulletTraits,
 };
 use nalgebra::{
     Point2,
@@ -68,7 +65,7 @@ impl Bullet {
         let ball_shape = Ball::new(radius);
         let collider_desc = ColliderDesc::new(ShapeHandle::new(ball_shape))
             .density(radius)
-            .sensor(bullet_traits.is_collision_sensor())
+            .sensor(true)
             .collision_groups(CollisionGroups::new()
                 .with_membership(&[collision_category::PLAYER_WEAPON])
                 .with_whitelist(&[collision_category::ENEMY_BODY, collision_category::ENEMY_GENERATOR]));
@@ -123,17 +120,11 @@ impl Bullet {
         let frame_duration = self.time_elapsed + rand_frame_offset;
         let frame = (frame_duration / config.bullet_sprite_frame_duration_micros) as usize;
 
-        let sprite_name = match self.bullet_traits.element() {
-            BulletElement::Fire => "shooting_fireball.png",
-            BulletElement::Poison => "shooting_poisonball.png",
-            BulletElement::Ice => "shooting_iceball.png",
-        };
-
         FullyIlluminatedSpriteData {
             world_center_position: world_position,
             world_half_size: glm::vec2(config.bullet_render_width, config.bullet_render_height),
             sprite_frame_id: SpriteSheetFrameId {
-                name: String::from(sprite_name),
+                name: String::from(self.bullet_traits.sprite_sheet_image_name()),
                 sprite_sheet: NamedSpriteSheet::SpriteSheet1
             },
             frame,

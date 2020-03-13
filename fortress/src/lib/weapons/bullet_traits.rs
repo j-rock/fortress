@@ -21,15 +21,12 @@ impl BulletTraits {
         }
     }
 
-    pub fn is_collision_sensor(&self) -> bool {
-        match self.attack_type {
-            BulletAttackType::Regular => false,
-            BulletAttackType::Special => true,
+    pub fn sprite_sheet_image_name(&self) -> &'static str {
+        match self.element {
+            BulletElement::Fire => "shooting_fireball.png",
+            BulletElement::Poison => "shooting_poisonball.png",
+            BulletElement::Ice => "shooting_iceball.png",
         }
-    }
-
-    pub fn element(&self) -> BulletElement {
-       self.element
     }
 
     pub fn light_color(&self, config: &PlayerConfig) -> glm::Vec3 {

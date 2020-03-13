@@ -1,10 +1,6 @@
 use crate::{
     entities::Entity,
-    physics::{
-        Contact,
-        ContactMatcher,
-        ProximityMatcher,
-    },
+    physics::ProximityMatcher,
     players::PlayerId,
     weapons::BulletId,
     world::WorldView,
@@ -17,14 +13,6 @@ impl WeaponMatchers {
         ProximityMatcher::new(Box::new(|proximity, world: &mut WorldView| {
             if proximity.curr_type.basically_touching() {
                 Self::try_resolve_hit(proximity.entity1, proximity.entity2, world);
-            }
-        }))
-    }
-
-    pub fn bullet_hit_contact_matcher() -> ContactMatcher {
-        ContactMatcher::new(Box::new(|contact, world: &mut WorldView| {
-            if let Contact::Started(entity1, entity2) = contact {
-                Self::try_resolve_hit(entity1, entity2, world);
             }
         }))
     }

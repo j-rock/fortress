@@ -66,7 +66,6 @@ impl WorldState {
         let mut physics_sim = PhysicsSimulation::new(config_watcher)?;
 
         physics_sim.borrow_mut().add_contact_matchers(vec!(
-            WeaponMatchers::bullet_hit_contact_matcher(),
         ));
         physics_sim.borrow_mut().add_proximity_matchers(vec!(
             WeaponMatchers::bullet_hit_proximity_matcher(),
