@@ -27,6 +27,7 @@ use sdl2::{
 struct AppRunnerConfig {
     window_size: (i32, i32),
     sleep_to_frame_micros: i64,
+    enable_quit: bool,
 }
 
 pub struct AppRunner {
@@ -92,10 +93,12 @@ impl AppRunner {
 
     // Return false on quit.
     fn process_events(&mut self) -> StatusOr<bool> {
+        let config = self.config.get();
         let mut gamepad_events = Vec::new();
         for event in self.context.events.poll_iter() {
             match event {
-                Event::Quit { .. } | Event::KeyDown {keycode: Some(Keycode::Q), ..} => return Ok(false),
+                Event::Quit { .. } => return Ok(false),
+                Event::KeyDown {keycode: Some(Keycode::Q), ..} if config.enable_quit => return Ok(false),
                 Event::Window { win_event: WindowEvent::Resized(width, height), .. } => {
                     unsafe { gl::Viewport(0, 0, width, height); }
                 },
