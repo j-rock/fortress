@@ -35,12 +35,21 @@ mat3 RotationMatrix(vec3 axis, float radian_angle) {
                   axis.z * x_om_cos - y_sin,   axis.z * y_om_cos + x_sin, cos_rot + axis.z * axis.z * o_m_cos);
 }
 
+float ComputeRotationAngle(vec2 unit_world_rotation_xz) {
+    // TODO(find out why we have to zero out rotation angle on some architectures.
+    if (length(unit_world_rotation_xz) <= 0.0000001) {
+       return 0.0;
+    }
+
+    vec4 view_rotated_world_rotation = position_independent_view * vec4(unit_world_rotation_xz.x, 0.0, unit_world_rotation_xz.y, 1.0);
+    return atan(view_rotated_world_rotation.z, view_rotated_world_rotation.x);
+}
+
 void EmitQuad() {
     vec3 normal = cross(camera_right, camera_up);
     vec3 world_bottom_center = gs_in[0].world_center_position;
 
-    vec4 view_rotated_world_rotation = position_independent_view * vec4(gs_in[0].unit_world_rotation_xz.x, 0.0, gs_in[0].unit_world_rotation_xz.y, 1.0);
-    float rotation_angle = atan(view_rotated_world_rotation.z, view_rotated_world_rotation.x);
+    float rotation_angle = ComputeRotationAngle(gs_in[0].unit_world_rotation_xz);
     mat3 rot = RotationMatrix(normal, rotation_angle);
     vec3 rot_camera_right = rot * camera_right;
     vec3 rot_camera_up = rot * camera_up;
