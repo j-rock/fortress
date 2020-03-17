@@ -13,7 +13,7 @@ struct PointLight {
     vec3 color;
     vec3 attenuation;
 };
-const int MAX_NUM_LIGHTS = 100;
+const int MAX_NUM_LIGHTS = 339;
 
 uniform PointLight lights[MAX_NUM_LIGHTS];
 uniform int num_lights;
