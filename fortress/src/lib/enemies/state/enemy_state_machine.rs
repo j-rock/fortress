@@ -109,11 +109,12 @@ impl EnemyStateMachine {
             let position = body.position()?;
             let age_frac = (config.enemy_light_duration_micros - enemy_state.age()) as f32 / config.enemy_light_duration_micros as f32;
             let glow_strength = EasingFn::ease_out_quad(age_frac);
-            return Some(PointLight {
-                position: glm::vec3(position.x as f32, config.enemy_light_elevation, -position.y as f32),
-                color: glm::vec3(config.enemy_light_color.0, config.enemy_light_color.1, config.enemy_light_color.2) * glow_strength,
-                attenuation: glm::vec3(config.enemy_light_attenuation.0, config.enemy_light_attenuation.1, config.enemy_light_attenuation.2),
-            });
+
+            let position = glm::vec3(position.x as f32, config.enemy_light_elevation, -position.y as f32);
+            let color = glm::vec3(config.enemy_light_color.0, config.enemy_light_color.1, config.enemy_light_color.2) * glow_strength;
+            let attenuation = glm::vec3(config.enemy_light_attenuation.0, config.enemy_light_attenuation.1, config.enemy_light_attenuation.2);
+
+            return Some(PointLight::new(position, color, attenuation));
         }
 
         None

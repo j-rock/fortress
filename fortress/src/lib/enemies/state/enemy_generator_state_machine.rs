@@ -86,11 +86,10 @@ impl EnemyGeneratorStateMachine {
         match self {
             EnemyGeneratorStateMachine::ReadyToGenerate| EnemyGeneratorStateMachine::Cooldown(_) => {
                 let position = generator_state.position()?;
-                Some(PointLight {
-                    position: glm::vec3(position.x as f32, config.generator_light_elevation, -position.y as f32),
-                    color: glm::vec3(config.generator_light_color.0, config.generator_light_color.1, config.generator_light_color.2),
-                    attenuation: glm::vec3(config.generator_light_attenuation.0, config.generator_light_attenuation.1, config.generator_light_attenuation.2),
-                })
+                let position = glm::vec3(position.x as f32, config.generator_light_elevation, -position.y as f32);
+                let color = glm::vec3(config.generator_light_color.0, config.generator_light_color.1, config.generator_light_color.2);
+                let attenuation = glm::vec3(config.generator_light_attenuation.0, config.generator_light_attenuation.1, config.generator_light_attenuation.2);
+                Some(PointLight::new(position, color, attenuation))
             },
             EnemyGeneratorStateMachine::Dead => None,
         }

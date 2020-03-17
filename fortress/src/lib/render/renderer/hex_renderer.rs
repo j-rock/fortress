@@ -152,9 +152,9 @@ impl HexRenderer {
         self.shader_program.set_mat4(UniformKey::ProjectionView, projection_view);
         self.shader_program.set_i32(UniformKey::NumLights, lights.len() as i32);
         for (idx, point_light) in lights.iter().enumerate() {
-            self.shader_program.set_vec3(UniformKey::LightsPosition(idx), &point_light.position);
-            self.shader_program.set_vec3(UniformKey::LightsColor(idx), &point_light.color);
-            self.shader_program.set_vec3(UniformKey::LightsAttenuation(idx), &point_light.attenuation);
+            self.shader_program.set_vec3(UniformKey::LightsPosition(idx), &point_light.shader_position());
+            self.shader_program.set_vec3(UniformKey::LightsColor(idx), &point_light.shader_color());
+            self.shader_program.set_vec3(UniformKey::LightsAttenuation(idx), &point_light.shader_attenuation());
         }
 
         self.mesh.draw(self.attr_transform.data.len());

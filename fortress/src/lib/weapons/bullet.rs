@@ -140,11 +140,9 @@ impl Bullet {
         let light_position_z = world_position.z - (direction.y as f32) * config.bullet_render_width * 0.75;
         let color = self.bullet_traits.light_color(config);
 
-        PointLight {
-            position: glm::vec3(light_position_x, world_position.y, light_position_z),
-            color,
-            attenuation: glm::vec3(config.bullet_light_attenuation.0, config.bullet_light_attenuation.1, config.bullet_light_attenuation.2),
-        }
+        let position = glm::vec3(light_position_x, world_position.y, light_position_z);
+        let attenuation = glm::vec3(config.bullet_light_attenuation.0, config.bullet_light_attenuation.1, config.bullet_light_attenuation.2);
+        PointLight::new(position, color, attenuation)
     }
 
     fn get_render_world_position(&self, config: &PlayerConfig) -> glm::Vec3 {

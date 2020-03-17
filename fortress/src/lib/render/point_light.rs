@@ -10,10 +10,32 @@ use nalgebra::Point2;
 
 #[repr(C)]
 pub struct PointLight {
-    pub position: glm::Vec3,
-    pub color: glm::Vec3,
+    position: glm::Vec3,
+    color: glm::Vec3,
     // Constant, linear, quadratic
-    pub attenuation: glm::Vec3,
+    attenuation: glm::Vec3,
+}
+
+impl PointLight {
+    pub fn new(position: glm::Vec3, color: glm::Vec3, attenuation: glm::Vec3) -> Self {
+        PointLight {
+            position,
+            color,
+            attenuation,
+        }
+    }
+
+    pub fn shader_position(&self) -> glm::Vec3 {
+        self.position
+    }
+
+    pub fn shader_color(&self) -> glm::Vec3 {
+        self.color
+    }
+
+    pub fn shader_attenuation(&self) -> glm::Vec3 {
+        self.attenuation
+    }
 }
 
 #[derive(Deserialize)]

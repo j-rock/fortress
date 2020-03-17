@@ -91,11 +91,10 @@ impl MapState {
         let queue_data = self.lights
             .iter()
             .map(|position| {
-                PointLight {
-                    position: glm::vec3(position.x, config.light_center_height, -position.y),
-                    color: glm::vec3(config.light_color.0, config.light_color.1, config.light_color.2),
-                    attenuation: glm::vec3(config.light_attenuation.0, config.light_attenuation.1, config.light_attenuation.2),
-                }
+                let position = glm::vec3(position.x, config.light_center_height, -position.y);
+                let color = glm::vec3(config.light_color.0, config.light_color.1, config.light_color.2);
+                let attenuation = glm::vec3(config.light_attenuation.0, config.light_attenuation.1, config.light_attenuation.2);
+                PointLight::new(position, color, attenuation)
             });
         lights.append(queue_data);
     }

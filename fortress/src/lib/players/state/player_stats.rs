@@ -147,11 +147,10 @@ struct CollectedItemAnimation {
 
 impl CollectedItemAnimation {
     pub fn point_light(&self, config: &PlayerConfig, player_center: Point2<f64>) -> PointLight {
-        PointLight {
-            position: self.world_center_position(config, player_center),
-            color: self.item_pickup.light_color(),
-            attenuation: glm::vec3(config.item_collection_attenuation.0, config.item_collection_attenuation.1, config.item_collection_attenuation.2),
-        }
+        let position = self.world_center_position(config, player_center);
+        let color = self.item_pickup.light_color();
+        let attenuation = glm::vec3(config.item_collection_attenuation.0, config.item_collection_attenuation.1, config.item_collection_attenuation.2);
+        PointLight::new(position, color, attenuation)
     }
 
     pub fn sprite_data(&self, config: &PlayerConfig, player_center: Point2<f64>) -> FullyIlluminatedSpriteData {
