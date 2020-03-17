@@ -10,7 +10,7 @@ in GS_OUT {
 
 struct PointLight {
     vec3 position;
-    int color;
+    vec3 color;
     vec3 attenuation;
 };
 const int MAX_NUM_LIGHTS = 339;
@@ -40,13 +40,6 @@ vec4 ComputeColor(vec2 in_tex) {
     return vec4(fractional.x, fractional.y, 0.4, 1.0);
 }
 
-vec3 UnpackLightColor(int color) {
-    float red = (color >> 16) / 255.0;
-    float green = ((color >> 8) & 0xFF) / 255.0;
-    float blue = (color & 0xFF) / 255.0;
-    return vec3(red, green, blue);
-}
-
 void main() {
     vec3 position = fs_in.world_space_position;
     vec3 normal = fs_in.normal;
@@ -69,7 +62,7 @@ void main() {
 
         float diffuse_intensity = max(dot(normal, normalize(light_displacement)), 0.0);
 
-        lighting += total_attenuation * diffuse_intensity * diffuse_color * UnpackLightColor(lights[i].color);
+        lighting += total_attenuation * diffuse_intensity * diffuse_color * lights[i].color;
     }
 
     // Gamma correct

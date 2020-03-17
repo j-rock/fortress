@@ -9,7 +9,7 @@ in GS_OUT {
 
 struct PointLight {
     vec3 position;
-    int color;
+    vec3 color;
     vec3 attenuation;
 };
 const int MAX_NUM_LIGHTS = 339;
@@ -17,13 +17,6 @@ const int MAX_NUM_LIGHTS = 339;
 uniform PointLight lights[MAX_NUM_LIGHTS];
 uniform int num_lights;
 uniform sampler2D texture0;
-
-vec3 UnpackLightColor(int color) {
-    float red = (color >> 16) / 255.0;
-    float green = ((color >> 8) & 0xFF) / 255.0;
-    float blue = (color & 0xFF) / 255.0;
-    return vec3(red, green, blue);
-}
 
 void main() {
     vec3 position = fs_in.world_space_position;
@@ -42,7 +35,7 @@ void main() {
         vec3 attenuation = lights[i].attenuation;
         float total_attenuation = 1.0 / (attenuation.x + (attenuation.y + attenuation.z * distance) * distance);
 
-        lighting += total_attenuation * diffuse_color * UnpackLightColor(lights[i].color);
+        lighting += total_attenuation * diffuse_color * lights[i].color;
     }
 
     // Gamma correct
