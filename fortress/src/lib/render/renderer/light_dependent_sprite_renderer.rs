@@ -147,7 +147,7 @@ impl LightDependentSpriteRenderer {
 
         for (idx, point_light) in lights.iter().enumerate() {
             self.shader_program.set_vec3(UniformKey::LightsPosition(idx), &point_light.shader_position());
-            self.shader_program.set_vec3(UniformKey::LightsColor(idx), &point_light.shader_color());
+            self.shader_program.set_i32(UniformKey::LightsColor(idx), point_light.shader_color());
             self.shader_program.set_vec3(UniformKey::LightsAttenuation(idx), &point_light.shader_attenuation());
         }
 

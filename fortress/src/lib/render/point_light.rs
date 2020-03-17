@@ -11,13 +11,18 @@ use nalgebra::Point2;
 #[repr(C)]
 pub struct PointLight {
     position: glm::Vec3,
-    color: glm::Vec3,
+    color: i32,
     // Constant, linear, quadratic
     attenuation: glm::Vec3,
 }
 
 impl PointLight {
     pub fn new(position: glm::Vec3, color: glm::Vec3, attenuation: glm::Vec3) -> Self {
+        let red = ((255.0 * color.x).round() as u8) as i32;
+        let green = ((255.0 * color.y).round() as u8) as i32;
+        let blue = ((255.0 * color.z).round() as u8) as i32;
+        let color = (red << 16) | (green << 8) | blue;
+
         PointLight {
             position,
             color,
@@ -29,7 +34,7 @@ impl PointLight {
         self.position
     }
 
-    pub fn shader_color(&self) -> glm::Vec3 {
+    pub fn shader_color(&self) -> i32 {
         self.color
     }
 
