@@ -1,4 +1,8 @@
 use crate::{
+    audio::{
+        AudioPlayer,
+        Sound,
+    },
     dimensions::{
         Attack,
         Health
@@ -30,8 +34,14 @@ impl EnemyGeneratorState {
         }
     }
 
-    pub fn take_attack(&mut self, config: &EnemyConfig, attack: Attack, particles: &mut ParticleSystem) {
+    pub fn take_attack(&mut self, config: &EnemyConfig, audio: &AudioPlayer, attack: Attack, particles: &mut ParticleSystem) {
         self.health.withdraw(attack.damage);
+        if self.health.alive() {
+            audio.play_sound(Sound::EnemyGeneratorHurt);
+        } else {
+            audio.play_sound(Sound::EnemyGeneratorKilled);
+        }
+
         if let Some(position) = self.position() {
             let blood_color = glm::vec3(config.generator_blood_color.0, config.generator_blood_color.1, config.generator_blood_color.2);
             let blood_event = ParticleEvent::blood(position, blood_color, config.generator_num_blood_particles_per_hit);

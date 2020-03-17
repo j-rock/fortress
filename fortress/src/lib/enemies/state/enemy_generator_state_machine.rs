@@ -1,8 +1,5 @@
 use crate::{
-    audio::{
-        AudioPlayer,
-        Sound,
-    },
+    audio::AudioPlayer,
     dimensions::{
         Attack,
         LrDirection,
@@ -65,14 +62,13 @@ impl EnemyGeneratorStateMachine {
         }
     }
 
-    pub fn post_update(&self, audio: &AudioPlayer, generator_state: &mut EnemyGeneratorState, items: &mut ItemSystem, physics_sim: &mut PhysicsSimulation) -> Option<EnemyGeneratorStateMachine> {
+    pub fn post_update(&self, generator_state: &mut EnemyGeneratorState, items: &mut ItemSystem, physics_sim: &mut PhysicsSimulation) -> Option<EnemyGeneratorStateMachine> {
         match self {
            EnemyGeneratorStateMachine::ReadyToGenerate | EnemyGeneratorStateMachine::Cooldown(_) if !generator_state.health().alive() => {
                if let Some(position) = generator_state.position() {
                    let item_pickup = ItemPickup::new(ItemType::MegaSkull, LrDirection::from_radians(generator_state.orientation()));
                    items.spawn_item(item_pickup, position.clone(), physics_sim);
                }
-               audio.play_sound(Sound::EnemyGeneratorKilled);
                Some(EnemyGeneratorStateMachine::Dead)
            },
            EnemyGeneratorStateMachine::Cooldown(time_elapsed) if *time_elapsed <= 0 => {
@@ -120,8 +116,8 @@ impl EnemyGeneratorStateMachine {
         }
     }
 
-    pub fn take_attack(&self, config: &EnemyConfig, attack: Attack, generator_state: &mut EnemyGeneratorState, particles: &mut ParticleSystem) {
-        generator_state.take_attack(config, attack, particles);
+    pub fn take_attack(&self, config: &EnemyConfig, audio: &AudioPlayer, attack: Attack, generator_state: &mut EnemyGeneratorState, particles: &mut ParticleSystem) {
+        generator_state.take_attack(config, audio, attack, particles);
     }
 
     pub fn dead(&self) -> bool {

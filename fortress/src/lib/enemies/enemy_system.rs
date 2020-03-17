@@ -90,7 +90,7 @@ impl EnemySystem {
         let dead_enemy_generator_keys: Vec<_> = self.generators
             .iter_mut()
             .filter_map(|(generator_key, generator)| {
-                generator.post_update(audio, items, physics_sim);
+                generator.post_update(items, physics_sim);
                 if !generator.dead() {
                     return None;
                 }
@@ -152,10 +152,10 @@ impl EnemySystem {
         }
     }
 
-    pub fn enemy_generator_hit(&mut self, generator_id: EnemyGeneratorId, attack: Attack, particles: &mut ParticleSystem) {
+    pub fn enemy_generator_hit(&mut self, audio: &AudioPlayer, generator_id: EnemyGeneratorId, attack: Attack, particles: &mut ParticleSystem) {
         if let Some(generator) = self.generators.get_mut(generator_id.key()) {
             let config = self.config_manager.get();
-            generator.take_attack(config, attack, particles);
+            generator.take_attack(config, audio, attack, particles);
         }
     }
 

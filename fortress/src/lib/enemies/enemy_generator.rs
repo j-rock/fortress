@@ -51,8 +51,8 @@ impl EnemyGenerator {
         }
     }
 
-    pub fn post_update(&mut self, audio: &AudioPlayer, items: &mut ItemSystem, physics_sim: &mut PhysicsSimulation) {
-        if let Some(state) = self.generator_state_machine.post_update(audio, &mut self.generator_state, items, physics_sim) {
+    pub fn post_update(&mut self, items: &mut ItemSystem, physics_sim: &mut PhysicsSimulation) {
+        if let Some(state) = self.generator_state_machine.post_update(&mut self.generator_state, items, physics_sim) {
             self.generator_state_machine = state;
         }
     }
@@ -69,7 +69,7 @@ impl EnemyGenerator {
         self.generator_state_machine.dead()
     }
 
-    pub fn take_attack(&mut self, config: &EnemyConfig, attack: Attack, particles: &mut ParticleSystem) {
-        self.generator_state_machine.take_attack(config, attack, &mut self.generator_state, particles);
+    pub fn take_attack(&mut self, config: &EnemyConfig, audio: &AudioPlayer, attack: Attack, particles: &mut ParticleSystem) {
+        self.generator_state_machine.take_attack(config, audio, attack, &mut self.generator_state, particles);
     }
 }
