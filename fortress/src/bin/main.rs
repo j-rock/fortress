@@ -3,6 +3,6 @@ extern crate fortress;
 
 mod mains;
 
-fn main() {
-    mains::app::main();
+fn main() -> std::result::Result<(), String> {
+    mains::app::main()
 }
