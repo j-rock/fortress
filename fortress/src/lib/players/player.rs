@@ -54,8 +54,8 @@ impl Player {
         }
     }
 
-    pub fn post_update(&mut self, audio: &AudioPlayer) {
-        if let Some(player_state_machine) = self.player_state_machine.post_update(&mut self.player_state, audio) {
+    pub fn post_update(&mut self) {
+        if let Some(player_state_machine) = self.player_state_machine.post_update(&mut self.player_state) {
             self.player_state_machine = player_state_machine;
         }
     }

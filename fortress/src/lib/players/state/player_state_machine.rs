@@ -86,7 +86,7 @@ impl PlayerStateMachine {
         None
     }
 
-    pub fn post_update(&self, player_state: &mut PlayerState, _audio: &AudioPlayer) -> Option<PlayerStateMachine> {
+    pub fn post_update(&self, player_state: &mut PlayerState) -> Option<PlayerStateMachine> {
         player_state.post_update();
         None
     }

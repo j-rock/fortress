@@ -23,11 +23,11 @@ impl Default for ItemStateMachine {
 }
 
 impl ItemStateMachine {
-    pub fn pre_update(&mut self, _state: &ItemState) -> Option<ItemStateMachine> {
+    pub fn pre_update(&mut self) -> Option<ItemStateMachine> {
         None
     }
 
-    pub fn post_update(&mut self, _state: &ItemState) -> Option<ItemStateMachine> {
+    pub fn post_update(&mut self) -> Option<ItemStateMachine> {
         None
     }
 

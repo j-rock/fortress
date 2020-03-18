@@ -134,7 +134,7 @@ impl WorldState {
 
         // Post-update.
         {
-            self.players.post_update(audio);
+            self.players.post_update();
             self.camera.post_update(self.players.player_locs(), dt);
             self.items.post_update();
             self.enemies.post_update(audio, &mut self.items, &mut self.physics_sim);

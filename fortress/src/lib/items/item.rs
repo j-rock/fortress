@@ -31,13 +31,13 @@ impl Item {
     }
 
     pub fn pre_update(&mut self) {
-        if let Some(item_state_machine) = self.item_state_machine.pre_update(&self.item_state) {
+        if let Some(item_state_machine) = self.item_state_machine.pre_update() {
             self.item_state_machine = item_state_machine;
         }
     }
 
     pub fn post_update(&mut self) {
-        if let Some(item_state_machine) = self.item_state_machine.post_update(&self.item_state) {
+        if let Some(item_state_machine) = self.item_state_machine.post_update() {
             self.item_state_machine = item_state_machine;
         }
     }
