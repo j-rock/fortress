@@ -1,10 +1,7 @@
 use crate::{
     app::RandGen,
     audio::AudioPlayer,
-    control::{
-        Controller,
-        ControllerId,
-    },
+    control::IdentifiedController,
     dimensions::{
         Attack,
         time::DeltaTime
@@ -45,15 +42,14 @@ impl Player {
         }
     }
 
-    pub fn pre_update(&mut self,
+    pub fn pre_update<'a>(&mut self,
                       config: &PlayerConfig,
                       audio: &AudioPlayer,
-                      controller_id: ControllerId,
-                      controller: &Controller,
+                      controller: IdentifiedController<'a>,
                       dt: DeltaTime,
                       particles: &mut ParticleSystem,
                       rng: &mut RandGen) {
-        if let Some(player_state_machine) = self.player_state_machine.pre_update(config, audio, controller_id, controller, dt, particles, rng, &mut self.player_state) {
+        if let Some(player_state_machine) = self.player_state_machine.pre_update(config, audio, controller, dt, particles, rng, &mut self.player_state) {
             self.player_state_machine = player_state_machine;
         }
     }

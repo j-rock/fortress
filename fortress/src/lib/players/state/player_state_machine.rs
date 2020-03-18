@@ -3,8 +3,7 @@ use crate::{
     audio::AudioPlayer,
     control::{
         ControlEvent,
-        Controller,
-        ControllerId,
+        IdentifiedController,
     },
     dimensions::{
         Attack,
@@ -47,26 +46,25 @@ impl PlayerStateMachine {
         PlayerStateMachine::Idle(0)
     }
 
-    pub fn pre_update(&mut self,
+    pub fn pre_update<'a>(&mut self,
                       config: &PlayerConfig,
                       audio: &AudioPlayer,
-                      controller_id: ControllerId,
-                      controller: &Controller,
+                      controller: IdentifiedController<'a>,
                       dt: DeltaTime,
                       particles: &mut ParticleSystem,
                       rng: &mut RandGen,
                       player_state: &mut PlayerState) -> Option<PlayerStateMachine> {
-        let move_direction = Self::compute_move_direction(controller_id, controller);
+        let move_direction = Self::compute_move_direction(controller);
         player_state.pre_update(config, dt);
         player_state.set_velocity(move_direction);
 
-        if controller.is_pressed(controller_id, ControlEvent::PlayerFireSpecial) {
+        if controller.is_pressed(ControlEvent::PlayerFireSpecial) {
             player_state.try_fire_special(config, audio, rng);
         }
-        if controller.is_pressed(controller_id, ControlEvent::PlayerFireWeapon) {
+        if controller.is_pressed(ControlEvent::PlayerFireWeapon) {
             player_state.try_fire(audio, rng);
         }
-        if controller.is_pressed(controller_id, ControlEvent::PlayerSwitchHero) {
+        if controller.is_pressed(ControlEvent::PlayerSwitchHero) {
             player_state.try_switch_hero(config, audio, particles);
         }
 
@@ -151,11 +149,11 @@ impl PlayerStateMachine {
         player_state.collect_item(item_pickup);
     }
 
-    fn compute_move_direction(controller_id: ControllerId, controller: &Controller) -> Option<OctoDirection> {
-        let up = controller.is_pressed(controller_id, ControlEvent::PlayerMove(UpDownLeftRight::Up));
-        let down = controller.is_pressed(controller_id, ControlEvent::PlayerMove(UpDownLeftRight::Down));
-        let left = controller.is_pressed(controller_id, ControlEvent::PlayerMove(UpDownLeftRight::Left));
-        let right = controller.is_pressed(controller_id, ControlEvent::PlayerMove(UpDownLeftRight::Right));
+    fn compute_move_direction<'a>(controller: IdentifiedController<'a>) -> Option<OctoDirection> {
+        let up = controller.is_pressed(ControlEvent::PlayerMove(UpDownLeftRight::Up));
+        let down = controller.is_pressed(ControlEvent::PlayerMove(UpDownLeftRight::Down));
+        let left = controller.is_pressed(ControlEvent::PlayerMove(UpDownLeftRight::Left));
+        let right = controller.is_pressed(ControlEvent::PlayerMove(UpDownLeftRight::Right));
 
         OctoDirection::from(up, down, left, right)
     }

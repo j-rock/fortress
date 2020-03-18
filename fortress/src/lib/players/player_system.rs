@@ -12,6 +12,7 @@ use crate::{
         ControllerId,
         ControlEvent,
         ControllerEvent,
+        IdentifiedController,
     },
     dimensions::{
         Attack,
@@ -121,7 +122,8 @@ impl PlayerSystem {
         let config = self.config_manager.get();
         for (player_key, player) in self.players.iter_mut() {
             let controller_id = self.player_to_controller[player_key.to_raw()];
-            player.pre_update(config, audio, controller_id, controller, dt, particles, rng);
+            let identified_controller = IdentifiedController::new(controller, controller_id);
+            player.pre_update(config, audio, identified_controller, dt, particles, rng);
         }
     }
 
