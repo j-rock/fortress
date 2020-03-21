@@ -10,7 +10,7 @@ use crate::{
     particles::ParticleSystem,
     physics::PhysicsSimulation,
     players::{
-        PlayerConfig,
+        PlayerSystemConfig,
         PlayerId,
         state::{
             PlayerState,
@@ -32,7 +32,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(config: &PlayerConfig, player_id: PlayerId, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) -> Player {
+    pub fn new(config: &PlayerSystemConfig, player_id: PlayerId, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) -> Player {
         let player_state = PlayerState::new(player_id, config, spawn, physics_sim);
         let player_state_machine = PlayerStateMachine::new();
 
@@ -43,12 +43,12 @@ impl Player {
     }
 
     pub fn pre_update<'a>(&mut self,
-                      config: &PlayerConfig,
-                      audio: &AudioPlayer,
-                      controller: IdentifiedController<'a>,
-                      dt: DeltaTime,
-                      particles: &mut ParticleSystem,
-                      rng: &mut RandGen) {
+                          config: &PlayerSystemConfig,
+                          audio: &AudioPlayer,
+                          controller: IdentifiedController<'a>,
+                          dt: DeltaTime,
+                          particles: &mut ParticleSystem,
+                          rng: &mut RandGen) {
         if let Some(player_state_machine) = self.player_state_machine.pre_update(config, audio, controller, dt, particles, rng, &mut self.player_state) {
             self.player_state_machine = player_state_machine;
         }
@@ -60,7 +60,7 @@ impl Player {
         }
     }
 
-    pub fn redeploy(&mut self, config: &PlayerConfig, physics_sim: &mut PhysicsSimulation) {
+    pub fn redeploy(&mut self, config: &PlayerSystemConfig, physics_sim: &mut PhysicsSimulation) {
         self.player_state.redeploy(config, physics_sim);
         self.player_state_machine = PlayerStateMachine::new();
     }
@@ -73,11 +73,11 @@ impl Player {
         self.player_state.get_player_id()
     }
 
-    pub fn populate_lights(&self, config: &PlayerConfig, lights: &mut PointLights) {
+    pub fn populate_lights(&self, config: &PlayerSystemConfig, lights: &mut PointLights) {
         self.player_state_machine.populate_lights(config, &self.player_state, lights);
     }
 
-    pub fn queue_draw(&self, config: &PlayerConfig, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {
+    pub fn queue_draw(&self, config: &PlayerSystemConfig, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {
         self.player_state_machine.queue_draw(config, &self.player_state, full_light, light_dependent);
     }
 

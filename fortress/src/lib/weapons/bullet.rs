@@ -18,7 +18,7 @@ use crate::{
         collision_category,
         PhysicsSimulation
     },
-    players::PlayerConfig,
+    players::PlayerBulletConfig,
     render::{
         NamedSpriteSheet,
         FullyIlluminatedSpriteData,
@@ -88,8 +88,8 @@ impl Bullet {
         self.time_elapsed += dt.as_microseconds();
     }
 
-    pub fn expired(&self, config: &PlayerConfig) -> bool {
-        self.time_elapsed >= config.bullet_lifetime_duration_micros
+    pub fn expired(&self, config: &PlayerBulletConfig) -> bool {
+        self.time_elapsed >= config.lifetime_duration_micros
     }
 
     pub fn remove_on_collision(&self) -> bool {
@@ -112,17 +112,17 @@ impl Bullet {
         })
     }
 
-    pub fn render_info(&self, config: &PlayerConfig) -> FullyIlluminatedSpriteData {
+    pub fn render_info(&self, config: &PlayerBulletConfig) -> FullyIlluminatedSpriteData {
         let world_position = self.get_render_world_position(config);
 
-        let rand_frame_offset = self.unit_random * (config.bullet_sprite_num_frames as f32 * config.bullet_sprite_frame_duration_micros as f32);
+        let rand_frame_offset = self.unit_random * (config.sprite_num_frames as f32 * config.sprite_frame_duration_micros as f32);
         let rand_frame_offset = rand_frame_offset as Microseconds;
         let frame_duration = self.time_elapsed + rand_frame_offset;
-        let frame = (frame_duration / config.bullet_sprite_frame_duration_micros) as usize;
+        let frame = (frame_duration / config.sprite_frame_duration_micros) as usize;
 
         FullyIlluminatedSpriteData {
             world_center_position: world_position,
-            world_half_size: glm::vec2(config.bullet_render_width, config.bullet_render_height),
+            world_half_size: glm::vec2(config.render_width, config.render_height),
             sprite_frame_id: SpriteSheetFrameId {
                 name: String::from(self.bullet_traits.sprite_sheet_image_name()),
                 sprite_sheet: NamedSpriteSheet::SpriteSheet1
@@ -133,24 +133,24 @@ impl Bullet {
         }
     }
 
-    pub fn point_light(&self, config: &PlayerConfig) -> PointLight {
+    pub fn point_light(&self, config: &PlayerBulletConfig) -> PointLight {
         let world_position = self.get_render_world_position(config);
         let direction = self.get_unit_direction();
-        let light_position_x = world_position.x + (direction.x as f32) * config.bullet_render_width * 0.75;
-        let light_position_z = world_position.z - (direction.y as f32) * config.bullet_render_width * 0.75;
+        let light_position_x = world_position.x + (direction.x as f32) * config.render_width * 0.75;
+        let light_position_z = world_position.z - (direction.y as f32) * config.render_width * 0.75;
         let color = self.bullet_traits.light_color(config);
 
         let position = glm::vec3(light_position_x, world_position.y, light_position_z);
-        let attenuation = glm::vec3(config.bullet_light_attenuation.0, config.bullet_light_attenuation.1, config.bullet_light_attenuation.2);
+        let attenuation = glm::vec3(config.light_attenuation.0, config.light_attenuation.1, config.light_attenuation.2);
         PointLight::new(position, color, attenuation)
     }
 
-    fn get_render_world_position(&self, config: &PlayerConfig) -> glm::Vec3 {
+    fn get_render_world_position(&self, config: &PlayerBulletConfig) -> glm::Vec3 {
         self.body.default_position()
             .map(|body_position| {
-                glm::vec3(body_position.x as f32, config.bullet_render_elevation, -body_position.y as f32)
+                glm::vec3(body_position.x as f32, config.render_elevation, -body_position.y as f32)
             })
-            .unwrap_or(glm::vec3(0.0, config.bullet_render_elevation, 0.0))
+            .unwrap_or(glm::vec3(0.0, config.render_elevation, 0.0))
     }
 
     fn get_unit_direction(&self) -> Vector2<f64> {

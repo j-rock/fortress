@@ -7,6 +7,9 @@ pub mod state;
 
 pub use self::player::Player;
 pub use self::player_config::PlayerConfig;
+pub use self::player_config::PlayerBulletConfig;
+pub use self::player_config::PlayerItemConfig;
+pub use self::player_config::PlayerSystemConfig;
 pub use self::player_id::PlayerId;
 pub use self::player_matchers::PlayerMatchers;
 pub use self::player_system::PlayerSystem;

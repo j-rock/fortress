@@ -1,4 +1,4 @@
-use crate::players::PlayerConfig;
+use crate::players::PlayerBulletConfig;
 use glm;
 
 pub struct BulletTraits {
@@ -29,7 +29,7 @@ impl BulletTraits {
         }
     }
 
-    pub fn light_color(&self, config: &PlayerConfig) -> glm::Vec3 {
+    pub fn light_color(&self, config: &PlayerBulletConfig) -> glm::Vec3 {
         self.element.light_color(config)
     }
 }
@@ -48,22 +48,22 @@ pub enum BulletElement {
 }
 
 impl BulletElement {
-    pub fn light_color(self, config: &PlayerConfig) -> glm::Vec3 {
+    pub fn light_color(self, config: &PlayerBulletConfig) -> glm::Vec3 {
         match self {
             Self::Fire => {
-                glm::vec3(config.bullet_light_color_fire.0,
-                          config.bullet_light_color_fire.1,
-                          config.bullet_light_color_fire.2)
+                glm::vec3(config.light_color_fire.0,
+                          config.light_color_fire.1,
+                          config.light_color_fire.2)
             },
             Self::Poison => {
-                glm::vec3(config.bullet_light_color_poison.0,
-                          config.bullet_light_color_poison.1,
-                          config.bullet_light_color_poison.2)
+                glm::vec3(config.light_color_poison.0,
+                          config.light_color_poison.1,
+                          config.light_color_poison.2)
             },
             Self::Ice => {
-                glm::vec3(config.bullet_light_color_ice.0,
-                          config.bullet_light_color_ice.1,
-                          config.bullet_light_color_ice.2)
+                glm::vec3(config.light_color_ice.0,
+                          config.light_color_ice.1,
+                          config.light_color_ice.2)
             },
         }
     }

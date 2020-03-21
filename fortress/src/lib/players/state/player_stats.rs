@@ -11,7 +11,10 @@ use crate::{
         ItemPickup,
         ItemType,
     },
-    players::PlayerConfig,
+    players::{
+        PlayerItemConfig,
+        PlayerSystemConfig,
+    },
     render::{
         EasingFn,
         FullyIlluminatedSpriteData,
@@ -46,32 +49,32 @@ pub struct PlayerStats {
 }
 
 impl PlayerStats {
-    pub fn new(config: &PlayerConfig) -> PlayerStats {
+    pub fn new(config: &PlayerSystemConfig) -> PlayerStats {
         PlayerStats {
-            base_move_speed: config.base_move_speed,
+            base_move_speed: config.player.base_move_speed,
             move_speed_level: 1,
-            base_bullet_speed: config.bullet_speed,
+            base_bullet_speed: config.bullet.speed,
             bullet_speed_level: 1,
-            base_bullet_damage: Damage::new(config.bullet_damage),
+            base_bullet_damage: Damage::new(config.bullet.damage),
             bullet_damage_level: 1,
-            base_bullet_knockback_strength: config.bullet_knockback_strength,
+            base_bullet_knockback_strength: config.bullet.knockback_strength,
             bullet_knockback_strength_level: 1,
-            base_normal_firing_period: config.bullet_normal_firing_period_micros,
+            base_normal_firing_period: config.bullet.normal_firing_period_micros,
             normal_firing_period_level: 1,
-            base_special_firing_period: config.bullet_special_firing_period_micros,
+            base_special_firing_period: config.bullet.special_firing_period_micros,
             special_firing_period_level: 1,
             skulls_collected: 0,
 
-            collected_item_animations: Slab::with_capacity(config.item_collection_animation_num_concurrent_guess),
+            collected_item_animations: Slab::with_capacity(config.item.collect_animation_num_concurrent_guess),
         }
     }
 
-    pub fn pre_update(&mut self, config: &PlayerConfig, dt: DeltaTime) {
+    pub fn pre_update(&mut self, config: &PlayerItemConfig, dt: DeltaTime) {
         let finished_animation_keys: Vec<_> = self.collected_item_animations
             .iter_mut()
             .filter_map(|(key, collected_item_animation)| {
                 collected_item_animation.time_elapsed += dt.as_microseconds();
-                if collected_item_animation.time_elapsed < config.item_collection_animation_duration_micros {
+                if collected_item_animation.time_elapsed < config.collect_animation_duration_micros {
                     return None;
                 }
                 Some(key)
@@ -83,7 +86,7 @@ impl PlayerStats {
         }
     }
 
-    pub fn populate_lights(&self, config: &PlayerConfig, player_center: Point2<f64>, lights: &mut PointLights) {
+    pub fn populate_lights(&self, config: &PlayerItemConfig, player_center: Point2<f64>, lights: &mut PointLights) {
         let queue_data = self.collected_item_animations.iter()
             .map(|(_key, collected_item_animation)| {
                 collected_item_animation.point_light(config, player_center)
@@ -91,7 +94,7 @@ impl PlayerStats {
         lights.append(queue_data);
     }
 
-    pub fn queue_draw(&self, config: &PlayerConfig, player_center: Point2<f64>, full_light: &mut FullyIlluminatedSpriteRenderer) {
+    pub fn queue_draw(&self, config: &PlayerItemConfig, player_center: Point2<f64>, full_light: &mut FullyIlluminatedSpriteRenderer) {
         let queue_data = self.collected_item_animations.iter()
             .map(|(_key, collected_item_animation)| {
                 collected_item_animation.sprite_data(config, player_center)
@@ -146,17 +149,17 @@ struct CollectedItemAnimation {
 }
 
 impl CollectedItemAnimation {
-    pub fn point_light(&self, config: &PlayerConfig, player_center: Point2<f64>) -> PointLight {
+    pub fn point_light(&self, config: &PlayerItemConfig, player_center: Point2<f64>) -> PointLight {
         let position = self.world_center_position(config, player_center);
         let color = self.item_pickup.light_color();
-        let attenuation = glm::vec3(config.item_collection_attenuation.0, config.item_collection_attenuation.1, config.item_collection_attenuation.2);
+        let attenuation = glm::vec3(config.collect_attenuation.0, config.collect_attenuation.1, config.collect_attenuation.2);
         PointLight::new(position, color, attenuation)
     }
 
-    pub fn sprite_data(&self, config: &PlayerConfig, player_center: Point2<f64>) -> FullyIlluminatedSpriteData {
+    pub fn sprite_data(&self, config: &PlayerItemConfig, player_center: Point2<f64>) -> FullyIlluminatedSpriteData {
         FullyIlluminatedSpriteData {
             world_center_position: self.world_center_position(config, player_center),
-            world_half_size: glm::vec2(config.item_collection_render_radius, config.item_collection_render_radius),
+            world_half_size: glm::vec2(config.collect_render_radius, config.collect_render_radius),
             sprite_frame_id: self.item_pickup.sprite_frame_id(),
             frame: 0,
             unit_world_rotation: Vector2::new(0.0, 0.0),
@@ -164,12 +167,12 @@ impl CollectedItemAnimation {
         }
     }
 
-    fn world_center_position(&self, config: &PlayerConfig, player_center: Point2<f64>) -> glm::Vec3 {
-        let t = self.time_elapsed as f32 / (config.item_collection_animation_duration_micros as f32);
-        let spin_radius = EasingFn::ease_out_quad(1.0 - t) * config.item_collection_animation_spin_radius;
-        let spin_speed = 2.0 * std::f32::consts::PI * config.item_collection_animation_spin_max_speed;
+    fn world_center_position(&self, config: &PlayerItemConfig, player_center: Point2<f64>) -> glm::Vec3 {
+        let t = self.time_elapsed as f32 / (config.collect_animation_duration_micros as f32);
+        let spin_radius = EasingFn::ease_out_quad(1.0 - t) * config.collect_animation_spin_radius;
+        let spin_speed = 2.0 * std::f32::consts::PI * config.collect_animation_spin_max_speed;
         let x_pos = player_center.x as f32 + spin_radius * (spin_speed * t).cos();
-        let y_pos = EasingFn::ease_out_quad(t) * config.item_collection_animation_max_height;
+        let y_pos = EasingFn::ease_out_quad(t) * config.collect_animation_max_height;
         let z_pos = player_center.y as f32 + spin_radius * (spin_speed * t).sin();
 
         glm::vec3(x_pos, y_pos, -z_pos)

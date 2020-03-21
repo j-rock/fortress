@@ -14,7 +14,7 @@ use crate::{
     entities::Entity,
     physics::PhysicsSimulation,
     players::{
-        PlayerConfig,
+        PlayerBulletConfig,
         PlayerId,
         state::PlayerStats,
     },
@@ -59,19 +59,19 @@ struct FireBulletArgs<'a> {
 }
 
 impl Weapon {
-    pub fn new(config: &PlayerConfig, physics_sim: &PhysicsSimulation) -> Weapon {
+    pub fn new(config: &PlayerBulletConfig, physics_sim: &PhysicsSimulation) -> Weapon {
         Weapon {
             bullets: Slab::new(),
             bullets_to_remove: vec!(),
             current_normal_delay: None,
             current_special_delay: None,
             physics_sim: physics_sim.clone(),
-            bullet_radius: config.bullet_physical_radius,
+            bullet_radius: config.physical_radius,
             bullet_element: BulletElement::Fire,
         }
     }
 
-    pub fn pre_update(&mut self, config: &PlayerConfig, stats: &PlayerStats, dt: DeltaTime) {
+    pub fn pre_update(&mut self, config: &PlayerBulletConfig, stats: &PlayerStats, dt: DeltaTime) {
         let current_normal_delay = self.current_normal_delay.unwrap_or(stats.get_normal_firing_period()) + dt.as_microseconds();
         self.current_normal_delay = if current_normal_delay >= stats.get_normal_firing_period() {
             None
@@ -117,14 +117,14 @@ impl Weapon {
         }
     }
 
-    pub fn try_fire_special(&mut self, config: &PlayerConfig, audio: &AudioPlayer, stats: &PlayerStats, player_id: PlayerId, start_position: Point2<f64>, direction: Vector2<f64>, rng: &mut RandGen) {
+    pub fn try_fire_special(&mut self, config: &PlayerBulletConfig, audio: &AudioPlayer, stats: &PlayerStats, player_id: PlayerId, start_position: Point2<f64>, direction: Vector2<f64>, rng: &mut RandGen) {
         if self.current_special_delay.is_none() {
-            let rot_left = Rotation2::new(config.bullet_special_spread_radians);
-            let rot_right = Rotation2::new(-config.bullet_special_spread_radians);
+            let rot_left = Rotation2::new(config.special_spread_radians);
+            let rot_right = Rotation2::new(-config.special_spread_radians);
             let mut dir_left = direction;
             let mut dir_right = direction;
-            let mut directions = Vec::with_capacity(2 * config.bullet_special_num_shots + 1);
-            for _i in 0..config.bullet_special_num_shots {
+            let mut directions = Vec::with_capacity(2 * config.special_num_shots + 1);
+            for _i in 0..config.special_num_shots {
                 dir_left = rot_left * dir_left;
                 dir_right = rot_right * dir_right;
                 directions.push(dir_left);
@@ -176,7 +176,7 @@ impl Weapon {
             })
     }
 
-    pub fn populate_lights(&self, config: &PlayerConfig, lights: &mut PointLights) {
+    pub fn populate_lights(&self, config: &PlayerBulletConfig, lights: &mut PointLights) {
         let queue_data = self.bullets
             .iter()
             .map(|(_idx, bullet)| {
@@ -185,7 +185,7 @@ impl Weapon {
         lights.append(queue_data);
     }
 
-    pub fn queue_draw(&self, config: &PlayerConfig, full_light: &mut FullyIlluminatedSpriteRenderer) {
+    pub fn queue_draw(&self, config: &PlayerBulletConfig, full_light: &mut FullyIlluminatedSpriteRenderer) {
         let sprites = self.bullets.iter().map(|(_idx, bullet)| -> FullyIlluminatedSpriteData {
             bullet.render_info(config)
         });

@@ -18,7 +18,7 @@ use crate::{
     items::ItemPickup,
     particles::ParticleSystem,
     players::{
-        PlayerConfig,
+        PlayerSystemConfig,
         state::PlayerState,
     },
     render::{
@@ -47,13 +47,13 @@ impl PlayerStateMachine {
     }
 
     pub fn pre_update<'a>(&mut self,
-                      config: &PlayerConfig,
-                      audio: &AudioPlayer,
-                      controller: IdentifiedController<'a>,
-                      dt: DeltaTime,
-                      particles: &mut ParticleSystem,
-                      rng: &mut RandGen,
-                      player_state: &mut PlayerState) -> Option<PlayerStateMachine> {
+                          config: &PlayerSystemConfig,
+                          audio: &AudioPlayer,
+                          controller: IdentifiedController<'a>,
+                          dt: DeltaTime,
+                          particles: &mut ParticleSystem,
+                          rng: &mut RandGen,
+                          player_state: &mut PlayerState) -> Option<PlayerStateMachine> {
         let move_direction = Self::compute_move_direction(controller);
         player_state.pre_update(config, dt);
         player_state.set_velocity(move_direction);
@@ -91,19 +91,21 @@ impl PlayerStateMachine {
         None
     }
 
-    pub fn populate_lights(&self, config: &PlayerConfig, player_state: &PlayerState, lights: &mut PointLights) {
+    pub fn populate_lights(&self, config: &PlayerSystemConfig, player_state: &PlayerState, lights: &mut PointLights) {
         player_state.populate_lights(config, lights);
     }
 
-    pub fn queue_draw(&self, config: &PlayerConfig, player_state: &PlayerState, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {
+    pub fn queue_draw(&self, config: &PlayerSystemConfig, player_state: &PlayerState, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {
         if let Some(position) = player_state.position() {
             let (reverse, render_offset) = if player_state.lr_dir().is_left() {
-                (Reverse::horizontally(), glm::vec2(-config.player_render_offset.0, config.player_render_offset.1))
+                (Reverse::horizontally(), glm::vec2(-config.player.render_offset.0, config.player.render_offset.1))
             } else {
-                (Reverse::none(), glm::vec2(config.player_render_offset.0, config.player_render_offset.1))
+                (Reverse::none(), glm::vec2(config.player.render_offset.0, config.player.render_offset.1))
             };
 
-            let world_half_size = glm::vec2(config.physical_radius as f32 * config.player_render_scale.0, config.physical_radius as f32 * config.player_render_scale.1);
+            let world_half_size =
+                glm::vec2(config.player.physical_radius as f32 * config.player.render_scale.0,
+                          config.player.physical_radius as f32 * config.player.render_scale.1);
             let world_center_position = glm::vec3(position.x as f32 + render_offset.x, world_half_size.y, -(position.y as f32 + render_offset.y));
 
             let image_name = match self {
@@ -112,8 +114,8 @@ impl PlayerStateMachine {
             };
 
             let frame = match self {
-                PlayerStateMachine::Idle(time_elapsed) => (*time_elapsed / config.player_idle_frame_duration_micros) as usize,
-                PlayerStateMachine::Walking(time_elapsed) => (*time_elapsed / config.player_running_frame_duration_micros) as usize,
+                PlayerStateMachine::Idle(time_elapsed) => (*time_elapsed / config.player.idle_frame_duration_micros) as usize,
+                PlayerStateMachine::Walking(time_elapsed) => (*time_elapsed / config.player.running_frame_duration_micros) as usize,
             };
 
             light_dependent.queue(LightDependentSpriteData {

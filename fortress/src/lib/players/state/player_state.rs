@@ -21,7 +21,7 @@ use crate::{
     physics::PhysicsSimulation,
     players::{
         PlayerId,
-        PlayerConfig,
+        PlayerSystemConfig,
         state::{
             PlayerBody,
             PlayerStats,
@@ -56,10 +56,10 @@ pub struct PlayerState {
 }
 
 impl PlayerState {
-    pub fn new(player_id: PlayerId, config: &PlayerConfig, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) -> PlayerState {
-        let body = PlayerBody::new(config, player_id, spawn, physics_sim);
+    pub fn new(player_id: PlayerId, config: &PlayerSystemConfig, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) -> PlayerState {
+        let body = PlayerBody::new(&config.player, player_id, spawn, physics_sim);
         let stats = PlayerStats::new(config);
-        let weapon = Weapon::new(config, physics_sim);
+        let weapon = Weapon::new(&config.bullet, physics_sim);
         PlayerState {
             player_id,
             spawn,
@@ -67,15 +67,15 @@ impl PlayerState {
             body,
             facing_dir: Vector2::new(1.0, 0.0),
             lr_dir: LrDirection::Right,
-            weapon_physical_offset: config.weapon_physical_offset,
+            weapon_physical_offset: config.player.weapon_physical_offset,
             weapon,
             hero_switch_time_left: None,
         }
     }
 
-    pub fn pre_update(&mut self, config: &PlayerConfig, dt: DeltaTime) {
-        self.weapon.pre_update(config, &self.stats, dt);
-        self.stats.pre_update(config, dt);
+    pub fn pre_update(&mut self, config: &PlayerSystemConfig, dt: DeltaTime) {
+        self.weapon.pre_update(&config.bullet, &self.stats, dt);
+        self.stats.pre_update(&config.item, dt);
 
         if let Some(time_left) = self.hero_switch_time_left {
             let new_time_left = time_left - dt.as_microseconds();
@@ -91,11 +91,11 @@ impl PlayerState {
         self.weapon.post_update();
     }
 
-    pub fn redeploy(&mut self, config: &PlayerConfig, physics_sim: &mut PhysicsSimulation) {
-        self.body = PlayerBody::new(config, self.player_id, self.spawn.clone(), physics_sim);
+    pub fn redeploy(&mut self, config: &PlayerSystemConfig, physics_sim: &mut PhysicsSimulation) {
+        self.body = PlayerBody::new(&config.player, self.player_id, self.spawn.clone(), physics_sim);
         self.stats = PlayerStats::new(config);
-        self.weapon_physical_offset = config.weapon_physical_offset;
-        self.weapon = Weapon::new(config, physics_sim);
+        self.weapon_physical_offset = config.player.weapon_physical_offset;
+        self.weapon = Weapon::new(&config.bullet, physics_sim);
     }
 
     pub fn respawn(&mut self, spawn: Point2<f64>) {
@@ -107,20 +107,20 @@ impl PlayerState {
         self.player_id
     }
 
-    pub fn populate_lights(&self, config: &PlayerConfig, lights: &mut PointLights) {
-        self.weapon.populate_lights(config, lights);
+    pub fn populate_lights(&self, config: &PlayerSystemConfig, lights: &mut PointLights) {
+        self.weapon.populate_lights(&config.bullet, lights);
         if let Some(position) = self.position() {
-            self.stats.populate_lights(config, position, lights);
+            self.stats.populate_lights(&config.item, position, lights);
         }
     }
 
-    pub fn queue_draw_weapon(&self, config: &PlayerConfig, full_light: &mut FullyIlluminatedSpriteRenderer) {
-        self.weapon.queue_draw(config, full_light);
+    pub fn queue_draw_weapon(&self, config: &PlayerSystemConfig, full_light: &mut FullyIlluminatedSpriteRenderer) {
+        self.weapon.queue_draw(&config.bullet, full_light);
     }
 
-    pub fn queue_draw_stats(&self, config: &PlayerConfig, full_light: &mut FullyIlluminatedSpriteRenderer) {
+    pub fn queue_draw_stats(&self, config: &PlayerSystemConfig, full_light: &mut FullyIlluminatedSpriteRenderer) {
         if let Some(position) = self.position() {
-            self.stats.queue_draw(config, position, full_light);
+            self.stats.queue_draw(&config.item, position, full_light);
         }
     }
 
@@ -144,16 +144,16 @@ impl PlayerState {
         }
     }
 
-    pub fn try_fire_special(&mut self, config: &PlayerConfig, audio: &AudioPlayer, rng: &mut RandGen) {
+    pub fn try_fire_special(&mut self, config: &PlayerSystemConfig, audio: &AudioPlayer, rng: &mut RandGen) {
         if let Some(position) = self.position() {
             let start_position = Point2::from(position.coords + self.weapon_physical_offset * self.facing_dir);
-            self.weapon.try_fire_special(config, audio, &self.stats, self.player_id, start_position, self.facing_dir, rng);
+            self.weapon.try_fire_special(&config.bullet, audio, &self.stats, self.player_id, start_position, self.facing_dir, rng);
         }
     }
 
-    pub fn try_switch_hero(&mut self, config: &PlayerConfig, audio: &AudioPlayer, particles: &mut ParticleSystem) {
+    pub fn try_switch_hero(&mut self, config: &PlayerSystemConfig, audio: &AudioPlayer, particles: &mut ParticleSystem) {
         if let None = self.hero_switch_time_left {
-            self.hero_switch_time_left = Some(config.player_switch_hero_duration_micros);
+            self.hero_switch_time_left = Some(config.player.switch_hero_duration_micros);
             self.weapon.switch_bullet_element();
             audio.play_sound(Sound::HeroSwitch);
             if let Some(position) = self.position() {

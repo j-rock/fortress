@@ -27,7 +27,7 @@ use crate::{
     particles::ParticleSystem,
     players::{
         Player,
-        PlayerConfig,
+        PlayerSystemConfig,
         PlayerId,
         self,
     },
@@ -43,7 +43,7 @@ use nalgebra::Point2;
 use std::collections::HashMap;
 
 pub struct PlayerSystem {
-    config_manager: SimpleConfigManager<PlayerConfig>,
+    config_manager: SimpleConfigManager<PlayerSystemConfig>,
     players: Slab<Player>,
     player_needs_controller: Vec<PlayerId>,
     player_to_controller: Vec<ControllerId>,
