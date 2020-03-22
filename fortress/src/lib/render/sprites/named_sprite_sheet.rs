@@ -4,10 +4,11 @@ use enum_iterator::IntoEnumIterator;
 pub enum NamedSpriteSheet {
     SpriteSheet1,
     GalaxyGround,
+    Heroes,
 }
 
 impl NamedSpriteSheet {
-    pub fn to_lowercase_string(self) -> String {
+    pub fn to_directory_basename(self) -> String {
         format!("{:?}", self)
     }
 

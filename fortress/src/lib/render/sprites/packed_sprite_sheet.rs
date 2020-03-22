@@ -64,7 +64,7 @@ impl PackedSpriteSheet {
     fn base_directory(sprite_sheet: NamedSpriteSheet) -> PathBuf {
         let mut images_dir = file::util::resource_base();
         images_dir.push("images");
-        images_dir.push(sprite_sheet.to_lowercase_string());
+        images_dir.push(sprite_sheet.to_directory_basename());
         images_dir
     }
 
