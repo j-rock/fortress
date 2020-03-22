@@ -3,7 +3,11 @@ use crate::{
     file,
 };
 use png;
-use std::path::PathBuf;
+use std::{
+    fs::File,
+    io::BufWriter,
+    path::PathBuf
+};
 
 pub struct Png {
     img: Vec<u8>,
@@ -36,6 +40,24 @@ impl Png {
             width: info.width as usize,
             height: info.height as usize,
         })
+    }
+
+    pub fn save_to_file(&self, path: PathBuf) -> StatusOr<()> {
+        let file = File::create(path)
+            .map_err(|e| format!("{:?}", e))?;
+        let mut w = BufWriter::new(file);
+
+        let mut encoder = png::Encoder::new(w, self.width as u32, self.height as u32);
+        encoder.set_color(png::ColorType::RGBA);
+        encoder.set_depth(png::BitDepth::Eight);
+
+        let mut writer =
+            encoder
+                .write_header()
+                .map_err(|e| format!("{:?}", e))?;
+        writer
+            .write_image_data(self.bytes())
+            .map_err(|e| format!("{:?}", e))
     }
 
     pub fn bytes(&self) -> &Vec<u8> {
