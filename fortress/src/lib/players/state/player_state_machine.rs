@@ -18,6 +18,7 @@ use crate::{
     items::ItemPickup,
     particles::ParticleSystem,
     players::{
+        Hero,
         PlayerSystemConfig,
         state::PlayerState,
     },
@@ -96,42 +97,44 @@ impl PlayerStateMachine {
     }
 
     pub fn queue_draw(&self, config: &PlayerSystemConfig, player_state: &PlayerState, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {
+        player_state.queue_draw_weapon(config, full_light);
+        player_state.queue_draw_stats(config, full_light);
+
         if let Some(position) = player_state.position() {
-            let (reverse, render_offset) = if player_state.lr_dir().is_left() {
-                (Reverse::horizontally(), glm::vec2(-config.player.render_offset.0, config.player.render_offset.1))
-            } else {
-                (Reverse::none(), glm::vec2(config.player.render_offset.0, config.player.render_offset.1))
-            };
+            if let Some(render_config) = config.hero.get(&Hero::FireMage) {
+                let (reverse, render_offset) = if player_state.lr_dir().is_left() {
+                    (Reverse::horizontally(), glm::vec2(-render_config.render_offset.0, render_config.render_offset.1))
+                } else {
+                    (Reverse::none(), glm::vec2(render_config.render_offset.0, render_config.render_offset.1))
+                };
 
-            let world_half_size =
-                glm::vec2(config.player.physical_radius as f32 * config.player.render_scale.0,
-                          config.player.physical_radius as f32 * config.player.render_scale.1);
-            let world_center_position = glm::vec3(position.x as f32 + render_offset.x, world_half_size.y, -(position.y as f32 + render_offset.y));
+                let world_half_size =
+                    glm::vec2(config.player.physical_radius as f32 * render_config.render_scale.0,
+                              config.player.physical_radius as f32 * render_config.render_scale.1);
+                let world_center_position = glm::vec3(position.x as f32 + render_offset.x, world_half_size.y, -(position.y as f32 + render_offset.y));
 
-            let image_name = match self {
-                PlayerStateMachine::Idle(_) => String::from("warrior_idle.png"),
-                PlayerStateMachine::Walking(_) => String::from("warrior_run.png"),
-            };
+                let image_name = match self {
+                    PlayerStateMachine::Idle(_) => String::from("fire_mage_idle.png"),
+                    PlayerStateMachine::Walking(_) => String::from("fire_mage_move.png"),
+                };
 
-            let frame = match self {
-                PlayerStateMachine::Idle(time_elapsed) => (*time_elapsed / config.player.idle_frame_duration_micros) as usize,
-                PlayerStateMachine::Walking(time_elapsed) => (*time_elapsed / config.player.running_frame_duration_micros) as usize,
-            };
+                let frame = match self {
+                    PlayerStateMachine::Idle(time_elapsed) => (*time_elapsed / render_config.idle_frame_duration_micros) as usize,
+                    PlayerStateMachine::Walking(time_elapsed) => (*time_elapsed / render_config.running_frame_duration_micros) as usize,
+                };
 
-            light_dependent.queue(LightDependentSpriteData {
-                world_center_position,
-                world_half_size,
-                sprite_frame_id: SpriteSheetFrameId {
-                    name: image_name,
-                    sprite_sheet: NamedSpriteSheet::SpriteSheet1,
-                },
-                frame,
-                unit_world_rotation: Vector2::new(0.0, 0.0),
-                reverse,
-            });
-
-            player_state.queue_draw_weapon(config, full_light);
-            player_state.queue_draw_stats(config, full_light);
+                light_dependent.queue(LightDependentSpriteData {
+                    world_center_position,
+                    world_half_size,
+                    sprite_frame_id: SpriteSheetFrameId {
+                        name: image_name,
+                        sprite_sheet: NamedSpriteSheet::Heroes,
+                    },
+                    frame,
+                    unit_world_rotation: Vector2::new(0.0, 0.0),
+                    reverse,
+                });
+            }
         }
     }
 

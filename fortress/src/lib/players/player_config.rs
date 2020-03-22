@@ -1,14 +1,21 @@
+use crate::players::Hero;
+use std::collections::HashMap;
+
 #[derive(Clone, Deserialize)]
 pub struct PlayerConfig {
     pub physical_radius: f64,
     pub physical_density: f64,
     pub base_move_speed: f64,
     pub weapon_physical_offset: f64,
+    pub switch_hero_duration_micros: i64,
+}
+
+#[derive(Clone, Deserialize)]
+pub struct PlayerRenderHeroConfig {
     pub render_offset: (f32, f32),
     pub render_scale: (f32, f32),
     pub idle_frame_duration_micros: i64,
     pub running_frame_duration_micros: i64,
-    pub switch_hero_duration_micros: i64,
 }
 
 #[derive(Clone, Deserialize)]
@@ -47,6 +54,7 @@ pub struct PlayerItemConfig {
 #[derive(Clone, Deserialize)]
 pub struct PlayerSystemConfig {
     pub player: PlayerConfig,
+    pub hero: HashMap<Hero, PlayerRenderHeroConfig>,
     pub bullet: PlayerBulletConfig,
     pub item: PlayerItemConfig,
 }
