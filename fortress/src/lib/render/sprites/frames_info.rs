@@ -6,10 +6,9 @@ use glm;
 
 #[derive(Copy, Clone, Debug)]
 pub struct FramesInfo {
-    pub texel_top_left: glm::Vec2,
-
     pub num_frames_horizontal: usize,
     pub num_frames_vertical: usize,
+    pub texel_top_left: glm::Vec2,
 
     // Frame {width,height} correspond to distances between frames.
     pub frame_width: f32,
