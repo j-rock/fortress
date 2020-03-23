@@ -10,11 +10,7 @@ use crate::{
         FramesInfo,
     }
 };
-use glm;
-use rect_packer::{
-    DensePacker,
-    Rect,
-};
+use rect_packer::DensePacker;
 use std::path::PathBuf;
 
 pub struct PackedSpriteSheet {
@@ -48,9 +44,9 @@ impl PackedSpriteSheet {
                         frame_width: rect.width as usize,
                         frame_height: rect.height as usize,
                     };
-                    Self::compute_frames(config, &sprite, rect)
+                    FramesInfo::from_rect_pack(config, &sprite, rect)?
                 },
-                Some(sprite) => Self::compute_frames(config, sprite, rect),
+                Some(sprite) => FramesInfo::from_rect_pack(config, sprite, rect)?,
             };
             mappings.push((frame_id, frame_info));
         }
@@ -88,33 +84,6 @@ impl PackedSpriteSheet {
         });
 
         Ok(images)
-    }
-
-    fn compute_frames(config: &SheetConfig, sprite: &SpriteConfig, rect: Rect) -> FramesInfo {
-        if rect.width == 0 {
-            panic!("Rect: {}, {}", rect.width as usize, sprite.frame_width);
-        }
-        let num_frames_horizontal = (rect.width as usize) / sprite.frame_width;
-        let num_frames_vertical = (rect.height as usize) / sprite.frame_height;
-
-        let left_center = rect.x as f32 + 0.5;
-        let top_center = (config.height as i32 - rect.y) as f32 - 0.5;
-        let texel_top_left = glm::vec2(left_center / config.width as f32, top_center / config.height as f32);
-
-        let frame_width = sprite.frame_width as f32 / config.width as f32;
-        let frame_height = sprite.frame_height as f32 / config.height as f32;
-        let sub_frame_width = (sprite.frame_width - 1) as f32 / config.width as f32;
-        let sub_frame_height = (sprite.frame_height - 1) as f32 / config.height as f32;
-
-        FramesInfo {
-            num_frames_horizontal,
-            num_frames_vertical,
-            texel_top_left,
-            frame_width,
-            frame_height,
-            sub_frame_width,
-            sub_frame_height,
-        }
     }
 }
 

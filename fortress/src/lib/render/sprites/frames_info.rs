@@ -1,25 +1,59 @@
 use crate::{
+    app::StatusOr,
     dimensions::Reverse,
-    render::Texel
+    render::{
+        SheetConfig,
+        SpriteConfig,
+        Texel,
+    },
 };
 use glm;
+use rect_packer::Rect;
 
 #[derive(Copy, Clone, Debug)]
 pub struct FramesInfo {
-    pub num_frames_horizontal: usize,
-    pub num_frames_vertical: usize,
-    pub texel_top_left: glm::Vec2,
+    num_frames_horizontal: usize,
+    num_frames_vertical: usize,
+    texel_top_left: glm::Vec2,
 
     // Frame {width,height} correspond to distances between frames.
-    pub frame_width: f32,
-    pub frame_height: f32,
+    frame_width: f32,
+    frame_height: f32,
 
     // Frame sub-{width,height} correspond to distances within a single frame.
-    pub sub_frame_width: f32,
-    pub sub_frame_height: f32,
+    sub_frame_width: f32,
+    sub_frame_height: f32,
 }
 
 impl FramesInfo {
+    pub fn from_rect_pack(config: &SheetConfig, sprite: &SpriteConfig, rect: Rect) -> StatusOr<Self> {
+        if rect.width == 0 || rect.height == 0 {
+            return Err(format!("Bad FramesInfo rect: {}, {}", rect.width as usize, sprite.frame_width));
+        }
+
+        let num_frames_horizontal = (rect.width as usize) / sprite.frame_width;
+        let num_frames_vertical = (rect.height as usize) / sprite.frame_height;
+
+        let left_center = rect.x as f32 + 0.5;
+        let top_center = (config.height as i32 - rect.y) as f32 - 0.5;
+        let texel_top_left = glm::vec2(left_center / config.width as f32, top_center / config.height as f32);
+
+        let frame_width = sprite.frame_width as f32 / config.width as f32;
+        let frame_height = sprite.frame_height as f32 / config.height as f32;
+        let sub_frame_width = (sprite.frame_width - 1) as f32 / config.width as f32;
+        let sub_frame_height = (sprite.frame_height - 1) as f32 / config.height as f32;
+
+        Ok(FramesInfo {
+            num_frames_horizontal,
+            num_frames_vertical,
+            texel_top_left,
+            frame_width,
+            frame_height,
+            sub_frame_width,
+            sub_frame_height,
+        })
+    }
+
     pub fn texel(&self, frame: usize, reverse: Reverse) -> Texel {
         let frame = frame % (self.num_frames_horizontal * self.num_frames_vertical);
         let frame_x = (frame % self.num_frames_horizontal) as f32;
