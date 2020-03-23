@@ -7,7 +7,7 @@ use crate::{
         SheetConfig,
         SpriteConfig,
         SpriteSheetFrameId,
-        FrameInfo,
+        FramesInfo,
     }
 };
 use glm;
@@ -19,7 +19,7 @@ use std::path::PathBuf;
 
 pub struct PackedSpriteSheet {
     pub image: Png,
-    pub mappings: Vec<(SpriteSheetFrameId, FrameInfo)>
+    pub mappings: Vec<(SpriteSheetFrameId, FramesInfo)>
 }
 
 impl PackedSpriteSheet {
@@ -48,9 +48,9 @@ impl PackedSpriteSheet {
                         frame_width: rect.width as usize,
                         frame_height: rect.height as usize,
                     };
-                    Self::compute_frame(config, &sprite, rect)
+                    Self::compute_frames(config, &sprite, rect)
                 },
-                Some(sprite) => Self::compute_frame(config, sprite, rect),
+                Some(sprite) => Self::compute_frames(config, sprite, rect),
             };
             mappings.push((frame_id, frame_info));
         }
@@ -90,32 +90,43 @@ impl PackedSpriteSheet {
         Ok(images)
     }
 
-    fn compute_frame(config: &SheetConfig, sprite: &SpriteConfig, rect: Rect) -> FrameInfo {
+    fn compute_frames(config: &SheetConfig, sprite: &SpriteConfig, rect: Rect) -> FramesInfo {
         let bottom_left_pixel = (rect.x, config.height as i32 - (rect.y + rect.height - 1));
         let top_right_pixel = (rect.x + rect.width - 1, config.height as i32 - rect.y);
 
-        let bottom_left = glm::vec2(
-            (bottom_left_pixel.0 as f32 + 0.5) / config.width as f32,
-            bottom_left_pixel.1 as f32 / config.height as f32);
+        let left_center = bottom_left_pixel.0 as f32 + 0.5;
+        let right_center = top_right_pixel.0 as f32 + 0.5;
+        let bottom_center = bottom_left_pixel.1 as f32;
+        let top_center = top_right_pixel.1 as f32;
 
-        let top_right = glm::vec2(
-            (top_right_pixel.0 as f32 + 0.5) / config.width as f32,
-            top_right_pixel.1 as f32 / config.height as f32);
+        let texel_bottom_left = glm::vec2(
+            left_center / config.width as f32,
+            bottom_center / config.height as f32);
 
-        let num_sub_frames_horizontal = (rect.width as usize) / sprite.frame_width;
-        if num_sub_frames_horizontal == 0 {
+        let texel_top_right = glm::vec2(
+            right_center / config.width as f32,
+            top_center / config.height as f32);
+
+        let texel_top_left = glm::vec2(texel_bottom_left.x, texel_top_right.y);
+
+        let num_frames_horizontal = (rect.width as usize) / sprite.frame_width;
+        if num_frames_horizontal == 0 {
             panic!("Rect: {}, {}", rect.width as usize, sprite.frame_width);
         }
-        let num_sub_frames_vertical = (rect.height as usize) / sprite.frame_height;
+        let num_frames_vertical = (rect.height as usize) / sprite.frame_height;
 
-        let sub_frame_width = (top_right.x - bottom_left.x) / (num_sub_frames_horizontal as f32);
-        let sub_frame_height = (top_right.y - bottom_left.y) / (num_sub_frames_vertical as f32);
+        let frame_width = (texel_top_right.x - texel_bottom_left.x) / (num_frames_horizontal as f32);
+        let frame_height = (texel_top_right.y - texel_bottom_left.y) / (num_frames_vertical as f32);
 
-        FrameInfo {
-            bottom_left,
-            top_right,
-            num_sub_frames_horizontal,
-            num_sub_frames_vertical,
+        let sub_frame_width = frame_width - 1.0 / config.width as f32;
+        let sub_frame_height = frame_height - 1.0 / config.height as f32;
+
+        FramesInfo {
+            texel_top_left,
+            num_frames_horizontal,
+            num_frames_vertical,
+            frame_width,
+            frame_height,
             sub_frame_width,
             sub_frame_height,
         }

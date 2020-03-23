@@ -33,7 +33,7 @@ pub use self::renderer::LightDependentSpriteData;
 pub use self::renderer::LightDependentSpriteRenderer;
 pub use self::shader::ShaderProgram;
 pub use self::shader::ShaderUniformKey;
-pub use self::sprites::FrameInfo;
+pub use self::sprites::FramesInfo;
 pub use self::sprites::NamedSpriteSheet;
 pub use self::sprites::PackedSpriteSheet;
 pub use self::sprites::SheetConfig;

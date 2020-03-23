@@ -6,7 +6,7 @@ use crate::{
         SimpleConfigManager
     },
     render::{
-        FrameInfo,
+        FramesInfo,
         NamedSpriteSheet,
         PackedSpriteSheet,
         SpriteSheetConfig,
@@ -21,7 +21,7 @@ pub struct SpriteSheetTextureManager {
     config: SimpleConfigManager<SpriteSheetConfig>,
 
     textures: HashMap<NamedSpriteSheet, Texture>,
-    frames: HashMap<SpriteSheetFrameId, FrameInfo>,
+    frames: HashMap<SpriteSheetFrameId, FramesInfo>,
 }
 
 impl SpriteSheetTextureManager {
