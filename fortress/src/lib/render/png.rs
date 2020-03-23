@@ -45,7 +45,7 @@ impl Png {
     pub fn save_to_file(&self, path: PathBuf) -> StatusOr<()> {
         let file = File::create(path)
             .map_err(|e| format!("{:?}", e))?;
-        let mut w = BufWriter::new(file);
+        let w = BufWriter::new(file);
 
         let mut encoder = png::Encoder::new(w, self.width as u32, self.height as u32);
         encoder.set_color(png::ColorType::RGBA);
