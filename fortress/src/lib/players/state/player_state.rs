@@ -65,7 +65,7 @@ impl PlayerState {
         PlayerState {
             player_id,
             spawn,
-            hero: Hero::FireMage,
+            hero: Hero::CapedWarrior,
             stats,
             body,
             facing_dir: Vector2::new(1.0, 0.0),
@@ -127,7 +127,7 @@ impl PlayerState {
         }
     }
 
-    pub fn set_velocity(&mut self, dir: Option<OctoDirection>) {
+    pub fn set_velocity(&mut self, config: &PlayerSystemConfig, dir: Option<OctoDirection>) {
         match dir {
             None => self.body.set_velocity(Vector2::new(0.0, 0.0)),
             Some(dir) => {
@@ -135,7 +135,10 @@ impl PlayerState {
                 if let Some(lr_dir) = dir.to_lr_direction() {
                     self.lr_dir = lr_dir;
                 }
-                self.body.set_velocity(self.stats.get_move_speed() * self.facing_dir);
+
+                if let Some(hero) = config.hero.get(&self.hero()) {
+                    self.body.set_velocity(self.facing_dir.clone() * hero.base_move_speed);
+                }
             },
         }
     }

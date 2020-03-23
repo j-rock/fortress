@@ -8,7 +8,7 @@ pub enum OctoDirection {
 
 impl OctoDirection {
     pub fn to_direction(self) -> Vector2<f64> {
-        match self {
+        let unnormalized = match self {
             OctoDirection::Up => Vector2::new(0.0, 1.0),
             OctoDirection::Down => Vector2::new(0.0, -1.0),
             OctoDirection::Left => Vector2::new(-1.0, 0.0),
@@ -17,7 +17,8 @@ impl OctoDirection {
             OctoDirection::UpRight => Vector2::new(1.0, 1.0),
             OctoDirection::DownLeft => Vector2::new(-1.0, -1.0),
             OctoDirection::DownRight => Vector2::new(1.0, -1.0),
-        }
+        };
+        unnormalized.normalize()
     }
 
     pub fn to_lr_direction(self) -> Option<LrDirection> {

@@ -5,13 +5,13 @@ use std::collections::HashMap;
 pub struct PlayerConfig {
     pub physical_radius: f64,
     pub physical_density: f64,
-    pub base_move_speed: f64,
     pub weapon_physical_offset: f64,
     pub switch_hero_duration_micros: i64,
 }
 
 #[derive(Clone, Deserialize)]
 pub struct PlayerHeroConfig {
+    pub base_move_speed: f64,
     pub render_offset: (f32, f32),
     pub render_scale: (f32, f32),
     pub idle_image_name: String,
