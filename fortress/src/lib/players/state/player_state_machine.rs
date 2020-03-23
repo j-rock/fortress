@@ -18,7 +18,6 @@ use crate::{
     items::ItemPickup,
     particles::ParticleSystem,
     players::{
-        Hero,
         PlayerSystemConfig,
         state::PlayerState,
     },
@@ -101,26 +100,26 @@ impl PlayerStateMachine {
         player_state.queue_draw_stats(config, full_light);
 
         if let Some(position) = player_state.position() {
-            if let Some(render_config) = config.hero.get(&Hero::FireMage) {
+            if let Some(hero_config) = config.hero.get(&player_state.hero()) {
                 let (reverse, render_offset) = if player_state.lr_dir().is_left() {
-                    (Reverse::horizontally(), glm::vec2(-render_config.render_offset.0, render_config.render_offset.1))
+                    (Reverse::horizontally(), glm::vec2(-hero_config.render_offset.0, hero_config.render_offset.1))
                 } else {
-                    (Reverse::none(), glm::vec2(render_config.render_offset.0, render_config.render_offset.1))
+                    (Reverse::none(), glm::vec2(hero_config.render_offset.0, hero_config.render_offset.1))
                 };
 
                 let world_half_size =
-                    glm::vec2(config.player.physical_radius as f32 * render_config.render_scale.0,
-                              config.player.physical_radius as f32 * render_config.render_scale.1);
+                    glm::vec2(config.player.physical_radius as f32 * hero_config.render_scale.0,
+                              config.player.physical_radius as f32 * hero_config.render_scale.1);
                 let world_center_position = glm::vec3(position.x as f32 + render_offset.x, world_half_size.y, -(position.y as f32 + render_offset.y));
 
                 let image_name = match self {
-                    PlayerStateMachine::Idle(_) => String::from("fire_mage_idle.png"),
-                    PlayerStateMachine::Walking(_) => String::from("fire_mage_move.png"),
+                    PlayerStateMachine::Idle(_) => hero_config.idle_image_name.clone(),
+                    PlayerStateMachine::Walking(_) => hero_config.walking_image_name.clone(),
                 };
 
                 let frame = match self {
-                    PlayerStateMachine::Idle(time_elapsed) => (*time_elapsed / render_config.idle_frame_duration_micros) as usize,
-                    PlayerStateMachine::Walking(time_elapsed) => (*time_elapsed / render_config.running_frame_duration_micros) as usize,
+                    PlayerStateMachine::Idle(time_elapsed) => (*time_elapsed / hero_config.idle_frame_duration_micros) as usize,
+                    PlayerStateMachine::Walking(time_elapsed) => (*time_elapsed / hero_config.walking_frame_duration_micros) as usize,
                 };
 
                 light_dependent.queue(LightDependentSpriteData {

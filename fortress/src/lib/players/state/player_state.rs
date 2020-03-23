@@ -20,6 +20,7 @@ use crate::{
     },
     physics::PhysicsSimulation,
     players::{
+        Hero,
         PlayerId,
         PlayerSystemConfig,
         state::{
@@ -46,6 +47,7 @@ pub struct PlayerState {
     spawn: Point2<f64>,
     stats: PlayerStats,
     body: PlayerBody,
+    hero: Hero,
 
     facing_dir: Vector2<f64>,
     lr_dir: LrDirection,
@@ -63,6 +65,7 @@ impl PlayerState {
         PlayerState {
             player_id,
             spawn,
+            hero: Hero::FireMage,
             stats,
             body,
             facing_dir: Vector2::new(1.0, 0.0),
@@ -154,6 +157,11 @@ impl PlayerState {
     pub fn try_switch_hero(&mut self, config: &PlayerSystemConfig, audio: &AudioPlayer, particles: &mut ParticleSystem) {
         if let None = self.hero_switch_time_left {
             self.hero_switch_time_left = Some(config.player.switch_hero_duration_micros);
+
+            self.hero = match self.hero {
+                Hero::FireMage => Hero::CapedWarrior,
+                Hero::CapedWarrior => Hero::FireMage,
+            };
             self.weapon.switch_bullet_element();
             audio.play_sound(Sound::HeroSwitch);
             if let Some(position) = self.position() {
@@ -180,5 +188,9 @@ impl PlayerState {
 
     pub fn collect_item(&mut self, item_pickup: ItemPickup) {
         self.stats.collect_item(item_pickup);
+    }
+
+    pub fn hero(&self) -> Hero {
+        self.hero
     }
 }
