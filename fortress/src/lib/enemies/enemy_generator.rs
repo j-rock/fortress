@@ -65,11 +65,19 @@ impl EnemyGenerator {
         self.generator_state_machine.queue_draw(config, &self.generator_state, sprite_renderer);
     }
 
+    pub fn queue_draw_dead(config: &EnemyConfig, positions: &[Point2<f64>], sprite_renderer: &mut LightDependentSpriteRenderer) {
+        EnemyGeneratorStateMachine::queue_draw_dead(config, positions, sprite_renderer);
+    }
+
     pub fn dead(&self) -> bool {
         self.generator_state_machine.dead()
     }
 
     pub fn take_attack(&mut self, config: &EnemyConfig, audio: &AudioPlayer, attack: Attack, particles: &mut ParticleSystem) {
         self.generator_state_machine.take_attack(config, audio, attack, &mut self.generator_state, particles);
+    }
+
+    pub fn position(&self) -> Option<Point2<f64>> {
+        self.generator_state_machine.position(&self.generator_state)
     }
 }

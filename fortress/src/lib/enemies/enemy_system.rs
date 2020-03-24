@@ -37,6 +37,7 @@ pub struct EnemySystem {
     config_manager: SimpleConfigManager<EnemyConfig>,
     generator_spawns: Vec<EnemyGeneratorSpawn>,
     generators: Slab<EnemyGenerator>,
+    dead_generators: Vec<Point2<f64>>,
     enemies: Slab<Enemy>,
 }
 
@@ -51,17 +52,20 @@ impl EnemySystem {
             (generators, enemies)
         };
 
-        let generator_spawns = generator_spawns.iter()
+        let generator_spawns: Vec<_> = generator_spawns.iter()
             .map(|spawn_point| EnemyGeneratorSpawn {
                 position: (spawn_point.x, spawn_point.y),
                 orientation: 0.0,
             })
             .collect();
 
+        let dead_generators = Vec::with_capacity(generator_spawns.len());
+
         let mut enemy_system = EnemySystem {
             config_manager,
             generator_spawns,
             generators,
+            dead_generators,
             enemies,
         };
         enemy_system.redeploy(physics_sim);
@@ -99,7 +103,11 @@ impl EnemySystem {
             .collect();
 
         for generator_key in dead_enemy_generator_keys.into_iter() {
-            self.generators.remove(generator_key);
+            if let Some(generator) = self.generators.remove(generator_key) {
+                if let Some(position) = generator.position() {
+                    self.dead_generators.push(position);
+                }
+            }
         }
 
         let dead_enemy_keys: Vec<_> = self.enemies
@@ -140,6 +148,7 @@ impl EnemySystem {
         for (_key, generator) in self.generators.iter() {
             generator.queue_draw(config, light_dependent);
         }
+        EnemyGenerator::queue_draw_dead(config, self.dead_generators.as_slice(), light_dependent);
         for (_key, enemy) in self.enemies.iter() {
             enemy.queue_draw(config, light_dependent);
         }
