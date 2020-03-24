@@ -10,7 +10,6 @@ pub struct EnemyConfig {
     pub generator_physical_radius: f64,
     pub generator_physical_density: f64,
     pub generator_render_scale: f32,
-    pub generator_dead_render_offset: (f32, f32),
     pub generator_num_sprite_frames: usize,
     pub generator_light_elevation: f32,
     pub generator_light_color: (f32, f32, f32),

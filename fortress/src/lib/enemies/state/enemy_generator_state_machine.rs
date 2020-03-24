@@ -116,25 +116,6 @@ impl EnemyGeneratorStateMachine {
         }
     }
 
-    pub fn queue_draw_dead(config: &EnemyConfig, positions: &[Point2<f64>], sprite_renderer: &mut LightDependentSpriteRenderer) {
-        let frame = config.generator_num_sprite_frames - 1;
-        let world_half_size = glm::vec2(config.generator_physical_radius as f32, config.generator_physical_radius as f32) * config.generator_render_scale;
-
-        for position in positions.iter() {
-            sprite_renderer.queue(LightDependentSpriteData {
-                world_center_position: glm::vec3(position.x as f32 + config.generator_dead_render_offset.0, world_half_size.y, -position.y as f32 - config.generator_dead_render_offset.1),
-                world_half_size,
-                sprite_frame_id: SpriteSheetFrameId {
-                    name: String::from("enemy_generator.png"),
-                    sprite_sheet: NamedSpriteSheet::SpriteSheet1,
-                },
-                frame,
-                unit_world_rotation: Vector2::new(0.0, 0.0),
-                reverse: Reverse::none(),
-            });
-        }
-    }
-
     pub fn take_attack(&self, config: &EnemyConfig, audio: &AudioPlayer, attack: Attack, generator_state: &mut EnemyGeneratorState, particles: &mut ParticleSystem) {
         generator_state.take_attack(config, audio, attack, particles);
     }
@@ -144,10 +125,6 @@ impl EnemyGeneratorStateMachine {
             EnemyGeneratorStateMachine::Dead => true,
             _ => false,
         }
-    }
-
-    pub fn position(&self, generator_state: &EnemyGeneratorState) -> Option<Point2<f64>> {
-        generator_state.position()
     }
 
     fn new_enemy(config: &EnemyConfig, generator_state: &EnemyGeneratorState, player_locs: &Vec<Point2<f64>>, enemies: &mut Slab<Enemy>, physics_sim: &mut PhysicsSimulation) {
