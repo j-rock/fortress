@@ -2,4 +2,5 @@
 pub enum Hero {
     CapedWarrior,
     FireMage,
+    Barbarian,
 }

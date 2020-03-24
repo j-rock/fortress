@@ -162,8 +162,9 @@ impl PlayerState {
             self.hero_switch_time_left = Some(config.player.switch_hero_duration_micros);
 
             self.hero = match self.hero {
-                Hero::FireMage => Hero::CapedWarrior,
                 Hero::CapedWarrior => Hero::FireMage,
+                Hero::FireMage => Hero::Barbarian,
+                Hero::Barbarian => Hero::CapedWarrior,
             };
             self.weapon.switch_bullet_element();
             audio.play_sound(Sound::HeroSwitch);
