@@ -1,17 +1,14 @@
 extern crate enum_iterator;
+extern crate fortress_bake;
 extern crate generational_slab;
 extern crate gl;
 extern crate glm;
-#[macro_use] extern crate lazy_static;
-extern crate memmap;
 extern crate nalgebra;
 extern crate ncollide2d;
 extern crate notify;
 extern crate nphysics2d;
-extern crate png;
 extern crate rand;
 extern crate rand_xorshift;
-extern crate rect_packer;
 extern crate sdl2;
 extern crate serde;
 #[macro_use] extern crate serde_derive;

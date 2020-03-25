@@ -1,25 +1,22 @@
 [package]
 name = "fortress"
 version = "0.1.0"
-authors = ["Joseph <wax818@gmail.com>"]
+authors = ["Joseph <no@thanks.com>"]
 edition = "2018"
 
 [dependencies]
 enum-iterator = "0.6"
+fortress_bake = { path = "../fortress_bake"}
 generational_slab = { path = "../generational_slab"}
 gl = "0.14"
 glm = "0.2"
-lazy_static = "1.4"
-memmap = "0.7"
 nalgebra = "0.20"
 ncollide2d = "0.22"
 notify = "4.0"
 nphysics2d = "0.14"
-png = "0.16"
 rand = "0.7"
 rand_distr = "0.2"
 rand_xorshift = "0.2"
-rect_packer = "0.2"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"

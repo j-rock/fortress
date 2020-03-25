@@ -2,12 +2,12 @@ use crate::{
     app::StatusOr,
     file,
     render::{
+        FramesInfo,
         NamedSpriteSheet,
         Png,
         SheetConfig,
         SpriteConfig,
         SpriteSheetFrameId,
-        FramesInfo,
     }
 };
 use rect_packer::DensePacker;

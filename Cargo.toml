@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "fortress",
+    "fortress_bake",
     "generational_slab",
 ]
 

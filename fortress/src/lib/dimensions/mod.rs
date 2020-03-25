@@ -5,7 +5,6 @@ pub mod grid_index;
 pub mod health;
 pub mod lr_direction;
 pub mod octo_direction;
-pub mod reverse;
 pub mod time;
 pub mod up_down_left_right;
 
@@ -17,5 +16,5 @@ pub use self::grid_index::GridIndex;
 pub use self::health::Health;
 pub use self::lr_direction::LrDirection;
 pub use self::octo_direction::OctoDirection;
-pub use self::reverse::Reverse;
+pub use fortress_bake::dimensions::Reverse;
 pub use self::up_down_left_right::UpDownLeftRight;
