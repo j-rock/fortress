@@ -10,11 +10,11 @@ use crate::{
 use glm;
 use rect_packer::Rect;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct FramesInfo {
     num_frames_horizontal: usize,
     num_frames_vertical: usize,
-    texel_top_left: glm::Vec2,
+    texel_top_left: (f32, f32),
 
     // Frame {width,height} correspond to distances between frames.
     frame_width: f32,
@@ -36,7 +36,7 @@ impl FramesInfo {
 
         let left_center = rect.x as f32 + 0.5;
         let top_center = (config.height as i32 - rect.y) as f32 - 0.5;
-        let texel_top_left = glm::vec2(left_center / config.width as f32, top_center / config.height as f32);
+        let texel_top_left = (left_center / config.width as f32, top_center / config.height as f32);
 
         let frame_width = sprite.frame_width as f32 / config.width as f32;
         let frame_height = sprite.frame_height as f32 / config.height as f32;
@@ -59,9 +59,9 @@ impl FramesInfo {
         let frame_x = (frame % self.num_frames_horizontal) as f32;
         let frame_y = (frame / self.num_frames_horizontal) as f32;
 
-        let mut sub_frame_left = self.texel_top_left.x + frame_x * self.frame_width;
+        let mut sub_frame_left = self.texel_top_left.0 + frame_x * self.frame_width;
         let mut sub_frame_right = sub_frame_left + self.sub_frame_width;
-        let mut sub_frame_top = self.texel_top_left.y - frame_y * self.frame_height;
+        let mut sub_frame_top = self.texel_top_left.1 - frame_y * self.frame_height;
         let mut sub_frame_bottom = sub_frame_top - self.sub_frame_height;
 
         if reverse.horizontally {

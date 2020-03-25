@@ -2,6 +2,7 @@ use crate::{
     app::StatusOr,
     file,
 };
+use base64;
 use png;
 use std::{
     fs::File,
@@ -88,5 +89,32 @@ impl Png {
         }
 
         Ok(())
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SerializeablePng {
+    img_bytes_b64: String,
+    width: usize,
+    height: usize,
+}
+
+impl SerializeablePng {
+    pub fn from(png: Png) -> Self {
+        SerializeablePng {
+            img_bytes_b64: base64::encode(png.bytes()),
+            width: png.width,
+            height: png.height,
+        }
+    }
+
+    pub fn to_png(self) -> StatusOr<Png> {
+        let img = base64::decode(self.img_bytes_b64)
+            .map_err(|e| format!("Bad serialized png: {:?}", e))?;
+        Ok(Png {
+            img,
+            width: self.width,
+            height: self.height,
+        })
     }
 }

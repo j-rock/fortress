@@ -20,6 +20,5 @@ pub struct SpriteConfig {
 
 #[derive(Clone, Deserialize)]
 pub struct SpriteSheetConfig {
-    pub render_background: bool,
     pub sheets: HashMap<NamedSpriteSheet, SheetConfig>
 }

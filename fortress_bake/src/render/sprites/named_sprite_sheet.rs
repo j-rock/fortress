@@ -1,6 +1,7 @@
 use enum_iterator::IntoEnumIterator;
+use serde_json;
 
-#[derive(Copy, Clone, Debug, Deserialize, Eq, PartialEq, Hash, IntoEnumIterator)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, Eq, PartialEq, Hash, IntoEnumIterator)]
 pub enum NamedSpriteSheet {
     SpriteSheet1,
     GalaxyGround,
@@ -12,11 +13,11 @@ impl NamedSpriteSheet {
         format!("{:?}", self)
     }
 
-    pub fn all_values(render_background: bool) -> Vec<NamedSpriteSheet> {
-        if render_background {
-            Self::into_enum_iter().collect()
-        } else {
-            Self::into_enum_iter().filter(|value| *value != NamedSpriteSheet::GalaxyGround).collect()
-        }
+    pub fn all_values() -> impl Iterator<Item=NamedSpriteSheet> {
+        Self::into_enum_iter()
+    }
+
+    pub fn from_str(s: &str) -> Option<Self> {
+        serde_json::de::from_str(s).ok()
     }
 }

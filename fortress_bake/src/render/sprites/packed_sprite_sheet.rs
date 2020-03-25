@@ -5,6 +5,7 @@ use crate::{
         FramesInfo,
         NamedSpriteSheet,
         Png,
+        SerializeablePng,
         SheetConfig,
         SpriteConfig,
         SpriteSheetFrameId,
@@ -87,3 +88,24 @@ impl PackedSpriteSheet {
     }
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct SerializeablePackedSpriteSheet {
+    image: SerializeablePng,
+    mappings: Vec<(SpriteSheetFrameId, FramesInfo)>
+}
+
+impl SerializeablePackedSpriteSheet {
+    pub fn from(packed: PackedSpriteSheet) -> Self {
+        SerializeablePackedSpriteSheet {
+            image: SerializeablePng::from(packed.image),
+            mappings: packed.mappings,
+        }
+    }
+
+    pub fn to_packed_sprite_sheet(self) -> StatusOr<PackedSpriteSheet> {
+        Ok(PackedSpriteSheet {
+            image: self.image.to_png()?,
+            mappings: self.mappings,
+        })
+    }
+}

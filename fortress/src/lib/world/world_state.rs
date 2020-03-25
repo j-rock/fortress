@@ -175,9 +175,7 @@ impl WorldState {
         self.enemies.queue_draw(&mut self.light_dependent_sprite);
         self.items.queue_draw(&mut self.light_dependent_sprite);
 
-        if self.textures.render_background() {
-            self.background_renderer.draw(&self.textures, self.camera.gl_position());
-        }
+        self.background_renderer.draw(&self.textures, self.camera.gl_position());
 
         self.full_light_sprite.draw(&self.textures, &projection_view, &position_independent_view, right, up);
         self.light_dependent_sprite.draw(&self.lights, &self.textures, &projection_view, &position_independent_view, right, up);

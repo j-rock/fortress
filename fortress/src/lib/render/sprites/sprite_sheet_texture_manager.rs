@@ -43,15 +43,11 @@ impl SpriteSheetTextureManager {
         }
     }
 
-    pub fn render_background(&self) -> bool {
-        self.config.get().render_background
-    }
-
     pub fn recompute_data(&mut self) -> StatusOr<()> {
         self.textures.clear();
         self.frames.clear();
 
-        let sprite_sheets = NamedSpriteSheet::all_values(self.render_background());
+        let sprite_sheets = NamedSpriteSheet::all_values();
 
         let config = self.config.get();
         for sprite_sheet in sprite_sheets.into_iter() {
