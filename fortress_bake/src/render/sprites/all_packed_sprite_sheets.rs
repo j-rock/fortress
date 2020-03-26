@@ -21,6 +21,13 @@ pub struct AllPackedSpriteSheets {
 }
 
 impl AllPackedSpriteSheets {
+    pub fn new(images: HashMap<NamedSpriteSheet, (Png, TextureStyle)>, frames: HashMap<SpriteSheetFrameId, FramesInfo>) -> Self {
+        AllPackedSpriteSheets {
+            images,
+            frames,
+        }
+    }
+
     pub fn read_from_files(config: &SpriteSheetConfig, images_dir: &PathBuf) -> StatusOr<Self> {
         let mut images = HashMap::new();
         let mut frames =  HashMap::new();
@@ -40,3 +47,4 @@ impl AllPackedSpriteSheets {
         })
     }
 }
+

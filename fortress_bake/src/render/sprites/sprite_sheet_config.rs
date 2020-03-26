@@ -12,7 +12,7 @@ pub struct SheetConfig {
     pub sprites: HashMap<String, SpriteConfig>,
 }
 
-#[derive(Copy, Clone, Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct SpriteConfig {
     pub frame_width: usize,
     pub frame_height: usize,

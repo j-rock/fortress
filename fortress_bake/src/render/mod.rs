@@ -9,6 +9,7 @@ pub use self::attribute::AttributeProgram;
 pub use self::attribute::AttributeProgramBuilder;
 pub use self::png::Png;
 pub use self::sprites::AllPackedSpriteSheets;
+pub use self::sprites::BakedSpriteSheetConfig;
 pub use self::sprites::FramesInfo;
 pub use self::sprites::NamedSpriteSheet;
 pub use self::sprites::PackedSpriteSheet;

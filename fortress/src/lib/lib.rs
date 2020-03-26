@@ -5,7 +5,6 @@ extern crate gl;
 extern crate glm;
 extern crate nalgebra;
 extern crate ncollide2d;
-extern crate notify;
 extern crate nphysics2d;
 extern crate rand;
 extern crate rand_xorshift;

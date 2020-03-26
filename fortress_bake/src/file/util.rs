@@ -65,11 +65,7 @@ fn dir_contains_res(path: &Path) -> StatusOr<bool> {
 }
 
 fn try_find_resource_base() -> StatusOr<PathBuf> {
-    let root = if cfg!(feature = "bake") {
-        PathBuf::from("..")
-    } else {
-        PathBuf::from(".")
-    };
+    let root = PathBuf::from(".");
 
     let mut path_buf = root.canonicalize()
         .map_err(|e| format! ("Couldn't canonicalize CWD: {}", e))?;

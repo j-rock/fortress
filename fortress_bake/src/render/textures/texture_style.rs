@@ -1,6 +1,6 @@
 use gl;
 
-#[derive(Copy, Clone, Deserialize)]
+#[derive(Copy, Clone, Serialize, Deserialize)]
 pub enum TextureWrapMode {
     ClampToEdge, MirroredRepeat, Repeat
 }
@@ -22,7 +22,7 @@ impl TextureWrapMode {
 }
 
 // Add more values as necessary.
-#[derive(Copy, Clone, Deserialize)]
+#[derive(Copy, Clone, Serialize, Deserialize)]
 pub enum TextureMinFilterMode {
     Nearest
 }
@@ -42,7 +42,7 @@ impl TextureMinFilterMode {
 }
 
 // Add more values as necessary.
-#[derive(Copy, Clone, Deserialize)]
+#[derive(Copy, Clone, Serialize, Deserialize)]
 pub enum TextureMaxFilterMode {
     Nearest
 }
@@ -61,7 +61,7 @@ impl TextureMaxFilterMode {
     }
 }
 
-#[derive(Copy, Clone, Deserialize)]
+#[derive(Copy, Clone, Serialize, Deserialize)]
 pub struct TextureStyle {
     pub wrap_s: TextureWrapMode,
     pub wrap_t: TextureWrapMode,

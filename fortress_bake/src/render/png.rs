@@ -28,7 +28,11 @@ impl Png {
 
     pub fn from_file(path: &PathBuf) -> StatusOr<Png> {
         let mmapped_file = file::util::mmap(path)?;
-        let decoder = png::Decoder::new(mmapped_file.bytes());
+        Self::from_slice(mmapped_file.bytes())
+    }
+
+    pub fn from_slice(slice: &[u8]) -> StatusOr<Png> {
+        let decoder = png::Decoder::new(slice);
         let (info, mut reader) = decoder.read_info()
             .map_err(|err| format!("Couldn't read png file: {}", err))?;
         let mut buf = vec![0; info.buffer_size()];
