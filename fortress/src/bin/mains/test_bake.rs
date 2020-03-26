@@ -6,6 +6,6 @@ use std::path::PathBuf;
 
 pub fn main() -> StatusOr<()> {
     let mut root = PathBuf::new();
-    root.push(".");
+    root.push("..");
     bake::run(root)
 }

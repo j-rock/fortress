@@ -9,8 +9,6 @@ mod mains;
 fn main() -> StatusOr<()> {
     if cfg!(feature = "bake") {
         mains::test_bake::main()?;
-        mains::app::main()
-    } else {
-        mains::app::main()
     }
+    mains::app::main()
 }

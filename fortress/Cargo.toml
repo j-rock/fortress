@@ -26,6 +26,12 @@ version = "0.33"
 default-features = false
 features = ["mixer"]
 
+[features]
+bake = []
+
+[build-dependencies]
+fortress_bake = { path = "../fortress_bake"}
+
 [lib]
 name = "fortress"
 path = "src/lib/lib.rs"
