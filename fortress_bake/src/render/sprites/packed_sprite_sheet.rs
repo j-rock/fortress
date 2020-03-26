@@ -1,11 +1,9 @@
 use crate::{
     app::StatusOr,
-    file,
     render::{
         FramesInfo,
         NamedSpriteSheet,
         Png,
-        SerializeablePng,
         SheetConfig,
         SpriteConfig,
         SpriteSheetFrameId,
@@ -20,9 +18,9 @@ pub struct PackedSpriteSheet {
 }
 
 impl PackedSpriteSheet {
-    pub fn new(config: &SheetConfig, sprite_sheet: NamedSpriteSheet) -> StatusOr<PackedSpriteSheet> {
-        let images_dir = Self::base_directory(sprite_sheet);
-        let images = Self::read_images_with_identifiers(images_dir)?;
+    pub fn new(config: &SheetConfig, images_dir: &PathBuf, sprite_sheet: NamedSpriteSheet) -> StatusOr<PackedSpriteSheet> {
+        let sprite_sheet_dir = Self::base_directory(images_dir, sprite_sheet);
+        let images = Self::read_images_with_identifiers(sprite_sheet_dir)?;
 
         let mut out_image = Png::empty(config.width, config.height);
         let mut mappings = Vec::with_capacity(images.len());
@@ -58,16 +56,13 @@ impl PackedSpriteSheet {
         })
     }
 
-    fn base_directory(sprite_sheet: NamedSpriteSheet) -> PathBuf {
-        let mut images_dir = file::util::resource_base();
-        images_dir.push("images");
-        images_dir.push(sprite_sheet.to_directory_basename());
-        images_dir
+    fn base_directory(images_dir: &PathBuf, sprite_sheet: NamedSpriteSheet) -> PathBuf {
+        images_dir.join(sprite_sheet.to_directory_basename())
     }
 
-    fn read_images_with_identifiers(images_dir: PathBuf) -> StatusOr<Vec<(String, Png)>> {
+    fn read_images_with_identifiers(sprite_sheet_dir: PathBuf) -> StatusOr<Vec<(String, Png)>> {
         let mut images = vec!();
-        for entry in images_dir.read_dir().map_err(|err| format!("Err reading dir {:?}: {}", images_dir, err))? {
+        for entry in sprite_sheet_dir.read_dir().map_err(|err| format!("Err reading dir {:?}: {}", sprite_sheet_dir, err))? {
             let entry = entry.map_err(|err| format!("Err reading entry: {}", err))?;
             let file_name = entry.file_name().into_string().map_err(|err| format!("Err retrieving filename: {:?}", err))?;
             images.push((file_name, Png::from_file(&entry.path())?));
@@ -85,27 +80,5 @@ impl PackedSpriteSheet {
         });
 
         Ok(images)
-    }
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct SerializeablePackedSpriteSheet {
-    image: SerializeablePng,
-    mappings: Vec<(SpriteSheetFrameId, FramesInfo)>
-}
-
-impl SerializeablePackedSpriteSheet {
-    pub fn from(packed: PackedSpriteSheet) -> Self {
-        SerializeablePackedSpriteSheet {
-            image: SerializeablePng::from(packed.image),
-            mappings: packed.mappings,
-        }
-    }
-
-    pub fn to_packed_sprite_sheet(self) -> StatusOr<PackedSpriteSheet> {
-        Ok(PackedSpriteSheet {
-            image: self.image.to_png()?,
-            mappings: self.mappings,
-        })
     }
 }

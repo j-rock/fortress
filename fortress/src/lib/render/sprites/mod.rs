@@ -1,5 +1,6 @@
 pub mod sprite_sheet_texture_manager;
 
+pub use fortress_bake::render::AllPackedSpriteSheets;
 pub use fortress_bake::render::NamedSpriteSheet;
 pub use fortress_bake::render::PackedSpriteSheet;
 pub use fortress_bake::render::SpriteSheetFrameId;

@@ -5,7 +5,6 @@ authors = ["Joseph <no@thanks.com>"]
 edition = "2018"
 
 [dependencies]
-base64 = "0.12"
 enum-iterator = "0.6"
 gl = "0.14"
 glm = "0.2"

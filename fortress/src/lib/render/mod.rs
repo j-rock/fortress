@@ -9,6 +9,7 @@ pub mod sprites;
 pub mod textures;
 pub mod viewport;
 
+pub use fortress_bake::render::AllPackedSpriteSheets;
 pub use fortress_bake::render::attribute;
 pub use fortress_bake::render::Attribute;
 pub use fortress_bake::render::AttributeAdvance;

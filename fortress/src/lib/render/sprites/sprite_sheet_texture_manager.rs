@@ -3,12 +3,13 @@ use crate::{
     dimensions::Reverse,
     file::{
         ConfigWatcher,
-        SimpleConfigManager
+        SimpleConfigManager,
+        self,
     },
     render::{
+        AllPackedSpriteSheets,
         FramesInfo,
         NamedSpriteSheet,
-        PackedSpriteSheet,
         SpriteSheetConfig,
         SpriteSheetFrameId,
         Texel,
@@ -47,17 +48,15 @@ impl SpriteSheetTextureManager {
         self.textures.clear();
         self.frames.clear();
 
-        let sprite_sheets = NamedSpriteSheet::all_values();
-
         let config = self.config.get();
-        for sprite_sheet in sprite_sheets.into_iter() {
-            let sheet_config = config.sheets.get(&sprite_sheet).ok_or(format!("No sheet data for {:?}", sprite_sheet))?;
-            let packed = PackedSpriteSheet::new(sheet_config, sprite_sheet)?;
-            self.textures.insert(sprite_sheet, Texture::new(packed.image, sheet_config.style, 0));
+        let images_dir = file::util::resource_base().join("images");
+        let all_sheets = AllPackedSpriteSheets::read_from_files(config, &images_dir)?;
 
-            for (sprite_sheet_frame_id, frame_info) in packed.mappings.into_iter() {
-                self.frames.insert(sprite_sheet_frame_id, frame_info);
-            }
+        for (sprite_sheet, (image, texture_style)) in all_sheets.images.into_iter() {
+            self.textures.insert(sprite_sheet, Texture::new(image, texture_style, 0));
+        }
+        for (frame_id, frames_info) in all_sheets.frames.into_iter() {
+           self.frames.insert(frame_id, frames_info);
         }
 
         Ok(())

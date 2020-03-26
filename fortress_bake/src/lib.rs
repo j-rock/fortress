@@ -1,5 +1,4 @@
 extern crate enum_iterator;
-extern crate base64;
 extern crate gl;
 extern crate glm;
 #[macro_use] extern crate lazy_static;
