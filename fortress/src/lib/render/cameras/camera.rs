@@ -62,7 +62,7 @@ impl Camera {
                       -self.world_position.z as f32 + config.camera_pos_offset.1);
         let world_position = self.screen_shake.shake_position(unperturbed_world_position);
 
-        let shook = self.screen_shake.shake_rotation(&isometric);
+        let shook = self.screen_shake.shake_rotation(&config.screen_shake, &isometric);
         let projection_view = Self::projection(config, screen_size) * glm::ext::look_at(world_position, world_position + shook.lookat(), shook.up());
 
         CameraGeometry {
@@ -110,6 +110,10 @@ impl Camera {
         let cam_pos = Point2::new(self.world_position.x, self.world_position.z);
         let inside_half_extents = Vector2::new(config.stream_inside_half_extents.0, config.stream_inside_half_extents.1);
         CameraStreamInfo::new(cam_pos, inside_half_extents, config.stream_margin_length, config.stream_light_margin_length, hex_cell_length)
+    }
+
+    pub fn mut_shake(&mut self) -> &mut ScreenShake {
+        &mut self.screen_shake
     }
 
     fn projection(config: &CameraConfig, screen_size: glm::IVec2) -> glm::Mat4 {

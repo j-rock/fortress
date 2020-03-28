@@ -10,6 +10,7 @@ pub struct CameraGeometry {
     pub projection_view: glm::Mat4,
 }
 
+#[derive(Clone)]
 pub struct CameraAngles {
     lookat: glm::Vec3,
     right: glm::Vec3,
