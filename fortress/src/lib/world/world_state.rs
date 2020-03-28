@@ -137,7 +137,7 @@ impl WorldState {
             self.players.post_update();
             self.camera.post_update(self.players.player_locs(), dt);
             self.items.post_update();
-            self.enemies.post_update(audio, &mut self.items, &mut self.physics_sim);
+            self.enemies.post_update(audio, &mut self.items, self.camera.mut_shake(), &mut self.physics_sim);
 
             let camera_stream_info = self.camera.stream_info(self.map.hex_cell_length());
             self.particles.post_update(&camera_stream_info, rng);

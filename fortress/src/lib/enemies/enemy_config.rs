@@ -16,6 +16,7 @@ pub struct EnemyConfig {
     pub generator_light_attenuation: (f32, f32, f32),
     pub generator_blood_color: (f32, f32, f32),
     pub generator_num_blood_particles_per_hit: u32,
+    pub generator_death_screen_shake_intensity: f32,
 
     // Enemies
     pub enemies_slab_initial_capacity_guess: usize,

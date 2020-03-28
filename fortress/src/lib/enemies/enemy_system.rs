@@ -28,6 +28,7 @@ use crate::{
     render::{
         LightDependentSpriteRenderer,
         PointLights,
+        ScreenShake,
     },
 };
 use generational_slab::Slab;
@@ -84,13 +85,13 @@ impl EnemySystem {
         }
     }
 
-    pub fn post_update(&mut self, audio: &AudioPlayer, items: &mut ItemSystem, physics_sim: &mut PhysicsSimulation) {
+    pub fn post_update(&mut self, audio: &AudioPlayer, items: &mut ItemSystem, shake: &mut ScreenShake, physics_sim: &mut PhysicsSimulation) {
         let config = self.config_manager.get();
 
         let dead_enemy_generator_keys: Vec<_> = self.generators
             .iter_mut()
             .filter_map(|(generator_key, generator)| {
-                generator.post_update(items, physics_sim);
+                generator.post_update(config, items, shake, physics_sim);
                 if !generator.dead() {
                     return None;
                 }

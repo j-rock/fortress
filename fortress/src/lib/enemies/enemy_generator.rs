@@ -20,6 +20,7 @@ use crate::{
     render::{
         LightDependentSpriteRenderer,
         PointLight,
+        ScreenShake,
     },
 };
 use generational_slab::Slab;
@@ -51,8 +52,8 @@ impl EnemyGenerator {
         }
     }
 
-    pub fn post_update(&mut self, items: &mut ItemSystem, physics_sim: &mut PhysicsSimulation) {
-        if let Some(state) = self.generator_state_machine.post_update(&mut self.generator_state, items, physics_sim) {
+    pub fn post_update(&mut self, config: &EnemyConfig, items: &mut ItemSystem, shake: &mut ScreenShake, physics_sim: &mut PhysicsSimulation) {
+        if let Some(state) = self.generator_state_machine.post_update(config, &mut self.generator_state, items, shake, physics_sim) {
             self.generator_state_machine = state;
         }
     }
