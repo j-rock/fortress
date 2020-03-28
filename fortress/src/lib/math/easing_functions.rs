@@ -5,6 +5,10 @@ impl EasingFn {
         t * (2.0 - t)
     }
 
+    pub fn ease_in_quad(t: f32) -> f32 {
+        t * t
+    }
+
     pub fn ease_in_cuartic(t: f32) -> f32 {
         let tt = t * t;
         tt * tt

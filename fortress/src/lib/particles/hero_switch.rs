@@ -2,6 +2,7 @@ use crate::{
     app::RandGen,
     data::RingBufferView,
     dimensions::time::DeltaTime,
+    math::EasingFn,
     particles::{
         ParticleRenderView,
         particle_render_view::{
@@ -14,7 +15,6 @@ use crate::{
     render::{
         CameraStreamBounds,
         CameraStreamInfo,
-        EasingFn,
     },
 };
 use glm;

@@ -1,5 +1,4 @@
 pub mod cameras;
-pub mod easing_functions;
 pub mod instanced_mesh;
 pub mod opengl;
 pub mod point_light;
@@ -31,7 +30,6 @@ pub use self::cameras::CameraStreamBounds;
 pub use self::cameras::CameraStreamInfo;
 pub use self::cameras::ScreenShake;
 pub use self::cameras::ScreenShakeConfig;
-pub use self::easing_functions::EasingFn;
 pub use self::instanced_mesh::InstancedMesh;
 pub use self::point_light::PointLight;
 pub use self::point_light::PointLights;

@@ -21,13 +21,13 @@ use crate::{
         ItemSystem,
         ItemType,
     },
+    math::EasingFn,
     particles::{
         ParticleEvent,
         ParticleSystem,
     },
     physics::PhysicsSimulation,
     render::{
-        EasingFn,
         LightDependentSpriteData,
         LightDependentSpriteRenderer,
         NamedSpriteSheet,

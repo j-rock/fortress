@@ -11,12 +11,12 @@ use crate::{
         ItemPickup,
         ItemType,
     },
+    math::EasingFn,
     players::{
         PlayerItemConfig,
         PlayerSystemConfig,
     },
     render::{
-        EasingFn,
         FullyIlluminatedSpriteData,
         FullyIlluminatedSpriteRenderer,
         PointLight,

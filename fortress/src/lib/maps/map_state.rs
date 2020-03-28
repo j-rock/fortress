@@ -8,11 +8,11 @@ use crate::{
         MapFile,
         state::MapBody,
     },
+    math::EasingFn,
     physics::PhysicsSimulation,
     render::{
         CameraStreamBounds,
         CameraStreamInfo,
-        EasingFn,
         FullyIlluminatedSpriteData,
         FullyIlluminatedSpriteRenderer,
         HexData,
