@@ -35,6 +35,7 @@ use crate::{
         FullyIlluminatedSpriteRenderer,
         LightDependentSpriteRenderer,
         PointLights,
+        ScreenShake,
     },
     weapons::BulletId,
 };
@@ -69,6 +70,7 @@ impl PlayerSystem {
                       controller: &Controller,
                       particles: &mut ParticleSystem,
                       rng: &mut RandGen,
+                      shake: &mut ScreenShake,
                       physics_sim: &mut PhysicsSimulation,
                       dt: DeltaTime) {
         let anyone_pressed_redeploy =
@@ -123,7 +125,7 @@ impl PlayerSystem {
         for (player_key, player) in self.players.iter_mut() {
             let controller_id = self.player_to_controller[player_key.to_raw()];
             let identified_controller = IdentifiedController::new(controller, controller_id);
-            player.pre_update(config, audio, identified_controller, dt, particles, rng);
+            player.pre_update(config, audio, identified_controller, dt, particles, rng, shake);
         }
     }
 

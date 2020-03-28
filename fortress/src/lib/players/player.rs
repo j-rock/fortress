@@ -21,6 +21,7 @@ use crate::{
         FullyIlluminatedSpriteRenderer,
         LightDependentSpriteRenderer,
         PointLights,
+        ScreenShake,
     },
     weapons::BulletId,
 };
@@ -48,8 +49,9 @@ impl Player {
                           controller: IdentifiedController<'a>,
                           dt: DeltaTime,
                           particles: &mut ParticleSystem,
-                          rng: &mut RandGen) {
-        if let Some(player_state_machine) = self.player_state_machine.pre_update(config, audio, controller, dt, particles, rng, &mut self.player_state) {
+                          rng: &mut RandGen,
+                          shake: &mut ScreenShake) {
+            if let Some(player_state_machine) = self.player_state_machine.pre_update(config, audio, controller, dt, particles, rng, shake, &mut self.player_state) {
             self.player_state_machine = player_state_machine;
         }
     }

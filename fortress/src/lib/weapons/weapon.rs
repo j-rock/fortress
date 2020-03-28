@@ -22,6 +22,7 @@ use crate::{
         FullyIlluminatedSpriteRenderer,
         FullyIlluminatedSpriteData,
         PointLights,
+        ScreenShake,
     },
     weapons::{
         Bullet,
@@ -117,7 +118,15 @@ impl Weapon {
         }
     }
 
-    pub fn try_fire_special(&mut self, config: &PlayerBulletConfig, audio: &AudioPlayer, stats: &PlayerStats, player_id: PlayerId, start_position: Point2<f64>, direction: Vector2<f64>, rng: &mut RandGen) {
+    pub fn try_fire_special(&mut self,
+                            config: &PlayerBulletConfig,
+                            audio: &AudioPlayer,
+                            stats: &PlayerStats,
+                            player_id: PlayerId,
+                            start_position: Point2<f64>,
+                            direction: Vector2<f64>,
+                            rng: &mut RandGen,
+                            shake: &mut ScreenShake) {
         if self.current_special_delay.is_none() {
             let rot_left = Rotation2::new(config.special_spread_radians);
             let rot_right = Rotation2::new(-config.special_spread_radians);
@@ -146,6 +155,7 @@ impl Weapon {
             if fired_any {
                 self.current_special_delay = Some(0);
                 audio.play_sound(Sound::ShootSpecial);
+                shake.intensify(config.special_screen_shake_intensity);
             }
         }
     }

@@ -27,6 +27,7 @@ use crate::{
         LightDependentSpriteRenderer,
         NamedSpriteSheet,
         PointLights,
+        ScreenShake,
         SpriteSheetFrameId,
     },
     weapons::BulletId,
@@ -53,13 +54,14 @@ impl PlayerStateMachine {
                           dt: DeltaTime,
                           particles: &mut ParticleSystem,
                           rng: &mut RandGen,
+                          shake: &mut ScreenShake,
                           player_state: &mut PlayerState) -> Option<PlayerStateMachine> {
         let move_direction = Self::compute_move_direction(controller);
         player_state.pre_update(config, dt);
         player_state.set_velocity(config, move_direction);
 
         if controller.is_pressed(ControlEvent::PlayerFireSpecial) {
-            player_state.try_fire_special(config, audio, rng);
+            player_state.try_fire_special(config, audio, rng, shake);
         }
         if controller.is_pressed(ControlEvent::PlayerFireWeapon) {
             player_state.try_fire(audio, rng);

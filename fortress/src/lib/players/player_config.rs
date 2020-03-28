@@ -26,6 +26,7 @@ pub struct PlayerBulletConfig {
     pub special_firing_period_micros: i64,
     pub special_spread_radians: f64,
     pub special_num_shots: usize,
+    pub special_screen_shake_intensity: f32,
     pub lifetime_duration_micros: i64,
     pub physical_radius: f64,
     pub speed: f64,
