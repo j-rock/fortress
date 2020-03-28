@@ -1,9 +1,5 @@
 use crate::{
     app::RandGen,
-    audio::{
-        AudioPlayer,
-        Sound,
-    },
     dimensions::{
         Attack,
         time::{
@@ -22,7 +18,6 @@ use crate::{
         FullyIlluminatedSpriteRenderer,
         FullyIlluminatedSpriteData,
         PointLights,
-        ScreenShake,
     },
     weapons::{
         Bullet,
@@ -102,31 +97,37 @@ impl Weapon {
         self.bullets_to_remove.clear();
     }
 
-    pub fn try_fire_normal(&mut self, audio: &AudioPlayer, stats: &PlayerStats, player_id: PlayerId, start_position: Point2<f64>, direction: Vector2<f64>, rng: &mut RandGen) {
-        if self.current_normal_delay.is_none() {
-            let args = FireBulletArgs {
-                stats,
-                player_id,
-                start_position,
-                direction,
-                bullet_traits: BulletTraits::new(BulletAttackType::Regular, self.bullet_element),
-            };
-            if self.fire_one(args, rng) {
-                self.current_normal_delay = Some(0);
-                audio.play_sound(Sound::ShootSingleFireball);
-            }
+    pub fn try_fire_normal(&mut self,
+                           stats: &PlayerStats,
+                           player_id: PlayerId,
+                           start_position: Point2<f64>,
+                           direction: Vector2<f64>,
+                           rng: &mut RandGen) -> bool {
+        if self.current_normal_delay.is_some() {
+            return false;
+        }
+        let args = FireBulletArgs {
+            stats,
+            player_id,
+            start_position,
+            direction,
+            bullet_traits: BulletTraits::new(BulletAttackType::Regular, self.bullet_element),
+        };
+        if self.fire_one(args, rng) {
+            self.current_normal_delay = Some(0);
+            true
+        } else {
+            false
         }
     }
 
     pub fn try_fire_special(&mut self,
                             config: &PlayerBulletConfig,
-                            audio: &AudioPlayer,
                             stats: &PlayerStats,
                             player_id: PlayerId,
                             start_position: Point2<f64>,
                             direction: Vector2<f64>,
-                            rng: &mut RandGen,
-                            shake: &mut ScreenShake) -> bool {
+                            rng: &mut RandGen) -> bool {
         if self.current_special_delay.is_some() {
             return false;
         }
@@ -157,8 +158,6 @@ impl Weapon {
         }
         if fired_any {
             self.current_special_delay = Some(0);
-            audio.play_sound(Sound::ShootSpecial);
-            shake.intensify(config.special_screen_shake_intensity);
         }
         return fired_any;
     }
