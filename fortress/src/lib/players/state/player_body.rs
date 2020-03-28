@@ -60,6 +60,10 @@ impl PlayerBody {
         }
     }
 
+    pub fn shove(&mut self, direction: Vector2<f64>, magnitude: f64) {
+        self.body.default_apply_impulse(direction, magnitude);
+    }
+
     pub fn set_velocity(&mut self, desired_velocity: Vector2<f64>) {
         self.body.default_set_velocity(desired_velocity);
     }

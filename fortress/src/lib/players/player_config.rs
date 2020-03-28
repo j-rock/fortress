@@ -12,6 +12,7 @@ pub struct PlayerConfig {
 #[derive(Clone, Deserialize)]
 pub struct PlayerHeroConfig {
     pub base_move_speed: f64,
+    pub fire_special_knockback_strength: f64,
     pub render_offset: (f32, f32),
     pub render_scale: (f32, f32),
     pub idle_image_name: String,

@@ -125,6 +125,14 @@ impl RegisteredBody {
             body.apply_force(0, &impulse, ForceType::Impulse, true /*one-time impulse*/);
         }
     }
+
+    pub fn default_apply_impulse(&mut self, direction: Vector2<f64>, magnitude: f64) {
+        let mut physics_sim = self.physics_sim.borrow_mut();
+        if let Some(body) = physics_sim.get_rigid_body_mut(self.handle) {
+            let impulse = Force2::linear(direction * magnitude);
+            body.apply_force(0, &impulse, ForceType::Impulse, true /*one-time impulse*/);
+        }
+    }
 }
 
 impl Drop for RegisteredBody {

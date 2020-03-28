@@ -126,38 +126,41 @@ impl Weapon {
                             start_position: Point2<f64>,
                             direction: Vector2<f64>,
                             rng: &mut RandGen,
-                            shake: &mut ScreenShake) {
-        if self.current_special_delay.is_none() {
-            let rot_left = Rotation2::new(config.special_spread_radians);
-            let rot_right = Rotation2::new(-config.special_spread_radians);
-            let mut dir_left = direction;
-            let mut dir_right = direction;
-            let mut directions = Vec::with_capacity(2 * config.special_num_shots + 1);
-            for _i in 0..config.special_num_shots {
-                dir_left = rot_left * dir_left;
-                dir_right = rot_right * dir_right;
-                directions.push(dir_left);
-                directions.push(dir_right);
-            }
-            directions.push(direction);
-
-            let mut fired_any = false;
-            for direction in directions.into_iter() {
-                let args = FireBulletArgs {
-                    stats,
-                    player_id,
-                    start_position,
-                    direction,
-                    bullet_traits: BulletTraits::new(BulletAttackType::Special, self.bullet_element),
-                };
-                fired_any |= self.fire_one(args, rng);
-            }
-            if fired_any {
-                self.current_special_delay = Some(0);
-                audio.play_sound(Sound::ShootSpecial);
-                shake.intensify(config.special_screen_shake_intensity);
-            }
+                            shake: &mut ScreenShake) -> bool {
+        if self.current_special_delay.is_some() {
+            return false;
         }
+
+        let rot_left = Rotation2::new(config.special_spread_radians);
+        let rot_right = Rotation2::new(-config.special_spread_radians);
+        let mut dir_left = direction;
+        let mut dir_right = direction;
+        let mut directions = Vec::with_capacity(2 * config.special_num_shots + 1);
+        for _i in 0..config.special_num_shots {
+            dir_left = rot_left * dir_left;
+            dir_right = rot_right * dir_right;
+            directions.push(dir_left);
+            directions.push(dir_right);
+        }
+        directions.push(direction);
+
+        let mut fired_any = false;
+        for direction in directions.into_iter() {
+            let args = FireBulletArgs {
+                stats,
+                player_id,
+                start_position,
+                direction,
+                bullet_traits: BulletTraits::new(BulletAttackType::Special, self.bullet_element),
+            };
+            fired_any |= self.fire_one(args, rng);
+        }
+        if fired_any {
+            self.current_special_delay = Some(0);
+            audio.play_sound(Sound::ShootSpecial);
+            shake.intensify(config.special_screen_shake_intensity);
+        }
+        return fired_any;
     }
 
     pub fn switch_bullet_element(&mut self) {

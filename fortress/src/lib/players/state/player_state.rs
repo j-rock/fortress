@@ -154,7 +154,12 @@ impl PlayerState {
     pub fn try_fire_special(&mut self, config: &PlayerSystemConfig, audio: &AudioPlayer, rng: &mut RandGen, shake: &mut ScreenShake) {
         if let Some(position) = self.position() {
             let start_position = Point2::from(position.coords + self.weapon_physical_offset * self.facing_dir);
-            self.weapon.try_fire_special(&config.bullet, audio, &self.stats, self.player_id, start_position, self.facing_dir, rng, shake);
+            if !self.weapon.try_fire_special(&config.bullet, audio, &self.stats, self.player_id, start_position, self.facing_dir, rng, shake) {
+                return;
+            }
+            if let Some(config) = config.hero.get(&self.hero) {
+                self.body.shove(-self.facing_dir.clone(), config.fire_special_knockback_strength);
+            }
         }
     }
 
