@@ -8,7 +8,7 @@ use crate::{
         Health
     },
     enemies::{
-        EnemyConfig,
+        EnemyGeneratorConfig,
         state::EnemyGeneratorBody
     },
     particles::{
@@ -27,14 +27,14 @@ pub struct EnemyGeneratorState {
 }
 
 impl EnemyGeneratorState {
-    pub fn new(config: &EnemyConfig, body: EnemyGeneratorBody) -> EnemyGeneratorState {
+    pub fn new(config: &EnemyGeneratorConfig, body: EnemyGeneratorBody) -> EnemyGeneratorState {
         EnemyGeneratorState {
             body,
-            health: Health::new(config.generator_starting_health),
+            health: Health::new(config.starting_health),
         }
     }
 
-    pub fn take_attack(&mut self, config: &EnemyConfig, audio: &AudioPlayer, attack: Attack, particles: &mut ParticleSystem) {
+    pub fn take_attack(&mut self, config: &EnemyGeneratorConfig, audio: &AudioPlayer, attack: Attack, particles: &mut ParticleSystem) {
         self.health.withdraw(attack.damage);
         if self.health.alive() {
             audio.play_sound(Sound::EnemyGeneratorHurt);
@@ -43,8 +43,8 @@ impl EnemyGeneratorState {
         }
 
         if let Some(position) = self.position() {
-            let blood_color = glm::vec3(config.generator_blood_color.0, config.generator_blood_color.1, config.generator_blood_color.2);
-            let blood_event = ParticleEvent::blood(position, blood_color, config.generator_num_blood_particles_per_hit);
+            let blood_color = glm::vec3(config.blood_color.0, config.blood_color.1, config.blood_color.2);
+            let blood_event = ParticleEvent::blood(position, blood_color, config.num_blood_particles_per_hit);
             particles.queue_event(blood_event);
         }
     }
@@ -57,10 +57,10 @@ impl EnemyGeneratorState {
         self.body.position()
     }
 
-    pub fn compute_spawn(&self, config: &EnemyConfig) -> Option<Point2<f64>> {
+    pub fn compute_spawn(&self, config: &EnemyGeneratorConfig) -> Option<Point2<f64>> {
         let position = self.body.position()?;
         let orientation = self.body.orientation();
-        let offset = config.generator_offset_distance * Vector2::new(orientation.cos(), orientation.sin());
+        let offset = config.offset_distance * Vector2::new(orientation.cos(), orientation.sin());
         Some(Point2::new(position.x + offset.x, position.y + offset.y))
     }
 

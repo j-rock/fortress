@@ -75,8 +75,8 @@ impl EnemyStateMachine {
         if let EnemyStateMachine::Base(body, _) = self {
             enemy_state.take_attack(attack);
             if let Some(position) = body.position() {
-                let blood_color = glm::vec3(config.enemy_blood_color.0, config.enemy_blood_color.1, config.enemy_blood_color.2);
-                let blood_event = ParticleEvent::blood(position, blood_color, config.enemy_num_blood_particles_per_hit);
+                let blood_color = glm::vec3(config.blood_color.0, config.blood_color.1, config.blood_color.2);
+                let blood_event = ParticleEvent::blood(position, blood_color, config.num_blood_particles_per_hit);
                 particles.queue_event(blood_event);
             }
         }
@@ -89,7 +89,7 @@ impl EnemyStateMachine {
                 let position = body.position();
                 Some(EnemyStateMachine::Dying(position, 0))
             },
-            EnemyStateMachine::Dying(position, time_elapsed) if *time_elapsed >= config.enemy_dying_duration_micros => {
+            EnemyStateMachine::Dying(position, time_elapsed) if *time_elapsed >= config.dying_duration_micros => {
                 if let Some(position) = position {
                     let item_pickup = ItemPickup::new(ItemType::Skull, enemy_state.facing_dir());
                     items.spawn_item(item_pickup, position.clone(), physics_sim);
@@ -101,18 +101,18 @@ impl EnemyStateMachine {
     }
 
     pub fn point_light(&self, config: &EnemyConfig, enemy_state: &EnemyState) -> Option<PointLight> {
-        if enemy_state.age() >= config.enemy_light_duration_micros {
+        if enemy_state.age() >= config.light_duration_micros {
             return None;
         }
 
         if let EnemyStateMachine::Base(body, _) = self {
             let position = body.position()?;
-            let age_frac = (config.enemy_light_duration_micros - enemy_state.age()) as f32 / config.enemy_light_duration_micros as f32;
+            let age_frac = (config.light_duration_micros - enemy_state.age()) as f32 / config.light_duration_micros as f32;
             let glow_strength = EasingFn::ease_out_quad(age_frac);
 
-            let position = glm::vec3(position.x as f32, config.enemy_light_elevation, -position.y as f32);
-            let color = glm::vec3(config.enemy_light_color.0, config.enemy_light_color.1, config.enemy_light_color.2) * glow_strength;
-            let attenuation = glm::vec3(config.enemy_light_attenuation.0, config.enemy_light_attenuation.1, config.enemy_light_attenuation.2);
+            let position = glm::vec3(position.x as f32, config.light_elevation, -position.y as f32);
+            let color = glm::vec3(config.light_color.0, config.light_color.1, config.light_color.2) * glow_strength;
+            let attenuation = glm::vec3(config.light_attenuation.0, config.light_attenuation.1, config.light_attenuation.2);
 
             return Some(PointLight::new(position, color, attenuation));
         }
@@ -127,8 +127,8 @@ impl EnemyStateMachine {
         };
 
         let frame = match self {
-            EnemyStateMachine::Base(_, time_elapsed) => (*time_elapsed / config.enemy_walk_frame_duration_micros) as usize,
-            EnemyStateMachine::Dying(_, time_elapsed) => (*time_elapsed / config.enemy_dying_frame_duration_micros) as usize,
+            EnemyStateMachine::Base(_, time_elapsed) => (*time_elapsed / config.walk_frame_duration_micros) as usize,
+            EnemyStateMachine::Dying(_, time_elapsed) => (*time_elapsed / config.dying_frame_duration_micros) as usize,
             _ => 0,
         };
 
@@ -139,7 +139,7 @@ impl EnemyStateMachine {
         };
 
         if let Some(position) = self.position() {
-            let world_half_size = glm::vec2(config.enemy_physical_radius as f32, config.enemy_physical_radius as f32) * config.enemy_render_scale;
+            let world_half_size = glm::vec2(config.physical_radius as f32, config.physical_radius as f32) * config.render_scale;
             let world_center_position = glm::vec3(position.x as f32, world_half_size.y, -position.y as f32);
 
             sprite_renderer.queue(LightDependentSpriteData {

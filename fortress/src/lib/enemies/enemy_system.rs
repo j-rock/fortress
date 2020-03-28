@@ -13,7 +13,7 @@ use crate::{
     enemies::{
         Enemy,
         EnemyId,
-        EnemyConfig,
+        EnemySystemConfig,
         EnemyGenerator,
         EnemyGeneratorId,
         EnemyGeneratorSpawn,
@@ -35,7 +35,7 @@ use generational_slab::Slab;
 use nalgebra::Point2;
 
 pub struct EnemySystem {
-    config_manager: SimpleConfigManager<EnemyConfig>,
+    config_manager: SimpleConfigManager<EnemySystemConfig>,
     generator_spawns: Vec<EnemyGeneratorSpawn>,
     generators: Slab<EnemyGenerator>,
     enemies: Slab<Enemy>,
@@ -43,12 +43,12 @@ pub struct EnemySystem {
 
 impl EnemySystem {
     pub fn new(config_watcher: &mut ConfigWatcher, generator_spawns: &Vec<Point2<f64>>, physics_sim: &mut PhysicsSimulation) -> StatusOr<EnemySystem> {
-        let config_manager: SimpleConfigManager<EnemyConfig> = SimpleConfigManager::from_config_resource(config_watcher, "enemy.conf")?;
+        let config_manager: SimpleConfigManager<EnemySystemConfig> = SimpleConfigManager::from_config_resource(config_watcher, "enemy.conf")?;
 
         let (generators, enemies) = {
             let config = config_manager.get();
-            let generators = Slab::with_capacity(config.generators_slab_initial_capacity_guess);
-            let enemies = Slab::with_capacity(config.enemies_slab_initial_capacity_guess);
+            let generators = Slab::with_capacity(config.generator.slab_initial_capacity_guess);
+            let enemies = Slab::with_capacity(config.enemy.slab_initial_capacity_guess);
             (generators, enemies)
         };
 
@@ -81,7 +81,7 @@ impl EnemySystem {
         }
 
         for (_key , enemy) in self.enemies.iter_mut() {
-            enemy.pre_update(config, dt, &player_locs);
+            enemy.pre_update(&config.enemy, dt, &player_locs);
         }
     }
 
@@ -91,7 +91,7 @@ impl EnemySystem {
         let dead_enemy_generator_keys: Vec<_> = self.generators
             .iter_mut()
             .filter_map(|(generator_key, generator)| {
-                generator.post_update(config, items, shake, physics_sim);
+                generator.post_update(&config.generator, items, shake, physics_sim);
                 if !generator.dead() {
                     return None;
                 }
@@ -106,7 +106,7 @@ impl EnemySystem {
         let dead_enemy_keys: Vec<_> = self.enemies
             .iter_mut()
             .filter_map(|(enemy_key, enemy)| {
-                enemy.post_update(config, audio, items, physics_sim);
+                enemy.post_update(&config.enemy, audio, items, physics_sim);
                 if !enemy.dead() {
                     return None;
                 }
@@ -124,14 +124,14 @@ impl EnemySystem {
         let generator_lights = self.generators
             .iter()
             .filter_map(|(_key, generator)| {
-                generator.point_light(config)
+                generator.point_light(&config.generator)
             });
         lights.append(generator_lights);
 
         let enemy_lights = self.enemies
             .iter()
             .filter_map(|(_key, enemy)| {
-                enemy.point_light(config)
+                enemy.point_light(&config.enemy)
             });
         lights.append(enemy_lights);
     }
@@ -139,24 +139,24 @@ impl EnemySystem {
     pub fn queue_draw(&self, light_dependent: &mut LightDependentSpriteRenderer) {
         let config = self.config_manager.get();
         for (_key, generator) in self.generators.iter() {
-            generator.queue_draw(config, light_dependent);
+            generator.queue_draw(&config.generator, light_dependent);
         }
         for (_key, enemy) in self.enemies.iter() {
-            enemy.queue_draw(config, light_dependent);
+            enemy.queue_draw(&config.enemy, light_dependent);
         }
     }
 
     pub fn enemy_hit(&mut self, enemy_id: EnemyId, attack: Attack, particles: &mut ParticleSystem) {
         if let Some(enemy) = self.enemies.get_mut(enemy_id.key()) {
             let config = self.config_manager.get();
-            enemy.take_attack(config, attack, particles);
+            enemy.take_attack(&config.enemy, attack, particles);
         }
     }
 
     pub fn enemy_generator_hit(&mut self, audio: &AudioPlayer, generator_id: EnemyGeneratorId, attack: Attack, particles: &mut ParticleSystem) {
         if let Some(generator) = self.generators.get_mut(generator_id.key()) {
             let config = self.config_manager.get();
-            generator.take_attack(config, audio, attack, particles);
+            generator.take_attack(&config.generator, audio, attack, particles);
         }
     }
 
@@ -178,7 +178,7 @@ impl EnemySystem {
         for generator_spawn in self.generator_spawns.iter() {
             let generator_entry = self.generators.vacant_entry();
             let generator_id = EnemyGeneratorId::from_key(generator_entry.key());
-            let generator = EnemyGenerator::new(config, generator_id, *generator_spawn, physics_sim);
+            let generator = EnemyGenerator::new(&config.generator, generator_id, *generator_spawn, physics_sim);
             generator_entry.insert(generator);
         }
     }

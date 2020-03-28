@@ -21,7 +21,7 @@ pub struct EnemyState {
 impl EnemyState {
     pub fn new(config: &EnemyConfig) -> EnemyState {
         EnemyState {
-            health: Health::new(config.enemy_starting_health),
+            health: Health::new(config.starting_health),
             age: 0,
             facing_dir: LrDirection::Right,
         }

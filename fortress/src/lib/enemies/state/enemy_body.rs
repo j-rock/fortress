@@ -42,9 +42,9 @@ impl EnemyBody {
             .kinematic_rotations(true)
             .build();
 
-        let ball_shape = Ball::new(config.enemy_physical_radius);
+        let ball_shape = Ball::new(config.physical_radius);
         let collider_desc = ColliderDesc::new(ShapeHandle::new(ball_shape))
-            .density(config.enemy_physical_density)
+            .density(config.physical_density)
             .collision_groups(CollisionGroups::new()
                 .with_membership(&[collision_category::ENEMY_BODY])
                 .with_whitelist(&[collision_category::BARRIER, collision_category::ENEMY_BODY, collision_category::PLAYER_WEAPON]));
@@ -79,8 +79,8 @@ impl EnemyBody {
                 .and_then(|closest_player_loc| -> Option<()> {
                     let displacement = *closest_player_loc - position;
                     let distance = displacement.norm();
-                    if distance > config.enemy_stop_and_hit_distance && distance < config.enemy_anger_distance {
-                        let desired_velocity = config.enemy_move_speed * displacement / distance;
+                    if distance > config.stop_and_hit_distance && distance < config.anger_distance {
+                        let desired_velocity = config.move_speed * displacement / distance;
                         self.body.default_set_velocity(desired_velocity);
                     }
 

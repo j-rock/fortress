@@ -6,8 +6,9 @@ use crate::{
     },
     enemies::{
         Enemy,
-        EnemyConfig,
+        EnemyGeneratorConfig,
         EnemyGeneratorId,
+        EnemySystemConfig,
         state::{
             EnemyGeneratorBody,
             EnemyGeneratorState,
@@ -38,7 +39,7 @@ pub struct EnemyGenerator {
 }
 
 impl EnemyGenerator {
-    pub fn new(config: &EnemyConfig, generator_id: EnemyGeneratorId, spawn: EnemyGeneratorSpawn, physics_sim: &mut PhysicsSimulation) -> EnemyGenerator {
+    pub fn new(config: &EnemyGeneratorConfig, generator_id: EnemyGeneratorId, spawn: EnemyGeneratorSpawn, physics_sim: &mut PhysicsSimulation) -> EnemyGenerator {
         let body = EnemyGeneratorBody::new(config, generator_id, spawn, physics_sim);
         EnemyGenerator {
             generator_state: EnemyGeneratorState::new(config, body),
@@ -46,23 +47,23 @@ impl EnemyGenerator {
         }
     }
 
-    pub fn pre_update(&mut self, config: &EnemyConfig, dt: DeltaTime, player_locs: &Vec<Point2<f64>>, enemies: &mut Slab<Enemy>, physics_sim: &mut PhysicsSimulation) {
+    pub fn pre_update(&mut self, config: &EnemySystemConfig, dt: DeltaTime, player_locs: &Vec<Point2<f64>>, enemies: &mut Slab<Enemy>, physics_sim: &mut PhysicsSimulation) {
         if let Some(state) = self.generator_state_machine.pre_update(config, dt, &self.generator_state, player_locs, enemies, physics_sim) {
             self.generator_state_machine = state;
         }
     }
 
-    pub fn post_update(&mut self, config: &EnemyConfig, items: &mut ItemSystem, shake: &mut ScreenShake, physics_sim: &mut PhysicsSimulation) {
+    pub fn post_update(&mut self, config: &EnemyGeneratorConfig, items: &mut ItemSystem, shake: &mut ScreenShake, physics_sim: &mut PhysicsSimulation) {
         if let Some(state) = self.generator_state_machine.post_update(config, &mut self.generator_state, items, shake, physics_sim) {
             self.generator_state_machine = state;
         }
     }
 
-    pub fn point_light(&self, config: &EnemyConfig) -> Option<PointLight> {
+    pub fn point_light(&self, config: &EnemyGeneratorConfig) -> Option<PointLight> {
         self.generator_state_machine.point_light(config, &self.generator_state)
     }
 
-    pub fn queue_draw(&self, config: &EnemyConfig, sprite_renderer: &mut LightDependentSpriteRenderer) {
+    pub fn queue_draw(&self, config: &EnemyGeneratorConfig, sprite_renderer: &mut LightDependentSpriteRenderer) {
         self.generator_state_machine.queue_draw(config, &self.generator_state, sprite_renderer);
     }
 
@@ -70,7 +71,7 @@ impl EnemyGenerator {
         self.generator_state_machine.dead()
     }
 
-    pub fn take_attack(&mut self, config: &EnemyConfig, audio: &AudioPlayer, attack: Attack, particles: &mut ParticleSystem) {
+    pub fn take_attack(&mut self, config: &EnemyGeneratorConfig, audio: &AudioPlayer, attack: Attack, particles: &mut ParticleSystem) {
         self.generator_state_machine.take_attack(config, audio, attack, &mut self.generator_state, particles);
     }
 }

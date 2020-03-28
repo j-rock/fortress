@@ -1,6 +1,6 @@
 use crate::{
     enemies::{
-        EnemyConfig,
+        EnemyGeneratorConfig,
         EnemyGeneratorId,
         EnemyGeneratorSpawn,
     },
@@ -37,15 +37,15 @@ pub struct EnemyGeneratorBody {
 }
 
 impl EnemyGeneratorBody {
-    pub fn new(config: &EnemyConfig, generator_id: EnemyGeneratorId, spawn: EnemyGeneratorSpawn, physics_sim: &mut PhysicsSimulation) -> EnemyGeneratorBody {
+    pub fn new(config: &EnemyGeneratorConfig, generator_id: EnemyGeneratorId, spawn: EnemyGeneratorSpawn, physics_sim: &mut PhysicsSimulation) -> EnemyGeneratorBody {
         let rigid_body = RigidBodyDesc::new()
             .status(BodyStatus::Dynamic)
             .translation(Vector2::new(spawn.position.0, spawn.position.1))
             .kinematic_rotations(true)
             .build();
-        let ball_shape = Ball::new(config.generator_physical_radius);
+        let ball_shape = Ball::new(config.physical_radius);
         let collider_desc = ColliderDesc::new(ShapeHandle::new(ball_shape))
-            .density(config.generator_physical_density)
+            .density(config.physical_density)
             .sensor(true)
             .collision_groups(CollisionGroups::new()
                 .with_membership(&[collision_category::ENEMY_GENERATOR])
