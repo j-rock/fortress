@@ -17,6 +17,7 @@ pub mod app;
 pub mod audio;
 // pub mod buffs;
 pub mod control;
+pub mod data;
 pub mod dimensions;
 pub mod enemies;
 pub mod entities;

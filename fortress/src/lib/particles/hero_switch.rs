@@ -1,5 +1,6 @@
 use crate::{
     app::RandGen,
+    data::RingBufferView,
     dimensions::time::DeltaTime,
     particles::{
         ParticleRenderView,
@@ -9,7 +10,6 @@ use crate::{
         },
         HeroSwitchParticleEvent,
         HeroSwitchParticleConfig,
-        RingBufferView,
     },
     render::{
         CameraStreamBounds,

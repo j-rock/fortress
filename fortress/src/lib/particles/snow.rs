@@ -1,5 +1,6 @@
 use crate::{
     app::RandGen,
+    data::RingBufferView,
     dimensions::time::{
         DeltaTime,
         Microseconds,
@@ -10,7 +11,6 @@ use crate::{
             Vec3Attr,
             FloatAttr,
         },
-        RingBufferView,
         SnowParticleConfig,
     },
     render::{

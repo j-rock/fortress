@@ -1,5 +1,6 @@
 use crate::{
     app::RandGen,
+    data::RingBufferView,
     dimensions::time::DeltaTime,
     particles::{
         BloodParticleConfig,
@@ -9,7 +10,6 @@ use crate::{
             Vec3Attr,
             FloatAttr,
         },
-        RingBufferView,
     },
     render::{
         CameraStreamBounds,
