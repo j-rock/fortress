@@ -3,13 +3,13 @@ use glm;
 pub struct Rotations;
 
 impl Rotations {
-    pub fn perturb_direction(inclination: f32, azimuth: f32, max_radian_offset: f32, unit_multipliers: (f32, f32)) -> glm::Vec3 {
-        let rand_azimuth = (2.0 * unit_multipliers.0 - 1.0) * max_radian_offset + azimuth;
-        let rand_inclination = (2.0 * unit_multipliers.1 - 1.0) * max_radian_offset + inclination;
-        let sin_inc = rand_inclination.sin();
-        let x_dir = sin_inc * rand_azimuth.cos();
-        let y_dir = rand_inclination.cos();
-        let z_dir = sin_inc * rand_azimuth.sin();
+    pub fn perturb_direction(inclination: f32, azimuth: f32, inclination_offset: f32, azimuth_offset: f32) -> glm::Vec3 {
+        let new_inclination = inclination + inclination_offset;
+        let new_azimuth = azimuth + azimuth_offset;
+        let sin_inc = new_inclination.sin();
+        let x_dir = sin_inc * new_azimuth.cos();
+        let y_dir = new_inclination.cos();
+        let z_dir = sin_inc * new_azimuth.sin();
         glm::vec3(x_dir, y_dir, z_dir)
     }
 

@@ -95,8 +95,9 @@ impl SnowParticles {
         };
 
         let velocity = {
-            let unit_rands = (rng.unit_f32(), rng.unit_f32());
-            let direction = Rotations::perturb_direction(self.wind_inclination, self.wind_azimuth, config.wind_direction_max_angle_offset, unit_rands);
+            let inclination_offset = (2.0 * rng.unit_f32() - 1.0) * config.wind_direction_max_angle_offset;
+            let azimuth_offset = (2.0 * rng.unit_f32() - 1.0) * config.wind_direction_max_angle_offset;
+            let direction = Rotations::perturb_direction(self.wind_inclination, self.wind_azimuth, inclination_offset, azimuth_offset);
             let speed = config.speed_range.0 + (config.speed_range.1 - config.speed_range.0) * rng.unit_f32();
             direction * speed
         };
