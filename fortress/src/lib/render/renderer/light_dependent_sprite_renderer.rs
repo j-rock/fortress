@@ -6,6 +6,7 @@ use crate::{
         attribute,
         Attribute,
         AttributeProgram,
+        CameraGeometry,
         CameraStreamInfo,
         NamedSpriteSheet,
         SpriteSheetFrameId,
@@ -135,14 +136,14 @@ impl LightDependentSpriteRenderer {
             .push(datum);
     }
 
-    pub fn draw(&mut self, lights: &PointLights, textures: &SpriteSheetTextureManager, projection_view: &glm::Mat4, position_independent_view: &glm::Mat4, camera_right: glm::Vec3, camera_up: glm::Vec3) {
+    pub fn draw(&mut self, lights: &PointLights, textures: &SpriteSheetTextureManager, camera_geometry: &CameraGeometry) {
         self.shader_program.activate();
         self.attribute_program.activate();
 
-        self.shader_program.set_mat4(UniformKey::ProjectionView, projection_view);
-        self.shader_program.set_mat4(UniformKey::PositionIndependentView, position_independent_view);
-        self.shader_program.set_vec3(UniformKey::CameraRight, &camera_right);
-        self.shader_program.set_vec3(UniformKey::CameraUp, &camera_up);
+        self.shader_program.set_mat4(UniformKey::ProjectionView, &camera_geometry.projection_view);
+        self.shader_program.set_mat4(UniformKey::PositionIndependentView, &camera_geometry.isometric_view);
+        self.shader_program.set_vec3(UniformKey::CameraRight, &camera_geometry.isometric_right);
+        self.shader_program.set_vec3(UniformKey::CameraUp, &camera_geometry.isometric_up);
         self.shader_program.set_i32(UniformKey::NumLights, lights.len() as i32);
 
         for (idx, point_light) in lights.iter().enumerate() {

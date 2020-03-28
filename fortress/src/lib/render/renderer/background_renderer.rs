@@ -10,6 +10,7 @@ use crate::{
         Attribute,
         AttributeAdvance,
         AttributeProgram,
+        CameraGeometry,
         NamedSpriteSheet,
         ShaderProgram,
         ShaderUniformKey,
@@ -86,9 +87,9 @@ impl BackgroundRenderer {
         self.config_manager.update();
     }
 
-    pub fn draw(&mut self, textures: &SpriteSheetTextureManager, camera_pos: glm::Vec3) {
+    pub fn draw(&mut self, textures: &SpriteSheetTextureManager, camera_geometry: &CameraGeometry) {
         let texture = textures.texture(NamedSpriteSheet::GalaxyGround);
-        self.set_texels(texture, camera_pos);
+        self.set_texels(texture, camera_geometry.world_position);
 
         self.shader_program.activate();
         self.attribute_program.activate();

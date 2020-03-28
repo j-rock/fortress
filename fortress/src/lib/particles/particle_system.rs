@@ -24,13 +24,13 @@ use crate::{
     render::{
         Attribute,
         AttributeProgram,
+        CameraGeometry,
         CameraStreamInfo,
         ShaderProgram,
         ShaderUniformKey,
     },
 };
 use gl::types::GLsizei;
-use glm;
 use std::ffi::CString;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
@@ -150,7 +150,7 @@ impl ParticleSystem {
         self.snow_particles.post_update(&config.snow, camera_stream_info, rng);
     }
 
-    pub fn draw(&mut self, camera_stream_info: &CameraStreamInfo, projection_view: &glm::Mat4, camera_right: glm::Vec3, camera_up: glm::Vec3) {
+    pub fn draw(&mut self, camera_stream_info: &CameraStreamInfo, camera_geometry: &CameraGeometry) {
         let config = self.config.get();
 
         {
@@ -184,9 +184,9 @@ impl ParticleSystem {
         self.shader_program.activate();
         self.attribute_program.activate();
 
-        self.shader_program.set_mat4(UniformKey::ProjectionView, projection_view);
-        self.shader_program.set_vec3(UniformKey::CameraRight, &camera_right);
-        self.shader_program.set_vec3(UniformKey::CameraUp, &camera_up);
+        self.shader_program.set_mat4(UniformKey::ProjectionView, &camera_geometry.projection_view);
+        self.shader_program.set_vec3(UniformKey::CameraRight, &camera_geometry.isometric_right);
+        self.shader_program.set_vec3(UniformKey::CameraUp, &camera_geometry.isometric_up);
 
         self.attr_pos.prepare_buffer();
         self.attr_color.prepare_buffer();

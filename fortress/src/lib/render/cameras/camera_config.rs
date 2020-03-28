@@ -14,5 +14,11 @@ pub struct CameraConfig {
     pub stream_inside_half_extents: (f64, f64),
     pub stream_margin_length: f64,
     pub stream_light_margin_length: f64,
+
+    pub screen_shake: ScreenShakeConfig,
 }
 
+#[derive(Deserialize)]
+pub struct ScreenShakeConfig {
+    pub intensity_fall_off_speed: f32,
+}

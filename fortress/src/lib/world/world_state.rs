@@ -104,7 +104,7 @@ impl WorldState {
 
         // Pre-update.
         {
-            self.camera.pre_update();
+            self.camera.pre_update(dt);
 
             if self.map.pre_update(&mut self.physics_sim) {
                 self.players.respawn(self.map.spawns());
@@ -164,9 +164,7 @@ impl WorldState {
     }
 
     fn draw_geometry(&mut self, camera_stream_info: &CameraStreamInfo, screen_size: glm::IVec2) {
-        let (lookat, right, up) = self.camera.lookat_right_and_up();
-        let position_independent_view = self.camera.position_independent_view(lookat, up);
-        let projection_view = self.camera.projection(screen_size) * self.camera.view(lookat, up);
+        let geometry = self.camera.geometry(screen_size);
 
         self.light_dependent_sprite.set_camera_stream_info(camera_stream_info.clone());
 
@@ -175,14 +173,14 @@ impl WorldState {
         self.enemies.queue_draw(&mut self.light_dependent_sprite);
         self.items.queue_draw(&mut self.light_dependent_sprite);
 
-        self.background_renderer.draw(&self.textures, self.camera.gl_position());
+        self.background_renderer.draw(&self.textures, &geometry);
 
-        self.full_light_sprite.draw(&self.textures, &projection_view, &position_independent_view, right, up);
-        self.light_dependent_sprite.draw(&self.lights, &self.textures, &projection_view, &position_independent_view, right, up);
-        self.hex_renderer.draw(&self.textures, &self.lights, &projection_view);
+        self.full_light_sprite.draw(&self.textures, &geometry);
+        self.light_dependent_sprite.draw(&self.lights, &self.textures, &geometry);
+        self.hex_renderer.draw(&self.textures, &self.lights, &geometry);
 
         // Draw particles last since they mess up transparency.
-        self.particles.draw(&camera_stream_info, &projection_view, right, up);
+        self.particles.draw(&camera_stream_info, &geometry);
 
         // Fix viewport at the end.
         Viewport::default(screen_size).set();
