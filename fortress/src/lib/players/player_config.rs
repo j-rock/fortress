@@ -6,6 +6,7 @@ pub struct PlayerConfig {
     pub physical_radius: f64,
     pub physical_density: f64,
     pub weapon_physical_offset: f64,
+    pub fire_special_move_freeze_duration_micros: i64,
     pub switch_hero_duration_micros: i64,
     pub switch_hero_screen_shake_intensity: f32,
 }

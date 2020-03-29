@@ -35,3 +35,32 @@ impl DeltaTime {
         self.microseconds_elapsed as f64 / 1_000_000.0
     }
 }
+
+pub struct Timer {
+    time_left: Microseconds,
+}
+
+impl Timer {
+    pub fn expired() -> Self {
+        Timer {
+            time_left: 0
+        }
+    }
+
+    pub fn new(duration: Microseconds) -> Self {
+        Timer {
+            time_left: duration
+        }
+    }
+
+    pub fn tick(&mut self, dt: DeltaTime) {
+        self.time_left -= dt.as_microseconds();
+        if self.time_left < 0 {
+            self.time_left = 0;
+        }
+    }
+
+    pub fn is_expired(&self) -> bool {
+        self.time_left == 0
+    }
+}

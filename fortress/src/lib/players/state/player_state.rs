@@ -10,7 +10,7 @@ use crate::{
         OctoDirection,
         time::{
             DeltaTime,
-            Microseconds,
+            Timer,
         }
     },
     items::ItemPickup,
@@ -56,7 +56,8 @@ pub struct PlayerState {
     weapon_physical_offset: f64,
     weapon: Weapon,
 
-    hero_switch_time_left: Option<Microseconds>,
+    frozen_from_firing_special_timer: Timer,
+    hero_switch_timer: Timer,
 }
 
 impl PlayerState {
@@ -74,22 +75,16 @@ impl PlayerState {
             lr_dir: LrDirection::Right,
             weapon_physical_offset: config.player.weapon_physical_offset,
             weapon,
-            hero_switch_time_left: None,
+            frozen_from_firing_special_timer: Timer::expired(),
+            hero_switch_timer: Timer::expired(),
         }
     }
 
     pub fn pre_update(&mut self, config: &PlayerSystemConfig, dt: DeltaTime) {
         self.weapon.pre_update(&config.bullet, &self.stats, dt);
         self.stats.pre_update(&config.item, dt);
-
-        if let Some(time_left) = self.hero_switch_time_left {
-            let new_time_left = time_left - dt.as_microseconds();
-            if new_time_left < 0 {
-                self.hero_switch_time_left = None;
-            } else {
-                self.hero_switch_time_left = Some(new_time_left);
-            }
-        }
+        self.hero_switch_timer.tick(dt);
+        self.frozen_from_firing_special_timer.tick(dt);
     }
 
     pub fn post_update(&mut self) {
@@ -129,20 +124,23 @@ impl PlayerState {
         }
     }
 
-    pub fn set_velocity(&mut self, config: &PlayerSystemConfig, dir: Option<OctoDirection>) {
-        match dir {
-            None => self.body.set_velocity(Vector2::new(0.0, 0.0)),
-            Some(dir) => {
-                self.facing_dir = dir.to_direction();
-                if let Some(lr_dir) = dir.to_lr_direction() {
-                    self.lr_dir = lr_dir;
-                }
-
-                if let Some(hero) = config.hero.get(&self.hero()) {
-                    self.body.set_velocity(self.facing_dir.clone() * hero.base_move_speed);
-                }
-            },
+    pub fn try_set_velocity(&mut self, config: &PlayerSystemConfig, dir: Option<OctoDirection>) -> bool {
+        if !self.frozen_from_firing_special_timer.is_expired() || dir.is_none() {
+            self.body.set_velocity(Vector2::new(0.0, 0.0));
+            return false;
         }
+
+        if let Some(dir) = dir {
+            self.facing_dir = dir.to_direction();
+            if let Some(lr_dir) = dir.to_lr_direction() {
+                self.lr_dir = lr_dir;
+            }
+
+            if let Some(hero) = config.hero.get(&self.hero()) {
+                self.body.set_velocity(self.facing_dir.clone() * hero.base_move_speed);
+            }
+        }
+        true
     }
 
     pub fn try_fire(&mut self, audio: &AudioPlayer, rng: &mut RandGen) {
@@ -161,6 +159,7 @@ impl PlayerState {
                 return;
             }
 
+            self.frozen_from_firing_special_timer = Timer::new(config.player.fire_special_move_freeze_duration_micros);
             audio.play_sound(Sound::ShootSpecial);
             shake.intensify(config.bullet.special_screen_shake_intensity);
 
@@ -171,10 +170,10 @@ impl PlayerState {
     }
 
     pub fn try_switch_hero(&mut self, config: &PlayerConfig, audio: &AudioPlayer, particles: &mut ParticleSystem, shake: &mut ScreenShake) {
-        if self.hero_switch_time_left.is_some() {
+        if !self.hero_switch_timer.is_expired() {
             return;
         }
-        self.hero_switch_time_left = Some(config.switch_hero_duration_micros);
+        self.hero_switch_timer = Timer::new(config.switch_hero_duration_micros);
 
         self.hero = match self.hero {
             Hero::CapedWarrior => Hero::FireMage,

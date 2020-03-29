@@ -58,7 +58,7 @@ impl PlayerStateMachine {
                           player_state: &mut PlayerState) -> Option<PlayerStateMachine> {
         let move_direction = Self::compute_move_direction(controller);
         player_state.pre_update(config, dt);
-        player_state.set_velocity(config, move_direction);
+        let velocity_was_set = player_state.try_set_velocity(config, move_direction);
 
         if controller.is_pressed(ControlEvent::PlayerFireSpecial) {
             player_state.try_fire_special(config, audio, rng, shake);
@@ -73,13 +73,13 @@ impl PlayerStateMachine {
         match self {
             Self::Idle(time_elapsed) => {
                 *time_elapsed += dt.as_microseconds();
-                if move_direction.is_some() {
+                if move_direction.is_some() && velocity_was_set {
                     return Some(Self::Walking(0));
                 }
             },
             Self::Walking(time_elapsed) => {
                 *time_elapsed += dt.as_microseconds();
-                if move_direction.is_none() {
+                if move_direction.is_none() || !velocity_was_set {
                     return Some(Self::Idle(0));
                 }
             },
