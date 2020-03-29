@@ -7,6 +7,7 @@ pub struct PlayerConfig {
     pub physical_density: f64,
     pub weapon_physical_offset: f64,
     pub switch_hero_duration_micros: i64,
+    pub switch_hero_screen_shake_intensity: f32,
 }
 
 #[derive(Clone, Deserialize)]

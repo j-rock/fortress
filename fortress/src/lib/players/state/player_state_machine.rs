@@ -67,7 +67,7 @@ impl PlayerStateMachine {
             player_state.try_fire(audio, rng);
         }
         if controller.is_pressed(ControlEvent::PlayerSwitchHero) {
-            player_state.try_switch_hero(config, audio, particles);
+            player_state.try_switch_hero(&config.player, audio, particles, shake);
         }
 
         match self {

@@ -22,6 +22,7 @@ use crate::{
     players::{
         Hero,
         PlayerId,
+        PlayerConfig,
         PlayerSystemConfig,
         state::{
             PlayerBody,
@@ -169,21 +170,23 @@ impl PlayerState {
         }
     }
 
-    pub fn try_switch_hero(&mut self, config: &PlayerSystemConfig, audio: &AudioPlayer, particles: &mut ParticleSystem) {
-        if let None = self.hero_switch_time_left {
-            self.hero_switch_time_left = Some(config.player.switch_hero_duration_micros);
+    pub fn try_switch_hero(&mut self, config: &PlayerConfig, audio: &AudioPlayer, particles: &mut ParticleSystem, shake: &mut ScreenShake) {
+        if self.hero_switch_time_left.is_some() {
+            return;
+        }
+        self.hero_switch_time_left = Some(config.switch_hero_duration_micros);
 
-            self.hero = match self.hero {
-                Hero::CapedWarrior => Hero::FireMage,
-                Hero::FireMage => Hero::Barbarian,
-                Hero::Barbarian => Hero::Rogue,
-                Hero::Rogue => Hero::CapedWarrior,
-            };
-            self.weapon.switch_bullet_element();
-            audio.play_sound(Sound::HeroSwitch);
-            if let Some(position) = self.position() {
-                particles.queue_event(ParticleEvent::hero_switch(position));
-            }
+        self.hero = match self.hero {
+            Hero::CapedWarrior => Hero::FireMage,
+            Hero::FireMage => Hero::Barbarian,
+            Hero::Barbarian => Hero::Rogue,
+            Hero::Rogue => Hero::CapedWarrior,
+        };
+        self.weapon.switch_bullet_element();
+        audio.play_sound(Sound::HeroSwitch);
+        shake.intensify(config.switch_hero_screen_shake_intensity);
+        if let Some(position) = self.position() {
+            particles.queue_event(ParticleEvent::hero_switch(position));
         }
     }
 
