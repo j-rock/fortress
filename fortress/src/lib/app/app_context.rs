@@ -39,12 +39,14 @@ impl AppContext {
         gl::load_with(|name| video_subsystem.gl_get_proc_address(name) as *const _);
         video_subsystem.gl_set_swap_interval(1)?;
 
-        let canvas = window
+        let mut canvas = window
             .into_canvas()
             .index(find_sdl_gl_driver()?)
             .build()
             .map_err(|err| format!("Error initializing canvas: {}", err))?;
         canvas.window().gl_set_context_to_current()?;
+        canvas.window_mut().raise();
+
         unsafe {
             gl::Enable(gl::DEPTH_TEST);
             gl::Enable(gl::BLEND);
