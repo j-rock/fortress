@@ -56,11 +56,10 @@ impl Camera {
         let isometric_view = glm::ext::look_at(glm::vec3(0.0, 0.0, 0.0), isometric.lookat(), isometric.up());
 
 
-        let unperturbed_world_position =
+        let world_position =
             glm::vec3(self.world_position.x as f32 + config.camera_pos_offset.0,
                       self.world_position.y as f32,
                       -self.world_position.z as f32 + config.camera_pos_offset.1);
-        let world_position = self.screen_shake.shake_position(unperturbed_world_position);
 
         let shook = self.screen_shake.shake_rotation(&config.screen_shake, &isometric);
         let projection_view = Self::projection(config, screen_size) * glm::ext::look_at(world_position, world_position + shook.lookat(), shook.up());

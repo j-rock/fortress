@@ -21,6 +21,7 @@ pub struct CameraConfig {
 #[derive(Deserialize)]
 pub struct ScreenShakeConfig {
     pub intensity_fall_off_speed: f32,
+    pub max_intensity: f32,
     pub max_rotation_radians: f32,
     pub noise_time_multiplier: f32,
     pub noise_seed_offset: f32,

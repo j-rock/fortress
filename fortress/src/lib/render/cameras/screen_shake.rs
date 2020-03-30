@@ -36,6 +36,9 @@ impl ScreenShake {
         if self.intensity < 0.0 {
             self.intensity = 0.0;
         }
+        if self.intensity > config.max_intensity {
+            self.intensity = config.max_intensity;
+        }
     }
 
     pub fn shake_rotation(&self, config: &ScreenShakeConfig, angles: &CameraAngles) -> CameraAngles {
@@ -59,9 +62,5 @@ impl ScreenShake {
         let right = glm::vec3(1.0, 0.0, 0.0);
 
         CameraAngles::new(lookat, right)
-    }
-
-    pub fn shake_position(&self, position: glm::Vec3) -> glm::Vec3 {
-        position
     }
 }
