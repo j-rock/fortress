@@ -18,4 +18,7 @@ pub use self::sprites::SpriteConfig;
 pub use self::sprites::SpriteSheetConfig;
 pub use self::sprites::SpriteSheetFrameId;
 pub use self::textures::Texel;
+pub use self::textures::TextureMinFilterMode;
+pub use self::textures::TextureMaxFilterMode;
 pub use self::textures::TextureStyle;
+pub use self::textures::TextureWrapMode;

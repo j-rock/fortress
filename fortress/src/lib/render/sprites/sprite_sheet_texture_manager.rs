@@ -8,7 +8,8 @@ use crate::{
         NamedSpriteSheet,
         SpriteSheetFrameId,
         Texel,
-        Texture,
+        PngTexture,
+        TextureUnit,
     },
 };
 #[cfg(not(feature = "bake"))]
@@ -29,7 +30,7 @@ use std::collections::HashMap;
 pub struct SpriteSheetTextureManager {
     #[cfg(not(feature = "bake"))]
     config: SimpleConfigManager<SpriteSheetConfig>,
-    textures: HashMap<NamedSpriteSheet, Texture>,
+    textures: HashMap<NamedSpriteSheet, PngTexture>,
     frames: HashMap<SpriteSheetFrameId, FramesInfo>,
 }
 
@@ -66,7 +67,7 @@ impl SpriteSheetTextureManager {
     #[cfg(feature = "bake")]
     pub fn update(&mut self) {}
 
-    pub fn texture(&self, sprite_sheet: NamedSpriteSheet) -> &Texture {
+    pub fn texture(&self, sprite_sheet: NamedSpriteSheet) -> &PngTexture {
         self.textures.get(&sprite_sheet).expect("Missing texture!")
     }
 
@@ -116,7 +117,7 @@ impl SpriteSheetTextureManager {
         self.frames.clear();
 
         for (sprite_sheet, (image, texture_style)) in all_sheets.images.into_iter() {
-            self.textures.insert(sprite_sheet, Texture::new(image, texture_style, 0));
+            self.textures.insert(sprite_sheet, PngTexture::new(image, texture_style, TextureUnit::Texture0));
         }
 
         for (frame_id, frames_info) in all_sheets.frames.into_iter() {

@@ -15,7 +15,7 @@ use crate::{
         ShaderProgram,
         ShaderUniformKey,
         SpriteSheetTextureManager,
-        Texture,
+        PngTexture,
         TextureUnit,
     }
 };
@@ -107,7 +107,7 @@ impl BackgroundRenderer {
         self.shader_program.deactivate();
     }
 
-     fn set_texels(&mut self, texture: &Texture, camera_pos: glm::Vec3) {
+     fn set_texels(&mut self, texture: &PngTexture, camera_pos: glm::Vec3) {
          self.attr_texel.data.clear();
 
          let config = self.config_manager.get();

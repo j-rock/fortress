@@ -24,19 +24,21 @@ impl TextureWrapMode {
 // Add more values as necessary.
 #[derive(Copy, Clone, Serialize, Deserialize)]
 pub enum TextureMinFilterMode {
-    Nearest
+    Nearest,
+    Linear,
 }
 
 impl Default for TextureMinFilterMode {
-    fn default() -> TextureMinFilterMode {
-        TextureMinFilterMode::Nearest
+    fn default() -> Self {
+        Self::Nearest
     }
 }
 
 impl TextureMinFilterMode {
     pub fn raw(self) -> i32 {
         match self {
-            TextureMinFilterMode::Nearest => gl::NEAREST as i32,
+            Self::Nearest => gl::NEAREST as i32,
+            Self::Linear => gl::LINEAR as i32,
         }
     }
 }
@@ -44,19 +46,21 @@ impl TextureMinFilterMode {
 // Add more values as necessary.
 #[derive(Copy, Clone, Serialize, Deserialize)]
 pub enum TextureMaxFilterMode {
-    Nearest
+    Nearest,
+    Linear,
 }
 
 impl Default for TextureMaxFilterMode {
-    fn default() -> TextureMaxFilterMode {
-        TextureMaxFilterMode::Nearest
+    fn default() -> Self {
+        Self::Nearest
     }
 }
 
 impl TextureMaxFilterMode {
     pub fn raw(self) -> i32 {
         match self {
-            TextureMaxFilterMode::Nearest => gl::NEAREST as i32,
+            Self::Nearest => gl::NEAREST as i32,
+            Self::Linear => gl::LINEAR as i32,
         }
     }
 }
