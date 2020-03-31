@@ -1,5 +1,6 @@
 use crate::app::StatusOr;
 use gl;
+use glm;
 use sdl2;
 
 fn find_sdl_gl_driver() -> StatusOr<u32> {
@@ -67,5 +68,10 @@ impl AppContext {
             canvas,
             events
         })
+    }
+
+    pub fn screen_size(&self) -> glm::IVec2 {
+        let (x, y) = self.canvas.window().size();
+        glm::ivec2(x as i32, y as i32)
     }
 }

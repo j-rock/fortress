@@ -1,6 +1,6 @@
 #version 330 core
-
-out vec4 frag_color;
+layout (location = 0) out vec4 frag_color;
+layout (location = 1) out vec4 bloom_color;
 
 in GS_OUT {
     vec3 world_space_position;
@@ -68,4 +68,5 @@ void main() {
     // Gamma correct
     lighting = pow(lighting, vec3(1.0/2.2));
     frag_color = vec4(lighting, fs_in.alpha);
+    bloom_color = vec4(0.0, 0.0, 0.0, 1.0);
 }

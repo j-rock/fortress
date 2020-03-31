@@ -1,6 +1,7 @@
 use crate::{
     app::{
         AppContext,
+        AppRunnerConfig,
         Clock,
         RandGen,
         StatusOr,
@@ -11,10 +12,10 @@ use crate::{
         ConfigWatcher,
         SimpleConfigManager,
     },
+    render::BloomPipeline,
     world::WorldState,
 };
 use gl;
-use glm;
 use sdl2::{
     event::{
         Event,
@@ -22,13 +23,6 @@ use sdl2::{
     },
     keyboard::Keycode,
 };
-
-#[derive(Deserialize)]
-struct AppRunnerConfig {
-    window_size: (i32, i32),
-    sleep_to_frame_micros: i64,
-    enable_quit: bool,
-}
 
 pub struct AppRunner {
     audio: AudioPlayer,
@@ -38,6 +32,7 @@ pub struct AppRunner {
     world: WorldState,
     config_watcher: ConfigWatcher,
     config: SimpleConfigManager<AppRunnerConfig>,
+    bloom_render_pipeline: BloomPipeline,
 
     // Declare AppContext last so its dropped last.
     context: AppContext,
@@ -47,15 +42,17 @@ impl AppRunner {
     pub fn new() -> StatusOr<AppRunner> {
         let mut config_watcher = ConfigWatcher::new()?;
 
-        let config = SimpleConfigManager::from_config_resource(&mut config_watcher, "app.conf")?;
+        let config: SimpleConfigManager<AppRunnerConfig> = SimpleConfigManager::from_config_resource(&mut config_watcher, "app.conf")?;
 
         let context = {
-            let config: &AppRunnerConfig = config.get();
-            AppContext::new(config.window_size)?
+            let config = config.get();
+            AppContext::new(config.app.window_size)?
         };
         let audio = AudioPlayer::new(&mut config_watcher)?;
         let controller = Controller::new(&mut config_watcher)?;
         let world = WorldState::new(&mut config_watcher)?;
+
+        let bloom_render_pipeline = BloomPipeline::new(context.screen_size())?;
 
         Ok(AppRunner {
             audio,
@@ -65,6 +62,7 @@ impl AppRunner {
             world,
             config_watcher,
             config,
+            bloom_render_pipeline,
             context,
         })
     }
@@ -80,9 +78,10 @@ impl AppRunner {
                     self.draw();
                     self.context.canvas.present();
 
+                    let ref config = self.config.get().app;
                     let dt_micros = self.clock.peek().as_microseconds();
-                    if dt_micros < self.config.get().sleep_to_frame_micros {
-                        let sleep_time_micros = self.config.get().sleep_to_frame_micros - dt_micros;
+                    if dt_micros < config.sleep_to_frame_micros {
+                        let sleep_time_micros = config.sleep_to_frame_micros - dt_micros;
                         let sleep_duration = std::time::Duration::from_micros(sleep_time_micros as u64);
                         std::thread::sleep(sleep_duration);
                     }
@@ -93,7 +92,7 @@ impl AppRunner {
 
     // Return false on quit.
     fn process_events(&mut self) -> StatusOr<bool> {
-        let config = self.config.get();
+        let ref config = self.config.get().app;
         let mut gamepad_events = Vec::new();
         for event in self.context.events.poll_iter() {
             match event {
@@ -127,7 +126,7 @@ impl AppRunner {
     }
 
     fn draw(&mut self) {
-        let screen_size = self.screen_size();
+        let screen_size = self.context.screen_size();
         let color = self.world.clear_color();
         unsafe {
             gl::ClearColor(color.0, color.1, color.2, 1.0);
@@ -135,13 +134,12 @@ impl AppRunner {
         }
 
         // 1. Draw all geometry.
-        self.world.draw(screen_size);
+        self.bloom_render_pipeline.begin();
+        {
+            self.world.draw(screen_size);
+        }
+        self.bloom_render_pipeline.blur(&self.config.get().bloom);
 
         // 2. Non-geometric superimposed draw calls.
-    }
-
-    fn screen_size(&self) -> glm::IVec2 {
-        let (x, y) = self.context.canvas.window().size();
-        glm::ivec2(x as i32, y as i32)
     }
 }

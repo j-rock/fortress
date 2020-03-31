@@ -1,6 +1,6 @@
 #version 330 core
-
-out vec4 frag_color;
+layout (location = 0) out vec4 frag_color;
+layout (location = 1) out vec4 bloom_color;
 
 in vec2 texture_coords;
 
@@ -11,4 +11,5 @@ void main() {
     // Gamma correct.
     vec3 rgb = pow(srgb_alpha.rgb, vec3(1.0/2.2));
     frag_color = vec4(rgb, srgb_alpha.a);
+    bloom_color = vec4(0.0, 0.0, 0.0, 1.0);
 }
