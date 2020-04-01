@@ -155,7 +155,7 @@ impl LightDependentSpriteRenderer {
         for (named_texture, queued_draw) in self.per_pack_attrs.iter() {
             let texture = textures.texture(*named_texture);
             let texture_unit = texture.activate();
-            self.shader_program.set_gluint(UniformKey::Texture(texture_unit), texture_unit.to_gluint());
+            self.shader_program.set_i32(UniformKey::Texture(texture_unit), texture_unit.to_texture_uniform());
 
             for datum in queued_draw.iter() {
                 let texel = textures.frame(&datum.sprite_frame_id, datum.frame, datum.reverse);

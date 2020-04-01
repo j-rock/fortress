@@ -43,7 +43,7 @@ impl BlurShader {
         let fragment = file::util::resource_path("shaders", "blur_frag.glsl");
         let mut shader_program = ShaderProgram::from_short_pipeline(&vertex, &fragment)?;
         shader_program.activate();
-        shader_program.set_gluint(UniformKey::ImageTexture, TextureUnit::Texture0.to_gluint());
+        shader_program.set_i32(UniformKey::ImageTexture, TextureUnit::Texture0.to_texture_uniform());
 
         let mut attribute_program_builder = AttributeProgram::builder();
         let mut attr_position = attribute_program_builder.add_attribute_with_advance(AttributeAdvance::PerVertex);
@@ -60,6 +60,8 @@ impl BlurShader {
                 texel: glm::vec2(*u, *v)
             });
         }
+
+        shader_program.deactivate();
 
         Ok(BlurShader {
             shader_program,

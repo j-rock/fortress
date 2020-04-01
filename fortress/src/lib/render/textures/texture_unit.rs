@@ -1,7 +1,4 @@
-use gl::{
-    self,
-    types::GLuint,
-};
+use gl;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub enum TextureUnit {
@@ -12,16 +9,21 @@ pub enum TextureUnit {
 
 impl TextureUnit {
     pub fn activate(&self) {
-        unsafe {
-            gl::ActiveTexture(self.to_gluint());
-        }
-    }
-
-    pub fn to_gluint(self) -> GLuint {
-        match self {
+        let active_texture = match self {
             Self::Texture0 => gl::TEXTURE0,
             Self::Texture1 => gl::TEXTURE1,
             Self::Texture2 => gl::TEXTURE2,
+        };
+        unsafe {
+            gl::ActiveTexture(active_texture);
+        }
+    }
+
+    pub fn to_texture_uniform(self) -> i32 {
+        match self {
+            Self::Texture0 => 0,
+            Self::Texture1 => 1,
+            Self::Texture2 => 2,
         }
     }
 

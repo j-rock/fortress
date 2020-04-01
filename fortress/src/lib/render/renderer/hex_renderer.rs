@@ -139,7 +139,7 @@ impl HexRenderer {
 
         let texture = textures.texture(NamedSpriteSheet::SpriteSheet1);
         let texture_unit = texture.activate();
-        self.shader_program.set_gluint(UniformKey::Texture(texture_unit), texture_unit.to_gluint());
+        self.shader_program.set_i32(UniformKey::Texture(texture_unit), texture_unit.to_texture_uniform());
 
         let tile_frame_id = SpriteSheetFrameId {
             name: String::from("rock_texture.png"),

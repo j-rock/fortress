@@ -8,7 +8,8 @@ use crate::{
         DepthRenderBuffer,
         FrameBuffer,
         FrameBufferTexture,
-    }
+        TextureUnit,
+    },
 };
 use gl::{
     self,
@@ -84,6 +85,7 @@ impl BloomPipeline {
                 self.ping_pong0.bind_frame_buffer();
             }
             self.blur_shader.set_horizontal_mode(horizontal);
+            TextureUnit::Texture0.activate();
             if i == 0 {
                 self.bloom_texture.bind();
             } else if horizontal {

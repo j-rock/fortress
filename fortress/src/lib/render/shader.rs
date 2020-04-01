@@ -198,12 +198,6 @@ impl <T:ShaderUniformKey + Eq + Hash + Copy> ShaderProgram<T> {
             gl::UniformMatrix4fv(self.get_uniform_location(key), 1, gl::FALSE, value_ptr);
         }
     }
-
-    pub fn set_gluint(&mut self, key: T, gluint: GLuint) {
-        unsafe {
-            gl::Uniform1ui(self.get_uniform_location(key), gluint);
-        }
-    }
 }
 
 impl <T> Drop for ShaderProgram<T> {
