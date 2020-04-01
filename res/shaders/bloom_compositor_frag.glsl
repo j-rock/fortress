@@ -12,10 +12,6 @@ uniform sampler2D bloom;
 void main() {
     vec4 scene_color = texture(scene, fs_in.texel);
     vec4 bloom_color = texture(bloom, fs_in.texel);
-
-    if (scene_color == bloom_color) {
-        frag_color = vec4(0.0, 0.0, 0.0, 1.0);
-    } else {
-        frag_color = vec4(scene_color.rgb, bloom_color.a);
-    }
+    vec3 render_color = scene_color.rgb + bloom_color.rgb;
+    frag_color = vec4(render_color, scene_color.a);
 }
