@@ -6,10 +6,10 @@ in GS_OUT {
     vec3 color;
     vec3 bloom_color;
     float alpha;
-} gs_out;
+} fs_in;
 
 void main() {
-    frag_color.rgb = gs_out.color;
-    frag_color.a = gs_out.alpha;
-    bloom_color = vec4(gs_out.bloom_color, 1.0);
+    frag_color.rgb = fs_in.color;
+    frag_color.a = fs_in.alpha;
+    bloom_color = vec4(fs_in.bloom_color, 1.0);
 }

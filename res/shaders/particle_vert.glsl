@@ -13,8 +13,7 @@ out VS_OUT {
     float size;
 } vs_out;
 
-void main()
-{
+void main() {
     gl_Position = vec4(position, 1.0);
     vs_out.position = position;
     vs_out.color = color;
