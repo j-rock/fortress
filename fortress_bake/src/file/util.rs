@@ -42,6 +42,12 @@ pub fn slurp_file(path: &PathBuf) -> StatusOr<String> {
     Ok(contents)
 }
 
+pub fn copy_file(source: PathBuf, target: PathBuf) -> StatusOr<()> {
+    std::fs::copy(source, target)
+        .map_err(|e| format!("Copy file: {:?}", e))?;
+    Ok(())
+}
+
 pub fn mmap(path: &PathBuf) -> StatusOr<MmapFile> {
     MmapFile::read(path)
 }

@@ -3,6 +3,7 @@ extern crate fortress_bake;
 extern crate generational_slab;
 extern crate gl;
 extern crate glm;
+extern crate glyph_brush;
 extern crate nalgebra;
 extern crate ncollide2d;
 extern crate nphysics2d;

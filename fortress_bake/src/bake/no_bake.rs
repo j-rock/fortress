@@ -1,6 +1,8 @@
-use crate::app::StatusOr;
-use std::path::PathBuf;
+use crate::{
+    app::StatusOr,
+    bake::InputOutput,
+};
 
-pub fn run(_project_root: PathBuf) -> StatusOr<()> {
+pub fn run(_input_output: InputOutput) -> StatusOr<()> {
     Ok(())
 }
