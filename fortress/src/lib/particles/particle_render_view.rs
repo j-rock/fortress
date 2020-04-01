@@ -4,6 +4,7 @@ use glm;
 pub struct ParticleRenderView<'a> {
     pub attr_pos: &'a mut Vec<Vec3Attr>,
     pub attr_color: &'a mut Vec<Vec3Attr>,
+    pub attr_bloom_color: &'a mut Vec<Vec3Attr>,
     pub attr_alpha: &'a mut Vec<FloatAttr>,
     pub attr_size: &'a mut Vec<FloatAttr>,
 }

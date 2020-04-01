@@ -57,6 +57,7 @@ pub struct ParticleSystem {
     attribute_program: AttributeProgram,
     attr_pos: Attribute<Vec3Attr>,
     attr_color: Attribute<Vec3Attr>,
+    attr_bloom_color: Attribute<Vec3Attr>,
     attr_alpha: Attribute<FloatAttr>,
     attr_size: Attribute<FloatAttr>,
     queued_events: Vec<ParticleEvent>,
@@ -76,6 +77,7 @@ impl ParticleSystem {
         let mut attribute_program_builder = AttributeProgram::builder();
         let mut attr_pos = attribute_program_builder.add_attribute();
         let mut attr_color = attribute_program_builder.add_attribute();
+        let mut attr_bloom_color = attribute_program_builder.add_attribute();
         let mut attr_alpha = attribute_program_builder.add_attribute();
         let mut attr_size = attribute_program_builder.add_attribute();
         let attribute_program = attribute_program_builder.build();
@@ -85,6 +87,7 @@ impl ParticleSystem {
             let total_particle_limit = config.blood.particle_limit + config.snow.particle_limit + config.hero_switch.particle_limit;
             attr_pos.data.reserve(total_particle_limit);
             attr_color.data.reserve(total_particle_limit);
+            attr_bloom_color.data.reserve(total_particle_limit);
             attr_alpha.data.reserve(total_particle_limit);
             attr_size.data.reserve(total_particle_limit);
 
@@ -100,6 +103,7 @@ impl ParticleSystem {
             attribute_program,
             attr_pos,
             attr_color,
+            attr_bloom_color,
             attr_alpha,
             attr_size,
             queued_events,
@@ -112,6 +116,7 @@ impl ParticleSystem {
     pub fn respawn(&mut self) {
         self.attr_pos.data.clear();
         self.attr_color.data.clear();
+        self.attr_bloom_color.data.clear();
         self.attr_alpha.data.clear();
         self.attr_size.data.clear();
         self.queued_events.clear();
@@ -157,6 +162,7 @@ impl ParticleSystem {
             let render_view = ParticleRenderView {
                 attr_pos: &mut self.attr_pos.data,
                 attr_color: &mut self.attr_color.data,
+                attr_bloom_color: &mut self.attr_bloom_color.data,
                 attr_alpha: &mut self.attr_alpha.data,
                 attr_size: &mut self.attr_size.data,
             };
@@ -166,6 +172,7 @@ impl ParticleSystem {
             let render_view = ParticleRenderView {
                 attr_pos: &mut self.attr_pos.data,
                 attr_color: &mut self.attr_color.data,
+                attr_bloom_color: &mut self.attr_bloom_color.data,
                 attr_alpha: &mut self.attr_alpha.data,
                 attr_size: &mut self.attr_size.data,
             };
@@ -175,6 +182,7 @@ impl ParticleSystem {
             let render_view = ParticleRenderView {
                 attr_pos: &mut self.attr_pos.data,
                 attr_color: &mut self.attr_color.data,
+                attr_bloom_color: &mut self.attr_bloom_color.data,
                 attr_alpha: &mut self.attr_alpha.data,
                 attr_size: &mut self.attr_size.data,
             };
@@ -190,6 +198,7 @@ impl ParticleSystem {
 
         self.attr_pos.prepare_buffer();
         self.attr_color.prepare_buffer();
+        self.attr_bloom_color.prepare_buffer();
         self.attr_alpha.prepare_buffer();
         self.attr_size.prepare_buffer();
 
@@ -199,6 +208,7 @@ impl ParticleSystem {
 
         self.attr_pos.data.clear();
         self.attr_color.data.clear();
+        self.attr_bloom_color.data.clear();
         self.attr_alpha.data.clear();
         self.attr_size.data.clear();
 

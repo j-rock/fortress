@@ -5,12 +5,14 @@ layout (triangle_strip, max_vertices = 4) out;
 in VS_OUT {
     vec3 position;
     vec3 color;
+    vec3 bloom_color;
     float alpha;
     float size;
 } gs_in[];
 
 out GS_OUT {
     vec3 color;
+    vec3 bloom_color;
     float alpha;
 } gs_out;
 
@@ -25,6 +27,7 @@ void EmitV(vec3 world_position) {
 
 void main() {
     gs_out.color = gs_in[0].color;
+    gs_out.bloom_color = gs_in[0].bloom_color;
     gs_out.alpha = gs_in[0].alpha;
 
     float half_size = gs_in[0].size / 2.0;
