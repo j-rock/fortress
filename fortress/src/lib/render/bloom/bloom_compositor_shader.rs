@@ -45,8 +45,8 @@ impl BloomCompositorShader {
         let fragment = file::util::resource_path("shaders", "bloom_compositor_frag.glsl");
         let mut shader_program = ShaderProgram::from_short_pipeline(&vertex, &fragment)?;
         shader_program.activate();
-        shader_program.set_i32(UniformKey::Scene, TextureUnit::Texture0.to_texture_uniform());
-        shader_program.set_i32(UniformKey::Bloom, TextureUnit::Texture1.to_texture_uniform());
+        shader_program.set_texture(UniformKey::Scene, TextureUnit::Texture0);
+        shader_program.set_texture(UniformKey::Bloom, TextureUnit::Texture1);
 
         let mut attribute_program_builder = AttributeProgram::builder();
         let mut attr_position = attribute_program_builder.add_attribute_with_advance(AttributeAdvance::PerVertex);

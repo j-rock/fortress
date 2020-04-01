@@ -97,7 +97,7 @@ impl BackgroundRenderer {
         self.attr_texel.prepare_buffer();
 
         let texture_unit = texture.activate();
-        self.shader_program.set_i32(UniformKey::Texture(texture_unit), texture_unit.to_texture_uniform());
+        self.shader_program.set_texture(UniformKey::Texture(texture_unit), texture_unit);
 
         unsafe {
             gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);

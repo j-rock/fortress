@@ -1,6 +1,7 @@
 use crate::{
     app::StatusOr,
     file,
+    render::TextureUnit,
 };
 use gl::{
     self,
@@ -197,6 +198,10 @@ impl <T:ShaderUniformKey + Eq + Hash + Copy> ShaderProgram<T> {
         unsafe {
             gl::UniformMatrix4fv(self.get_uniform_location(key), 1, gl::FALSE, value_ptr);
         }
+    }
+
+    pub fn set_texture(&mut self, key: T, texture_unit: TextureUnit) {
+        self.set_i32(key, texture_unit.to_texture_uniform());
     }
 }
 
