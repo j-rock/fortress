@@ -24,6 +24,7 @@ pub mod enemies;
 pub mod entities;
 pub mod file;
 pub mod items;
+pub mod locales;
 pub mod maps;
 pub mod math;
 pub mod particles;
