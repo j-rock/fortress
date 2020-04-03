@@ -22,10 +22,11 @@ impl TextWarehouse {
             config.localized_text
             .iter()
             .flat_map(|(locale, named_text_map)| {
+                let locale = *locale;
                 named_text_map
                     .iter()
-                    .map(|(named_text, text)| {
-                        ((locale, named_text), text.clone())
+                    .map(move |(named_text, text)| {
+                        ((locale, *named_text), text.clone())
                     })
             })
             .collect();
