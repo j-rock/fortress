@@ -6,13 +6,12 @@ pub struct StringAllocator {
 impl StringAllocator {
     pub fn with_capacity(capacity: usize) -> Self {
         StringAllocator {
-            data: Vec::with_capacity(capacity),
+            data: vec![0; capacity],
             curr_head: 0
         }
     }
 
     pub fn clear(&mut self) {
-        self.data.clear();
         self.curr_head = 0;
     }
 
