@@ -1,8 +1,8 @@
 #version 330 core
+layout (location = 0) out vec4 frag_color;
+layout (location = 1) out vec4 bloom_color;
 
-out vec4 frag_color;
-
-in VS_OUT {
+in GS_OUT {
     vec4 color;
     vec2 texel;
 } fs_in;
@@ -14,5 +14,7 @@ void main() {
     if (alpha <= 0.0) {
         discard;
     }
-    frag_color = fs_in.color * vec4(vec3(1.0), alpha);
+
+    frag_color = fs_in.color;
+    bloom_color = vec4(vec3(0.0), 1.0);
 }

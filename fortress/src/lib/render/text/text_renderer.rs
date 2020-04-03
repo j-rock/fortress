@@ -69,15 +69,16 @@ pub struct TextRenderer {
 }
 
 impl TextRenderer {
-pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<Self> {
+    pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<Self> {
         let config = SimpleConfigManager::<TextConfig>::from_config_resource(config_watcher, "text.conf")?;
         let text_warehouse = TextWarehouse::new(config.get());
         let glyph_brush = Self::make_glyph_brush(config.get());
         let glyph_texture = Self::make_glyph_texture(&glyph_brush);
 
         let vertex = file::util::resource_path("shaders", "text_vert.glsl");
+        let geometry = file::util::resource_path("shaders", "text_geo.glsl");
         let fragment = file::util::resource_path("shaders", "text_frag.glsl");
-        let mut shader_program = ShaderProgram::from_short_pipeline(&vertex, &fragment)?;
+        let mut shader_program = ShaderProgram::from_long_pipeline(&vertex, &geometry, &fragment)?;
         shader_program.activate();
         shader_program.set_texture(UniformKey::RasterizedFontTexture, TextureUnit::Texture0);
 
@@ -127,12 +128,11 @@ pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<Self> {
 
     pub fn draw(&mut self, screen_size: glm::IVec2) {
         self.shader_program.activate();
-        let transform = Projections::ortho(0.0, screen_size.x as f32, 0.0, screen_size.y as f32, 1.0, -1.0);
+        let transform = Projections::ortho(0.0, screen_size.x as f32, 0.0, screen_size.y as f32, -1.0, 1.0);
         self.shader_program.set_mat4(UniformKey::ProjectionMatrix, &transform);
         self.glyph_texture.activate();
 
         let update_texture = |rect: glyph_brush::rusttype::Rect<u32>, tex_data: &[u8]| {
-            self.glyph_texture.activate();
             let (x, y) = (rect.min.x as i32, rect.min.y as i32);
             let (width, height) = (rect.width() as i32, rect.height() as i32);
             unsafe {
@@ -160,22 +160,7 @@ pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<Self> {
     }
 
     fn finish_draw(&mut self, brush_action: BrushAction<GlyphVertex>) {
-        self.attribute_program.activate();
-
-        let prepare_and_draw = || {
-            self.attr_screen_pos.prepare_buffer();
-            self.attr_texel.prepare_buffer();
-            self.attr_color.prepare_buffer();
-            self.attr_z_pos.prepare_buffer();
-            unsafe {
-                gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, self.attr_screen_pos.data.len() as GLsizei);
-            }
-            self.attribute_program.deactivate();
-            self.shader_program.deactivate();
-        };
-
         match brush_action {
-            BrushAction::ReDraw => { prepare_and_draw(); },
             BrushAction::Draw(vertices) => {
                 self.attr_screen_pos.data.clear();
                 self.attr_texel.data.clear();
@@ -188,10 +173,22 @@ pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<Self> {
                     self.attr_color.data.push(vertex.color);
                     self.attr_z_pos.data.push(vertex.z_pos);
                 }
-
-                prepare_and_draw();
             },
+            BrushAction::ReDraw => {},
         }
+
+        self.attribute_program.activate();
+        self.glyph_texture.activate();
+        self.attr_screen_pos.prepare_buffer();
+        self.attr_texel.prepare_buffer();
+        self.attr_color.prepare_buffer();
+        self.attr_z_pos.prepare_buffer();
+        unsafe {
+            gl::DrawArraysInstanced(gl::POINTS, 0, 4, self.attr_screen_pos.data.len() as GLsizei);
+        }
+
+        self.attribute_program.deactivate();
+        self.shader_program.deactivate();
     }
 
     fn resize_glyph_texture(&mut self, suggested: (u32, u32)) {
@@ -206,6 +203,7 @@ pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<Self> {
         println!("Had to resize glyph texture: {:?}", new_dimensions);
         self.glyph_brush.resize_texture(new_dimensions.0, new_dimensions.1);
         self.glyph_texture = Self::make_glyph_texture(&self.glyph_brush);
+        self.glyph_texture.activate();
     }
 
     fn make_glyph_brush(config: &TextConfig) -> GlyphBrush<'static, GlyphVertex> {
@@ -221,7 +219,7 @@ pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<Self> {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct GlyphVertex {
     screen_rect: RectAttr,
     texel_rect: RectAttr,
@@ -230,28 +228,28 @@ struct GlyphVertex {
 }
 
 impl GlyphVertex {
-    pub fn from(_input: glyph_brush::GlyphVertex) -> Self {
+    pub fn from(input: glyph_brush::GlyphVertex) -> Self {
         GlyphVertex {
             screen_rect: RectAttr {
-                bottom_left: glm::vec2(0.0, 0.0),
-                top_right: glm::vec2(0.0, 0.0),
+                bottom_left: glm::vec2(input.pixel_coords.min.x as f32, input.pixel_coords.min.y as f32),
+                top_right: glm::vec2(input.pixel_coords.max.x as f32, input.pixel_coords.max.y as f32),
             },
             texel_rect: RectAttr {
-                bottom_left: glm::vec2(0.0, 0.0),
-                top_right: glm::vec2(0.0, 0.0),
+                bottom_left: glm::vec2(input.tex_coords.min.x, input.tex_coords.min.y),
+                top_right: glm::vec2(input.tex_coords.max.x, input.tex_coords.max.y),
             },
             color: ColorAttr {
-                color: glm::vec4(0.0, 0.0, 0.0, 0.0),
+                color: glm::vec4(input.color[0], input.color[1], input.color[2], input.color[3]),
             },
             z_pos: FloatAttr {
-                val: 0.0
+                val: input.z,
             },
         }
     }
 }
 
 #[repr(C)]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct RectAttr {
     bottom_left: glm::Vec2,
     top_right: glm::Vec2,
@@ -264,7 +262,7 @@ impl attribute::KnownComponent for RectAttr {
 }
 
 #[repr(C)]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct ColorAttr {
     color: glm::Vec4,
 }
@@ -276,7 +274,7 @@ impl attribute::KnownComponent for ColorAttr {
 }
 
 #[repr(C)]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct FloatAttr {
     val: f32,
 }
