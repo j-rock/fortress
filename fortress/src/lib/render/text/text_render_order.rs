@@ -41,6 +41,7 @@ impl TextRenderOrder {
             screen_position: (self.screen_position.x, self.screen_position.y),
             color: [self.color.x, self.color.y, self.color.z, self.color.w],
             scale: Scale::uniform(self.size.round()),
+            z: 1.0,
             ..Section::default()
         })
     }
