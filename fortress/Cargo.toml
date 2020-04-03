@@ -10,7 +10,6 @@ fortress_bake = { path = "../fortress_bake"}
 generational_slab = { path = "../generational_slab"}
 gl = "0.14"
 glm = "0.2"
-glyph_brush = "0.6"
 nalgebra = "0.20"
 ncollide2d = "0.22"
 nphysics2d = "0.14"

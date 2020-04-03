@@ -28,7 +28,6 @@ use crate::{
         LightDependentSpriteRenderer,
         PointLights,
         SpriteSheetTextureManager,
-        TextRenderer,
         Viewport,
     },
     weapons::WeaponMatchers,
@@ -47,7 +46,6 @@ pub struct WorldState {
 
     textures: SpriteSheetTextureManager,
     background_renderer: BackgroundRenderer,
-    text_renderer: TextRenderer,
     hex_renderer: HexRenderer,
     full_light_sprite: FullyIlluminatedSpriteRenderer,
     light_dependent_sprite: LightDependentSpriteRenderer,
@@ -86,7 +84,6 @@ impl WorldState {
             camera: Camera::new(config_watcher)?,
             textures: SpriteSheetTextureManager::new(config_watcher)?,
             background_renderer: BackgroundRenderer::new(config_watcher)?,
-            text_renderer: TextRenderer::new(config_watcher)?,
             hex_renderer: HexRenderer::new()?,
             full_light_sprite: FullyIlluminatedSpriteRenderer::new()?,
             light_dependent_sprite: LightDependentSpriteRenderer::new()?,
@@ -104,7 +101,6 @@ impl WorldState {
         self.config_manager.update();
         self.textures.update();
         self.background_renderer.pre_update();
-        self.text_renderer.pre_update();
 
         // Pre-update.
         {
