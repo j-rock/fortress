@@ -53,6 +53,7 @@ pub use self::renderer::LightDependentSpriteRenderer;
 pub use self::shader::ShaderProgram;
 pub use self::shader::ShaderUniformKey;
 pub use self::sprites::SpriteSheetTextureManager;
+pub use self::textures::BitmapTexture;
 pub use self::textures::PngTexture;
 pub use self::textures::RawGlTexture;
 pub use self::textures::TextureMinFilterMode;

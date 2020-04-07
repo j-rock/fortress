@@ -26,8 +26,8 @@ use std::{
 };
 
 pub struct PackedGlyphSheet {
-    image: JsonBitmap,
-    mappings: HashMap<GlyphId, GlyphInfo>,
+    pub image: JsonBitmap,
+    pub mappings: HashMap<GlyphId, GlyphInfo>,
 }
 
 impl PackedGlyphSheet {

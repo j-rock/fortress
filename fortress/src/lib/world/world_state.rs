@@ -30,6 +30,7 @@ use crate::{
         SpriteSheetTextureManager,
         Viewport,
     },
+    text::TextRenderer,
     weapons::WeaponMatchers,
     world::WorldView,
 };
@@ -45,6 +46,7 @@ pub struct WorldState {
     camera: Camera,
 
     textures: SpriteSheetTextureManager,
+    text_renderer: TextRenderer,
     background_renderer: BackgroundRenderer,
     hex_renderer: HexRenderer,
     full_light_sprite: FullyIlluminatedSpriteRenderer,
@@ -83,6 +85,7 @@ impl WorldState {
             config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
             camera: Camera::new(config_watcher)?,
             textures: SpriteSheetTextureManager::new(config_watcher)?,
+            text_renderer: TextRenderer::new(config_watcher)?,
             background_renderer: BackgroundRenderer::new(config_watcher)?,
             hex_renderer: HexRenderer::new()?,
             full_light_sprite: FullyIlluminatedSpriteRenderer::new()?,
@@ -101,6 +104,7 @@ impl WorldState {
         self.config_manager.update();
         self.textures.update();
         self.background_renderer.pre_update();
+        self.text_renderer.pre_update();
 
         // Pre-update.
         {
