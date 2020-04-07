@@ -1,8 +1,5 @@
 use crate::{
-    data::{
-        StringAllocator,
-        UnsafeStr,
-    },
+    data::StringAllocator,
     text::{
         Locale,
         NamedText,
@@ -41,10 +38,9 @@ impl TextWarehouse {
         self.string_allocator.clear();
     }
 
-    pub fn get_number(&mut self, val: i64) -> Option<UnsafeStr> {
+    pub fn get_number(&mut self, val: i64) -> Option<&str> {
         let number_string = format!("{}", val);
-        let s = self.string_allocator.allocate(number_string)?;
-        Some(UnsafeStr::from(s))
+        self.string_allocator.allocate(number_string)
     }
 
     pub fn get_text(&self, locale: Locale, named_text: NamedText) -> Option<&str> {
