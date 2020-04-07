@@ -1,4 +1,5 @@
 pub mod attribute;
+pub mod json_bitmap;
 pub mod png;
 pub mod sprites;
 pub mod textures;
@@ -7,6 +8,7 @@ pub use self::attribute::Attribute;
 pub use self::attribute::AttributeAdvance;
 pub use self::attribute::AttributeProgram;
 pub use self::attribute::AttributeProgramBuilder;
+pub use self::json_bitmap::JsonBitmap;
 pub use self::png::Png;
 pub use self::sprites::AllPackedSpriteSheets;
 pub use self::sprites::BakedSpriteSheetConfig;

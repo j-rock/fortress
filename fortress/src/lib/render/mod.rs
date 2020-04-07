@@ -17,6 +17,7 @@ pub use fortress_bake::render::AttributeProgram;
 pub use fortress_bake::render::AttributeProgramBuilder;
 pub use fortress_bake::render::BakedSpriteSheetConfig;
 pub use fortress_bake::render::FramesInfo;
+pub use fortress_bake::render::JsonBitmap;
 pub use fortress_bake::render::NamedSpriteSheet;
 pub use fortress_bake::render::PackedSpriteSheet;
 pub use fortress_bake::render::Png;

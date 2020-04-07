@@ -1,15 +1,15 @@
-pub mod locale;
-pub mod named_text;
-pub mod text_config;
 pub mod text_render_request;
-pub mod text_size;
 pub mod text_warehouse;
 
-pub use self::locale::Locale;
-pub use self::named_text::NamedText;
-pub use self::text_config::TextConfig;
-pub use self::text_render_request::RenderNumber;
-pub use self::text_render_request::RenderText;
+pub use fortress_bake::text::GlyphId;
+pub use fortress_bake::text::GlyphInfo;
+pub use fortress_bake::text::Locale;
+pub use fortress_bake::text::NamedText;
+pub use fortress_bake::text::PackedGlyphSheet;
+pub use fortress_bake::text::TextConfig;
+pub use fortress_bake::text::TextSize;
+
+pub use self::text_render_request::TextContent;
+pub use self::text_render_request::TextRenderRequest;
 pub use self::text_render_request::TextSurface;
-pub use self::text_size::TextSize;
 pub use self::text_warehouse::TextWarehouse;

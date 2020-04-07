@@ -32,6 +32,22 @@ pub fn reader(path: &PathBuf) -> StatusOr<BufReader<File>> {
     Ok(BufReader::new(file))
 }
 
+// Returns base names of files in dir that match .*extension
+pub fn files_in_dir_ending_with(dir: &PathBuf, extension: &str) -> StatusOr<Vec<String>> {
+    Ok(dir.read_dir()
+        .map_err(|e| format!("Bad dir: {:?}", e))?
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.file_name())
+        .filter_map(|base_name| {
+            let base_name_str = base_name.to_str()?;
+            if !base_name_str.ends_with(extension) {
+                return None;
+            }
+            Some(String::from(base_name_str))
+        })
+        .collect())
+}
+
 pub fn slurp_file(path: &PathBuf) -> StatusOr<String> {
     let file = File::open(path)
         .map_err(|e| format!("Error opening file {:?}: {}", path, e))?;
@@ -40,12 +56,6 @@ pub fn slurp_file(path: &PathBuf) -> StatusOr<String> {
     buf_reader.read_to_string(&mut contents)
         .map_err(|e| format!("Error reading to string from slurp_file {:?}: {}", path, e))?;
     Ok(contents)
-}
-
-pub fn copy_file(source: PathBuf, target: PathBuf) -> StatusOr<()> {
-    std::fs::copy(source, target)
-        .map_err(|e| format!("Copy file: {:?}", e))?;
-    Ok(())
 }
 
 pub fn mmap(path: &PathBuf) -> StatusOr<MmapFile> {

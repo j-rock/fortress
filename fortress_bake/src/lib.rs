@@ -1,4 +1,5 @@
 extern crate enum_iterator;
+extern crate font_atlas;
 extern crate gl;
 extern crate glm;
 #[macro_use] extern crate lazy_static;
@@ -15,3 +16,4 @@ pub mod bake;
 pub mod dimensions;
 pub mod file;
 pub mod render;
+pub mod text;
