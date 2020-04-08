@@ -182,9 +182,9 @@ impl WorldState {
         self.full_light_sprite.draw(&self.textures, &geometry);
         self.light_dependent_sprite.draw(&self.lights, &self.textures, &geometry);
         self.hex_renderer.draw(&self.textures, &self.lights, &geometry);
-
-        // Draw particles last since they mess up transparency.
+        // Draw particles after hex ground to not mess up transparency.
         self.particles.draw(&camera_stream_info, &geometry);
+        self.text_renderer.draw(screen_size);
 
         // Fix viewport at the end.
         Viewport::default(screen_size).set();
