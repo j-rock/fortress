@@ -1,6 +1,7 @@
 use crate::{
     app::StatusOr,
     file,
+    render::JsonBitmap,
 };
 use png;
 use std::{
@@ -44,6 +45,19 @@ impl Png {
             width: info.width as usize,
             height: info.height as usize,
         })
+    }
+
+    pub fn from_bitmap(bitmap: &JsonBitmap) -> Self {
+        let (width, height) = bitmap.size();
+        let mut out = Self::empty(width, height);
+        for (index, value) in bitmap.image_bytes().iter().enumerate() {
+            let start = 4 * index;
+            out.img[start] = *value;
+            out.img[start + 1] = 0;
+            out.img[start + 2] = 0;
+            out.img[start + 3] = 255;
+        }
+        out
     }
 
     pub fn save_to_file(&self, path: PathBuf) -> StatusOr<()> {
