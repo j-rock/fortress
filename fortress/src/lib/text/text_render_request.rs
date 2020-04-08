@@ -1,6 +1,6 @@
 use crate::text::{
     NamedText,
-    TextSize,
+    RasterSize,
 };
 use glm;
 use nalgebra::Point3;
@@ -12,13 +12,14 @@ pub enum TextContent {
 
 pub enum TextSurface {
     World(Point3<f64>),
-    Screen(glm::Vec2)
+    Screen(glm::Vec3)
 }
 
 pub struct TextRenderRequest {
-    pub content: TextContent,
-    pub size: TextSize,
     pub surface: TextSurface,
+    pub content: TextContent,
+    pub raster_size: RasterSize,
+    pub draw_size: f32,
     pub color: glm::Vec3,
     pub alpha: f32,
 }

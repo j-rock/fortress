@@ -7,8 +7,8 @@ pub use fortress_bake::text::GlyphInfo;
 pub use fortress_bake::text::Locale;
 pub use fortress_bake::text::NamedText;
 pub use fortress_bake::text::PackedGlyphSheet;
+pub use fortress_bake::text::RasterSize;
 pub use fortress_bake::text::TextConfig;
-pub use fortress_bake::text::TextSize;
 
 pub use self::text_renderer::TextRenderer;
 pub use self::text_render_request::TextContent;

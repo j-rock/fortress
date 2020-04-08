@@ -6,7 +6,7 @@ use crate::{
         GlyphId,
         GlyphInfo,
         TextConfig,
-        TextSize,
+        RasterSize,
     }
 };
 use font_atlas::{
@@ -72,22 +72,16 @@ impl PackedGlyphSheet {
     fn all_glyphs(config: &TextConfig) -> impl Iterator<Item = GlyphId> {
         let mut all = HashSet::with_capacity(config.all_glyph_id_count_guess);
 
-        for size in TextSize::all_sizes() {
+        for size in RasterSize::all_sizes() {
             for character in "-0123456789".chars() {
-                all.insert(GlyphId {
-                    character,
-                    size,
-                });
+                all.insert(GlyphId::new(character, size));
             }
         }
 
         for text_mapping in config.localized_text.values() {
             for string in text_mapping.values() {
                 for character in string.chars() {
-                    all.insert(GlyphId {
-                        character,
-                        size: TextSize::Large,
-                    });
+                    all.insert(GlyphId::new(character, RasterSize::Large));
                 }
             }
         }

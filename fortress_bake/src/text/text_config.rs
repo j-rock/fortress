@@ -3,7 +3,7 @@ use crate::{
     text::{
         Locale,
         NamedText,
-        TextSize,
+        RasterSize,
     },
 };
 use std::collections::HashMap;
@@ -15,6 +15,6 @@ pub struct TextConfig {
     pub all_glyph_id_count_guess: usize,
     pub warehouse_string_allocator_capacity: usize,
     pub current_locale: Locale,
-    pub raster_sizes: HashMap<TextSize, f32>,
+    pub raster_sizes: HashMap<RasterSize, f32>,
     pub localized_text: HashMap<Locale, HashMap<NamedText, String>>,
 }
