@@ -24,6 +24,7 @@ impl BitmapTexture {
         raw_texture.bind();
         texture_style.set_parameters();
         unsafe {
+            gl::PixelStorei(gl::UNPACK_ALIGNMENT, 1);
             gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RED as i32,
                            width as i32, height as i32,
                            0, gl::RED, gl::UNSIGNED_BYTE, image_bytes.as_ptr() as *const GLvoid);
