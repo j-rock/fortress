@@ -1,3 +1,5 @@
+pub mod char_raster_info;
+pub mod font;
 pub mod glyph_id;
 pub mod glyph_info;
 pub mod locale;
@@ -6,6 +8,8 @@ pub mod packed_glyph_sheet;
 pub mod raster_size;
 pub mod text_config;
 
+pub use self::char_raster_info::CharRasterInfo;
+pub use self::font::Font;
 pub use self::glyph_id::GlyphId;
 pub use self::glyph_info::GlyphInfo;
 pub use self::locale::Locale;

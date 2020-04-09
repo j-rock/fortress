@@ -58,6 +58,16 @@ pub fn slurp_file(path: &PathBuf) -> StatusOr<String> {
     Ok(contents)
 }
 
+pub fn slurp_file_bytes(path: &PathBuf) -> StatusOr<Vec<u8>> {
+    let file = File::open(path)
+        .map_err(|e| format!("Error opening file {:?}: {}", path, e))?;
+    let mut buf_reader = BufReader::new(file);
+    let mut contents = Vec::new();
+    buf_reader.read_to_end(&mut contents)
+        .map_err(|e| format!("Error reading to string from slurp_file {:?}: {}", path, e))?;
+    Ok(contents)
+}
+
 pub fn mmap(path: &PathBuf) -> StatusOr<MmapFile> {
     MmapFile::read(path)
 }

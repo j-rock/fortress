@@ -2,7 +2,6 @@ use crate::{
     app::StatusOr,
     file,
 };
-use font_atlas;
 use serde_json;
 use std::{
     fs::File,
@@ -26,15 +25,6 @@ impl JsonBitmap {
         }
     }
 
-    pub fn from(bitmap: font_atlas::rasterize::Bitmap) -> Self {
-        let (width, height) = (bitmap.width(), bitmap.height());
-        JsonBitmap {
-            img: bitmap.into_raw(),
-            width,
-            height,
-        }
-    }
-
     pub fn from_file(path: &PathBuf) -> StatusOr<Self> {
         let mmapped_file = file::util::mmap(path)?;
         Self::from_slice(mmapped_file.bytes())
@@ -43,6 +33,11 @@ impl JsonBitmap {
     pub fn from_slice(slice: &[u8]) -> StatusOr<Self> {
         serde_json::de::from_slice(slice)
             .map_err(|e| format!("Bitmap read err: {:?}", e))
+    }
+
+    pub fn try_set_byte(&mut self, x: usize, y: usize, value: u8) {
+        let index = y * self.width + x;
+        self.img[index] = value;
     }
 
     pub fn image_bytes(&self) -> &[u8] {
