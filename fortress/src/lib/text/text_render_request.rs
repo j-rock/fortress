@@ -1,7 +1,4 @@
-use crate::text::{
-    NamedText,
-    RasterSize,
-};
+use crate::text::NamedText;
 use glm;
 
 pub enum TextContent {
@@ -10,10 +7,16 @@ pub enum TextContent {
 }
 
 pub struct TextRenderRequest {
-    pub screen_position: glm::Vec3,
     pub content: TextContent,
-    pub raster_size: RasterSize,
-    pub draw_size: f32,
+
+    // X in [0.0, 1.0) which goes from left to right.
+    // Y in [0.0, 1.0) which goes from top to bottom.
+    // Z in [0.0, 1.0) where 0.0 is closest to camera.
+    pub screen_position_percentage: glm::Vec3,
+
+    // Size of glyph = original raster size * raster_scale_multiplier.
+    pub raster_scale_multiplier: f32,
+
     pub color: glm::Vec3,
     pub alpha: f32,
 }
