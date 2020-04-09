@@ -30,7 +30,13 @@ use crate::{
         SpriteSheetTextureManager,
         Viewport,
     },
-    text::TextRenderer,
+    text::{
+        NamedText,
+        RasterSize,
+        TextContent,
+        TextRenderer,
+        TextRenderRequest,
+    },
     weapons::WeaponMatchers,
     world::WorldView,
 };
@@ -170,6 +176,7 @@ impl WorldState {
     fn draw_geometry(&mut self, camera_stream_info: &CameraStreamInfo, screen_size: glm::IVec2) {
         let geometry = self.camera.geometry(screen_size);
 
+        self.text_renderer.set_screen_size(screen_size);
         self.light_dependent_sprite.set_camera_stream_info(camera_stream_info.clone());
 
         self.map.queue_draw(&camera_stream_info, &mut self.hex_renderer, &mut self.full_light_sprite);
@@ -184,7 +191,18 @@ impl WorldState {
         self.hex_renderer.draw(&self.textures, &self.lights, &geometry);
         // Draw particles after hex ground to not mess up transparency.
         self.particles.draw(&camera_stream_info, &geometry);
-        self.text_renderer.draw(screen_size);
+
+        {
+            self.text_renderer.queue(TextRenderRequest {
+                content: TextContent::Text(NamedText::GameInAlpha),
+                screen_position_percentage: glm::vec3(0.0, 0.0, 0.1),
+                raster_scale_multiplier: 1.0,
+                raster_size: RasterSize::Large,
+                color: glm::vec3(0.0, 1.0, 0.0),
+                alpha: 1.0,
+            })
+        }
+        self.text_renderer.draw();
 
         // Fix viewport at the end.
         Viewport::default(screen_size).set();

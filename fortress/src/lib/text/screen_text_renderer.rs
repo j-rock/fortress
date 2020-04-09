@@ -14,7 +14,6 @@ use crate::{
     text::{
         GlyphId,
         GlyphInfo,
-        RasterSize,
         TextRenderRequest,
     },
 };
@@ -51,6 +50,8 @@ pub struct ScreenTextRenderer {
     attr_glyph_size: Attribute<GlyphSizeAttr>,
     attr_texel: Attribute<TexelAttr>,
     attr_color: Attribute<ColorAttr>,
+
+    screen_size: glm::Vec2,
 }
 
 impl ScreenTextRenderer {
@@ -76,21 +77,33 @@ impl ScreenTextRenderer {
             attr_glyph_size,
             attr_texel,
             attr_color,
+            screen_size: glm::vec2(0.0, 0.0),
         })
+    }
+
+    pub fn set_screen_size(&mut self, screen_size: glm::IVec2) {
+        self.screen_size = glm::vec2(screen_size.x as f32, screen_size.y as f32);
     }
 
     pub fn queue(&mut self, mappings: &HashMap<GlyphId, GlyphInfo>, request: &TextRenderRequest, chars: impl Iterator<Item = char>) {
         for character in chars {
             if let Some(_glyph_info) = mappings.get(&GlyphId::new(character, request.raster_size)) {
-                println!("Ayyyyyyyy");
+                // self.attr_pos.data.push()
+                // self.attr_glyph_size.data.push()
+                // self.attr_texel.data.push(TexelAttr {
+                //     texel: glyph_info.texel(),
+                // });
+                // self.attr_color.data.push(ColorAttr {
+                //     color: glm::vec4(request.color.x, request.color.y, request.color.z, request.alpha)
+                // });
             }
         }
     }
 
-    pub fn draw(&mut self, screen_size: glm::IVec2, texture: &BitmapTexture) {
+    pub fn draw(&mut self, texture: &BitmapTexture) {
         self.shader_program.activate();
         self.attribute_program.activate();
-        self.shader_program.set_vec2(UniformKey::ScreenWindowSize, glm::vec2(screen_size.x as f32, screen_size.y as f32));
+        self.shader_program.set_vec2(UniformKey::ScreenWindowSize, self.screen_size);
         texture.activate();
 
         self.attr_pos.prepare_buffer();

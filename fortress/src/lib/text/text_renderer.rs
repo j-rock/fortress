@@ -72,6 +72,10 @@ impl TextRenderer {
         }
     }
 
+    pub fn set_screen_size(&mut self, screen_size: glm::IVec2) {
+        self.screen_renderer.set_screen_size(screen_size);
+    }
+
     pub fn queue(&mut self, request: TextRenderRequest) {
         match request.content {
             TextContent::Number(number) => {
@@ -88,8 +92,8 @@ impl TextRenderer {
         }
     }
 
-    pub fn draw(&mut self, screen_size: glm::IVec2) {
-        self.screen_renderer.draw(screen_size, &self.texture);
+    pub fn draw(&mut self) {
+        self.screen_renderer.draw(&self.texture);
     }
 
     fn compute_all_text(config: &TextConfig) -> HashMap<(Locale, NamedText), String> {
