@@ -1,4 +1,7 @@
-use crate::text::NamedText;
+use crate::text::{
+    NamedText,
+    RasterSize,
+};
 use glm;
 
 pub enum TextContent {
@@ -16,6 +19,7 @@ pub struct TextRenderRequest {
 
     // Size of glyph = original raster size * raster_scale_multiplier.
     pub raster_scale_multiplier: f32,
+    pub raster_size: RasterSize,
 
     pub color: glm::Vec3,
     pub alpha: f32,

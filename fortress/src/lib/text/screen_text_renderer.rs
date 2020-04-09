@@ -79,9 +79,9 @@ impl ScreenTextRenderer {
         })
     }
 
-    pub fn queue(&mut self, mappings: &HashMap<GlyphId, GlyphInfo>, _request: &TextRenderRequest, chars: impl Iterator<Item = char>) {
+    pub fn queue(&mut self, mappings: &HashMap<GlyphId, GlyphInfo>, request: &TextRenderRequest, chars: impl Iterator<Item = char>) {
         for character in chars {
-            if let Some(_glyph_info) = Self::find_glyph_info(mappings, character) {
+            if let Some(_glyph_info) = mappings.get(&GlyphId::new(character, request.raster_size)) {
                 println!("Ayyyyyyyy");
             }
         }
@@ -106,15 +106,6 @@ impl ScreenTextRenderer {
         self.attr_glyph_size.data.clear();
         self.attr_texel.data.clear();
         self.attr_color.data.clear();
-    }
-
-    fn find_glyph_info(mappings: &HashMap<GlyphId, GlyphInfo>, character: char) -> Option<&GlyphInfo> {
-        for raster_size in RasterSize::largest_to_smallest() {
-            if let Some(glyph_info) = mappings.get(&GlyphId::new(character, raster_size)) {
-                return Some(glyph_info);
-            }
-        }
-        None
     }
 }
 
