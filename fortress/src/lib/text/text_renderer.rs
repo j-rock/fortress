@@ -6,63 +6,31 @@ use crate::{
         SimpleConfigManager,
     },
     render::{
-        attribute,
-        Attribute,
-        AttributeProgram,
         BitmapTexture,
-        ShaderProgram,
-        ShaderUniformKey,
-        Texel,
         TextureUnit,
     },
     text::{
+        Base10CharIterator,
         GlyphId,
         GlyphInfo,
         Locale,
         NamedText,
         PackedGlyphSheet,
+        ScreenTextRenderer,
         TextConfig,
         TextContent,
         TextRenderRequest,
     },
 };
-use gl::{
-    self,
-    types::GLsizei,
-};
-use std::{
-    collections::HashMap,
-    ffi::CString,
-};
-
-#[derive(Copy, Clone, PartialEq, Eq, Hash)]
-enum ScreenUniformKey {
-    FontTexture,
-    ScreenWindowSize,
-}
-
-impl ShaderUniformKey for ScreenUniformKey {
-    fn to_cstring(self) -> CString {
-        let string = match self {
-            Self::FontTexture => "font",
-            Self::ScreenWindowSize => "screen_window_size",
-        };
-        CString::new(string).expect("Bad cstring")
-    }
-}
+use glm;
+use std::collections::HashMap;
 
 pub struct TextRenderer {
     config: SimpleConfigManager<TextConfig>,
     localized_text: HashMap<(Locale, NamedText), String>,
     texture: BitmapTexture,
     mappings: HashMap<GlyphId, GlyphInfo>,
-
-    screen_shader: ShaderProgram<ScreenUniformKey>,
-    screen_attribute_program: AttributeProgram,
-    screen_attr_pos: Attribute<PositionAttr>,
-    screen_attr_glyph_size: Attribute<GlyphSizeAttr>,
-    screen_attr_texel: Attribute<TexelAttr>,
-    screen_attr_color: Attribute<ColorAttr>,
+    screen_renderer: ScreenTextRenderer,
 }
 
 impl TextRenderer {
@@ -78,33 +46,14 @@ impl TextRenderer {
             (localized_text, texture, packed.mappings)
         };
 
-        let mut screen_shader = {
-            let vertex = file::util::resource_path("shaders", "screen_text_vert.glsl");
-            let geometry = file::util::resource_path("shaders", "screen_text_geo.glsl");
-            let fragment = file::util::resource_path("shaders", "screen_text_frag.glsl");
-            ShaderProgram::from_long_pipeline(&vertex, &geometry, &fragment)?
-        };
-        screen_shader.activate();
-        screen_shader.set_texture(ScreenUniformKey::FontTexture, TextureUnit::Texture0);
-
-        let mut screen_attribute_program_builder = AttributeProgram::builder();
-        let screen_attr_pos = screen_attribute_program_builder.add_attribute();
-        let screen_attr_glyph_size = screen_attribute_program_builder.add_attribute();
-        let screen_attr_texel = screen_attribute_program_builder.add_attribute();
-        let screen_attr_color = screen_attribute_program_builder.add_attribute();
-        let screen_attribute_program = screen_attribute_program_builder.build();
+        let screen_renderer = ScreenTextRenderer::new()?;
 
         Ok(TextRenderer {
             config,
             localized_text,
             texture,
             mappings,
-            screen_shader,
-            screen_attribute_program,
-            screen_attr_pos,
-            screen_attr_glyph_size,
-            screen_attr_texel,
-            screen_attr_color,
+            screen_renderer,
         })
     }
 
@@ -123,25 +72,24 @@ impl TextRenderer {
         }
     }
 
-    pub fn draw(&mut self, screen_size: glm::IVec2) {
-        self.screen_shader.activate();
-        self.screen_attribute_program.activate();
-        self.screen_shader.set_vec2(ScreenUniformKey::ScreenWindowSize, glm::vec2(screen_size.x as f32, screen_size.y as f32));
-        self.texture.activate();
-
-        self.screen_attr_pos.prepare_buffer();
-        self.screen_attr_glyph_size.prepare_buffer();
-        self.screen_attr_texel.prepare_buffer();
-        self.screen_attr_color.prepare_buffer();
-
-        unsafe {
-            gl::DrawArraysInstanced(gl::POINTS, 0, 4, self.screen_attr_pos.data.len() as GLsizei);
+    pub fn queue(&mut self, request: TextRenderRequest) {
+        match request.content {
+            TextContent::Number(number) => {
+                if let Some(char_iterator) = Base10CharIterator::new(number) {
+                    self.screen_renderer.queue(&self.mappings, &request, char_iterator);
+                }
+            },
+            TextContent::Text(text) => {
+                let current_locale = self.config.get().current_locale;
+                if let Some(text) = self.localized_text.get(&(current_locale, text)) {
+                    self.screen_renderer.queue(&self.mappings, &request, text.chars());
+                }
+            },
         }
+    }
 
-        self.screen_attr_pos.data.clear();
-        self.screen_attr_glyph_size.data.clear();
-        self.screen_attr_texel.data.clear();
-        self.screen_attr_color.data.clear();
+    pub fn draw(&mut self, screen_size: glm::IVec2) {
+        self.screen_renderer.draw(screen_size, &self.texture);
     }
 
     fn compute_all_text(config: &TextConfig) -> HashMap<(Locale, NamedText), String> {
@@ -156,49 +104,5 @@ impl TextRenderer {
                     })
             })
             .collect()
-    }
-}
-
-#[repr(C)]
-struct GlyphSizeAttr {
-    size: glm::Vec2,
-}
-
-impl attribute::KnownComponent for GlyphSizeAttr {
-    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
-        (attribute::NumComponents::S2, attribute::ComponentType::Float)
-    }
-}
-
-#[repr(C)]
-struct PositionAttr {
-    val: glm::Vec3,
-}
-
-impl attribute::KnownComponent for PositionAttr {
-    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
-        (attribute::NumComponents::S3, attribute::ComponentType::Float)
-    }
-}
-
-#[repr(C)]
-struct ColorAttr {
-    color: glm::Vec4,
-}
-
-impl attribute::KnownComponent for ColorAttr {
-    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
-        (attribute::NumComponents::S4, attribute::ComponentType::Float)
-    }
-}
-
-#[repr(C)]
-struct TexelAttr {
-    texel: Texel,
-}
-
-impl attribute::KnownComponent for TexelAttr {
-    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
-        (attribute::NumComponents::S4, attribute::ComponentType::Float)
     }
 }
