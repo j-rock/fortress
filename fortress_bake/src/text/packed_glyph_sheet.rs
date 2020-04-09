@@ -72,7 +72,7 @@ impl PackedGlyphSheet {
     fn all_glyphs(config: &TextConfig) -> impl Iterator<Item = GlyphId> {
         let mut all = HashSet::with_capacity(config.all_glyph_id_count_guess);
 
-        for size in RasterSize::all_sizes() {
+        for size in RasterSize::largest_to_smallest() {
             for character in "-0123456789".chars() {
                 all.insert(GlyphId::new(character, size));
             }

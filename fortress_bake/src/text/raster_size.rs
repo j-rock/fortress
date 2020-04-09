@@ -2,11 +2,14 @@ use enum_iterator::IntoEnumIterator;
 
 #[derive(Copy, Clone, Deserialize, Debug, PartialEq, Eq, PartialOrd, Hash, IntoEnumIterator)]
 pub enum RasterSize {
-    Small, Medium, Large
+    // Keep in sorted order from largest to smallest.
+    Large,
+    Medium,
+    Small,
 }
 
 impl RasterSize {
-    pub fn all_sizes() -> <Self as IntoEnumIterator>::Iterator {
+    pub fn largest_to_smallest() -> impl Iterator<Item = Self> {
         Self::into_enum_iter()
     }
 }
