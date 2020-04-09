@@ -18,12 +18,12 @@ use crate::{
     text::{
         GlyphId,
         GlyphInfo,
+        Locale,
+        NamedText,
         PackedGlyphSheet,
         TextConfig,
         TextContent,
         TextRenderRequest,
-        TextSurface,
-        TextWarehouse,
     },
 };
 use gl::{
@@ -53,7 +53,7 @@ impl ShaderUniformKey for ScreenUniformKey {
 
 pub struct TextRenderer {
     config: SimpleConfigManager<TextConfig>,
-    text_warehouse: TextWarehouse,
+    localized_text: HashMap<(Locale, NamedText), String>,
     texture: BitmapTexture,
     mappings: HashMap<GlyphId, GlyphInfo>,
 
@@ -69,13 +69,13 @@ impl TextRenderer {
     pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<Self> {
         let config = SimpleConfigManager::from_config_resource(config_watcher, "text.conf")?;
 
-        let (text_warehouse, texture, mappings) = {
+        let (localized_text, texture, mappings) = {
             let config = config.get();
-            let text_warehouse = TextWarehouse::new(config);
+            let localized_text = Self::compute_all_text(config);
             let fonts = file::util::resource_base().join("fonts");
             let packed = PackedGlyphSheet::new(config, &fonts)?;
             let texture = BitmapTexture::new(packed.image, config.texture_atlas_style, TextureUnit::Texture0);
-            (text_warehouse, texture, packed.mappings)
+            (localized_text, texture, packed.mappings)
         };
 
         let mut screen_shader = {
@@ -96,7 +96,7 @@ impl TextRenderer {
 
         Ok(TextRenderer {
             config,
-            text_warehouse,
+            localized_text,
             texture,
             mappings,
             screen_shader,
@@ -115,7 +115,7 @@ impl TextRenderer {
             match PackedGlyphSheet::new(config, &fonts) {
                 Err(e) => println!("Couldn't reload text glyphs: {:?}", e),
                 Ok(packed) => {
-                    self.text_warehouse = TextWarehouse::new(config);
+                    self.localized_text = Self::compute_all_text(config);
                     self.texture = BitmapTexture::new(packed.image, config.texture_atlas_style, TextureUnit::Texture0);
                     self.mappings = packed.mappings;
                 },
@@ -142,6 +142,20 @@ impl TextRenderer {
         self.screen_attr_glyph_size.data.clear();
         self.screen_attr_texel.data.clear();
         self.screen_attr_color.data.clear();
+    }
+
+    fn compute_all_text(config: &TextConfig) -> HashMap<(Locale, NamedText), String> {
+        config.localized_text
+            .iter()
+            .flat_map(|(locale, named_text_map)| {
+                let locale = *locale;
+                named_text_map
+                    .iter()
+                    .map(move |(named_text, text)| {
+                        ((locale, *named_text), text.clone())
+                    })
+            })
+            .collect()
     }
 }
 
