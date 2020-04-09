@@ -91,10 +91,20 @@ impl PackedGlyphSheet {
 
     fn first_successful_raster(fonts: &[Font], character: char, size: f32) -> StatusOr<(CharInfo, JsonBitmap)> {
         for font in fonts.iter() {
-            if let Some((char_info, bitmap)) = font.render_char(character, size) {
-                return Ok((char_info, JsonBitmap::from(bitmap)));
+            match character {
+                ' ' => {
+                    if let Some((char_info, _bitmap)) = font.render_char('-', size) {
+                        return Ok((char_info, JsonBitmap::empty(3, 3)));
+                    }
+                },
+                _ => {
+                    if let Some((char_info, bitmap)) = font.render_char(character, size) {
+                        return Ok((char_info, JsonBitmap::from(bitmap)));
+                    }
+                },
             }
         }
+
         Err(format!("No fonts worked for {}/{}", character, size))
     }
 }
