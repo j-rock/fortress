@@ -35,8 +35,8 @@ void main() {
     vec2 texel_top_left = vec2(texel_bot_left.x, texel_top_right.y);
     vec2 texel_bot_right = vec2(texel_top_right.x, texel_bot_left.y);
 
-    float near = 1.0;
-    float far = -1.0;
+    float near = 0.0;
+    float far = -2.0;
     // Orthographic screen projection.
     mat4 ortho_projection = mat4(
         vec4(2.0 / screen_window_size.x, 0.0, 0.0, 0.0),
