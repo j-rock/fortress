@@ -86,16 +86,30 @@ impl ScreenTextRenderer {
     }
 
     pub fn queue(&mut self, mappings: &HashMap<GlyphId, GlyphInfo>, request: &TextRenderRequest, chars: impl Iterator<Item = char>) {
+        let mut pen = self.screen_size * glm::vec2(request.screen_position_percentage.x, request.screen_position_percentage.y);
         for character in chars {
-            if let Some(_glyph_info) = mappings.get(&GlyphId::new(character, request.raster_size)) {
-                // self.attr_pos.data.push()
-                // self.attr_glyph_size.data.push()
-                // self.attr_texel.data.push(TexelAttr {
-                //     texel: glyph_info.texel(),
-                // });
-                // self.attr_color.data.push(ColorAttr {
-                //     color: glm::vec4(request.color.x, request.color.y, request.color.z, request.alpha)
-                // });
+            if let Some(glyph_info) = mappings.get(&GlyphId::new(character, request.raster_size)) {
+                let raster_info = glyph_info.raster_info();
+                let glyph_width_offset = raster_info.left_side_bearing * request.raster_scale_multiplier;
+                let glyph_height_offset = raster_info.height_offset * request.raster_scale_multiplier;
+                let character_pen = pen + glm::vec2(glyph_width_offset, glyph_height_offset);
+
+                if character != ' ' {
+                    self.attr_pos.data.push(PositionAttr {
+                        position: glm::vec3(character_pen.x, character_pen.y, request.screen_position_percentage.z),
+                    });
+                    self.attr_glyph_size.data.push(GlyphSizeAttr {
+                        size: raster_info.raster_dimensions * request.raster_scale_multiplier,
+                    });
+                    self.attr_texel.data.push(TexelAttr {
+                        texel: glyph_info.texel(),
+                    });
+                    self.attr_color.data.push(ColorAttr {
+                        color: glm::vec4(request.color.x, request.color.y, request.color.z, request.alpha)
+                    });
+                }
+
+                pen.x += raster_info.advance_width * request.raster_scale_multiplier;
             }
         }
     }
@@ -135,7 +149,7 @@ impl attribute::KnownComponent for GlyphSizeAttr {
 
 #[repr(C)]
 struct PositionAttr {
-    val: glm::Vec3,
+    position: glm::Vec3,
 }
 
 impl attribute::KnownComponent for PositionAttr {

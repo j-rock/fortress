@@ -195,7 +195,7 @@ impl WorldState {
         {
             self.text_renderer.queue(TextRenderRequest {
                 content: TextContent::Text(NamedText::GameInAlpha),
-                screen_position_percentage: glm::vec3(0.0, 0.0, 0.0),
+                screen_position_percentage: glm::vec3(0.0, 0.3, 0.0),
                 raster_scale_multiplier: 2.3,
                 raster_size: RasterSize::Large,
                 color: glm::vec3(0.0, 1.0, 0.0),
