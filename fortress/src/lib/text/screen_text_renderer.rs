@@ -90,16 +90,14 @@ impl ScreenTextRenderer {
         for character in chars {
             if let Some(glyph_info) = mappings.get(&GlyphId::new(character, request.raster_size)) {
                 let raster_info = glyph_info.raster_info();
-                let glyph_width_offset = raster_info.left_side_bearing * request.raster_scale_multiplier;
-                let glyph_height_offset = raster_info.height_offset * request.raster_scale_multiplier;
-                let character_pen = pen + glm::vec2(glyph_width_offset, glyph_height_offset);
+                let character_pen = pen + glm::vec2(raster_info.left_side_bearing, raster_info.height_offset);
 
                 if character != ' ' {
                     self.attr_pos.data.push(PositionAttr {
                         position: glm::vec3(character_pen.x, character_pen.y, request.screen_position_percentage.z),
                     });
                     self.attr_glyph_size.data.push(GlyphSizeAttr {
-                        size: raster_info.raster_dimensions * request.raster_scale_multiplier,
+                        size: raster_info.raster_dimensions,
                     });
                     self.attr_texel.data.push(TexelAttr {
                         texel: glyph_info.texel(),
@@ -109,7 +107,7 @@ impl ScreenTextRenderer {
                     });
                 }
 
-                pen.x += raster_info.advance_width * request.raster_scale_multiplier;
+                pen.x += raster_info.advance_width;
             }
         }
     }
