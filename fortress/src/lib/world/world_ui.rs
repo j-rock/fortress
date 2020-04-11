@@ -12,54 +12,67 @@ use crate::{
         TextContent,
         TextRenderer,
         TextRenderRequest,
-    }
+    },
+    world::{
+        FrameCounterConfig,
+        WorldUiConfig,
+    },
 };
 
-#[derive(Deserialize)]
-struct FrameCounterConfig {
-    num_last_frames_to_average: usize,
-    fps_text_screen_pos: (f32, f32, f32),
-    num_screen_pos: (f32, f32, f32),
-    color: (f32, f32, f32),
-    alpha: f32,
+pub struct WorldUi {
+    config: SimpleConfigManager<WorldUiConfig>,
+    frames: FrameCounter,
 }
 
-pub struct FrameCounter {
-    config: SimpleConfigManager<FrameCounterConfig>,
-    last_n_frame_seconds: Vec<f64>,
-    ring_buffer_view: RingBufferView,
-}
-
-impl FrameCounter {
+impl WorldUi {
     pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<Self> {
-        let config = SimpleConfigManager::<FrameCounterConfig>::from_config_resource(config_watcher, "frame_counter.conf")?;
-        let (last_n_frame_seconds, ring_buffer_view) = {
+        let config = SimpleConfigManager::<WorldUiConfig>::from_config_resource(config_watcher, "world_ui.conf")?;
+
+        let frames = {
             let config = config.get();
-            let last_n_frame_seconds = Vec::with_capacity(config.num_last_frames_to_average);
-            let ring_buffer_view = RingBufferView::with_capacity(config.num_last_frames_to_average);
-            (last_n_frame_seconds, ring_buffer_view)
+            FrameCounter::new(&config.frames)
         };
-        Ok(FrameCounter {
+
+        Ok(WorldUi {
             config,
-            last_n_frame_seconds,
-            ring_buffer_view,
+            frames,
         })
     }
 
     pub fn pre_update(&mut self, dt: DeltaTime) {
         if self.config.update() {
             let config = self.config.get();
-            self.last_n_frame_seconds = Vec::with_capacity(config.num_last_frames_to_average);
-            self.ring_buffer_view = RingBufferView::with_capacity(config.num_last_frames_to_average);
+            self.frames = FrameCounter::new(&config.frames);
         }
 
-        self.ring_buffer_view.add_element_at_head(dt.as_f64_seconds(), &mut self.last_n_frame_seconds);
-        self.ring_buffer_view.increment_head();
+        self.frames.pre_update(dt);
     }
 
     pub fn queue_draw(&self, text: &mut TextRenderer) {
         let config = self.config.get();
+        self.frames.queue_draw(&config.frames, text);
+    }
+}
 
+struct FrameCounter {
+    last_n_frame_seconds: Vec<f64>,
+    ring_buffer_view: RingBufferView,
+}
+
+impl FrameCounter {
+    pub fn new(config: &FrameCounterConfig) -> Self {
+        FrameCounter {
+            last_n_frame_seconds: Vec::with_capacity(config.num_last_frames_to_average),
+            ring_buffer_view: RingBufferView::with_capacity(config.num_last_frames_to_average),
+        }
+    }
+
+    pub fn pre_update(&mut self, dt: DeltaTime) {
+        self.ring_buffer_view.add_element_at_head(dt.as_f64_seconds(), &mut self.last_n_frame_seconds);
+        self.ring_buffer_view.increment_head();
+    }
+
+    pub fn queue_draw(&self, config: &FrameCounterConfig, text: &mut TextRenderer) {
         let num_frames_collected = self.last_n_frame_seconds.len();
         let fps = if num_frames_collected > 0 {
             let frame_second_sum: f64 = self.last_n_frame_seconds.iter().sum();
