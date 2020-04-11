@@ -32,7 +32,10 @@ use crate::{
     },
     text::TextRenderer,
     weapons::WeaponMatchers,
-    world::WorldView,
+    world::{
+        FrameCounter,
+        WorldView
+    },
 };
 use glm;
 
@@ -44,6 +47,7 @@ struct WorldConfig {
 pub struct WorldState {
     config_manager: SimpleConfigManager<WorldConfig>,
     camera: Camera,
+    frames: FrameCounter,
 
     textures: SpriteSheetTextureManager,
     text_renderer: TextRenderer,
@@ -84,6 +88,7 @@ impl WorldState {
         Ok(WorldState {
             config_manager: SimpleConfigManager::from_config_resource(config_watcher, "world.conf")?,
             camera: Camera::new(config_watcher)?,
+            frames: FrameCounter::new(config_watcher)?,
             textures: SpriteSheetTextureManager::new(config_watcher)?,
             text_renderer: TextRenderer::new(config_watcher)?,
             background_renderer: BackgroundRenderer::new(config_watcher)?,
@@ -103,12 +108,13 @@ impl WorldState {
     pub fn update(&mut self, audio: &AudioPlayer, controller: &Controller, rng: &mut RandGen, dt: DeltaTime) {
         self.config_manager.update();
         self.textures.update();
-        self.background_renderer.pre_update();
-        self.text_renderer.pre_update();
 
         // Pre-update.
         {
+            self.background_renderer.pre_update();
+            self.text_renderer.pre_update();
             self.camera.pre_update(dt);
+            self.frames.pre_update(dt);
 
             if self.map.pre_update(&mut self.physics_sim) {
                 self.players.respawn(self.map.spawns());
@@ -173,13 +179,13 @@ impl WorldState {
         self.text_renderer.set_screen_size(screen_size);
         self.light_dependent_sprite.set_camera_stream_info(camera_stream_info.clone());
 
+        self.frames.queue_draw(&mut self.text_renderer);
         self.map.queue_draw(&camera_stream_info, &mut self.hex_renderer, &mut self.full_light_sprite);
         self.players.queue_draw(&mut self.full_light_sprite, &mut self.light_dependent_sprite);
         self.enemies.queue_draw(&mut self.light_dependent_sprite);
         self.items.queue_draw(&mut self.light_dependent_sprite);
 
         self.background_renderer.draw(&self.textures, &geometry);
-
         self.full_light_sprite.draw(&self.textures, &geometry);
         self.light_dependent_sprite.draw(&self.lights, &self.textures, &geometry);
         self.hex_renderer.draw(&self.textures, &self.lights, &geometry);

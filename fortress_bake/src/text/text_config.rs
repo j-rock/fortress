@@ -15,5 +15,6 @@ pub struct TextConfig {
     pub texture_atlas_size: (usize, usize),
     pub texture_atlas_style: TextureStyle,
     pub raster_sizes: HashMap<RasterSize, f32>,
+    pub text_sizes: HashMap<NamedText, Vec<RasterSize>>,
     pub localized_text: HashMap<Locale, HashMap<NamedText, String>>,
 }

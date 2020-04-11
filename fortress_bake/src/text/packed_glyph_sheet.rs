@@ -75,9 +75,13 @@ impl PackedGlyphSheet {
         }
 
         for text_mapping in config.localized_text.values() {
-            for string in text_mapping.values() {
-                for character in string.chars() {
-                    all.insert(GlyphId::new(character, RasterSize::Large));
+            for (named_text, string) in text_mapping.iter() {
+                if let Some(raster_sizes) = config.text_sizes.get(named_text) {
+                    for raster_size in raster_sizes.iter() {
+                        for character in string.chars() {
+                            all.insert(GlyphId::new(character, *raster_size));
+                        }
+                    }
                 }
             }
         }
