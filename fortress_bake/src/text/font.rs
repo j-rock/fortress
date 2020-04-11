@@ -45,7 +45,7 @@ impl<'a> Font<'a> {
             raster_dimensions: glm::vec2(bb.width() as f32, bb.height() as f32),
             advance_width: h_metrics.advance_width,
             left_side_bearing: h_metrics.left_side_bearing,
-            height_offset: 0.0,
+            height_offset: -bb.max.y as f32,
         };
 
         Some((info, bitmap))
