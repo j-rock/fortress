@@ -30,13 +30,7 @@ use crate::{
         SpriteSheetTextureManager,
         Viewport,
     },
-    text::{
-        NamedText,
-        RasterSize,
-        TextContent,
-        TextRenderer,
-        TextRenderRequest,
-    },
+    text::TextRenderer,
     weapons::WeaponMatchers,
     world::WorldView,
 };
@@ -191,16 +185,6 @@ impl WorldState {
         self.hex_renderer.draw(&self.textures, &self.lights, &geometry);
         // Draw particles after hex ground to not mess up transparency.
         self.particles.draw(&camera_stream_info, &geometry);
-
-        {
-            self.text_renderer.queue(TextRenderRequest {
-                content: TextContent::Text(NamedText::GameInAlpha),
-                screen_position_percentage: glm::vec3(0.0, 0.3, 0.0),
-                raster_size: RasterSize::Large,
-                color: glm::vec3(0.0, 1.0, 0.0),
-                alpha: 1.0,
-            })
-        }
         self.text_renderer.draw();
 
         // Fix viewport at the end.
