@@ -22,6 +22,7 @@ pub mod dimensions;
 pub mod enemies;
 pub mod entities;
 pub mod file;
+pub mod hud;
 pub mod items;
 pub mod maps;
 pub mod math;

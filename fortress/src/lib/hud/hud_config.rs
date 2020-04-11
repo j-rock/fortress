@@ -1,5 +1,5 @@
 #[derive(Deserialize)]
-pub struct WorldUiConfig {
+pub struct HudConfig {
     pub frames: FrameCounterConfig,
 }
 

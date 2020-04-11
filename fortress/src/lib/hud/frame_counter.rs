@@ -1,11 +1,7 @@
 use crate::{
-    app::StatusOr,
     data::RingBufferView,
     dimensions::time::DeltaTime,
-    file::{
-        ConfigWatcher,
-        SimpleConfigManager,
-    },
+    hud::FrameCounterConfig,
     text::{
         NamedText,
         RasterSize,
@@ -13,48 +9,10 @@ use crate::{
         TextRenderer,
         TextRenderRequest,
     },
-    world::{
-        FrameCounterConfig,
-        WorldUiConfig,
-    },
 };
+use glm;
 
-pub struct WorldUi {
-    config: SimpleConfigManager<WorldUiConfig>,
-    frames: FrameCounter,
-}
-
-impl WorldUi {
-    pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<Self> {
-        let config = SimpleConfigManager::<WorldUiConfig>::from_config_resource(config_watcher, "world_ui.conf")?;
-
-        let frames = {
-            let config = config.get();
-            FrameCounter::new(&config.frames)
-        };
-
-        Ok(WorldUi {
-            config,
-            frames,
-        })
-    }
-
-    pub fn pre_update(&mut self, dt: DeltaTime) {
-        if self.config.update() {
-            let config = self.config.get();
-            self.frames = FrameCounter::new(&config.frames);
-        }
-
-        self.frames.pre_update(dt);
-    }
-
-    pub fn queue_draw(&self, text: &mut TextRenderer) {
-        let config = self.config.get();
-        self.frames.queue_draw(&config.frames, text);
-    }
-}
-
-struct FrameCounter {
+pub struct FrameCounter {
     last_n_frame_seconds: Vec<f64>,
     ring_buffer_view: RingBufferView,
 }
