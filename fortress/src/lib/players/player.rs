@@ -98,4 +98,8 @@ impl Player {
     pub fn collect_item(&mut self, item_pickup: ItemPickup) {
         self.player_state_machine.collect_item(item_pickup, &mut self.player_state);
     }
+
+    pub fn skull_count(&self) -> usize {
+        self.player_state.skull_count()
+    }
 }

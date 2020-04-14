@@ -133,6 +133,10 @@ impl PlayerStats {
             },
         }
     }
+
+    pub fn skull_count(&self) -> usize {
+        self.skulls_collected
+    }
 }
 
 struct CollectedItemAnimation {

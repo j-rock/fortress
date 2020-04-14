@@ -8,6 +8,8 @@ use crate::{
     hud::{
         FrameCounter,
         HudConfig,
+        PlayerHudUpdate,
+        SkullCounter,
     },
     text::TextRenderer,
 };
@@ -15,6 +17,7 @@ use crate::{
 pub struct Hud {
     config: SimpleConfigManager<HudConfig>,
     frames: FrameCounter,
+    skulls: SkullCounter,
 }
 
 impl Hud {
@@ -29,6 +32,7 @@ impl Hud {
         Ok(Hud {
             config,
             frames,
+            skulls: SkullCounter::new(),
         })
     }
 
@@ -41,8 +45,13 @@ impl Hud {
         self.frames.pre_update(dt);
     }
 
+    pub fn post_update(&mut self, player_hud_update: PlayerHudUpdate) {
+        self.skulls.post_update(&player_hud_update);
+    }
+
     pub fn queue_draw(&self, text: &mut TextRenderer) {
         let config = self.config.get();
         self.frames.queue_draw(&config.frames, text);
+        self.skulls.queue_draw(&config.skulls, text);
     }
 }

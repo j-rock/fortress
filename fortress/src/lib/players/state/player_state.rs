@@ -212,4 +212,8 @@ impl PlayerState {
     pub fn hero(&self) -> Hero {
         self.hero
     }
+
+    pub fn skull_count(&self) -> usize {
+        self.stats.skull_count()
+    }
 }

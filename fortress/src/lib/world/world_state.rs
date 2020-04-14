@@ -149,6 +149,8 @@ impl WorldState {
 
             let camera_stream_info = self.camera.stream_info(self.map.hex_cell_length());
             self.particles.post_update(&camera_stream_info, rng);
+
+            self.hud.post_update(self.players.prepare_player_hud_update());
         }
     }
 

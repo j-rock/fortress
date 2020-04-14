@@ -22,6 +22,10 @@ use crate::{
         ConfigWatcher,
         SimpleConfigManager,
     },
+    hud::{
+        IndividualPlayerHudData,
+        PlayerHudUpdate,
+    },
     items::ItemPickup,
     physics::PhysicsSimulation,
     particles::ParticleSystem,
@@ -175,6 +179,20 @@ impl PlayerSystem {
                 player.position()
             })
             .collect()
+    }
+
+    pub fn prepare_player_hud_update(&self) -> PlayerHudUpdate {
+        let mut hud_update = PlayerHudUpdate::new();
+
+        self.players
+            .iter()
+            .for_each(|(_i, player)| {
+                hud_update.append(IndividualPlayerHudData {
+                    skulls_collected: player.skull_count(),
+                });
+            });
+
+        hud_update
     }
 
     pub fn collect_item(&mut self, player_id: PlayerId, item_pickup: ItemPickup) {
