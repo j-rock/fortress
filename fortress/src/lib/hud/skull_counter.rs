@@ -32,10 +32,21 @@ impl SkullCounter {
 
     pub fn queue_draw(&self, config: &SkullCounterConfig, text: &mut TextRenderer) {
         let content = [TextContent::Text(NamedText::SkullCounterPrefix), TextContent::Number(self.num_skulls)];
+        let screen_position_percentage = glm::vec3(config.screen_pos.0, config.screen_pos.1, config.screen_pos.2);
+        let drop_position_percentage = screen_position_percentage + glm::vec3(config.drop_pos_offset.0, config.drop_pos_offset.1, config.drop_pos_offset.2);
+
         text.queue(
             content.iter().copied(),
             TextRenderRequest {
-                screen_position_percentage: glm::vec3(config.screen_pos.0, config.screen_pos.1, config.screen_pos.2),
+                screen_position_percentage: drop_position_percentage,
+                raster_size: RasterSize::Large,
+                color: glm::vec3(config.drop_color.0, config.drop_color.1, config.drop_color.2),
+                alpha: config.alpha
+            });
+        text.queue(
+            content.iter().copied(),
+            TextRenderRequest {
+                screen_position_percentage,
                 raster_size: RasterSize::Large,
                 color: glm::vec3(config.color.0, config.color.1, config.color.2),
                 alpha: config.alpha

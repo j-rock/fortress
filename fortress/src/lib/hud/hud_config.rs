@@ -17,4 +17,6 @@ pub struct SkullCounterConfig {
     pub screen_pos: (f32, f32, f32),
     pub color: (f32, f32, f32),
     pub alpha: f32,
+    pub drop_pos_offset: (f32, f32, f32),
+    pub drop_color: (f32, f32, f32),
 }
