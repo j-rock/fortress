@@ -4,13 +4,13 @@ use crate::text::{
 };
 use glm;
 
+#[derive(Copy, Clone)]
 pub enum TextContent {
     Number(i64),
     Text(NamedText)
 }
 
-pub struct TextRenderRequest {
-    pub content: TextContent,
+pub struct TextRenderRequest{
     // Specifies bottom-left corner of first character.
     // X in [0.0, 1.0) which goes from left to right.
     // Y in [0.0, 1.0) which goes from bottom to top.

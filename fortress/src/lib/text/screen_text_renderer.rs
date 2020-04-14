@@ -12,9 +12,12 @@ use crate::{
         TextureUnit,
     },
     text::{
+        Base10CharIterator,
         GlyphId,
-        GlyphInfo,
+        Locale,
+        TextContent,
         TextRenderRequest,
+        TextResolver,
     },
 };
 use gl::{
@@ -22,10 +25,7 @@ use gl::{
     types::GLsizei,
 };
 use glm;
-use std::{
-    collections::HashMap,
-    ffi::CString,
-};
+use std::ffi::CString;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 enum UniformKey {
@@ -85,29 +85,25 @@ impl ScreenTextRenderer {
         self.screen_size = glm::vec2(screen_size.x as f32, screen_size.y as f32);
     }
 
-    pub fn queue(&mut self, mappings: &HashMap<GlyphId, GlyphInfo>, request: &TextRenderRequest, chars: impl Iterator<Item = char>) {
+    pub fn queue(&mut self,
+                 resolver: &TextResolver,
+                 current_locale: Locale,
+                 content: impl Iterator<Item=TextContent>,
+                 request: TextRenderRequest) {
         let mut pen = self.screen_size * glm::vec2(request.screen_position_percentage.x, request.screen_position_percentage.y);
-        for character in chars {
-            if let Some(glyph_info) = mappings.get(&GlyphId::new(character, request.raster_size)) {
-                let raster_info = glyph_info.raster_info();
-                let character_pen = pen + glm::vec2(raster_info.left_side_bearing, raster_info.height_offset);
 
-                if character != ' ' {
-                    self.attr_pos.data.push(PositionAttr {
-                        position: glm::vec3(character_pen.x, character_pen.y, request.screen_position_percentage.z),
-                    });
-                    self.attr_glyph_size.data.push(GlyphSizeAttr {
-                        size: raster_info.raster_dimensions,
-                    });
-                    self.attr_texel.data.push(TexelAttr {
-                        texel: glyph_info.texel(),
-                    });
-                    self.attr_color.data.push(ColorAttr {
-                        color: glm::vec4(request.color.x, request.color.y, request.color.z, request.alpha)
-                    });
-                }
-
-                pen.x += raster_info.advance_width;
+        for content in content {
+            match content {
+                TextContent::Number(number) => {
+                    if let Some(character_iterator) = Base10CharIterator::new(number) {
+                        self.queue_glyphs(resolver, &request, character_iterator, &mut pen);
+                    }
+                },
+                TextContent::Text(text) => {
+                    if let Some(text) = resolver.get_text(current_locale, text) {
+                        self.queue_glyphs(resolver, &request, text.chars(), &mut pen);
+                    }
+                },
             }
         }
     }
@@ -131,6 +127,36 @@ impl ScreenTextRenderer {
         self.attr_glyph_size.data.clear();
         self.attr_texel.data.clear();
         self.attr_color.data.clear();
+    }
+
+    fn queue_glyphs(&mut self,
+                    resolver: &TextResolver,
+                    request: &TextRenderRequest,
+                    chars: impl Iterator<Item=char>,
+                    pen: &mut glm::Vec2) {
+        for character in chars {
+            if let Some(glyph_info) = resolver.get_glyph_info(GlyphId::new(character, request.raster_size)) {
+                let raster_info = glyph_info.raster_info();
+                let character_pen = *pen + glm::vec2(raster_info.left_side_bearing, raster_info.height_offset);
+
+                if character != ' ' {
+                    self.attr_pos.data.push(PositionAttr {
+                        position: glm::vec3(character_pen.x, character_pen.y, request.screen_position_percentage.z),
+                    });
+                    self.attr_glyph_size.data.push(GlyphSizeAttr {
+                        size: raster_info.raster_dimensions,
+                    });
+                    self.attr_texel.data.push(TexelAttr {
+                        texel: glyph_info.texel(),
+                    });
+                    self.attr_color.data.push(ColorAttr {
+                        color: glm::vec4(request.color.x, request.color.y, request.color.z, request.alpha)
+                    });
+                }
+
+                pen.x += raster_info.advance_width;
+            }
+        }
     }
 }
 

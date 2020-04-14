@@ -39,19 +39,14 @@ impl FrameCounter {
             0
         };
 
-        text.queue(TextRenderRequest {
-            content: TextContent::Text(NamedText::FpsPrefix),
+        let content = [TextContent::Text(NamedText::FpsPrefix), TextContent::Number(fps)];
+        text.queue(
+            content.iter().copied(),
+            TextRenderRequest {
             screen_position_percentage: glm::vec3(config.fps_text_screen_pos.0, config.fps_text_screen_pos.1, config.fps_text_screen_pos.2),
             raster_size: RasterSize::Small,
             color: glm::vec3(config.color.0, config.color.1, config.color.2),
             alpha: config.alpha
         });
-        text.queue(TextRenderRequest {
-            content: TextContent::Number(fps),
-            screen_position_percentage: glm::vec3(config.num_screen_pos.0, config.num_screen_pos.1, config.num_screen_pos.2),
-            raster_size: RasterSize::Small,
-            color: glm::vec3(config.color.0, config.color.1, config.color.2),
-            alpha: config.alpha
-        })
     }
 }
