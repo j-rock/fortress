@@ -120,10 +120,13 @@ impl PlayerStateMachine {
                     PlayerStateMachine::Walking(_) => hero_config.walking_image_name.clone(),
                 };
 
-                let image_extra_name = if let PlayerStateMachine::Idle(_) = self {
-                    hero_config.idle_image_extra_name.clone()
-                } else {
-                    None
+                let image_extra_name = match self {
+                    PlayerStateMachine::Idle(_) => {
+                        hero_config.render_extra.as_ref().map(|render_extra| render_extra.idle_image_extra_name.clone())
+                    },
+                    PlayerStateMachine::Walking(_) => {
+                        hero_config.render_extra.as_ref().map(|render_extra| render_extra.walking_image_extra_name.clone())
+                    },
                 };
 
                 let frame = match self {
@@ -142,7 +145,7 @@ impl PlayerStateMachine {
 
                 if let Some(image_extra_name) = image_extra_name {
                     full_light.queue(Some(FullyIlluminatedSpriteData {
-                        world_center_position: world_center_position + glm::vec3(0.0, 0.0, 0.000001),
+                        world_center_position,
                         world_half_size,
                         sprite_frame_id: SpriteSheetFrameId::new(image_extra_name, NamedSpriteSheet::Heroes),
                         frame,

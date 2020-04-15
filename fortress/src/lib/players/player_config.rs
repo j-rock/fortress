@@ -18,10 +18,16 @@ pub struct PlayerHeroConfig {
     pub render_offset: (f32, f32),
     pub render_scale: (f32, f32),
     pub idle_image_name: String,
-    pub idle_image_extra_name: Option<String>,
     pub idle_frame_duration_micros: i64,
     pub walking_image_name: String,
     pub walking_frame_duration_micros: i64,
+    pub render_extra: Option<PlayerHeroExtraRenderConfig>,
+}
+
+#[derive(Clone, Deserialize)]
+pub struct PlayerHeroExtraRenderConfig {
+    pub idle_image_extra_name: String,
+    pub walking_image_extra_name: String,
 }
 
 #[derive(Clone, Deserialize)]
