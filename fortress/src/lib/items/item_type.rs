@@ -13,14 +13,8 @@ pub enum ItemType {
 impl ItemType {
     pub fn sprite_frame_id(self) -> SpriteSheetFrameId {
         match self {
-            ItemType::MegaSkull => SpriteSheetFrameId {
-                name: String::from("item_mega_skull.png"),
-                sprite_sheet: NamedSpriteSheet::SpriteSheet1
-            },
-            ItemType::Skull => SpriteSheetFrameId {
-                name: String::from("item_skull.png"),
-                sprite_sheet: NamedSpriteSheet::SpriteSheet1
-            },
+            ItemType::MegaSkull => SpriteSheetFrameId::new(String::from("item_mega_skull.png"), NamedSpriteSheet::SpriteSheet1),
+            ItemType::Skull => SpriteSheetFrameId::new(String::from("item_skull.png"), NamedSpriteSheet::SpriteSheet1),
         }
     }
 

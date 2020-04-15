@@ -33,11 +33,8 @@ impl PackedSpriteSheet {
 
             out_image.overwrite(image, rect.x as usize, rect.y as usize)?;
 
-            let frame_id = SpriteSheetFrameId {
-                name,
-                sprite_sheet,
-            };
-            let frame_info = match config.sprites.get(&frame_id.name) {
+            let frame_id = SpriteSheetFrameId::new(name, sprite_sheet);
+            let frame_info = match config.sprites.get(frame_id.name()) {
                 None => {
                     let sprite = SpriteConfig {
                         frame_width: rect.width as usize,

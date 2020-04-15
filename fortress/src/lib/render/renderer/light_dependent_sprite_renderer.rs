@@ -131,7 +131,7 @@ impl LightDependentSpriteRenderer {
         }
 
         self.per_pack_attrs
-            .entry(datum.sprite_frame_id.sprite_sheet)
+            .entry(datum.sprite_frame_id.sprite_sheet())
             .or_insert(Vec::new())
             .push(datum);
     }

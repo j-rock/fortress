@@ -145,10 +145,7 @@ impl EnemyStateMachine {
             sprite_renderer.queue(LightDependentSpriteData {
                 world_center_position,
                 world_half_size,
-                sprite_frame_id: SpriteSheetFrameId {
-                    name: image_name,
-                    sprite_sheet: NamedSpriteSheet::SpriteSheet1,
-                },
+                sprite_frame_id: SpriteSheetFrameId::new(image_name, NamedSpriteSheet::SpriteSheet1),
                 frame,
                 unit_world_rotation: Vector2::new(0.0, 0.0),
                 reverse,

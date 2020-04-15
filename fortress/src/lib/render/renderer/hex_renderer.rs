@@ -141,10 +141,7 @@ impl HexRenderer {
         let texture_unit = texture.activate();
         self.shader_program.set_texture(UniformKey::Texture(texture_unit), texture_unit);
 
-        let tile_frame_id = SpriteSheetFrameId {
-            name: String::from("rock_texture.png"),
-            sprite_sheet: NamedSpriteSheet::SpriteSheet1,
-        };
+        let tile_frame_id = SpriteSheetFrameId::new(String::from("rock_texture.png"), NamedSpriteSheet::SpriteSheet1);
         let texel = textures.frame(&tile_frame_id, 0, Reverse::none());
 
         self.shader_program.set_vec2(UniformKey::TileBottomLeft, texel.bottom_left);

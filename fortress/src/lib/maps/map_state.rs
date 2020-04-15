@@ -130,10 +130,7 @@ impl MapState {
             FullyIlluminatedSpriteData {
                 world_center_position: glm::vec3(position.x, config.light_center_height, -position.y),
                 world_half_size: glm::vec2(config.light_half_size.0, config.light_half_size.1),
-                sprite_frame_id: SpriteSheetFrameId {
-                    name: String::from("lantern.png"),
-                    sprite_sheet: NamedSpriteSheet::SpriteSheet1,
-                },
+                sprite_frame_id: SpriteSheetFrameId::new(String::from("lantern.png"), NamedSpriteSheet::SpriteSheet1),
                 frame: 0,
                 unit_world_rotation: Vector2::new(0.0, 0.0),
                 reverse: Reverse::none(),

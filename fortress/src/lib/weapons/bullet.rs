@@ -123,10 +123,7 @@ impl Bullet {
         FullyIlluminatedSpriteData {
             world_center_position: world_position,
             world_half_size: glm::vec2(config.render_width, config.render_height),
-            sprite_frame_id: SpriteSheetFrameId {
-                name: String::from(self.bullet_traits.sprite_sheet_image_name()),
-                sprite_sheet: NamedSpriteSheet::SpriteSheet1
-            },
+            sprite_frame_id: SpriteSheetFrameId::new(String::from(self.bullet_traits.sprite_sheet_image_name()), NamedSpriteSheet::SpriteSheet1),
             frame,
             unit_world_rotation: self.get_unit_direction(),
             reverse: Reverse::none(),
