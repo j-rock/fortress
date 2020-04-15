@@ -68,7 +68,7 @@ impl PlayerState {
         PlayerState {
             player_id,
             spawn,
-            hero: Hero::CapedWarrior,
+            hero: Hero::Rogue,
             stats,
             body,
             facing_dir: Vector2::new(1.0, 0.0),
