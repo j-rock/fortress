@@ -22,6 +22,7 @@ use crate::{
         state::PlayerState,
     },
     render::{
+        FullyIlluminatedSpriteData,
         FullyIlluminatedSpriteRenderer,
         LightDependentSpriteData,
         LightDependentSpriteRenderer,
@@ -119,6 +120,12 @@ impl PlayerStateMachine {
                     PlayerStateMachine::Walking(_) => hero_config.walking_image_name.clone(),
                 };
 
+                let image_extra_name = if let PlayerStateMachine::Idle(_) = self {
+                    hero_config.idle_image_extra_name.clone()
+                } else {
+                    None
+                };
+
                 let frame = match self {
                     PlayerStateMachine::Idle(time_elapsed) => (*time_elapsed / hero_config.idle_frame_duration_micros) as usize,
                     PlayerStateMachine::Walking(time_elapsed) => (*time_elapsed / hero_config.walking_frame_duration_micros) as usize,
@@ -132,6 +139,17 @@ impl PlayerStateMachine {
                     unit_world_rotation: Vector2::new(0.0, 0.0),
                     reverse,
                 });
+
+                if let Some(image_extra_name) = image_extra_name {
+                    full_light.queue(Some(FullyIlluminatedSpriteData {
+                        world_center_position: world_center_position + glm::vec3(0.0, 0.0, 0.000001),
+                        world_half_size,
+                        sprite_frame_id: SpriteSheetFrameId::new(image_extra_name, NamedSpriteSheet::Heroes),
+                        frame,
+                        unit_world_rotation: Vector2::new(0.0, 0.0),
+                        reverse,
+                    }));
+                }
             }
         }
     }
