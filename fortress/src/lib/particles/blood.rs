@@ -25,6 +25,7 @@ pub struct BloodParticles {
     position: Vec<glm::Vec3>,
     color: Vec<glm::Vec3>,
     velocity: Vec<glm::Vec3>,
+    size: Vec<f32>,
 }
 
 impl BloodParticles {
@@ -35,6 +36,7 @@ impl BloodParticles {
             position: Vec::with_capacity(particle_limit),
             color: Vec::with_capacity(particle_limit),
             velocity: Vec::with_capacity(particle_limit),
+            size: Vec::with_capacity(particle_limit),
         }
     }
 
@@ -43,6 +45,7 @@ impl BloodParticles {
         self.position.clear();
         self.color.clear();
         self.velocity.clear();
+        self.size.clear();
     }
 
     pub fn pre_update(&mut self, config: &BloodParticleConfig, dt: DeltaTime) {
@@ -76,15 +79,17 @@ impl BloodParticles {
                               config.start_height,
                               radius.y - event.position.y as f32);
                 let color = event.color * rng.unit_f32();
+                let size = config.size_range.0 + (config.size_range.1 - config.size_range.0) * rng.unit_f32();
 
                 self.ring_buffer_view.add_element_at_head(position, &mut self.position);
                 self.ring_buffer_view.add_element_at_head(color, &mut self.color);
                 self.ring_buffer_view.add_element_at_head(velocity, &mut self.velocity);
+                self.ring_buffer_view.add_element_at_head(size, &mut self.size);
                 self.ring_buffer_view.increment_head();
             });
     }
 
-    pub fn queue_draw(&self, config: &BloodParticleConfig, camera_stream_info: &CameraStreamInfo, render_view: ParticleRenderView) {
+    pub fn queue_draw(&self, camera_stream_info: &CameraStreamInfo, render_view: ParticleRenderView) {
         (0..self.ring_buffer_view.len())
             .for_each(|idx| {
                 let position = self.position[idx];
@@ -94,11 +99,11 @@ impl BloodParticles {
                     CameraStreamBounds::Margin(margin) => EasingFn::ease_in_cuartic(margin),
                 };
                 let color = self.color[idx];
-                let size = config.size;
+                let size = self.size[idx];
 
                 render_view.attr_pos.push(Vec3Attr::new(position));
                 render_view.attr_color.push(Vec3Attr::new(color));
-                render_view.attr_bloom_color.push(Vec3Attr::new(glm::vec3(0.0, 0.0, 0.0)));
+                render_view.attr_bloom_color.push(Vec3Attr::new(color));
                 render_view.attr_alpha.push(FloatAttr::new(alpha));
                 render_view.attr_size.push(FloatAttr::new(size));
             });

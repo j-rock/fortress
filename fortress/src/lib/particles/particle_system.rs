@@ -166,7 +166,7 @@ impl ParticleSystem {
                 attr_alpha: &mut self.attr_alpha.data,
                 attr_size: &mut self.attr_size.data,
             };
-            self.blood_particles.queue_draw(&config.blood, camera_stream_info, render_view);
+            self.blood_particles.queue_draw(camera_stream_info, render_view);
         }
         {
             let render_view = ParticleRenderView {
