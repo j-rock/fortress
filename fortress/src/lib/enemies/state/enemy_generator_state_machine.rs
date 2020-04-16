@@ -89,8 +89,11 @@ impl EnemyGeneratorStateMachine {
     pub fn point_light(&self, config: &EnemyGeneratorConfig, generator_state: &EnemyGeneratorState) -> Option<PointLight> {
         match self {
             EnemyGeneratorStateMachine::ReadyToGenerate| EnemyGeneratorStateMachine::Cooldown(_) => {
-                let position = generator_state.position()?;
-                let position = glm::vec3(position.x as f32, config.light_elevation, -position.y as f32);
+                let generator_position = generator_state.position()?;
+                let position =
+                    glm::vec3(generator_position.x as f32, 0.0, -generator_position.y as f32) +
+                    glm::vec3(config.light_offset.0, config.light_offset.1, config.light_offset.2);
+
                 let color = glm::vec3(config.light_color.0, config.light_color.1, config.light_color.2);
                 let attenuation = glm::vec3(config.light_attenuation.0, config.light_attenuation.1, config.light_attenuation.2);
                 Some(PointLight::new(position, color, attenuation))

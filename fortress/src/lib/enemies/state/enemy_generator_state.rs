@@ -60,7 +60,7 @@ impl EnemyGeneratorState {
     pub fn compute_spawn(&self, config: &EnemyGeneratorConfig) -> Option<Point2<f64>> {
         let position = self.body.position()?;
         let orientation = self.body.orientation();
-        let offset = config.offset_distance * Vector2::new(orientation.cos(), orientation.sin());
+        let offset = config.spawn_offset_distance * Vector2::new(orientation.cos(), orientation.sin());
         Some(Point2::new(position.x + offset.x, position.y + offset.y))
     }
 

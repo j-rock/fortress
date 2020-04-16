@@ -13,6 +13,7 @@ in VS_OUT {
 out GS_OUT {
   vec3 world_space_position;
   vec2 texel;
+  vec3 geometric_normal;
 } gs_out;
 
 uniform mat4 projection_view;
@@ -68,6 +69,7 @@ void EmitQuad() {
   gl_Position = projection_view * vec4(world_top_left, 1.0);
   gs_out.world_space_position = world_top_left;
   gs_out.texel = texel_top_left;
+  gs_out.geometric_normal = normal;
   EmitVertex();
 
   gl_Position = projection_view * vec4(world_bottom_left, 1.0);
