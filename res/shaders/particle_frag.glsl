@@ -9,7 +9,6 @@ in GS_OUT {
 } fs_in;
 
 void main() {
-    frag_color.rgb = fs_in.color;
-    frag_color.a = fs_in.alpha;
-    bloom_color = vec4(fs_in.bloom_color, 1.0);
+    frag_color = vec4(fs_in.color, fs_in.alpha);
+    bloom_color = vec4(fs_in.bloom_color, fs_in.alpha);
 }
