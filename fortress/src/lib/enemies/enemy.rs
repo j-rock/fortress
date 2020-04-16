@@ -6,6 +6,7 @@ use crate::{
     },
     enemies::{
         EnemyConfig,
+        EnemyGeneratorId,
         EnemyId,
         state::{
             EnemyBody,
@@ -29,8 +30,8 @@ pub struct Enemy {
 }
 
 impl Enemy {
-    pub fn new(config: &EnemyConfig, enemy_id: EnemyId, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) -> Enemy {
-        let enemy_state = EnemyState::new(config);
+    pub fn new(config: &EnemyConfig, enemy_id: EnemyId, generator_id: EnemyGeneratorId, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) -> Enemy {
+        let enemy_state = EnemyState::new(config, generator_id);
         let enemy_body = EnemyBody::new(config, enemy_id, spawn, physics_sim);
         let enemy_state_machine = EnemyStateMachine::new(enemy_body);
 
@@ -68,9 +69,7 @@ impl Enemy {
         self.enemy_state_machine.dead()
     }
 
-    pub fn redeploy(&mut self, config: &EnemyConfig, enemy_id: EnemyId, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) {
-        self.enemy_state = EnemyState::new(config);
-        let enemy_body = EnemyBody::new(config, enemy_id, spawn, physics_sim);
-        self.enemy_state_machine = EnemyStateMachine::new(enemy_body);
+    pub fn generator_id(&self) -> EnemyGeneratorId {
+        self.enemy_state.generator_id()
     }
 }

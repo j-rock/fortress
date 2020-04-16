@@ -51,14 +51,20 @@ impl Default for EnemyGeneratorStateMachine {
 }
 
 impl EnemyGeneratorStateMachine {
-    pub fn pre_update(&self, config: &EnemySystemConfig, dt: DeltaTime, generator_state: &EnemyGeneratorState, player_locs: &Vec<Point2<f64>>, enemies: &mut Slab<Enemy>, physics_sim: &mut PhysicsSimulation) -> Option<EnemyGeneratorStateMachine> {
+    pub fn pre_update(&self,
+                      config: &EnemySystemConfig,
+                      player_locs: &Vec<Point2<f64>>,
+                      dt: DeltaTime,
+                      generator_state: &mut EnemyGeneratorState,
+                      enemies: &mut Slab<Enemy>,
+                      physics_sim: &mut PhysicsSimulation) -> Option<EnemyGeneratorStateMachine> {
         match self {
-            EnemyGeneratorStateMachine::ReadyToGenerate => {
-                Self::new_enemy(config, generator_state, player_locs, enemies, physics_sim);
-                Some(EnemyGeneratorStateMachine::Cooldown(config.generator.cooldown_duration_micros))
+            Self::ReadyToGenerate => {
+                Self::new_enemy(config, player_locs, generator_state, enemies, physics_sim)?;
+                Some(Self::Cooldown(config.generator.cooldown_duration_micros))
             },
-            EnemyGeneratorStateMachine::Cooldown(time_left) => {
-                Some(EnemyGeneratorStateMachine::Cooldown(time_left - dt.as_microseconds()))
+            Self::Cooldown(time_left) => {
+                Some(Self::Cooldown(time_left - dt.as_microseconds()))
             },
             _ => None,
         }
@@ -71,16 +77,17 @@ impl EnemyGeneratorStateMachine {
                        shake: &mut ScreenShake,
                        physics_sim: &mut PhysicsSimulation) -> Option<EnemyGeneratorStateMachine> {
         match self {
-           EnemyGeneratorStateMachine::ReadyToGenerate | EnemyGeneratorStateMachine::Cooldown(_) if !generator_state.health().alive() => {
+           Self::ReadyToGenerate | Self::Cooldown(_) if !generator_state.health().alive() => {
                if let Some(position) = generator_state.position() {
-                   let item_pickup = ItemPickup::new(ItemType::MegaSkull, LrDirection::from_radians(generator_state.orientation()));
+                   let facing_dir = LrDirection::from_radians(generator_state.orientation());
+                   let item_pickup = ItemPickup::new(ItemType::MegaSkull, facing_dir);
                    items.spawn_item(item_pickup, position.clone(), physics_sim);
                }
                shake.intensify(config.death_screen_shake_intensity);
-               Some(EnemyGeneratorStateMachine::Dead)
+               Some(Self::Dead)
            },
-           EnemyGeneratorStateMachine::Cooldown(time_elapsed) if *time_elapsed <= 0 => {
-               Some(EnemyGeneratorStateMachine::ReadyToGenerate)
+           Self::Cooldown(time_elapsed) if *time_elapsed <= 0 => {
+               Some(Self::ReadyToGenerate)
            },
            _ => None
        }
@@ -88,7 +95,7 @@ impl EnemyGeneratorStateMachine {
 
     pub fn point_light(&self, config: &EnemyGeneratorConfig, generator_state: &EnemyGeneratorState) -> Option<PointLight> {
         match self {
-            EnemyGeneratorStateMachine::ReadyToGenerate| EnemyGeneratorStateMachine::Cooldown(_) => {
+            Self::ReadyToGenerate | Self::Cooldown(_) => {
                 let generator_position = generator_state.position()?;
                 let position =
                     glm::vec3(generator_position.x as f32, 0.0, -generator_position.y as f32) +
@@ -98,14 +105,14 @@ impl EnemyGeneratorStateMachine {
                 let attenuation = glm::vec3(config.light_attenuation.0, config.light_attenuation.1, config.light_attenuation.2);
                 Some(PointLight::new(position, color, attenuation))
             },
-            EnemyGeneratorStateMachine::Dead => None,
+            Self::Dead => None,
         }
     }
 
     pub fn queue_draw(&self, config: &EnemyGeneratorConfig, generator_state: &EnemyGeneratorState, sprite_renderer: &mut LightDependentSpriteRenderer) {
         let health_frac = generator_state.health().amount() as f64 / config.starting_health as f64;
         let frame = match self {
-            EnemyGeneratorStateMachine::Dead => config.num_sprite_frames - 1,
+            Self::Dead => config.num_sprite_frames - 1,
             _ => ((1.0 - health_frac) * (config.num_sprite_frames) as f64).floor() as usize,
         };
 
@@ -124,38 +131,52 @@ impl EnemyGeneratorStateMachine {
         }
     }
 
-    pub fn take_attack(&self, config: &EnemyGeneratorConfig, audio: &AudioPlayer, attack: Attack, generator_state: &mut EnemyGeneratorState, particles: &mut ParticleSystem) {
+    pub fn take_attack(&self,
+                       config: &EnemyGeneratorConfig,
+                       audio: &AudioPlayer,
+                       attack: Attack,
+                       generator_state: &mut EnemyGeneratorState,
+                       particles: &mut ParticleSystem) {
         generator_state.take_attack(config, audio, attack, particles);
     }
 
     pub fn dead(&self) -> bool {
         match self {
-            EnemyGeneratorStateMachine::Dead => true,
+            Self::Dead => true,
             _ => false,
         }
     }
 
-    fn new_enemy(config: &EnemySystemConfig, generator_state: &EnemyGeneratorState, player_locs: &Vec<Point2<f64>>, enemies: &mut Slab<Enemy>, physics_sim: &mut PhysicsSimulation) {
-        if let Some(position) = generator_state.position() {
-            player_locs
-                .iter()
-                .min_by_key(|player_loc| {
-                    let diff = position - **player_loc;
-                    (diff.x * diff.x + diff.y * diff.y).round() as i64
-                })
-                .and_then(|closest_player_loc| -> Option<()> {
-                    let displacement = *closest_player_loc - position;
-                    let distance = displacement.norm();
-                    if distance < config.generator.generate_distance {
-                        if let Some(spawn) = generator_state.compute_spawn(&config.generator) {
-                            let enemy_entry = enemies.vacant_entry();
-                            let enemy_id = EnemyId::from_key(enemy_entry.key());
-                            let enemy = Enemy::new(&config.enemy, enemy_id, spawn, physics_sim);
-                            enemy_entry.insert(enemy);
-                        }
-                    }
-                    None
-                });
+    fn new_enemy(config: &EnemySystemConfig,
+                 player_locs: &Vec<Point2<f64>>,
+                 generator_state: &mut EnemyGeneratorState,
+                 enemies: &mut Slab<Enemy>,
+                 physics_sim: &mut PhysicsSimulation) -> Option<()> {
+        if generator_state.live_spawned_enemy_count() >= config.generator.max_concurrent_spawns {
+            return None;
         }
+
+        let position = generator_state.position()?;
+        let closest_player_loc =
+            player_locs
+            .iter()
+            .min_by_key(|player_loc| {
+                let diff = position - **player_loc;
+                (diff.x * diff.x + diff.y * diff.y).round() as i64
+            })?;
+
+        let displacement = *closest_player_loc - position;
+        let distance = displacement.norm();
+        if distance >= config.generator.generate_distance {
+            return None;
+        }
+
+        let spawn = generator_state.compute_spawn(&config.generator)?;
+        generator_state.tally_spawned_enemy();
+        let enemy_entry = enemies.vacant_entry();
+        let enemy_id = EnemyId::from_key(enemy_entry.key());
+        let enemy = Enemy::new(&config.enemy, enemy_id, generator_state.id(), spawn, physics_sim);
+        enemy_entry.insert(enemy);
+        Some(())
     }
 }

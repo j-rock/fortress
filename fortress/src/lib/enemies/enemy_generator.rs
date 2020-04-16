@@ -42,15 +42,22 @@ impl EnemyGenerator {
     pub fn new(config: &EnemyGeneratorConfig, generator_id: EnemyGeneratorId, spawn: EnemyGeneratorSpawn, physics_sim: &mut PhysicsSimulation) -> EnemyGenerator {
         let body = EnemyGeneratorBody::new(config, generator_id, spawn, physics_sim);
         EnemyGenerator {
-            generator_state: EnemyGeneratorState::new(config, body),
+            generator_state: EnemyGeneratorState::new(config, generator_id, body),
             generator_state_machine: EnemyGeneratorStateMachine::default(),
         }
     }
 
-    pub fn pre_update(&mut self, config: &EnemySystemConfig, dt: DeltaTime, player_locs: &Vec<Point2<f64>>, enemies: &mut Slab<Enemy>, physics_sim: &mut PhysicsSimulation) {
-        if let Some(state) = self.generator_state_machine.pre_update(config, dt, &self.generator_state, player_locs, enemies, physics_sim) {
-            self.generator_state_machine = state;
-        }
+    pub fn pre_update(&mut self,
+                      config: &EnemySystemConfig,
+                      dt: DeltaTime,
+                      player_locs: &Vec<Point2<f64>>,
+                      enemies: &mut Slab<Enemy>,
+                      physics_sim: &mut PhysicsSimulation) {
+        self.generator_state_machine
+            .pre_update(config, player_locs, dt, &mut self.generator_state, enemies, physics_sim)
+            .map(|state| {
+                self.generator_state_machine = state;
+            });
     }
 
     pub fn post_update(&mut self, config: &EnemyGeneratorConfig, items: &mut ItemSystem, shake: &mut ScreenShake, physics_sim: &mut PhysicsSimulation) {
@@ -73,5 +80,9 @@ impl EnemyGenerator {
 
     pub fn take_attack(&mut self, config: &EnemyGeneratorConfig, audio: &AudioPlayer, attack: Attack, particles: &mut ParticleSystem) {
         self.generator_state_machine.take_attack(config, audio, attack, &mut self.generator_state, particles);
+    }
+
+    pub fn tally_killed_enemy(&mut self) {
+        self.generator_state.tally_killed_enemy();
     }
 }

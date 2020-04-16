@@ -115,7 +115,13 @@ impl EnemySystem {
             .collect();
 
         for enemy_key in dead_enemy_keys.into_iter() {
-            self.enemies.remove(enemy_key);
+            if let Some(enemy) = self.enemies.remove(enemy_key) {
+                self.generators
+                    .get_mut(enemy.generator_id().key())
+                    .map(|generator| {
+                        generator.tally_killed_enemy();
+                    });
+            }
         }
     }
 

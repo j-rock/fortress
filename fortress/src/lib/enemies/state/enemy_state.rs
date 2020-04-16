@@ -8,19 +8,24 @@ use crate::{
             Microseconds
         },
     },
-    enemies::EnemyConfig,
+    enemies::{
+        EnemyConfig,
+        EnemyGeneratorId,
+    },
 };
 use nalgebra::Vector2;
 
 pub struct EnemyState {
+    generator_id: EnemyGeneratorId,
     health: Health,
     age: Microseconds,
     facing_dir: LrDirection,
 }
 
 impl EnemyState {
-    pub fn new(config: &EnemyConfig) -> EnemyState {
+    pub fn new(config: &EnemyConfig, generator_id: EnemyGeneratorId) -> EnemyState {
         EnemyState {
+            generator_id,
             health: Health::new(config.starting_health),
             age: 0,
             facing_dir: LrDirection::Right,
@@ -29,6 +34,10 @@ impl EnemyState {
 
     pub fn pre_update(&mut self, dt: DeltaTime) {
         self.age += dt.as_microseconds();
+    }
+
+    pub fn generator_id(&self) -> EnemyGeneratorId {
+        self.generator_id
     }
 
     pub fn health(&self) -> Health {

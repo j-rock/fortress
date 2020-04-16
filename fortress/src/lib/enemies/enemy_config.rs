@@ -10,6 +10,7 @@ pub struct EnemyGeneratorConfig {
     pub starting_health: i64,
     pub cooldown_duration_micros: i64,
     pub spawn_offset_distance: f64,
+    pub max_concurrent_spawns: usize,
     pub generate_distance: f64,
     pub physical_radius: f64,
     pub physical_density: f64,

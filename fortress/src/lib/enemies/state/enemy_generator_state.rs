@@ -9,6 +9,7 @@ use crate::{
     },
     enemies::{
         EnemyGeneratorConfig,
+        EnemyGeneratorId,
         state::EnemyGeneratorBody
     },
     particles::{
@@ -22,15 +23,19 @@ use nalgebra::{
 };
 
 pub struct EnemyGeneratorState {
+    id: EnemyGeneratorId,
     body: EnemyGeneratorBody,
     health: Health,
+    live_spawned_enemy_count: usize,
 }
 
 impl EnemyGeneratorState {
-    pub fn new(config: &EnemyGeneratorConfig, body: EnemyGeneratorBody) -> EnemyGeneratorState {
+    pub fn new(config: &EnemyGeneratorConfig, id: EnemyGeneratorId, body: EnemyGeneratorBody) -> EnemyGeneratorState {
         EnemyGeneratorState {
+            id,
             body,
             health: Health::new(config.starting_health),
+            live_spawned_enemy_count: 0,
         }
     }
 
@@ -49,12 +54,30 @@ impl EnemyGeneratorState {
         }
     }
 
+    pub fn id(&self) -> EnemyGeneratorId {
+        self.id
+    }
+
     pub fn health(&self) -> Health {
         self.health
     }
 
     pub fn position(&self) -> Option<Point2<f64>> {
         self.body.position()
+    }
+
+    pub fn live_spawned_enemy_count(&self) -> usize {
+        self.live_spawned_enemy_count
+    }
+
+    pub fn tally_spawned_enemy(&mut self) {
+        self.live_spawned_enemy_count += 1;
+    }
+
+    pub fn tally_killed_enemy(&mut self) {
+        if self.live_spawned_enemy_count > 0 {
+            self.live_spawned_enemy_count -= 1;
+        }
     }
 
     pub fn compute_spawn(&self, config: &EnemyGeneratorConfig) -> Option<Point2<f64>> {
