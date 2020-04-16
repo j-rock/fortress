@@ -63,7 +63,7 @@ impl Weapon {
             current_special_delay: None,
             physics_sim: physics_sim.clone(),
             bullet_radius: config.physical_radius,
-            bullet_element: BulletElement::Fire,
+            bullet_element: BulletElement::Poison,
         }
     }
 
