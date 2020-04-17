@@ -8,6 +8,7 @@ use crate::{
         BloodParticleEvent,
         ParticleRenderView,
         particle_render_view::{
+            BloomAttr,
             Vec3Attr,
             FloatAttr,
         },
@@ -89,7 +90,7 @@ impl BloodParticles {
             });
     }
 
-    pub fn queue_draw(&self, camera_stream_info: &CameraStreamInfo, render_view: ParticleRenderView) {
+    pub fn queue_draw(&self, config: &BloodParticleConfig, camera_stream_info: &CameraStreamInfo, render_view: ParticleRenderView) {
         (0..self.ring_buffer_view.len())
             .for_each(|idx| {
                 let position = self.position[idx];
@@ -103,7 +104,7 @@ impl BloodParticles {
 
                 render_view.attr_pos.push(Vec3Attr::new(position));
                 render_view.attr_color.push(Vec3Attr::new(color));
-                render_view.attr_bloom_color.push(Vec3Attr::new(color));
+                render_view.attr_bloom.push(BloomAttr::new(color, config.bloom_intensity));
                 render_view.attr_alpha.push(FloatAttr::new(alpha));
                 render_view.attr_size.push(FloatAttr::new(size));
             });

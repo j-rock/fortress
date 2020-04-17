@@ -70,7 +70,7 @@ impl BloomPipeline {
     pub fn blur(&mut self, config: &BloomConfig) {
         self.scene_buffer.unbind();
         self.blur_pass(config);
-        self.draw_to_default_framebuffer();
+        self.draw_to_default_framebuffer(config);
     }
 
     fn blur_pass(&mut self, config: &BloomConfig) {
@@ -95,10 +95,10 @@ impl BloomPipeline {
         }
     }
 
-    fn draw_to_default_framebuffer(&self) {
+    fn draw_to_default_framebuffer(&mut self, config: &BloomConfig) {
         self.scene_buffer.unbind();
         Self::clear();
-        self.compositor_shader.draw(&self.color_texture, &self.ping_pong0);
+        self.compositor_shader.draw(config, &self.color_texture, &self.ping_pong0);
     }
 
     fn clear() {

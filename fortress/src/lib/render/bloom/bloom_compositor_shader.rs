@@ -6,6 +6,7 @@ use crate::{
         Attribute,
         AttributeAdvance,
         AttributeProgram,
+        BloomConfig,
         BloomPingPongBuffer,
         FrameBufferTexture,
         ShaderProgram,
@@ -19,6 +20,7 @@ use std::ffi::CString;
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 enum UniformKey {
     Bloom,
+    BloomIntensityMultiplier,
     Scene,
 }
 
@@ -26,6 +28,7 @@ impl ShaderUniformKey for UniformKey {
     fn to_cstring(self) -> CString {
         let string = match self {
             UniformKey::Bloom => "bloom",
+            UniformKey::BloomIntensityMultiplier => "bloom_intensity_multiplier",
             UniformKey::Scene => "scene",
         };
         CString::new(string).expect("Bad cstring")
@@ -74,16 +77,13 @@ impl BloomCompositorShader {
         })
     }
 
-    pub fn draw(&self, scene: &FrameBufferTexture, bloom: &BloomPingPongBuffer) {
+    pub fn draw(&mut self, config: &BloomConfig, scene: &FrameBufferTexture, bloom: &BloomPingPongBuffer) {
         self.shader_program.activate();
+        self.shader_program.set_f32(UniformKey::BloomIntensityMultiplier, config.bloom_intensity_multiplier);
 
-        unsafe {
-            gl::ActiveTexture(gl::TEXTURE0);
-        }
+        TextureUnit::Texture0.activate();
         scene.bind();
-        unsafe {
-            gl::ActiveTexture(gl::TEXTURE1);
-        }
+        TextureUnit::Texture1.activate();
         bloom.bind_color_texture();
 
         self.attribute_program.activate();

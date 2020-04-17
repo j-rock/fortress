@@ -35,6 +35,7 @@ pub struct FullyIlluminatedSpriteData {
     pub frame: usize,
     pub unit_world_rotation: nalgebra::Vector2<f64>,
     pub reverse: Reverse,
+    pub bloom_intensity: f32,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
@@ -66,6 +67,7 @@ pub struct FullyIlluminatedSpriteRenderer {
     attr_size: Attribute<SpriteSizeAttr>,
     attr_texel: Attribute<Texel>,
     attr_rot: Attribute<RotationAttr>,
+    attr_bloom_intensity: Attribute<BloomIntensityAttr>,
     per_pack_attrs: HashMap<NamedSpriteSheet, Vec<FullyIlluminatedSpriteData>>,
 }
 
@@ -81,6 +83,7 @@ impl FullyIlluminatedSpriteRenderer {
         let attr_size = attribute_program_builder.add_attribute();
         let attr_texel = attribute_program_builder.add_attribute();
         let attr_rot = attribute_program_builder.add_attribute();
+        let attr_bloom_intensity = attribute_program_builder.add_attribute();
         let attribute_program = attribute_program_builder.build();
 
         Ok(FullyIlluminatedSpriteRenderer {
@@ -90,6 +93,7 @@ impl FullyIlluminatedSpriteRenderer {
             attr_size,
             attr_texel,
             attr_rot,
+            attr_bloom_intensity,
             per_pack_attrs: HashMap::new(),
         })
     }
@@ -131,12 +135,16 @@ impl FullyIlluminatedSpriteRenderer {
                 self.attr_rot.data.push(RotationAttr {
                     unit_world_rotation_xz: glm::vec2(datum.unit_world_rotation.x as f32, -datum.unit_world_rotation.y as f32)
                 });
+                self.attr_bloom_intensity.data.push(BloomIntensityAttr {
+                    intensity: datum.bloom_intensity,
+                })
             }
 
             self.attr_pos.prepare_buffer();
             self.attr_size.prepare_buffer();
             self.attr_texel.prepare_buffer();
             self.attr_rot.prepare_buffer();
+            self.attr_bloom_intensity.prepare_buffer();
 
             unsafe {
                 gl::DrawArraysInstanced(gl::POINTS, 0, 4, self.attr_pos.data.len() as GLsizei);
@@ -146,6 +154,7 @@ impl FullyIlluminatedSpriteRenderer {
             self.attr_size.data.clear();
             self.attr_texel.data.clear();
             self.attr_rot.data.clear();
+            self.attr_bloom_intensity.data.clear();
         }
 
         self.per_pack_attrs.clear();
@@ -184,5 +193,16 @@ struct RotationAttr {
 impl attribute::KnownComponent for RotationAttr {
     fn component() -> (attribute::NumComponents, attribute::ComponentType) {
         (attribute::NumComponents::S2, attribute::ComponentType::Float)
+    }
+}
+
+#[repr(C)]
+struct BloomIntensityAttr {
+    intensity: f32,
+}
+
+impl attribute::KnownComponent for BloomIntensityAttr {
+    fn component() -> (attribute::NumComponents, attribute::ComponentType) {
+        (attribute::NumComponents::S1, attribute::ComponentType::Float)
     }
 }

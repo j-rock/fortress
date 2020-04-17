@@ -26,6 +26,7 @@ pub struct PlayerHeroConfig {
 
 #[derive(Clone, Deserialize)]
 pub struct PlayerHeroExtraRenderConfig {
+    pub bloom_intensity: f32,
     pub idle_image_extra_name: String,
     pub walking_image_extra_name: String,
 }
@@ -48,6 +49,7 @@ pub struct PlayerBulletConfig {
     pub sprite_frame_duration_micros: i64,
     pub sprite_num_frames: usize,
     pub light_attenuation: (f32, f32, f32),
+    pub bloom_intensity: f32,
     pub light_color_fire: (f32, f32, f32),
     pub light_color_poison: (f32, f32, f32),
     pub light_color_ice: (f32, f32, f32),
@@ -62,6 +64,7 @@ pub struct PlayerItemConfig {
     pub collect_animation_spin_max_speed: f32,
     pub collect_animation_max_height: f32,
     pub collect_attenuation: (f32, f32, f32),
+    pub collect_animation_bloom_intensity: f32,
 }
 
 #[derive(Clone, Deserialize)]

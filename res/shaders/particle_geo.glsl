@@ -6,6 +6,7 @@ in VS_OUT {
     vec3 position;
     vec3 color;
     vec3 bloom_color;
+    float bloom_intensity;
     float alpha;
     float size;
 } gs_in[];
@@ -13,6 +14,7 @@ in VS_OUT {
 out GS_OUT {
     vec3 color;
     vec3 bloom_color;
+    float bloom_intensity;
     float alpha;
 } gs_out;
 
@@ -28,6 +30,7 @@ void EmitV(vec3 world_position) {
 void main() {
     gs_out.color = gs_in[0].color;
     gs_out.bloom_color = gs_in[0].bloom_color;
+    gs_out.bloom_intensity = gs_in[0].bloom_intensity;
     gs_out.alpha = gs_in[0].alpha;
 
     float half_size = gs_in[0].size / 2.0;

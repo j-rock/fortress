@@ -8,11 +8,13 @@ in VS_OUT {
     vec2 texel_bottom_left;
     vec2 texel_top_right;
     vec2 unit_world_rotation_xz;
+    float bloom_intensity;
 } gs_in[];
 
 out GS_OUT {
     vec3 world_space_position;
     vec2 texel;
+    float bloom_intensity;
 } gs_out;
 
 uniform mat4 projection_view;
@@ -46,6 +48,8 @@ float ComputeRotationAngle(vec2 unit_world_rotation_xz) {
 }
 
 void EmitQuad() {
+    gs_out.bloom_intensity = gs_in[0].bloom_intensity;
+
     vec3 normal = cross(camera_right, camera_up);
     vec3 world_bottom_center = gs_in[0].world_center_position;
 

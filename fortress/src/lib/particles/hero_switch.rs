@@ -6,8 +6,9 @@ use crate::{
     particles::{
         ParticleRenderView,
         particle_render_view::{
-            Vec3Attr,
+            BloomAttr,
             FloatAttr,
+            Vec3Attr,
         },
         HeroSwitchParticleEvent,
         HeroSwitchParticleConfig,
@@ -127,7 +128,7 @@ impl HeroSwitchParticles {
 
                 render_view.attr_pos.push(Vec3Attr::new(position));
                 render_view.attr_color.push(Vec3Attr::new(color));
-                render_view.attr_bloom_color.push(Vec3Attr::new(color));
+                render_view.attr_bloom.push(BloomAttr::new(color, config.bloom_intensity));
                 render_view.attr_alpha.push(FloatAttr::new(alpha));
                 render_view.attr_size.push(FloatAttr::new(size));
             });

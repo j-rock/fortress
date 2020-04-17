@@ -120,15 +120,6 @@ impl PlayerStateMachine {
                     PlayerStateMachine::Walking(_) => hero_config.walking_image_name.clone(),
                 };
 
-                let image_extra_name = match self {
-                    PlayerStateMachine::Idle(_) => {
-                        hero_config.render_extra.as_ref().map(|render_extra| render_extra.idle_image_extra_name.clone())
-                    },
-                    PlayerStateMachine::Walking(_) => {
-                        hero_config.render_extra.as_ref().map(|render_extra| render_extra.walking_image_extra_name.clone())
-                    },
-                };
-
                 let frame = match self {
                     PlayerStateMachine::Idle(time_elapsed) => (*time_elapsed / hero_config.idle_frame_duration_micros) as usize,
                     PlayerStateMachine::Walking(time_elapsed) => (*time_elapsed / hero_config.walking_frame_duration_micros) as usize,
@@ -143,7 +134,12 @@ impl PlayerStateMachine {
                     reverse,
                 });
 
-                if let Some(image_extra_name) = image_extra_name {
+                if let Some(ref render_extra_config) = hero_config.render_extra {
+                    let image_extra_name = match self {
+                        PlayerStateMachine::Idle(_) => render_extra_config.idle_image_extra_name.clone(),
+                        PlayerStateMachine::Walking(_) => render_extra_config.walking_image_extra_name.clone(),
+                    };
+
                     full_light.queue(Some(FullyIlluminatedSpriteData {
                         world_center_position,
                         world_half_size,
@@ -151,6 +147,7 @@ impl PlayerStateMachine {
                         frame,
                         unit_world_rotation: Vector2::new(0.0, 0.0),
                         reverse,
+                        bloom_intensity: render_extra_config.bloom_intensity,
                     }));
                 }
             }

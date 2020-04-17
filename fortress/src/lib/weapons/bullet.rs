@@ -127,6 +127,7 @@ impl Bullet {
             frame,
             unit_world_rotation: self.get_unit_direction(),
             reverse: Reverse::none(),
+            bloom_intensity: config.bloom_intensity,
         }
     }
 

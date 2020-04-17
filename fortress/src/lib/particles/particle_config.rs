@@ -7,6 +7,7 @@ pub struct BloodParticleConfig {
     pub start_height: f32,
     pub start_velocity_y: f32,
     pub start_position_radius: f32,
+    pub bloom_intensity: f32,
 }
 
 #[derive(Deserialize)]
@@ -20,6 +21,7 @@ pub struct SnowParticleConfig {
     pub color: (f32, f32, f32),
     pub start_position_offset: (f32, f32, f32),
     pub height_above_which_alpha_is_full: f32,
+    pub bloom_intensity: f32,
 }
 
 #[derive(Deserialize)]
@@ -35,6 +37,7 @@ pub struct HeroSwitchParticleConfig {
     pub wave_speed_band: (f64, f64),
     pub wave_amplitude: f64,
     pub wave_phase_shift: f64,
+    pub bloom_intensity: f32,
 }
 
 #[derive(Deserialize)]

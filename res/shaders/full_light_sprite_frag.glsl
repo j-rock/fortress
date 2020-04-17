@@ -5,6 +5,7 @@ layout (location = 1) out vec4 bloom_color;
 in GS_OUT {
 	vec3 world_space_position;
 	vec2 texel;
+	float bloom_intensity;
 } fs_in;
 
 uniform sampler2D texture0;
@@ -21,5 +22,5 @@ void main() {
 	// Gamma correct
 	vec3 lighting = pow(diffuse_color, vec3(1.0/2.2));
 	frag_color = vec4(lighting, 1.0);
-	bloom_color = frag_color;
+	bloom_color = vec4(frag_color.rgb, fs_in.bloom_intensity);
 }

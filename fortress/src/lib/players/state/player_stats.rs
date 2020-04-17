@@ -160,6 +160,7 @@ impl CollectedItemAnimation {
             frame: 0,
             unit_world_rotation: Vector2::new(0.0, 0.0),
             reverse: self.item_pickup.reverse(),
+            bloom_intensity: config.collect_animation_bloom_intensity,
         }
     }
 

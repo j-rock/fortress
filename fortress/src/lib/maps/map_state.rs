@@ -134,6 +134,7 @@ impl MapState {
                 frame: 0,
                 unit_world_rotation: Vector2::new(0.0, 0.0),
                 reverse: Reverse::none(),
+                bloom_intensity: config.light_bloom_intensity,
             }
         });
         sprite_renderer.queue(sprite_data);

@@ -14,21 +14,21 @@ const float kernel[5] = float[] (0.2270270270, 0.1945945946, 0.1216216216, 0.054
 void main() {
     vec2 texel_size = 1.0 / textureSize(image, 0);
     vec4 image_color = texture(image, fs_in.texel);
-    vec3 result = image_color.rgb * kernel[0];
+    vec4 result = image_color.rgba * kernel[0];
 
     if (horizontal) {
         for (int i = 1; i < 5; ++i) {
             vec2 offset = vec2(texel_size.x * i, 0.0);
-            result += texture(image, fs_in.texel + offset).rgb * kernel[i];
-            result += texture(image, fs_in.texel - offset).rgb * kernel[i];
+            result += texture(image, fs_in.texel + offset) * kernel[i];
+            result += texture(image, fs_in.texel - offset) * kernel[i];
         }
     } else {
         for (int i = 1; i < 5; ++i) {
             vec2 offset = vec2(0.0, texel_size.y * i);
-            result += texture(image, fs_in.texel + offset).rgb * kernel[i];
-            result += texture(image, fs_in.texel - offset).rgb * kernel[i];
+            result += texture(image, fs_in.texel + offset) * kernel[i];
+            result += texture(image, fs_in.texel - offset) * kernel[i];
         }
     }
 
-    frag_color = vec4(result, 1.0);
+    frag_color = result;
 }
