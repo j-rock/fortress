@@ -26,6 +26,8 @@ use crate::{
         Hero,
         PlayerId,
         PlayerConfig,
+        PlayerBulletConfig,
+        PlayerItemConfig,
         PlayerSystemConfig,
         state::{
             PlayerBody,
@@ -83,9 +85,9 @@ impl PlayerState {
         }
     }
 
-    pub fn pre_update(&mut self, config: &PlayerSystemConfig, dt: DeltaTime) {
-        self.weapon.pre_update(&config.bullet, &self.stats, dt);
-        self.stats.pre_update(&config.item, dt);
+    pub fn pre_update(&mut self, config: &PlayerBulletConfig, dt: DeltaTime) {
+        self.weapon.pre_update(config, &self.stats, dt);
+        self.stats.pre_update(dt);
         self.hero_switch_timer.tick(dt);
         self.frozen_from_firing_special_timer.tick(dt);
     }
@@ -208,8 +210,8 @@ impl PlayerState {
         self.lr_dir
     }
 
-    pub fn collect_item(&mut self, item_pickup: ItemPickup) {
-        self.stats.collect_item(item_pickup);
+    pub fn collect_item(&mut self, config: &PlayerItemConfig, item_pickup: ItemPickup) {
+        self.stats.collect_item(config, item_pickup);
     }
 
     pub fn hero(&self) -> Hero {

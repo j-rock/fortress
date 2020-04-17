@@ -13,6 +13,7 @@ use crate::{
     particles::ParticleSystem,
     physics::PhysicsSimulation,
     players::{
+        PlayerItemConfig,
         PlayerSystemConfig,
         PlayerId,
         state::{
@@ -98,8 +99,8 @@ impl Player {
         self.player_state_machine.position(&self.player_state)
     }
 
-    pub fn collect_item(&mut self, item_pickup: ItemPickup) {
-        self.player_state_machine.collect_item(item_pickup, &mut self.player_state);
+    pub fn collect_item(&mut self, config: &PlayerItemConfig, item_pickup: ItemPickup) {
+        self.player_state_machine.collect_item(config, item_pickup, &mut self.player_state);
     }
 
     pub fn skull_count(&self) -> usize {

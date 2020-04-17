@@ -199,8 +199,9 @@ impl PlayerSystem {
     }
 
     pub fn collect_item(&mut self, player_id: PlayerId, item_pickup: ItemPickup) {
+        let ref config = self.config_manager.get().item;
         if let Some(player) = self.players.get_mut(player_id.to_key()) {
-            player.collect_item(item_pickup);
+            player.collect_item(config, item_pickup);
         }
     }
 

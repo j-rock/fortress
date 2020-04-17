@@ -5,6 +5,7 @@ use crate::{
             self,
             DeltaTime,
             Microseconds,
+            Timer,
         },
     },
     items::{
@@ -66,12 +67,12 @@ impl PlayerStats {
         }
     }
 
-    pub fn pre_update(&mut self, config: &PlayerItemConfig, dt: DeltaTime) {
+    pub fn pre_update(&mut self, dt: DeltaTime) {
         let finished_animation_keys: Vec<_> = self.collected_item_animations
             .iter_mut()
             .filter_map(|(key, collected_item_animation)| {
-                collected_item_animation.time_elapsed += dt.as_microseconds();
-                if collected_item_animation.time_elapsed < config.collect_animation_duration_micros {
+                collected_item_animation.pre_update(dt);
+                if !collected_item_animation.expired() {
                     return None;
                 }
                 Some(key)
@@ -123,11 +124,8 @@ impl PlayerStats {
         self.base_bullet_knockback_strength * (self.bullet_knockback_strength_level as f64)
     }
 
-    pub fn collect_item(&mut self, item_pickup: ItemPickup) {
-        self.collected_item_animations.insert(CollectedItemAnimation {
-            item_pickup,
-            time_elapsed: 0,
-        });
+    pub fn collect_item(&mut self, config: &PlayerItemConfig, item_pickup: ItemPickup) {
+        self.collected_item_animations.insert(CollectedItemAnimation::new(config, item_pickup));
 
         match item_pickup.item_type() {
             ItemType::MegaSkull => {
@@ -146,13 +144,32 @@ impl PlayerStats {
 
 struct CollectedItemAnimation {
     item_pickup: ItemPickup,
-    time_elapsed: Microseconds,
+    timer: Timer,
 }
 
 impl CollectedItemAnimation {
+    pub fn new(config: &PlayerItemConfig, item_pickup: ItemPickup) -> Self {
+        CollectedItemAnimation {
+            item_pickup,
+            timer: Timer::new(config.collect_animation_duration_micros),
+        }
+    }
+
+    pub fn pre_update(&mut self, dt: DeltaTime) {
+        self.timer.tick(dt);
+    }
+
+    pub fn expired(&self) -> bool {
+        self.timer.is_expired()
+    }
+
     pub fn point_light(&self, config: &PlayerItemConfig, item_config: &ItemConfig, player_center: Point2<f64>) -> PointLight {
+        let light_strength = {
+            let t = 1.0 - self.timer.time_left() as f32 / config.collect_animation_duration_micros as f32;
+            EasingFn::ease_out_quintic(t)
+        };
         let position = self.world_center_position(config, player_center);
-        let color = self.item_pickup.light_color(item_config);
+        let color = self.item_pickup.light_color(item_config) * light_strength;
         let attenuation = glm::vec3(config.collect_attenuation.0, config.collect_attenuation.1, config.collect_attenuation.2);
         PointLight::new(position, color, attenuation)
     }
@@ -170,7 +187,7 @@ impl CollectedItemAnimation {
     }
 
     fn world_center_position(&self, config: &PlayerItemConfig, player_center: Point2<f64>) -> glm::Vec3 {
-        let t = self.time_elapsed as f32 / (config.collect_animation_duration_micros as f32);
+        let t = 1.0 - self.timer.time_left() as f32 / config.collect_animation_duration_micros as f32;
         let spin_radius = EasingFn::ease_out_quad(1.0 - t) * config.collect_animation_spin_radius;
         let spin_speed = 2.0 * std::f32::consts::PI * config.collect_animation_spin_max_speed;
         let x_pos = player_center.x as f32 + spin_radius * (spin_speed * t).cos();

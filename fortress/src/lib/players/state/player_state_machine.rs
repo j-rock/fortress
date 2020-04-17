@@ -21,6 +21,7 @@ use crate::{
     },
     particles::ParticleSystem,
     players::{
+        PlayerItemConfig,
         PlayerSystemConfig,
         state::PlayerState,
     },
@@ -61,7 +62,7 @@ impl PlayerStateMachine {
                           shake: &mut ScreenShake,
                           player_state: &mut PlayerState) -> Option<PlayerStateMachine> {
         let move_direction = Self::compute_move_direction(controller);
-        player_state.pre_update(config, dt);
+        player_state.pre_update(&config.bullet, dt);
         let velocity_was_set = player_state.try_set_velocity(config, move_direction);
 
         if controller.is_pressed(ControlEvent::PlayerFireSpecial) {
@@ -173,11 +174,11 @@ impl PlayerStateMachine {
         player_state.position()
     }
 
-    pub fn collect_item(&self, item_pickup: ItemPickup, player_state: &mut PlayerState) {
-        player_state.collect_item(item_pickup);
+    pub fn collect_item(&self, config: &PlayerItemConfig, item_pickup: ItemPickup, player_state: &mut PlayerState) {
+        player_state.collect_item(config, item_pickup);
     }
 
-    fn compute_move_direction<'a>(controller: IdentifiedController<'a>) -> Option<OctoDirection> {
+    fn compute_move_direction(controller: IdentifiedController) -> Option<OctoDirection> {
         let up = controller.is_pressed(ControlEvent::PlayerMove(UpDownLeftRight::Up));
         let down = controller.is_pressed(ControlEvent::PlayerMove(UpDownLeftRight::Down));
         let left = controller.is_pressed(ControlEvent::PlayerMove(UpDownLeftRight::Left));
