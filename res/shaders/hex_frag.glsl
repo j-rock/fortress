@@ -68,5 +68,5 @@ void main() {
     // Gamma correct
     lighting = pow(lighting, vec3(1.0/2.2));
     frag_color = vec4(lighting, fs_in.alpha);
-    bloom_color = vec4(0.0, 0.0, 0.0, 1.0);
+    bloom_color = vec4(vec3(0.0), 1.0);
 }
