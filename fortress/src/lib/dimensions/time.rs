@@ -63,4 +63,8 @@ impl Timer {
     pub fn is_expired(&self) -> bool {
         self.time_left == 0
     }
+
+    pub fn time_left(&self) -> Microseconds {
+        self.time_left
+    }
 }

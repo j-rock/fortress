@@ -7,6 +7,7 @@ pub struct BloodParticleConfig {
     pub start_height: f32,
     pub start_velocity_y: f32,
     pub start_position_radius: f32,
+    pub expiry_duration_micros: i64,
     pub bloom_intensity: f32,
 }
 
