@@ -169,8 +169,9 @@ impl WorldState {
     fn populate_lights(&mut self, camera_stream_info: &CameraStreamInfo) {
         self.lights.set_camera_stream_info(camera_stream_info.clone());
         self.map.populate_lights(&mut self.lights);
-        self.players.populate_lights(&mut self.lights);
+        self.players.populate_lights(self.items.config(), &mut self.lights);
         self.enemies.populate_lights(&mut self.lights);
+        self.items.populate_lights(&mut self.lights);
     }
 
     fn draw_geometry(&mut self, camera_stream_info: &CameraStreamInfo, screen_size: glm::IVec2) {

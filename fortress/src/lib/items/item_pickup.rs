@@ -3,7 +3,10 @@ use crate::{
         LrDirection,
         Reverse,
     },
-    items::ItemType,
+    items::{
+        ItemConfig,
+        ItemType,
+    },
     render::SpriteSheetFrameId,
 };
 use glm;
@@ -42,7 +45,10 @@ impl ItemPickup {
         self.item_type.sprite_frame_id()
     }
 
-    pub fn light_color(&self) -> glm::Vec3 {
-        self.item_type.light_color()
+    pub fn light_color(&self, config: &ItemConfig) -> glm::Vec3 {
+        let color = config.item_type_light_color
+            .get(&self.item_type)
+            .unwrap_or(&(1.0, 1.0, 1.0));
+        glm::vec3(color.0, color.1, color.2)
     }
 }

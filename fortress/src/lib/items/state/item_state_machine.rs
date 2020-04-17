@@ -7,6 +7,7 @@ use crate::{
     render::{
         FullyIlluminatedSpriteData,
         FullyIlluminatedSpriteRenderer,
+        PointLight,
     },
 };
 use nalgebra::Vector2;
@@ -23,6 +24,13 @@ impl Default for ItemStateMachine {
 }
 
 impl ItemStateMachine {
+    pub fn point_light(&self, config: &ItemConfig, state: &ItemState) -> Option<PointLight> {
+        match self {
+            Self::AwaitingCollection => state.point_light(config),
+            Self::Collected => None,
+        }
+    }
+
     pub fn queue_draw(&self, config: &ItemConfig, state: &ItemState, sprite_renderer: &mut FullyIlluminatedSpriteRenderer) {
         if let Some(position) = state.position() {
             let world_half_size = glm::vec2(config.physical_radius as f32, config.physical_radius as f32) * config.render_scale;
@@ -46,7 +54,7 @@ impl ItemStateMachine {
 
     pub fn collected(&self) -> bool {
         match self {
-            ItemStateMachine::Collected => true,
+            Self::Collected => true,
             _ => false,
         }
     }

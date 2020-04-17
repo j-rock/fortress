@@ -11,7 +11,10 @@ use crate::{
         ItemPickup,
     },
     physics::PhysicsSimulation,
-    render::FullyIlluminatedSpriteRenderer,
+    render::{
+        FullyIlluminatedSpriteRenderer,
+        PointLights,
+    },
 };
 use generational_slab::Slab;
 use nalgebra::Point2;
@@ -55,6 +58,16 @@ impl ItemSystem {
         }
     }
 
+    pub fn populate_lights(&self, point_lights: &mut PointLights) {
+        let config = self.config_manager.get();
+        let lights = self.items
+            .iter()
+            .filter_map(|(_key, item)| {
+                item.point_light(config)
+            });
+        point_lights.append(lights);
+    }
+
     pub fn queue_draw(&self, renderer: &mut FullyIlluminatedSpriteRenderer) {
         let config = self.config_manager.get();
         for (_key, item) in self.items.iter() {
@@ -83,5 +96,9 @@ impl ItemSystem {
 
     pub fn respawn(&mut self) {
         self.items.clear();
+    }
+
+    pub fn config(&self) -> &ItemConfig {
+        self.config_manager.get()
     }
 }

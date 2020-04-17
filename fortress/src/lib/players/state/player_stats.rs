@@ -8,6 +8,7 @@ use crate::{
         },
     },
     items::{
+        ItemConfig,
         ItemPickup,
         ItemType,
     },
@@ -82,10 +83,14 @@ impl PlayerStats {
         }
     }
 
-    pub fn populate_lights(&self, config: &PlayerItemConfig, player_center: Point2<f64>, lights: &mut PointLights) {
+    pub fn populate_lights(&self,
+                           config: &PlayerItemConfig,
+                           item_config: &ItemConfig,
+                           player_center: Point2<f64>,
+                           lights: &mut PointLights) {
         let queue_data = self.collected_item_animations.iter()
             .map(|(_key, collected_item_animation)| {
-                collected_item_animation.point_light(config, player_center)
+                collected_item_animation.point_light(config, item_config, player_center)
             });
         lights.append(queue_data);
     }
@@ -145,9 +150,9 @@ struct CollectedItemAnimation {
 }
 
 impl CollectedItemAnimation {
-    pub fn point_light(&self, config: &PlayerItemConfig, player_center: Point2<f64>) -> PointLight {
+    pub fn point_light(&self, config: &PlayerItemConfig, item_config: &ItemConfig, player_center: Point2<f64>) -> PointLight {
         let position = self.world_center_position(config, player_center);
-        let color = self.item_pickup.light_color();
+        let color = self.item_pickup.light_color(item_config);
         let attenuation = glm::vec3(config.collect_attenuation.0, config.collect_attenuation.1, config.collect_attenuation.2);
         PointLight::new(position, color, attenuation)
     }

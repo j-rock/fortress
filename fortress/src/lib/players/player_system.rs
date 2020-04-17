@@ -26,7 +26,10 @@ use crate::{
         IndividualPlayerHudData,
         PlayerHudUpdate,
     },
-    items::ItemPickup,
+    items::{
+        ItemConfig,
+        ItemPickup,
+    },
     physics::PhysicsSimulation,
     particles::ParticleSystem,
     players::{
@@ -150,10 +153,10 @@ impl PlayerSystem {
         player.bullet_attack(bullet_id)
     }
 
-    pub fn populate_lights(&self, lights: &mut PointLights) {
+    pub fn populate_lights(&self, item_config: &ItemConfig, lights: &mut PointLights) {
         let config = self.config_manager.get();
         for (_i, player) in self.players.iter() {
-            player.populate_lights( config, lights);
+            player.populate_lights( config, item_config, lights);
         }
     }
 

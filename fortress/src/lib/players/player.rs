@@ -6,7 +6,10 @@ use crate::{
         Attack,
         time::DeltaTime
     },
-    items::ItemPickup,
+    items::{
+        ItemConfig,
+        ItemPickup,
+    },
     particles::ParticleSystem,
     physics::PhysicsSimulation,
     players::{
@@ -75,8 +78,8 @@ impl Player {
         self.player_state.get_player_id()
     }
 
-    pub fn populate_lights(&self, config: &PlayerSystemConfig, lights: &mut PointLights) {
-        self.player_state_machine.populate_lights(config, &self.player_state, lights);
+    pub fn populate_lights(&self, config: &PlayerSystemConfig, item_config: &ItemConfig, lights: &mut PointLights) {
+        self.player_state_machine.populate_lights(config, item_config, &self.player_state, lights);
     }
 
     pub fn queue_draw(&self, config: &PlayerSystemConfig, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {

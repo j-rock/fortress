@@ -13,7 +13,10 @@ use crate::{
             Timer,
         }
     },
-    items::ItemPickup,
+    items::{
+        ItemConfig,
+        ItemPickup,
+    },
     particles::{
         ParticleEvent,
         ParticleSystem,
@@ -107,10 +110,10 @@ impl PlayerState {
         self.player_id
     }
 
-    pub fn populate_lights(&self, config: &PlayerSystemConfig, lights: &mut PointLights) {
+    pub fn populate_lights(&self, config: &PlayerSystemConfig, item_config: &ItemConfig, lights: &mut PointLights) {
         self.weapon.populate_lights(&config.bullet, lights);
         if let Some(position) = self.position() {
-            self.stats.populate_lights(&config.item, position, lights);
+            self.stats.populate_lights(&config.item, item_config, position, lights);
         }
     }
 

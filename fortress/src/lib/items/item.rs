@@ -10,7 +10,10 @@ use crate::{
         }
     },
     physics::PhysicsSimulation,
-    render::FullyIlluminatedSpriteRenderer,
+    render::{
+        FullyIlluminatedSpriteRenderer,
+        PointLight,
+    },
 };
 use nalgebra::Point2;
 
@@ -28,6 +31,10 @@ impl Item {
             item_state,
             item_state_machine
         }
+    }
+
+    pub fn point_light(&self, config: &ItemConfig) -> Option<PointLight> {
+        self.item_state_machine.point_light(config, &self.item_state)
     }
 
     pub fn queue_draw(&self, config: &ItemConfig, sprite_renderer: &mut FullyIlluminatedSpriteRenderer) {

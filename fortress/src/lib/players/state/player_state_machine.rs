@@ -15,7 +15,10 @@ use crate::{
         },
         UpDownLeftRight,
     },
-    items::ItemPickup,
+    items::{
+        ItemConfig,
+        ItemPickup,
+    },
     particles::ParticleSystem,
     players::{
         PlayerSystemConfig,
@@ -94,8 +97,12 @@ impl PlayerStateMachine {
         None
     }
 
-    pub fn populate_lights(&self, config: &PlayerSystemConfig, player_state: &PlayerState, lights: &mut PointLights) {
-        player_state.populate_lights(config, lights);
+    pub fn populate_lights(&self,
+                           config: &PlayerSystemConfig,
+                           item_config: &ItemConfig,
+                           player_state: &PlayerState,
+                           lights: &mut PointLights) {
+        player_state.populate_lights(config, item_config, lights);
     }
 
     pub fn queue_draw(&self, config: &PlayerSystemConfig, player_state: &PlayerState, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {
