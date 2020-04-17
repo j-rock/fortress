@@ -2,7 +2,6 @@ use crate::{
     app::RandGen,
     data::RingBufferView,
     dimensions::time::DeltaTime,
-    math::EasingFn,
     particles::{
         ParticleRenderView,
         particle_render_view::{
@@ -12,10 +11,6 @@ use crate::{
         },
         HeroSwitchParticleEvent,
         HeroSwitchParticleConfig,
-    },
-    render::{
-        CameraStreamBounds,
-        CameraStreamInfo,
     },
 };
 use glm;
@@ -108,7 +103,7 @@ impl HeroSwitchParticles {
             });
     }
 
-    pub fn queue_draw(&self, config: &HeroSwitchParticleConfig, camera_stream_info: &CameraStreamInfo, render_view: ParticleRenderView) {
+    pub fn queue_draw(&self, config: &HeroSwitchParticleConfig, render_view: ParticleRenderView) {
         (0..self.ring_buffer_view.len())
             .for_each(|idx| {
                 let position_xz = self.position_xz[idx].clone();
@@ -117,12 +112,7 @@ impl HeroSwitchParticles {
                     let position_y = config.wave_amplitude * (self.wave_speed[idx] * self.age[idx] - config.wave_phase_shift).sin() + self.height[idx];
                     glm::vec3(position_xz.x as f32, position_y as f32, -position_xz.y as f32)
                 };
-
-                let alpha = match camera_stream_info.compute_bounds(position_xz) {
-                    CameraStreamBounds::Outside => 0.0,
-                    CameraStreamBounds::Inside => 1.0,
-                    CameraStreamBounds::Margin(margin) => EasingFn::ease_in_cuartic(margin),
-                };
+                let alpha = 1.0;
                 let color = self.color[idx];
                 let size = self.size[idx];
 

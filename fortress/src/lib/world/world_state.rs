@@ -191,7 +191,7 @@ impl WorldState {
         self.light_dependent_sprite.draw(&self.lights, &self.textures, &geometry);
         self.hex_renderer.draw(&self.textures, &self.lights, &geometry);
         // Draw particles after hex ground to not mess up transparency.
-        self.particles.draw(&camera_stream_info, &geometry);
+        self.particles.draw(&geometry);
         self.text_renderer.draw();
 
         // Fix viewport at the end.

@@ -151,14 +151,13 @@ impl ParticleSystem {
                 }
             }
         }
-        self.queued_events.clear();
 
+        self.queued_events.clear();
         self.snow_particles.post_update(&config.snow, camera_stream_info, rng);
     }
 
-    pub fn draw(&mut self, camera_stream_info: &CameraStreamInfo, camera_geometry: &CameraGeometry) {
+    pub fn draw(&mut self, camera_geometry: &CameraGeometry) {
         let config = self.config.get();
-
         {
             let render_view = ParticleRenderView {
                 attr_pos: &mut self.attr_pos.data,
@@ -167,7 +166,7 @@ impl ParticleSystem {
                 attr_alpha: &mut self.attr_alpha.data,
                 attr_size: &mut self.attr_size.data,
             };
-            self.blood_particles.queue_draw(&config.blood, camera_stream_info, render_view);
+            self.blood_particles.queue_draw(&config.blood, render_view);
         }
         {
             let render_view = ParticleRenderView {
@@ -187,7 +186,7 @@ impl ParticleSystem {
                 attr_alpha: &mut self.attr_alpha.data,
                 attr_size: &mut self.attr_size.data,
             };
-            self.hero_switch_particles.queue_draw(&config.hero_switch, camera_stream_info, render_view);
+            self.hero_switch_particles.queue_draw(&config.hero_switch, render_view);
         }
 
         self.shader_program.activate();

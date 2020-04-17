@@ -16,13 +16,8 @@ use crate::{
             FloatAttr,
         },
     },
-    render::{
-        CameraStreamBounds,
-        CameraStreamInfo,
-    },
 };
 use glm;
-use nalgebra::Point2;
 
 pub struct BloodParticles {
     ring_buffer_view: RingBufferView,
@@ -109,24 +104,16 @@ impl BloodParticles {
             });
     }
 
-    pub fn queue_draw(&self, config: &BloodParticleConfig, camera_stream_info: &CameraStreamInfo, render_view: ParticleRenderView) {
+    pub fn queue_draw(&self, config: &BloodParticleConfig, render_view: ParticleRenderView) {
         (0..self.ring_buffer_view.len())
             .for_each(|idx| {
                 let position = self.position[idx];
                 let color = self.color[idx];
                 let size = self.size[idx];
-
-                let time_based_alpha = {
+                let alpha = {
                     let t = self.timer[idx].time_left() as f32 / config.expiry_duration_micros as f32;
                     EasingFn::ease_out_quintic(t)
                 };
-                let camera_based_alpha = match camera_stream_info.compute_bounds(Point2::new(position.x as f64, -position.z as f64)) {
-                    CameraStreamBounds::Outside => 0.0,
-                    CameraStreamBounds::Inside => 1.0,
-                    CameraStreamBounds::Margin(margin) => EasingFn::ease_in_cuartic(margin),
-                };
-                let alpha = time_based_alpha * camera_based_alpha;
-
 
                 render_view.attr_pos.push(Vec3Attr::new(position));
                 render_view.attr_color.push(Vec3Attr::new(color));
