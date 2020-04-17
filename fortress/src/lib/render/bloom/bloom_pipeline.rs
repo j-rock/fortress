@@ -86,13 +86,11 @@ impl BloomPipeline {
             }
             self.blur_shader.set_horizontal_mode(horizontal);
             TextureUnit::Texture0.activate();
-            if i == 0 {
-                self.bloom_texture.bind();
-            } else if horizontal {
-                self.ping_pong0.bind_color_texture();
-            } else {
-                self.ping_pong1.bind_color_texture();
-            }
+            match horizontal {
+                _ if i == 0 => self.bloom_texture.bind(),
+                true => self.ping_pong0.bind_color_texture(),
+                false => self.ping_pong1.bind_color_texture()
+            };
             self.blur_shader.draw();
         }
     }
