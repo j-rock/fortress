@@ -17,10 +17,7 @@ use crate::{
     items::ItemSystem,
     particles::ParticleSystem,
     physics::PhysicsSimulation,
-    render::{
-        LightDependentSpriteRenderer,
-        PointLight,
-    },
+    render::LightDependentSpriteRenderer,
 };
 use nalgebra::Point2;
 
@@ -51,10 +48,6 @@ impl Enemy {
         if let Some(enemy_state_machine) = self.enemy_state_machine.post_update(config, audio, &self.enemy_state, items, physics_sim) {
             self.enemy_state_machine = enemy_state_machine;
         }
-    }
-
-    pub fn point_light(&self, config: &EnemyConfig) -> Option<PointLight> {
-        self.enemy_state_machine.point_light(config, &self.enemy_state)
     }
 
     pub fn queue_draw(&self, config: &EnemyConfig, sprite_renderer: &mut LightDependentSpriteRenderer) {

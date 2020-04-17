@@ -133,13 +133,6 @@ impl EnemySystem {
                 generator.point_light(&config.generator)
             });
         lights.append(generator_lights);
-
-        let enemy_lights = self.enemies
-            .iter()
-            .filter_map(|(_key, enemy)| {
-                enemy.point_light(&config.enemy)
-            });
-        lights.append(enemy_lights);
     }
 
     pub fn queue_draw(&self, light_dependent: &mut LightDependentSpriteRenderer) {

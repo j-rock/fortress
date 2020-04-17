@@ -21,7 +21,6 @@ use crate::{
         ItemSystem,
         ItemType,
     },
-    math::EasingFn,
     particles::{
         ParticleEvent,
         ParticleSystem,
@@ -31,7 +30,6 @@ use crate::{
         LightDependentSpriteData,
         LightDependentSpriteRenderer,
         NamedSpriteSheet,
-        PointLight,
         SpriteSheetFrameId,
     },
 };
@@ -53,8 +51,6 @@ impl EnemyStateMachine {
     }
 
     pub fn pre_update(&mut self, config: &EnemyConfig, dt: DeltaTime, player_locs: &Vec<Point2<f64>>, enemy_state: &mut EnemyState) -> Option<EnemyStateMachine> {
-        enemy_state.pre_update(dt);
-
         match self {
             EnemyStateMachine::Base(body, time_elapsed) => {
                 *time_elapsed += dt.as_microseconds();
@@ -98,26 +94,6 @@ impl EnemyStateMachine {
             },
             _ => None
         }
-    }
-
-    pub fn point_light(&self, config: &EnemyConfig, enemy_state: &EnemyState) -> Option<PointLight> {
-        if enemy_state.age() >= config.light_duration_micros {
-            return None;
-        }
-
-        if let EnemyStateMachine::Base(body, _) = self {
-            let position = body.position()?;
-            let age_frac = (config.light_duration_micros - enemy_state.age()) as f32 / config.light_duration_micros as f32;
-            let glow_strength = EasingFn::ease_out_quad(age_frac);
-
-            let position = glm::vec3(position.x as f32, config.light_elevation, -position.y as f32);
-            let color = glm::vec3(config.light_color.0, config.light_color.1, config.light_color.2) * glow_strength;
-            let attenuation = glm::vec3(config.light_attenuation.0, config.light_attenuation.1, config.light_attenuation.2);
-
-            return Some(PointLight::new(position, color, attenuation));
-        }
-
-        None
     }
 
     pub fn queue_draw(&self, config: &EnemyConfig, enemy_state: &EnemyState, sprite_renderer: &mut LightDependentSpriteRenderer) {
