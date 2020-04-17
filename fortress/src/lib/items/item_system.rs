@@ -11,7 +11,7 @@ use crate::{
         ItemPickup,
     },
     physics::PhysicsSimulation,
-    render::LightDependentSpriteRenderer,
+    render::FullyIlluminatedSpriteRenderer,
 };
 use generational_slab::Slab;
 use nalgebra::Point2;
@@ -26,7 +26,7 @@ impl ItemSystem {
         let config_manager: SimpleConfigManager<ItemConfig> = SimpleConfigManager::from_config_resource(config_watcher, "item.conf")?;
         let items = {
             let config = config_manager.get();
-            Slab::with_capacity(config.items_system_initial_capacity)
+            Slab::with_capacity(config.system_initial_capacity)
         };
 
         Ok(ItemSystem {
@@ -36,16 +36,13 @@ impl ItemSystem {
     }
 
     pub fn pre_update(&mut self) {
-        for (_key, item) in self.items.iter_mut() {
-            item.pre_update();
-        }
+        self.config_manager.update();
     }
 
     pub fn post_update(&mut self) {
         let collected_item_keys: Vec<_> = self.items
             .iter_mut()
             .filter_map(|(item_key, item)| {
-                item.post_update();
                 if !item.collected() {
                     return None;
                 }
@@ -58,10 +55,10 @@ impl ItemSystem {
         }
     }
 
-    pub fn queue_draw(&self, light_dependent: &mut LightDependentSpriteRenderer) {
+    pub fn queue_draw(&self, renderer: &mut FullyIlluminatedSpriteRenderer) {
         let config = self.config_manager.get();
         for (_key, item) in self.items.iter() {
-            item.queue_draw(config, light_dependent);
+            item.queue_draw(config, renderer);
         }
     }
 

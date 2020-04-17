@@ -34,8 +34,9 @@ void main() {
         vec3 light_displacement = lights[i].position - position;
         vec3 light_dir = normalize(light_displacement);
 
-        // Alternatively just abs(dotproduct).
-        float diffuse_energy = max(dot(normal, light_dir), 0.0);
+        // Alternatively:
+        // float diffuse_energy = max(dot(normal, light_dir), 0.0);
+        float diffuse_energy = abs(dot(normal, light_dir));
         vec3 diffuse_component = diffuse_energy * diffuse_color * lights[i].color;
 
         float distance = length(light_displacement);

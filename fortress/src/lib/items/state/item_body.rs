@@ -38,9 +38,9 @@ impl ItemBody {
             .translation(spawn.coords)
             .kinematic_rotations(true)
             .build();
-        let ball_shape = Ball::new(config.item_physical_radius);
+        let ball_shape = Ball::new(config.physical_radius);
         let collider_desc = ColliderDesc::new(ShapeHandle::new(ball_shape))
-            .density(config.item_physical_density)
+            .density(config.physical_density)
             .sensor(true)
             .collision_groups(CollisionGroups::new()
                 .with_membership(&[collision_category::ITEM])

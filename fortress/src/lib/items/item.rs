@@ -10,7 +10,7 @@ use crate::{
         }
     },
     physics::PhysicsSimulation,
-    render::LightDependentSpriteRenderer,
+    render::FullyIlluminatedSpriteRenderer,
 };
 use nalgebra::Point2;
 
@@ -30,19 +30,7 @@ impl Item {
         }
     }
 
-    pub fn pre_update(&mut self) {
-        if let Some(item_state_machine) = self.item_state_machine.pre_update() {
-            self.item_state_machine = item_state_machine;
-        }
-    }
-
-    pub fn post_update(&mut self) {
-        if let Some(item_state_machine) = self.item_state_machine.post_update() {
-            self.item_state_machine = item_state_machine;
-        }
-    }
-
-    pub fn queue_draw(&self, config: &ItemConfig, sprite_renderer: &mut LightDependentSpriteRenderer) {
+    pub fn queue_draw(&self, config: &ItemConfig, sprite_renderer: &mut FullyIlluminatedSpriteRenderer) {
         self.item_state_machine.queue_draw(config, &self.item_state, sprite_renderer);
     }
 
