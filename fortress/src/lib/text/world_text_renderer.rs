@@ -6,6 +6,7 @@ use crate::{
         Attribute,
         AttributeProgram,
         BitmapTexture,
+        CameraGeometry,
         ShaderProgram,
         ShaderUniformKey,
         Texel,
@@ -16,8 +17,8 @@ use crate::{
         GlyphId,
         Locale,
         TextContent,
-        ScreenTextRequest,
         TextResolver,
+        WorldTextRequest,
     },
 };
 use gl::{
@@ -29,21 +30,25 @@ use std::ffi::CString;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 enum UniformKey {
+    CameraRight,
+    CameraUp,
     FontTexture,
-    ScreenWindowSize,
+    ProjectionView,
 }
 
 impl ShaderUniformKey for UniformKey {
     fn to_cstring(self) -> CString {
         let string = match self {
+            Self::CameraRight => "camera_right",
+            Self::CameraUp => "camera_up",
             Self::FontTexture => "font",
-            Self::ScreenWindowSize => "screen_window_size",
+            Self::ProjectionView => "projection_view",
         };
         CString::new(string).expect("Bad cstring")
     }
 }
 
-pub struct ScreenTextRenderer {
+pub struct WorldTextRenderer {
     shader_program: ShaderProgram<UniformKey>,
     attribute_program: AttributeProgram,
     attr_pos: Attribute<PositionAttr>,
@@ -51,14 +56,15 @@ pub struct ScreenTextRenderer {
     attr_texel: Attribute<TexelAttr>,
     attr_color: Attribute<ColorAttr>,
 
-    screen_size: glm::Vec2,
+    camera_right: glm::Vec3,
+    camera_up: glm::Vec3,
 }
 
-impl ScreenTextRenderer {
+impl WorldTextRenderer {
     pub fn new() -> StatusOr<Self> {
-        let vertex = file::util::resource_path("shaders", "screen_text_vert.glsl");
-        let geometry = file::util::resource_path("shaders", "screen_text_geo.glsl");
-        let fragment = file::util::resource_path("shaders", "screen_text_frag.glsl");
+        let vertex = file::util::resource_path("shaders", "world_text_vert.glsl");
+        let geometry = file::util::resource_path("shaders", "world_text_geo.glsl");
+        let fragment = file::util::resource_path("shaders", "world_text_frag.glsl");
         let mut shader_program = ShaderProgram::from_long_pipeline(&vertex, &geometry, &fragment)?;
         shader_program.activate();
         shader_program.set_texture(UniformKey::FontTexture, TextureUnit::Texture0);
@@ -70,27 +76,29 @@ impl ScreenTextRenderer {
         let attr_color = attribute_program_builder.add_attribute();
         let attribute_program = attribute_program_builder.build();
 
-        Ok(ScreenTextRenderer {
+        Ok(WorldTextRenderer {
             shader_program,
             attribute_program,
             attr_pos,
             attr_glyph_size,
             attr_texel,
             attr_color,
-            screen_size: glm::vec2(0.0, 0.0),
+            camera_right: glm::vec3(1.0, 0.0, 0.0),
+            camera_up: glm::vec3(0.0, 1.0, 0.0),
         })
     }
 
-    pub fn set_screen_size(&mut self, screen_size: glm::IVec2) {
-        self.screen_size = glm::vec2(screen_size.x as f32, screen_size.y as f32);
+    pub fn set_camera_geometry(&mut self, camera_geometry: &CameraGeometry) {
+        self.camera_right = camera_geometry.isometric_right;
+        self.camera_up = camera_geometry.isometric_up;
     }
 
     pub fn queue(&mut self,
                  resolver: &TextResolver,
                  current_locale: Locale,
                  content: impl Iterator<Item=TextContent>,
-                 request: ScreenTextRequest) {
-        let mut pen = self.screen_size * glm::vec2(request.screen_position_percentage.x, request.screen_position_percentage.y);
+                 request: WorldTextRequest) {
+        let mut pen = request.world_position;
 
         for content in content {
             match content {
@@ -108,10 +116,12 @@ impl ScreenTextRenderer {
         }
     }
 
-    pub fn draw(&mut self, texture: &BitmapTexture) {
+    pub fn draw(&mut self, texture: &BitmapTexture, camera_geometry: &CameraGeometry) {
         self.shader_program.activate();
         self.attribute_program.activate();
-        self.shader_program.set_vec2(UniformKey::ScreenWindowSize, self.screen_size);
+        self.shader_program.set_vec3(UniformKey::CameraRight, &self.camera_right);
+        self.shader_program.set_vec3(UniformKey::CameraUp, &self.camera_up);
+        self.shader_program.set_mat4(UniformKey::ProjectionView, &camera_geometry.projection_view);
         texture.activate();
 
         self.attr_pos.prepare_buffer();
@@ -131,17 +141,20 @@ impl ScreenTextRenderer {
 
     fn queue_glyphs(&mut self,
                     resolver: &TextResolver,
-                    request: &ScreenTextRequest,
+                    request: &WorldTextRequest,
                     chars: impl Iterator<Item=char>,
-                    pen: &mut glm::Vec2) {
+                    pen: &mut glm::Vec3) {
         for character in chars {
             if let Some(glyph_info) = resolver.get_glyph_info(GlyphId::new(character, request.raster_size)) {
                 let raster_info = glyph_info.raster_info();
-                let character_pen = *pen + glm::vec2(raster_info.left_side_bearing, raster_info.height_offset);
 
                 if character != ' ' {
                     self.attr_pos.data.push(PositionAttr {
-                        position: glm::vec3(character_pen.x, character_pen.y, request.screen_position_percentage.z),
+                        position: {
+                            let right = self.camera_right * raster_info.left_side_bearing;
+                            let up = self.camera_up * raster_info.height_offset;
+                            *pen + right + up
+                        }
                     });
                     self.attr_glyph_size.data.push(GlyphSizeAttr {
                         size: raster_info.raster_dimensions,
@@ -154,7 +167,7 @@ impl ScreenTextRenderer {
                     });
                 }
 
-                pen.x += raster_info.advance_width;
+                *pen = *pen + self.camera_right * raster_info.advance_width;
             }
         }
     }

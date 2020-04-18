@@ -7,7 +7,7 @@ use crate::{
         RasterSize,
         TextContent,
         TextRenderer,
-        TextRenderRequest,
+        ScreenTextRequest,
     },
 };
 use glm;
@@ -40,9 +40,9 @@ impl FrameCounter {
         };
 
         let content = [TextContent::Text(NamedText::FpsPrefix), TextContent::Number(fps)];
-        text.queue(
+        text.queue_screen_text(
             content.iter().copied(),
-            TextRenderRequest {
+            ScreenTextRequest {
             screen_position_percentage: glm::vec3(config.fps_text_screen_pos.0, config.fps_text_screen_pos.1, config.fps_text_screen_pos.2),
             raster_size: RasterSize::Small,
             color: glm::vec3(config.color.0, config.color.1, config.color.2),

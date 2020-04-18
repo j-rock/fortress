@@ -8,7 +8,7 @@ use crate::{
         RasterSize,
         TextContent,
         TextRenderer,
-        TextRenderRequest,
+        ScreenTextRequest,
     },
 };
 use glm;
@@ -35,17 +35,17 @@ impl SkullCounter {
         let screen_position_percentage = glm::vec3(config.screen_pos.0, config.screen_pos.1, config.screen_pos.2);
         let drop_position_percentage = screen_position_percentage + glm::vec3(config.drop_pos_offset.0, config.drop_pos_offset.1, config.drop_pos_offset.2);
 
-        text.queue(
+        text.queue_screen_text(
             content.iter().copied(),
-            TextRenderRequest {
+            ScreenTextRequest {
                 screen_position_percentage: drop_position_percentage,
                 raster_size: RasterSize::Large,
                 color: glm::vec3(config.drop_color.0, config.drop_color.1, config.drop_color.2),
                 alpha: config.alpha
             });
-        text.queue(
+        text.queue_screen_text(
             content.iter().copied(),
-            TextRenderRequest {
+            ScreenTextRequest {
                 screen_position_percentage,
                 raster_size: RasterSize::Large,
                 color: glm::vec3(config.color.0, config.color.1, config.color.2),

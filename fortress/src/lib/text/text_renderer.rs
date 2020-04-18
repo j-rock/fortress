@@ -7,15 +7,18 @@ use crate::{
     },
     render::{
         BitmapTexture,
+        CameraGeometry,
         TextureUnit,
     },
     text::{
         PackedGlyphSheet,
         ScreenTextRenderer,
+        ScreenTextRequest,
         TextConfig,
         TextContent,
-        TextRenderRequest,
         TextResolver,
+        WorldTextRenderer,
+        WorldTextRequest,
     },
 };
 use glm;
@@ -25,6 +28,7 @@ pub struct TextRenderer {
     texture: BitmapTexture,
     resolver: TextResolver,
     screen_renderer: ScreenTextRenderer,
+    world_renderer: WorldTextRenderer,
 }
 
 impl TextRenderer {
@@ -41,12 +45,14 @@ impl TextRenderer {
         };
 
         let screen_renderer = ScreenTextRenderer::new()?;
+        let world_renderer = WorldTextRenderer::new()?;
 
         Ok(TextRenderer {
             config,
             texture,
             resolver,
             screen_renderer,
+            world_renderer,
         })
     }
 
@@ -64,16 +70,23 @@ impl TextRenderer {
         }
     }
 
-    pub fn set_screen_size(&mut self, screen_size: glm::IVec2) {
+    pub fn update_render_info(&mut self, camera_geometry: &CameraGeometry, screen_size: glm::IVec2) {
         self.screen_renderer.set_screen_size(screen_size);
+        self.world_renderer.set_camera_geometry(camera_geometry);
     }
 
-    pub fn queue(&mut self, content: impl Iterator<Item=TextContent>, request: TextRenderRequest) {
+    pub fn queue_screen_text(&mut self, content: impl Iterator<Item=TextContent>, request: ScreenTextRequest) {
         let current_locale = self.config.get().current_locale;
         self.screen_renderer.queue(&self.resolver, current_locale, content, request);
     }
 
-    pub fn draw(&mut self) {
+    pub fn queue_world_text(&mut self, content: impl Iterator<Item=TextContent>, request: WorldTextRequest) {
+        let current_locale = self.config.get().current_locale;
+        self.world_renderer.queue(&self.resolver, current_locale, content, request);
+    }
+
+    pub fn draw(&mut self, camera_geometry: &CameraGeometry) {
         self.screen_renderer.draw(&self.texture);
+        self.world_renderer.draw(&self.texture, camera_geometry);
     }
 }
