@@ -187,8 +187,8 @@ impl WorldState {
         self.items.queue_draw(&mut self.full_light_sprite);
 
         self.background_renderer.draw(&self.textures, &geometry);
-        self.full_light_sprite.draw(&self.textures, &geometry);
         self.light_dependent_sprite.draw(&self.lights, &self.textures, &geometry);
+        self.full_light_sprite.draw(&self.textures, &geometry);
         self.hex_renderer.draw(&self.textures, &self.lights, &geometry);
         // Draw particles after hex ground to not mess up transparency.
         self.particles.draw(&geometry);
