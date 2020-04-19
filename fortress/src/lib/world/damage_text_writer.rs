@@ -83,15 +83,15 @@ impl DamageTextWriter {
                 let content = [TextContent::Number(damage_value)];
                 let world_position = self.position[idx];
                 text.queue_world_text(content.iter().copied(), WorldTextRequest {
-                    world_position,
-                    raster_size: config.raster_size,
-                    color: glm::vec3(config.color.0, config.color.1, config.color.2),
-                    alpha: 1.0,
-                });
-                text.queue_world_text(content.iter().copied(), WorldTextRequest {
                     world_position: world_position + glm::vec3(config.shadow_offset.0, config.shadow_offset.1, config.shadow_offset.2),
                     raster_size: config.raster_size,
                     color: glm::vec3(config.shadow_color.0, config.shadow_color.1, config.shadow_color.2),
+                    alpha: 1.0,
+                });
+                text.queue_world_text(content.iter().copied(), WorldTextRequest {
+                    world_position,
+                    raster_size: config.raster_size,
+                    color: glm::vec3(config.color.0, config.color.1, config.color.2),
                     alpha: 1.0,
                 });
             });
