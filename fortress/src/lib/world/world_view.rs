@@ -5,6 +5,7 @@ use crate::{
     items::ItemSystem,
     particles::ParticleSystem,
     players::PlayerSystem,
+    world::DamageTextWriter,
 };
 
 pub struct WorldView<'a> {
@@ -13,6 +14,7 @@ pub struct WorldView<'a> {
     pub enemies: &'a mut EnemySystem,
     pub items: &'a mut ItemSystem,
     pub particles: &'a mut ParticleSystem,
+    pub damage_text: &'a mut DamageTextWriter,
     pub dt: DeltaTime,
 }
 

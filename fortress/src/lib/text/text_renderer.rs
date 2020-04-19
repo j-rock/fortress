@@ -72,7 +72,7 @@ impl TextRenderer {
 
     pub fn update_render_info(&mut self, camera_geometry: &CameraGeometry, screen_size: glm::IVec2) {
         self.screen_renderer.set_screen_size(screen_size);
-        self.world_renderer.set_camera_geometry(camera_geometry);
+        self.world_renderer.set_parameters(self.config.get(), camera_geometry);
     }
 
     pub fn queue_screen_text(&mut self, content: impl Iterator<Item=TextContent>, request: ScreenTextRequest) {

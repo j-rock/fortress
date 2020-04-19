@@ -16,6 +16,7 @@ use crate::{
         Base10CharIterator,
         GlyphId,
         Locale,
+        TextConfig,
         TextContent,
         TextResolver,
         WorldTextRequest,
@@ -58,6 +59,7 @@ pub struct WorldTextRenderer {
 
     camera_right: glm::Vec3,
     camera_up: glm::Vec3,
+    world_to_glyph_length_ratio: f32,
 }
 
 impl WorldTextRenderer {
@@ -85,12 +87,14 @@ impl WorldTextRenderer {
             attr_color,
             camera_right: glm::vec3(1.0, 0.0, 0.0),
             camera_up: glm::vec3(0.0, 1.0, 0.0),
+            world_to_glyph_length_ratio: 1.0,
         })
     }
 
-    pub fn set_camera_geometry(&mut self, camera_geometry: &CameraGeometry) {
+    pub fn set_parameters(&mut self, config: &TextConfig, camera_geometry: &CameraGeometry) {
         self.camera_right = camera_geometry.isometric_right;
         self.camera_up = camera_geometry.isometric_up;
+        self.world_to_glyph_length_ratio = config.world_to_glyph_length_ratio;
     }
 
     pub fn queue(&mut self,
@@ -151,13 +155,13 @@ impl WorldTextRenderer {
                 if character != ' ' {
                     self.attr_pos.data.push(PositionAttr {
                         position: {
-                            let right = self.camera_right * raster_info.left_side_bearing;
-                            let up = self.camera_up * raster_info.height_offset;
+                            let right = self.camera_right * raster_info.left_side_bearing * self.world_to_glyph_length_ratio;
+                            let up = self.camera_up * raster_info.height_offset * self.world_to_glyph_length_ratio;
                             *pen + right + up
                         }
                     });
                     self.attr_glyph_size.data.push(GlyphSizeAttr {
-                        size: raster_info.raster_dimensions,
+                        size: raster_info.raster_dimensions * self.world_to_glyph_length_ratio,
                     });
                     self.attr_texel.data.push(TexelAttr {
                         texel: glyph_info.texel(),
@@ -167,7 +171,7 @@ impl WorldTextRenderer {
                     });
                 }
 
-                *pen = *pen + self.camera_right * raster_info.advance_width;
+                *pen = *pen + self.camera_right * raster_info.advance_width * self.world_to_glyph_length_ratio;
             }
         }
     }
