@@ -58,7 +58,7 @@ impl ScreenTextRenderer {
     pub fn new() -> StatusOr<Self> {
         let vertex = file::util::resource_path("shaders", "screen_text_vert.glsl");
         let geometry = file::util::resource_path("shaders", "screen_text_geo.glsl");
-        let fragment = file::util::resource_path("shaders", "screen_text_frag.glsl");
+        let fragment = file::util::resource_path("shaders", "text_frag.glsl");
         let mut shader_program = ShaderProgram::from_long_pipeline(&vertex, &geometry, &fragment)?;
         shader_program.activate();
         shader_program.set_texture(UniformKey::FontTexture, TextureUnit::Texture0);
