@@ -20,7 +20,10 @@ use crate::{
     render::LightDependentSpriteRenderer,
     world::DamageTextWriter,
 };
-use nalgebra::Point2;
+use nalgebra::{
+    Point2,
+    Vector2,
+};
 
 pub struct Enemy {
     enemy_state: EnemyState,
@@ -58,9 +61,10 @@ impl Enemy {
     pub fn take_attack(&mut self,
                        config: &EnemyConfig,
                        attack: Attack,
+                       bullet_direction: Option<Vector2<f64>>,
                        particles: &mut ParticleSystem,
                        damage_text: &mut DamageTextWriter) {
-        self.enemy_state_machine.take_attack(config, attack, &mut self.enemy_state, particles, damage_text);
+        self.enemy_state_machine.take_attack(config, attack, bullet_direction, &mut self.enemy_state, particles, damage_text);
     }
 
     pub fn dead(&self) -> bool {

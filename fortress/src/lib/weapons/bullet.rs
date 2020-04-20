@@ -7,6 +7,7 @@ use crate::{
         time::{
             DeltaTime,
             Microseconds,
+            Timer,
         },
     },
     entities::{
@@ -49,13 +50,20 @@ use nphysics2d::{
 
 pub struct Bullet {
     body: RegisteredBody,
-    time_elapsed: Microseconds,
+    time_left: Timer,
     bullet_traits: BulletTraits,
     unit_random: f32,
 }
 
 impl Bullet {
-    pub fn new(entity: Entity, bullet_traits: BulletTraits, radius: f64, start_position: Point2<f64>, velocity: Velocity2<f64>, rng: &mut RandGen, physics_sim: &mut PhysicsSimulation) -> Bullet {
+    pub fn new(config: &PlayerBulletConfig,
+               entity: Entity,
+               bullet_traits: BulletTraits,
+               radius: f64,
+               start_position: Point2<f64>,
+               velocity: Velocity2<f64>,
+               rng: &mut RandGen,
+               physics_sim: &mut PhysicsSimulation) -> Bullet {
         let rigid_body = RigidBodyDesc::new()
             .status(BodyStatus::Dynamic)
             .translation(start_position.coords)
@@ -78,18 +86,18 @@ impl Bullet {
 
         Bullet {
             body,
-            time_elapsed: 0,
+            time_left: Timer::new(config.lifetime_duration_micros),
             unit_random: rng.unit_f32(),
             bullet_traits,
         }
     }
 
     pub fn pre_update(&mut self, dt: DeltaTime) {
-        self.time_elapsed += dt.as_microseconds();
+        self.time_left.tick(dt);
     }
 
-    pub fn expired(&self, config: &PlayerBulletConfig) -> bool {
-        self.time_elapsed >= config.lifetime_duration_micros
+    pub fn expired(&self) -> bool {
+        self.time_left.is_expired()
     }
 
     pub fn remove_on_collision(&self) -> bool {
@@ -117,7 +125,7 @@ impl Bullet {
 
         let rand_frame_offset = self.unit_random * (config.sprite_num_frames as f32 * config.sprite_frame_duration_micros as f32);
         let rand_frame_offset = rand_frame_offset as Microseconds;
-        let frame_duration = self.time_elapsed + rand_frame_offset;
+        let frame_duration = config.lifetime_duration_micros - self.time_left.time_left() + rand_frame_offset;
         let frame = (frame_duration / config.sprite_frame_duration_micros) as usize;
 
         FullyIlluminatedSpriteData {
@@ -141,6 +149,14 @@ impl Bullet {
         let position = glm::vec3(light_position_x, world_position.y, light_position_z);
         let attenuation = glm::vec3(config.light_attenuation.0, config.light_attenuation.1, config.light_attenuation.2);
         PointLight::new(position, color, attenuation)
+    }
+
+    pub fn direction(&self) -> Option<Vector2<f64>> {
+        self.body
+            .default_velocity()
+            .map(|velocity| {
+                velocity.normalize()
+            })
     }
 
     fn get_render_world_position(&self, config: &PlayerBulletConfig) -> glm::Vec3 {

@@ -47,7 +47,10 @@ use crate::{
     weapons::BulletId,
 };
 use generational_slab::Slab;
-use nalgebra::Point2;
+use nalgebra::{
+    Point2,
+    Vector2,
+};
 use std::collections::HashMap;
 
 pub struct PlayerSystem {
@@ -142,10 +145,10 @@ impl PlayerSystem {
         }
     }
 
-    pub fn bullet_hit(&mut self, player_id: PlayerId, bullet_id: BulletId) {
-        if let Some(player) = self.players.get_mut(player_id.to_key()) {
-            player.bullet_hit(bullet_id);
-        }
+    // Returns bullet direction.
+    pub fn bullet_hit(&mut self, player_id: PlayerId, bullet_id: BulletId) -> Option<Vector2<f64>> {
+        let player = self.players.get_mut(player_id.to_key())?;
+        player.bullet_hit(bullet_id)
     }
 
     pub fn bullet_attack(&self, player_id: PlayerId, bullet_id: BulletId) -> Option<Attack> {

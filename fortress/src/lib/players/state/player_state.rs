@@ -24,9 +24,9 @@ use crate::{
     physics::PhysicsSimulation,
     players::{
         Hero,
-        PlayerId,
-        PlayerConfig,
         PlayerBulletConfig,
+        PlayerConfig,
+        PlayerId,
         PlayerItemConfig,
         PlayerSystemConfig,
         state::{
@@ -85,8 +85,8 @@ impl PlayerState {
         }
     }
 
-    pub fn pre_update(&mut self, config: &PlayerBulletConfig, dt: DeltaTime) {
-        self.weapon.pre_update(config, &self.stats, dt);
+    pub fn pre_update(&mut self, dt: DeltaTime) {
+        self.weapon.pre_update(dt);
         self.stats.pre_update(dt);
         self.hero_switch_timer.tick(dt);
         self.frozen_from_firing_special_timer.tick(dt);
@@ -148,10 +148,10 @@ impl PlayerState {
         true
     }
 
-    pub fn try_fire(&mut self, audio: &AudioPlayer, rng: &mut RandGen) {
+    pub fn try_fire(&mut self, config: &PlayerBulletConfig, audio: &AudioPlayer, rng: &mut RandGen) {
         if let Some(position) = self.position() {
             let start_position = Point2::from(position.coords + self.weapon_physical_offset * self.facing_dir);
-            if self.weapon.try_fire_normal(&self.stats, self.player_id, start_position, self.facing_dir, rng) {
+            if self.weapon.try_fire_normal(config, &self.stats, self.player_id, start_position, self.facing_dir, rng) {
                 audio.play_sound(Sound::ShootSingleFireball);
             }
         }
@@ -194,8 +194,9 @@ impl PlayerState {
         }
     }
 
-    pub fn bullet_hit(&mut self, bullet_id: BulletId) {
-        self.weapon.bullet_hit(bullet_id);
+    // Returns bullet direction.
+    pub fn bullet_hit(&mut self, bullet_id: BulletId) -> Option<Vector2<f64>> {
+        self.weapon.bullet_hit(bullet_id)
     }
 
     pub fn bullet_attack(&self, bullet_id: BulletId) -> Option<Attack> {

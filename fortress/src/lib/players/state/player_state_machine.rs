@@ -62,14 +62,14 @@ impl PlayerStateMachine {
                           shake: &mut ScreenShake,
                           player_state: &mut PlayerState) -> Option<PlayerStateMachine> {
         let move_direction = Self::compute_move_direction(controller);
-        player_state.pre_update(&config.bullet, dt);
+        player_state.pre_update(dt);
         let velocity_was_set = player_state.try_set_velocity(config, move_direction);
 
         if controller.is_pressed(ControlEvent::PlayerFireSpecial) {
             player_state.try_fire_special(config, audio, rng, shake);
         }
         if controller.is_pressed(ControlEvent::PlayerFireWeapon) {
-            player_state.try_fire(audio, rng);
+            player_state.try_fire(&config.bullet, audio, rng);
         }
         if controller.is_pressed(ControlEvent::PlayerSwitchHero) {
             player_state.try_switch_hero(&config.player, audio, particles, shake);
@@ -162,8 +162,9 @@ impl PlayerStateMachine {
         }
     }
 
-    pub fn bullet_hit(&self, bullet_id: BulletId, player_state: &mut PlayerState) {
-        player_state.bullet_hit(bullet_id);
+    // Returns bullet direction.
+    pub fn bullet_hit(&self, bullet_id: BulletId, player_state: &mut PlayerState) -> Option<Vector2<f64>> {
+        player_state.bullet_hit(bullet_id)
     }
 
     pub fn bullet_attack(&self, player_state: &PlayerState, bullet_id: BulletId) -> Option<Attack> {

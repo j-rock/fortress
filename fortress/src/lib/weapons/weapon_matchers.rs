@@ -26,7 +26,7 @@ impl WeaponMatchers {
     }
 
     fn bullet_hit_something(player_id: PlayerId, bullet_id: BulletId, something: Entity, world: &mut WorldView) {
-        world.players.bullet_hit(player_id, bullet_id);
+        let bullet_direction = world.players.bullet_hit(player_id, bullet_id);
 
         match something {
             Entity::EnemyGenerator(generator_id) => {
@@ -36,7 +36,7 @@ impl WeaponMatchers {
             },
             Entity::Enemy(enemy_id) => {
                 if let Some(attack) = world.players.bullet_attack(player_id, bullet_id) {
-                    world.enemies.enemy_hit(enemy_id, attack, world.particles, world.damage_text);
+                    world.enemies.enemy_hit(enemy_id, attack, bullet_direction, world.particles, world.damage_text);
                 }
             }
             _ => {}

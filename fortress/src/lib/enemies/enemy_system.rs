@@ -33,7 +33,10 @@ use crate::{
     world::DamageTextWriter,
 };
 use generational_slab::Slab;
-use nalgebra::Point2;
+use nalgebra::{
+    Point2,
+    Vector2,
+};
 
 pub struct EnemySystem {
     config_manager: SimpleConfigManager<EnemySystemConfig>,
@@ -149,11 +152,12 @@ impl EnemySystem {
     pub fn enemy_hit(&mut self,
                      enemy_id: EnemyId,
                      attack: Attack,
+                     bullet_direction: Option<Vector2<f64>>,
                      particles: &mut ParticleSystem,
                      damage_text: &mut DamageTextWriter) {
         if let Some(enemy) = self.enemies.get_mut(enemy_id.key()) {
             let config = self.config_manager.get();
-            enemy.take_attack(&config.enemy, attack, particles, damage_text);
+            enemy.take_attack(&config.enemy, attack, bullet_direction, particles, damage_text);
         }
     }
 

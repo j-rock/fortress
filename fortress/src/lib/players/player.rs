@@ -29,7 +29,10 @@ use crate::{
     },
     weapons::BulletId,
 };
-use nalgebra::Point2;
+use nalgebra::{
+    Point2,
+    Vector2,
+};
 
 pub struct Player {
     player_state: PlayerState,
@@ -87,8 +90,9 @@ impl Player {
         self.player_state_machine.queue_draw(config, &self.player_state, full_light, light_dependent);
     }
 
-    pub fn bullet_hit(&mut self, bullet_id: BulletId) {
-        self.player_state_machine.bullet_hit(bullet_id, &mut self.player_state);
+    // Returns bullet direction.
+    pub fn bullet_hit(&mut self, bullet_id: BulletId) -> Option<Vector2<f64>> {
+        self.player_state_machine.bullet_hit(bullet_id, &mut self.player_state)
     }
 
     pub fn bullet_attack(&self, bullet_id: BulletId) -> Option<Attack> {

@@ -71,6 +71,7 @@ impl EnemyStateMachine {
     pub fn take_attack(&self,
                        config: &EnemyConfig,
                        attack: Attack,
+                       bullet_direction: Option<Vector2<f64>>,
                        enemy_state: &mut EnemyState,
                        particles: &mut ParticleSystem,
                        damage_text: &mut DamageTextWriter) {
@@ -81,7 +82,7 @@ impl EnemyStateMachine {
                 let blood_color = glm::vec3(config.blood_color.0, config.blood_color.1, config.blood_color.2);
                 let blood_event = ParticleEvent::blood(position.clone(), blood_color, config.num_blood_particles_per_hit);
                 particles.queue_event(blood_event);
-                damage_text.add_damage(damage, position);
+                damage_text.add_damage(damage, position, bullet_direction);
             }
         }
     }

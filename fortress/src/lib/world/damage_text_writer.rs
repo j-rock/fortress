@@ -19,7 +19,10 @@ use crate::{
     world::DamageTextWriterConfig,
 };
 use glm;
-use nalgebra::Point2;
+use nalgebra::{
+    Point2,
+    Vector2,
+};
 
 pub struct DamageTextWriter {
     config: SimpleConfigManager<DamageTextWriterConfig>,
@@ -65,12 +68,18 @@ impl DamageTextWriter {
             });
     }
 
-    pub fn add_damage(&mut self, damage: Damage, position: Point2<f64>) {
+    pub fn add_damage(&mut self, damage: Damage, position: Point2<f64>, direction: Option<Vector2<f64>>) {
         let config = self.config.get();
+
+        let velocity = glm::vec2(config.start_velocity.0, config.start_velocity.2) * if let Some(world_direction) = direction {
+            glm::vec2(world_direction.x as f32, -world_direction.y as f32)
+        } else {
+            glm::vec2(0.0, 0.0)
+        };
 
         self.damage.push(damage);
         self.position.push(glm::vec3(position.x as f32, config.start_height, -position.y as f32));
-        self.velocity.push(glm::vec3(config.start_velocity.0, config.start_velocity.1, config.start_velocity.2));
+        self.velocity.push(glm::vec3(velocity.x, config.start_velocity.1, velocity.y));
         self.timer.push(Timer::new(config.text_expiry_duration_micros));
     }
 
