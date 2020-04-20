@@ -69,7 +69,7 @@ impl PlayerStateMachine {
             player_state.try_fire_special(config, audio, rng, shake);
         }
         if controller.is_pressed(ControlEvent::PlayerFireWeapon) {
-            player_state.try_fire(&config.bullet, audio, rng);
+            player_state.try_fire(config, audio, rng);
         }
         if controller.is_pressed(ControlEvent::PlayerSwitchHero) {
             player_state.try_switch_hero(&config.player, audio, particles, shake);
@@ -107,8 +107,8 @@ impl PlayerStateMachine {
     }
 
     pub fn queue_draw(&self, config: &PlayerSystemConfig, player_state: &PlayerState, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {
-        player_state.queue_draw_weapon(config, full_light);
-        player_state.queue_draw_stats(config, full_light);
+        player_state.queue_draw_weapon(&config.bullet, full_light);
+        player_state.queue_draw_collected_items(&config.item, full_light);
 
         if let Some(position) = player_state.position() {
             if let Some(hero_config) = config.hero.get(&player_state.hero()) {
