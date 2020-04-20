@@ -52,13 +52,9 @@ use nalgebra::{
 
 pub struct PlayerState {
     player_id: PlayerId,
-    spawn: Point2<f64>,
     stats: PlayerStats,
     body: PlayerBody,
     hero: Hero,
-
-    facing_dir: Vector2<f64>,
-    lr_dir: LrDirection,
     weapon: Weapon,
 
     frozen_from_firing_special_timer: Timer,
@@ -74,12 +70,9 @@ impl PlayerState {
         let weapon = Weapon::new(&config.bullet, physics_sim);
         PlayerState {
             player_id,
-            spawn,
             hero: Hero::Rogue,
             stats,
             body,
-            facing_dir: Vector2::new(1.0, 0.0),
-            lr_dir: LrDirection::Right,
             weapon,
             frozen_from_firing_special_timer: Timer::expired(),
             hero_switch_timer: Timer::expired(),
@@ -99,14 +92,13 @@ impl PlayerState {
     }
 
     pub fn redeploy(&mut self, config: &PlayerSystemConfig, physics_sim: &mut PhysicsSimulation) {
-        self.body = PlayerBody::new(&config.player, self.player_id, self.spawn.clone(), physics_sim);
+        self.body.redeploy(&config.player, self.player_id,physics_sim);
         self.stats = PlayerStats::new(&config.bullet);
         self.weapon = Weapon::new(&config.bullet, physics_sim);
     }
 
     pub fn respawn(&mut self, spawn: Point2<f64>) {
-        self.spawn = spawn;
-        self.body.teleport_to(self.spawn.clone());
+        self.body.respawn(spawn);
     }
 
     pub fn get_player_id(&self) -> PlayerId {
@@ -132,18 +124,15 @@ impl PlayerState {
 
     pub fn try_set_velocity(&mut self, config: &PlayerSystemConfig, dir: Option<OctoDirection>) -> bool {
         if !self.frozen_from_firing_special_timer.is_expired() || dir.is_none() {
-            self.body.set_velocity(Vector2::new(0.0, 0.0));
+            self.body.stop_moving();
             return false;
         }
 
         if let Some(dir) = dir {
-            self.facing_dir = dir.to_direction();
-            if let Some(lr_dir) = dir.to_lr_direction() {
-                self.lr_dir = lr_dir;
-            }
-
+            self.body.update_direction(dir);
             if let Some(hero) = config.hero.get(&self.hero()) {
-                self.body.set_velocity(self.facing_dir.clone() * hero.base_move_speed);
+                let move_speed = self.stats.get_move_speed(hero);
+                self.body.move_forward(move_speed);
             }
         }
         true
@@ -151,8 +140,9 @@ impl PlayerState {
 
     pub fn try_fire(&mut self, config: &PlayerSystemConfig, audio: &AudioPlayer, rng: &mut RandGen) {
         if let Some(position) = self.position() {
-            let start_position = Point2::from(position.coords + config.player.weapon_physical_offset * self.facing_dir);
-            if self.weapon.try_fire_normal(&config.bullet, &self.stats, self.player_id, start_position, self.facing_dir, rng) {
+            let facing_dir = self.body.facing_dir();
+            let start_position = Point2::from(position.coords + config.player.weapon_physical_offset * facing_dir.clone());
+            if self.weapon.try_fire_normal(&config.bullet, &self.stats, self.player_id, start_position, facing_dir, rng) {
                 audio.play_sound(Sound::ShootSingleFireball);
             }
         }
@@ -160,8 +150,9 @@ impl PlayerState {
 
     pub fn try_fire_special(&mut self, config: &PlayerSystemConfig, audio: &AudioPlayer, rng: &mut RandGen, shake: &mut ScreenShake) {
         if let Some(position) = self.position() {
-            let start_position = Point2::from(position.coords + config.player.weapon_physical_offset * self.facing_dir);
-            if !self.weapon.try_fire_special(&config.bullet, &self.stats, self.player_id, start_position, self.facing_dir, rng) {
+            let facing_dir = self.body.facing_dir();
+            let start_position = Point2::from(position.coords + config.player.weapon_physical_offset * facing_dir.clone());
+            if !self.weapon.try_fire_special(&config.bullet, &self.stats, self.player_id, start_position, facing_dir, rng) {
                 return;
             }
 
@@ -170,7 +161,7 @@ impl PlayerState {
             shake.intensify(config.bullet.special_screen_shake_intensity);
 
             if let Some(config) = config.hero.get(&self.hero) {
-                self.body.shove(-self.facing_dir.clone(), config.fire_special_knockback_strength);
+                self.body.shove_backward(config.fire_special_knockback_strength);
             }
         }
     }
@@ -209,7 +200,7 @@ impl PlayerState {
     }
 
     pub fn lr_dir(&self) -> LrDirection {
-        self.lr_dir
+        self.body.lr_direction()
     }
 
     pub fn collect_item(&mut self, config: &PlayerItemConfig, item_pickup: ItemPickup) {

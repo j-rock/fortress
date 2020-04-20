@@ -10,7 +10,10 @@ use crate::{
         ItemPickup,
         ItemType,
     },
-    players::PlayerBulletConfig,
+    players::{
+        PlayerBulletConfig,
+        PlayerHeroConfig,
+    },
 };
 
 pub struct PlayerStats {
@@ -62,6 +65,10 @@ impl PlayerStats {
 
     pub fn get_knockback_strength(&self) -> f64 {
         self.base_bullet_knockback_strength * (self.bullet_knockback_strength_level as f64)
+    }
+
+    pub fn get_move_speed(&self, config: &PlayerHeroConfig) -> f64 {
+        config.base_move_speed
     }
 
     pub fn collect_item(&mut self, item_pickup: ItemPickup) {

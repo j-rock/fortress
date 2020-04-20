@@ -9,6 +9,7 @@ pub mod state;
 pub use self::hero::Hero;
 pub use self::player::Player;
 pub use self::player_config::PlayerConfig;
+pub use self::player_config::PlayerHeroConfig;
 pub use self::player_config::PlayerBulletConfig;
 pub use self::player_config::PlayerItemConfig;
 pub use self::player_config::PlayerSystemConfig;
