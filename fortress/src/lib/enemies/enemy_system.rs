@@ -11,6 +11,7 @@ use crate::{
         time::DeltaTime
     },
     enemies::{
+        DamageTextWriter,
         Enemy,
         EnemyId,
         EnemySystemConfig,
@@ -30,7 +31,7 @@ use crate::{
         PointLights,
         ScreenShake,
     },
-    world::DamageTextWriter,
+    text::TextRenderer,
 };
 use generational_slab::Slab;
 use nalgebra::{
@@ -43,17 +44,19 @@ pub struct EnemySystem {
     generator_spawns: Vec<EnemyGeneratorSpawn>,
     generators: Slab<EnemyGenerator>,
     enemies: Slab<Enemy>,
+    damage_text: DamageTextWriter,
 }
 
 impl EnemySystem {
     pub fn new(config_watcher: &mut ConfigWatcher, generator_spawns: &Vec<Point2<f64>>, physics_sim: &mut PhysicsSimulation) -> StatusOr<EnemySystem> {
         let config_manager: SimpleConfigManager<EnemySystemConfig> = SimpleConfigManager::from_config_resource(config_watcher, "enemy.conf")?;
 
-        let (generators, enemies) = {
+        let (generators, enemies, damage_text) = {
             let config = config_manager.get();
             let generators = Slab::with_capacity(config.generator.slab_initial_capacity_guess);
             let enemies = Slab::with_capacity(config.enemy.slab_initial_capacity_guess);
-            (generators, enemies)
+            let damage_text = DamageTextWriter::new(&config.damage_text);
+            (generators, enemies, damage_text)
         };
 
         let generator_spawns = generator_spawns.iter()
@@ -68,6 +71,7 @@ impl EnemySystem {
             generator_spawns,
             generators,
             enemies,
+            damage_text,
         };
         enemy_system.redeploy(physics_sim);
 
@@ -87,6 +91,8 @@ impl EnemySystem {
         for (_key , enemy) in self.enemies.iter_mut() {
             enemy.pre_update(&config.enemy, dt, &player_locs);
         }
+
+        self.damage_text.pre_update(&config.damage_text, dt);
     }
 
     pub fn post_update(&mut self, audio: &AudioPlayer, items: &mut ItemSystem, shake: &mut ScreenShake, physics_sim: &mut PhysicsSimulation) {
@@ -139,7 +145,7 @@ impl EnemySystem {
         lights.append(generator_lights);
     }
 
-    pub fn queue_draw(&self, light_dependent: &mut LightDependentSpriteRenderer) {
+    pub fn queue_draw(&self, light_dependent: &mut LightDependentSpriteRenderer, text: &mut TextRenderer) {
         let config = self.config_manager.get();
         for (_key, generator) in self.generators.iter() {
             generator.queue_draw(&config.generator, light_dependent);
@@ -147,17 +153,17 @@ impl EnemySystem {
         for (_key, enemy) in self.enemies.iter() {
             enemy.queue_draw(&config.enemy, light_dependent);
         }
+        self.damage_text.queue_draw(&config.damage_text, text);
     }
 
     pub fn enemy_hit(&mut self,
                      enemy_id: EnemyId,
                      attack: Attack,
                      bullet_direction: Option<Vector2<f64>>,
-                     particles: &mut ParticleSystem,
-                     damage_text: &mut DamageTextWriter) {
+                     particles: &mut ParticleSystem) {
         if let Some(enemy) = self.enemies.get_mut(enemy_id.key()) {
             let config = self.config_manager.get();
-            enemy.take_attack(&config.enemy, attack, bullet_direction, particles, damage_text);
+            enemy.take_attack(config, attack, bullet_direction, particles, &mut self.damage_text);
         }
     }
 

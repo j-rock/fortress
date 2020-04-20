@@ -12,6 +12,8 @@ use crate::{
         }
     },
     enemies::{
+        DamageTextWriter,
+        EnemySystemConfig,
         EnemyConfig,
         EnemyState,
         state::EnemyBody,
@@ -32,7 +34,6 @@ use crate::{
         NamedSpriteSheet,
         SpriteSheetFrameId,
     },
-    world::DamageTextWriter,
 };
 use glm;
 use nalgebra::{
@@ -69,7 +70,7 @@ impl EnemyStateMachine {
     }
 
     pub fn take_attack(&self,
-                       config: &EnemyConfig,
+                       config: &EnemySystemConfig,
                        attack: Attack,
                        bullet_direction: Option<Vector2<f64>>,
                        enemy_state: &mut EnemyState,
@@ -79,10 +80,10 @@ impl EnemyStateMachine {
             let damage = attack.damage;
             enemy_state.take_attack(attack);
             if let Some(position) = body.position() {
-                let blood_color = glm::vec3(config.blood_color.0, config.blood_color.1, config.blood_color.2);
-                let blood_event = ParticleEvent::blood(position.clone(), blood_color, config.num_blood_particles_per_hit);
+                let blood_color = glm::vec3(config.enemy.blood_color.0, config.enemy.blood_color.1, config.enemy.blood_color.2);
+                let blood_event = ParticleEvent::blood(position.clone(), blood_color, config.enemy.num_blood_particles_per_hit);
                 particles.queue_event(blood_event);
-                damage_text.add_damage(damage, position, bullet_direction);
+                damage_text.add_damage(&config.damage_text, damage, position, bullet_direction);
             }
         }
     }

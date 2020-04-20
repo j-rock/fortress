@@ -33,10 +33,7 @@ use crate::{
     },
     text::TextRenderer,
     weapons::WeaponMatchers,
-    world::{
-        DamageTextWriter,
-        WorldView
-    },
+    world::WorldView,
 };
 use glm;
 
@@ -57,7 +54,6 @@ pub struct WorldState {
     full_light_sprite: FullyIlluminatedSpriteRenderer,
     light_dependent_sprite: LightDependentSpriteRenderer,
     lights: PointLights,
-    damage_text_writer: DamageTextWriter,
 
     map: Map,
     players: PlayerSystem,
@@ -98,7 +94,6 @@ impl WorldState {
             full_light_sprite: FullyIlluminatedSpriteRenderer::new()?,
             light_dependent_sprite: LightDependentSpriteRenderer::new()?,
             lights,
-            damage_text_writer: DamageTextWriter::new(config_watcher)?,
             map,
             players,
             enemies,
@@ -118,7 +113,6 @@ impl WorldState {
             self.text_renderer.pre_update();
             self.camera.pre_update(dt);
             self.hud.pre_update(dt);
-            self.damage_text_writer.pre_update(dt);
 
             if self.map.pre_update(&mut self.physics_sim) {
                 self.players.respawn(self.map.spawns());
@@ -142,7 +136,6 @@ impl WorldState {
                 enemies: &mut self.enemies,
                 items: &mut self.items,
                 particles: &mut self.particles,
-                damage_text: &mut self.damage_text_writer,
                 dt
             });
         }
@@ -190,9 +183,8 @@ impl WorldState {
         self.hud.queue_draw(&mut self.text_renderer);
         self.map.queue_draw(&camera_stream_info, &mut self.hex_renderer, &mut self.full_light_sprite);
         self.players.queue_draw(&mut self.full_light_sprite, &mut self.light_dependent_sprite);
-        self.enemies.queue_draw(&mut self.light_dependent_sprite);
+        self.enemies.queue_draw(&mut self.light_dependent_sprite, &mut self.text_renderer);
         self.items.queue_draw(&mut self.full_light_sprite);
-        self.damage_text_writer.queue_draw(&mut self.text_renderer);
 
         self.background_renderer.draw(&self.textures, &geometry);
         self.light_dependent_sprite.draw(&self.lights, &self.textures, &geometry);

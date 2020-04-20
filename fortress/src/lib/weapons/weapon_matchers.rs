@@ -36,7 +36,7 @@ impl WeaponMatchers {
             },
             Entity::Enemy(enemy_id) => {
                 if let Some(attack) = world.players.bullet_attack(player_id, bullet_id) {
-                    world.enemies.enemy_hit(enemy_id, attack, bullet_direction, world.particles, world.damage_text);
+                    world.enemies.enemy_hit(enemy_id, attack, bullet_direction, world.particles);
                 }
             }
             _ => {}

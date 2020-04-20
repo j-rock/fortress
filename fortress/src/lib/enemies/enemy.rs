@@ -5,6 +5,8 @@ use crate::{
         time::DeltaTime
     },
     enemies::{
+        DamageTextWriter,
+        EnemySystemConfig,
         EnemyConfig,
         EnemyGeneratorId,
         EnemyId,
@@ -18,7 +20,6 @@ use crate::{
     particles::ParticleSystem,
     physics::PhysicsSimulation,
     render::LightDependentSpriteRenderer,
-    world::DamageTextWriter,
 };
 use nalgebra::{
     Point2,
@@ -59,7 +60,7 @@ impl Enemy {
     }
 
     pub fn take_attack(&mut self,
-                       config: &EnemyConfig,
+                       config: &EnemySystemConfig,
                        attack: Attack,
                        bullet_direction: Option<Vector2<f64>>,
                        particles: &mut ParticleSystem,

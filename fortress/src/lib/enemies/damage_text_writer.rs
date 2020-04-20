@@ -1,9 +1,5 @@
 use crate::{
-    app::StatusOr,
-    file::{
-        ConfigWatcher,
-        SimpleConfigManager,
-    },
+    enemies::DamageTextConfig,
     dimensions::{
         Damage,
         time::{
@@ -16,7 +12,6 @@ use crate::{
         TextRenderer,
         WorldTextRequest,
     },
-    world::DamageTextWriterConfig,
 };
 use glm;
 use nalgebra::{
@@ -25,7 +20,6 @@ use nalgebra::{
 };
 
 pub struct DamageTextWriter {
-    config: SimpleConfigManager<DamageTextWriterConfig>,
     damage: Vec<Damage>,
     position: Vec<glm::Vec3>,
     velocity: Vec<glm::Vec3>,
@@ -33,23 +27,18 @@ pub struct DamageTextWriter {
 }
 
 impl DamageTextWriter {
-    pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<Self> {
-        let config = SimpleConfigManager::<DamageTextWriterConfig>::from_config_resource(config_watcher, "damage_text.conf")?;
-        let capacity = config.get().initial_capacity;
-
-        Ok(DamageTextWriter {
-            config,
-            damage: Vec::with_capacity(capacity),
-            position: Vec::with_capacity(capacity),
-            velocity: Vec::with_capacity(capacity),
-            timer: Vec::with_capacity(capacity),
-        })
+    pub fn new(config: &DamageTextConfig) -> Self {
+        DamageTextWriter {
+            damage: Vec::with_capacity(config.initial_capacity),
+            position: Vec::with_capacity(config.initial_capacity),
+            velocity: Vec::with_capacity(config.initial_capacity),
+            timer: Vec::with_capacity(config.initial_capacity),
+        }
     }
 
-    pub fn pre_update(&mut self, dt: DeltaTime) {
-        self.config.update();
+    pub fn pre_update(&mut self, config: &DamageTextConfig, dt: DeltaTime) {
         let float_dt = dt.as_f32_seconds();
-        let vertical_acceleration = self.config.get().vertical_acceleration * float_dt;
+        let vertical_acceleration = config.vertical_acceleration * float_dt;
 
         (0..self.damage.len())
             .rev()
@@ -68,9 +57,7 @@ impl DamageTextWriter {
             });
     }
 
-    pub fn add_damage(&mut self, damage: Damage, position: Point2<f64>, direction: Option<Vector2<f64>>) {
-        let config = self.config.get();
-
+    pub fn add_damage(&mut self, config: &DamageTextConfig, damage: Damage, position: Point2<f64>, direction: Option<Vector2<f64>>) {
         let velocity = glm::vec2(config.start_velocity.0, config.start_velocity.2) * if let Some(world_direction) = direction {
             glm::vec2(world_direction.x as f32, -world_direction.y as f32)
         } else {
@@ -83,9 +70,7 @@ impl DamageTextWriter {
         self.timer.push(Timer::new(config.text_expiry_duration_micros));
     }
 
-    pub fn queue_draw(&self, text: &mut TextRenderer) {
-        let config = self.config.get();
-
+    pub fn queue_draw(&self, config: &DamageTextConfig, text: &mut TextRenderer) {
         (0..self.damage.len())
             .for_each(|idx| {
                 let damage_value = self.damage[idx].value();
