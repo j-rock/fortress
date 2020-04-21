@@ -24,7 +24,6 @@ use crate::{
     physics::PhysicsSimulation,
     players::{
         Hero,
-        PlayerBulletConfig,
         PlayerConfig,
         PlayerId,
         PlayerItemConfig,

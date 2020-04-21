@@ -79,8 +79,8 @@ impl DamageTextWriter {
                 let world_position = self.position[idx];
 
                 let alpha = {
-                    let t = self.timer[idx].time_left() as f32 / config.text_expiry_duration_micros as f32;
-                    EasingFn::ease_out_quintic(t)
+                    let t = self.timer[idx].as_completion_fraction_of(config.text_expiry_duration_micros);
+                    EasingFn::ease_out_quintic(1.0 - t)
                 };
 
                 text.queue_world_text(content.iter().copied(), WorldTextRequest {

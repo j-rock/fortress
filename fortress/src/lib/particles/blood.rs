@@ -111,8 +111,8 @@ impl BloodParticles {
                 let color = self.color[idx];
                 let size = self.size[idx];
                 let alpha = {
-                    let t = self.timer[idx].time_left() as f32 / config.expiry_duration_micros as f32;
-                    EasingFn::ease_out_quintic(t)
+                    let t = self.timer[idx].as_completion_fraction_of(config.expiry_duration_micros);
+                    EasingFn::ease_out_quintic(1.0 - t)
                 };
 
                 render_view.attr_pos.push(Vec3Attr::new(position));

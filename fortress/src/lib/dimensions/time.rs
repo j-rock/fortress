@@ -67,4 +67,8 @@ impl Timer {
     pub fn time_left(&self) -> Microseconds {
         self.time_left
     }
+
+    pub fn as_completion_fraction_of(&self, duration: Microseconds) -> f32 {
+        1.0 - self.time_left as f32 / duration as f32
+    }
 }

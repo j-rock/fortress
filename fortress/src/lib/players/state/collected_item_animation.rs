@@ -62,7 +62,7 @@ impl CollectedItemAnimation {
         let queue_data =
             (0..self.item_pickup.len())
                 .map(|idx| {
-                    let t = 1.0 - self.timer[idx].time_left() as f32 / config.collect_animation_duration_micros as f32;
+                    let t = self.timer[idx].as_completion_fraction_of(config.collect_animation_duration_micros);
                     let light_strength = EasingFn::ease_out_quintic(t);
                     let position = Self::world_center_position(config, player_center, t);
                     let color = self.item_pickup[idx].light_color(item_config) * light_strength;
@@ -77,7 +77,7 @@ impl CollectedItemAnimation {
         let queue_data =
             (0..self.item_pickup.len())
                 .map(|idx| {
-                    let t = 1.0 - self.timer[idx].time_left() as f32 / config.collect_animation_duration_micros as f32;
+                    let t = self.timer[idx].as_completion_fraction_of(config.collect_animation_duration_micros);
                     let item_pickup = self.item_pickup[idx];
                     FullyIlluminatedSpriteData {
                         world_center_position: Self::world_center_position(config, player_center, t),
