@@ -82,13 +82,13 @@ impl HeroSwitchParticles {
                 let (position_xz, velocity_xz) = {
                     let unit_circle_point = rng.unit_circle_point();
                     let position_xz = unit_circle_point.clone() * config.starting_radial_offset + event.position.coords.clone();
-                    let speed_xz = (config.xz_speed_band.1 - config.xz_speed_band.0) * rng.unit_f64() + config.xz_speed_band.0;
+                    let speed_xz = rng.ranged_f64(config.xz_speed_band.0, config.xz_speed_band.1);
                     let velocity_xz = unit_circle_point.coords * speed_xz;
                     (position_xz, velocity_xz)
                 };
 
-                let wave_speed = (config.wave_speed_band.1 - config.wave_speed_band.0) * rng.unit_f64() + config.wave_speed_band.0;
-                let height = (config.starting_height_band.1 - config.starting_height_band.0) * rng.unit_f64() + config.starting_height_band.0;
+                let wave_speed = rng.ranged_f64(config.wave_speed_band.0, config.wave_speed_band.1);
+                let height = rng.ranged_f64(config.starting_height_band.0, config.starting_height_band.1);
                 let color = glm::vec3(config.color.0, config.color.1, config.color.2) * rng.unit_f32();
                 let size = config.size;
 

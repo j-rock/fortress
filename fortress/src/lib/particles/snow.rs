@@ -96,15 +96,15 @@ impl SnowParticles {
         };
 
         let velocity = {
-            let inclination_offset = (2.0 * rng.unit_f32() - 1.0) * config.wind_direction_max_angle_offset;
-            let azimuth_offset = (2.0 * rng.unit_f32() - 1.0) * config.wind_direction_max_angle_offset;
+            let inclination_offset = rng.ranged_f32(-config.wind_direction_max_angle_offset, config.wind_direction_max_angle_offset);
+            let azimuth_offset = rng.ranged_f32(-config.wind_direction_max_angle_offset, config.wind_direction_max_angle_offset);
             let direction = Rotations::perturb_direction(self.wind_inclination, self.wind_azimuth, inclination_offset, azimuth_offset);
-            let speed = config.speed_range.0 + (config.speed_range.1 - config.speed_range.0) * rng.unit_f32();
+            let speed = rng.ranged_f32(config.speed_range.0, config.speed_range.1);
             direction * speed
         };
 
         let color = glm::vec3(config.color.0, config.color.1, config.color.2) * rng.unit_f32();
-        let size = config.size_range.0 + (config.size_range.1 - config.size_range.0) * rng.unit_f32();
+        let size = rng.ranged_f32(config.size_range.0, config.size_range.1);
 
         self.ring_buffer_view.add_element_at_head(position, &mut self.position);
         self.ring_buffer_view.add_element_at_head(velocity, &mut self.velocity);

@@ -84,7 +84,7 @@ impl BloodParticles {
     pub fn add_event(&mut self, config: &BloodParticleConfig, event: &BloodParticleEvent, rng: &mut RandGen) {
         (0..event.num_particles_to_generate)
             .for_each(|_idx| {
-                let vel_xz = rng.unit_circle_glm() * rng.unit_f32() * config.max_spread_speed;
+                let vel_xz = rng.unit_circle_glm() * rng.ranged_f32(0.0, config.max_spread_speed);
                 let velocity = glm::vec3(vel_xz.x, config.start_velocity_y, vel_xz.y);
 
                 let radius = rng.unit_circle_glm() * config.start_position_radius;
@@ -93,7 +93,7 @@ impl BloodParticles {
                               config.start_height,
                               radius.y - event.position.y as f32);
                 let color = event.color * rng.unit_f32();
-                let size = config.size_range.0 + (config.size_range.1 - config.size_range.0) * rng.unit_f32();
+                let size = rng.ranged_f32(config.size_range.0, config.size_range.1);
 
                 let time_left = Timer::new(config.expiry_duration_micros);
 

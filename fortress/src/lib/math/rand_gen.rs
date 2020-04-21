@@ -15,7 +15,7 @@ use std::{
 };
 
 pub struct RandGen {
-    pub rng: XorShiftRng,
+    rng: XorShiftRng,
     _seed: [u8; 16],
 }
 
@@ -56,10 +56,18 @@ impl RandGen {
     }
 
     pub fn unit_f32(&mut self) -> f32 {
-        self.rng.gen_range(0.0, 1.0)
+        self.ranged_f32(0.0, 1.0)
+    }
+
+    pub fn ranged_f32(&mut self, low: f32, high: f32) -> f32 {
+        self.rng.gen_range(low, high)
     }
 
     pub fn unit_f64(&mut self) -> f64 {
-        self.rng.gen_range(0.0, 1.0)
+        self.ranged_f64(0.0, 1.0)
+    }
+
+    pub fn ranged_f64(&mut self, low: f64, high: f64) -> f64 {
+        self.rng.gen_range(low, high)
     }
 }
