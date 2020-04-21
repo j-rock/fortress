@@ -12,7 +12,7 @@ use crate::{
     players::{
         PlayerBulletConfig,
         PlayerId,
-        state::PlayerStats,
+        PlayerStats,
     },
     render::{
         FullyIlluminatedSpriteRenderer,
@@ -104,7 +104,7 @@ impl Weapon {
             bullet_traits: BulletTraits::new(BulletAttackType::Regular, self.bullet_element),
         };
         if self.fire_one(config, args, rng) {
-            self.current_normal_delay = Timer::new(stats.get_normal_firing_period());
+            self.current_normal_delay = Timer::new(stats.normal_firing_period(config));
             true
         } else {
             false
@@ -147,7 +147,7 @@ impl Weapon {
             fired_any |= self.fire_one(config, args, rng);
         }
         if fired_any {
-            self.current_special_delay = Timer::new(stats.get_special_firing_period());
+            self.current_special_delay = Timer::new(stats.special_firing_period(config));
         }
         return fired_any;
     }
@@ -168,11 +168,11 @@ impl Weapon {
         bullet.direction()
     }
 
-    pub fn bullet_attack(&self, stats: &PlayerStats, bullet_id: BulletId) -> Option<Attack> {
+    pub fn bullet_attack(&self, config: &PlayerBulletConfig, stats: &PlayerStats, bullet_id: BulletId) -> Option<Attack> {
         self.bullets
             .get(bullet_id.to_key())
             .and_then(|bullet| {
-                bullet.get_attack(stats.get_bullet_damage(), stats.get_knockback_strength())
+                bullet.get_attack(stats.bullet_damage(config), stats.bullet_knockback(config))
             })
     }
 
@@ -198,7 +198,7 @@ impl Weapon {
         let bullet_id = BulletId::new(vacant_entry.key());
         let entity = Entity::Bullet(args.player_id, bullet_id);
 
-        let bullet_speed = args.stats.get_bullet_speed();
+        let bullet_speed = args.stats.bullet_speed(config);
         let linear_vel = bullet_speed * args.direction;
         let velocity = Velocity2::linear(linear_vel.x, linear_vel.y);
 

@@ -24,15 +24,16 @@ use crate::{
     physics::PhysicsSimulation,
     players::{
         Hero,
+        PlayerBulletConfig,
         PlayerConfig,
         PlayerId,
         PlayerItemConfig,
+        PlayerStats,
         PlayerSystemConfig,
         state::{
             CollectedItemAnimation,
             PlayerBody,
-            PlayerStats,
-        }
+        },
     },
     render::{
         FullyIlluminatedSpriteRenderer,
@@ -65,7 +66,7 @@ pub struct PlayerState {
 impl PlayerState {
     pub fn new(player_id: PlayerId, config: &PlayerSystemConfig, spawn: Point2<f64>, physics_sim: &mut PhysicsSimulation) -> PlayerState {
         let body = PlayerBody::new(&config.player, player_id, spawn, physics_sim);
-        let stats = PlayerStats::new(&config.bullet);
+        let stats = PlayerStats::new();
         let weapon = Weapon::new(&config.bullet, physics_sim);
         PlayerState {
             player_id,
@@ -92,7 +93,7 @@ impl PlayerState {
 
     pub fn redeploy(&mut self, config: &PlayerSystemConfig, physics_sim: &mut PhysicsSimulation) {
         self.body.redeploy(&config.player, self.player_id,physics_sim);
-        self.stats = PlayerStats::new(&config.bullet);
+        self.stats = PlayerStats::new();
         self.weapon = Weapon::new(&config.bullet, physics_sim);
     }
 
@@ -127,7 +128,7 @@ impl PlayerState {
         if let Some(dir) = dir {
             self.body.update_direction(dir);
             if let Some(hero) = config.hero.get(&self.hero()) {
-                let move_speed = self.stats.get_move_speed(hero);
+                let move_speed = self.stats.move_speed(hero);
                 self.body.move_forward(move_speed);
             }
         }
@@ -187,8 +188,8 @@ impl PlayerState {
         self.weapon.bullet_hit(bullet_id)
     }
 
-    pub fn bullet_attack(&self, bullet_id: BulletId) -> Option<Attack> {
-        self.weapon.bullet_attack(&self.stats, bullet_id)
+    pub fn bullet_attack(&self, config: &PlayerBulletConfig, bullet_id: BulletId) -> Option<Attack> {
+        self.weapon.bullet_attack(config, &self.stats, bullet_id)
     }
 
     pub fn position(&self) -> Option<Point2<f64>> {
@@ -200,7 +201,7 @@ impl PlayerState {
     }
 
     pub fn collect_item(&mut self, config: &PlayerItemConfig, item_pickup: ItemPickup) {
-        self.stats.collect_item(item_pickup);
+        self.stats.collect_item(item_pickup.item_type());
         self.collected_item_animations.add_animation(config, item_pickup);
     }
 
@@ -208,7 +209,7 @@ impl PlayerState {
         self.hero
     }
 
-    pub fn skull_count(&self) -> usize {
+    pub fn skull_count(&self) -> i64 {
         self.stats.skull_count()
     }
 }

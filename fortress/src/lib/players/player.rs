@@ -13,6 +13,7 @@ use crate::{
     particles::ParticleSystem,
     physics::PhysicsSimulation,
     players::{
+        PlayerBulletConfig,
         PlayerItemConfig,
         PlayerSystemConfig,
         PlayerId,
@@ -95,8 +96,8 @@ impl Player {
         self.player_state_machine.bullet_hit(bullet_id, &mut self.player_state)
     }
 
-    pub fn bullet_attack(&self, bullet_id: BulletId) -> Option<Attack> {
-        self.player_state_machine.bullet_attack(&self.player_state, bullet_id)
+    pub fn bullet_attack(&self, config: &PlayerBulletConfig, bullet_id: BulletId) -> Option<Attack> {
+        self.player_state_machine.bullet_attack(config, &self.player_state, bullet_id)
     }
 
     pub fn position(&self) -> Option<Point2<f64>> {
@@ -107,7 +108,7 @@ impl Player {
         self.player_state_machine.collect_item(config, item_pickup, &mut self.player_state);
     }
 
-    pub fn skull_count(&self) -> usize {
+    pub fn skull_count(&self) -> i64 {
         self.player_state.skull_count()
     }
 }

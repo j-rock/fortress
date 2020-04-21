@@ -31,7 +31,7 @@ impl PlayerHudUpdate {
 
 #[derive(Copy, Clone)]
 pub struct IndividualPlayerHudData {
-    pub skulls_collected: usize,
+    pub skulls_collected: i64,
 }
 
 impl Default for IndividualPlayerHudData {

@@ -22,6 +22,7 @@ use crate::{
         ItemPickup,
         ItemSystem,
         ItemType,
+        types::SkullType,
     },
     particles::{
         ParticleEvent,
@@ -106,7 +107,7 @@ impl EnemyStateMachine {
             },
             Self::Dying(position, time_elapsed) if *time_elapsed >= config.dying_duration_micros => {
                 if let Some(position) = position {
-                    let item_pickup = ItemPickup::new(ItemType::Skull, enemy_state.facing_dir());
+                    let item_pickup = ItemPickup::new(ItemType::Skull(SkullType::Regular), enemy_state.facing_dir());
                     items.spawn_item(item_pickup, position.clone(), physics_sim);
                 }
                 Some(Self::Dead)

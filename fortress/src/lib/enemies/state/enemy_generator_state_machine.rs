@@ -20,6 +20,7 @@ use crate::{
         ItemPickup,
         ItemSystem,
         ItemType,
+        types::SkullType,
     },
     particles::ParticleSystem,
     physics::PhysicsSimulation,
@@ -80,7 +81,7 @@ impl EnemyGeneratorStateMachine {
            Self::ReadyToGenerate | Self::Cooldown(_) if !generator_state.health().alive() => {
                if let Some(position) = generator_state.position() {
                    let facing_dir = LrDirection::from_radians(generator_state.orientation());
-                   let item_pickup = ItemPickup::new(ItemType::MegaSkull, facing_dir);
+                   let item_pickup = ItemPickup::new(ItemType::Skull(SkullType::Mega), facing_dir);
                    items.spawn_item(item_pickup, position.clone(), physics_sim);
                }
                shake.intensify(config.death_screen_shake_intensity);

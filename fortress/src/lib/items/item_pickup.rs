@@ -30,15 +30,7 @@ impl ItemPickup {
     }
 
     pub fn reverse(&self) -> Reverse {
-        match self.item_type {
-            ItemType::Skull | ItemType::MegaSkull => {
-                if self.facing_dir.is_left() {
-                    Reverse::horizontally()
-                } else {
-                    Reverse::none()
-                }
-            },
-        }
+        self.item_type.render_reverse(self.facing_dir)
     }
 
     pub fn sprite_frame_id(&self) -> SpriteSheetFrameId {

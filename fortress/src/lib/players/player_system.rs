@@ -151,7 +151,8 @@ impl PlayerSystem {
 
     pub fn bullet_attack(&self, player_id: PlayerId, bullet_id: BulletId) -> Option<Attack> {
         let player = self.players.get(player_id.to_key())?;
-        player.bullet_attack(bullet_id)
+        let config = self.config_manager.get();
+        player.bullet_attack(&config.bullet, bullet_id)
     }
 
     pub fn populate_lights(&self, item_config: &ItemConfig, lights: &mut PointLights) {
