@@ -8,10 +8,10 @@ extern crate ncollide2d;
 extern crate nphysics2d;
 extern crate rand;
 extern crate rand_xorshift;
+extern crate ron;
 extern crate sdl2;
 extern crate serde;
 #[macro_use] extern crate serde_derive;
-extern crate serde_json;
 
 pub mod app;
 pub mod audio;

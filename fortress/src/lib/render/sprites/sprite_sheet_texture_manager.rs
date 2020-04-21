@@ -93,7 +93,7 @@ impl SpriteSheetTextureManager {
         let sprite_sheet1 = include_bytes!(concat!(env!("OUT_DIR"), "\\images\\SpriteSheet1.png"));
 
         let baked_config: BakedSpriteSheetConfig =
-            serde_json::from_slice(baked_sprite_sheet_config)
+            ron::de::from_bytes(baked_sprite_sheet_config)
                 .map_err(|e| format!("{:?}", e))?;
 
         let mut images = HashMap::new();

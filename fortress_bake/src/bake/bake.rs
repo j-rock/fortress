@@ -24,9 +24,9 @@ fn save_sprite_sheets(input: &InputDirectories, output: &OutputDirectories) -> S
 
     let baked_config_filepath = output.config.join("sprite_sheet.conf");
     let baked_config = BakedSpriteSheetConfig::new(sprite_sheet_config, all_packed_sprite_sheets.frames);
-    let baked_config_json = serde_json::to_string(&baked_config)
+    let baked_config_string = ron::ser::to_string(&baked_config)
         .map_err(|e| format!("{:?}", e))?;
-    std::fs::write(baked_config_filepath, baked_config_json)
+    std::fs::write(baked_config_filepath, baked_config_string)
         .map_err(|e| format!("{:?}", e))?;
 
     Ok(())

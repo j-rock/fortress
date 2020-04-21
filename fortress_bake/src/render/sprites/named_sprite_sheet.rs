@@ -1,5 +1,4 @@
 use enum_iterator::IntoEnumIterator;
-use serde_json;
 
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, Eq, PartialEq, Hash, IntoEnumIterator)]
 pub enum NamedSpriteSheet {
@@ -18,6 +17,6 @@ impl NamedSpriteSheet {
     }
 
     pub fn from_str(s: &str) -> Option<Self> {
-        serde_json::de::from_str(s).ok()
+        ron::de::from_str(s).ok()
     }
 }

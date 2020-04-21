@@ -2,7 +2,6 @@ use crate::{
     app::StatusOr,
     file,
 };
-use serde_json;
 use std::{
     fs::File,
     io::Write,
@@ -10,15 +9,15 @@ use std::{
 };
 
 #[derive(Serialize, Deserialize)]
-pub struct JsonBitmap {
+pub struct SerializableBitmap {
     img: Vec<u8>,
     width: usize,
     height: usize,
 }
 
-impl JsonBitmap {
+impl SerializableBitmap {
     pub fn empty(width: usize, height: usize) -> Self {
-        JsonBitmap {
+        SerializableBitmap {
             img: vec![0; width * height],
             width,
             height
@@ -31,7 +30,7 @@ impl JsonBitmap {
     }
 
     pub fn from_slice(slice: &[u8]) -> StatusOr<Self> {
-        serde_json::de::from_slice(slice)
+        ron::de::from_bytes(slice)
             .map_err(|e| format!("Bitmap read err: {:?}", e))
     }
 
@@ -45,7 +44,7 @@ impl JsonBitmap {
     }
 
     pub fn save_to_file(&self, path: PathBuf) -> StatusOr<()> {
-        let out = serde_json::to_string(&self)
+        let out = ron::ser::to_string(&self)
             .map_err(|e| format!("Bitmap serialize err: {:?}", e))?;
 
         let mut file = File::create(path)
@@ -58,7 +57,7 @@ impl JsonBitmap {
         (self.width, self.height)
     }
 
-    pub fn overwrite(&mut self, other: JsonBitmap, top_left_x: usize, top_left_y: usize) -> StatusOr<()> {
+    pub fn overwrite(&mut self, other: SerializableBitmap, top_left_x: usize, top_left_y: usize) -> StatusOr<()> {
         let (self_width, self_height) = self.size();
         let (other_width, other_height) = other.size();
 

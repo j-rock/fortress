@@ -1,7 +1,7 @@
 use crate::{
     app::StatusOr,
     file,
-    render::JsonBitmap,
+    render::SerializableBitmap,
 };
 use png;
 use std::{
@@ -47,7 +47,7 @@ impl Png {
         })
     }
 
-    pub fn from_bitmap(bitmap: &JsonBitmap) -> Self {
+    pub fn from_bitmap(bitmap: &SerializableBitmap) -> Self {
         let (width, height) = bitmap.size();
         let mut out = Self::empty(width, height);
         for (index, value) in bitmap.image_bytes().iter().enumerate() {
