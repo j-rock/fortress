@@ -112,13 +112,10 @@ impl PlayerState {
         }
     }
 
-    pub fn queue_draw_weapon(&self, config: &PlayerBulletConfig, full_light: &mut FullyIlluminatedSpriteRenderer) {
-        self.weapon.queue_draw(config, full_light);
-    }
-
-    pub fn queue_draw_collected_items(&self, config: &PlayerItemConfig, full_light: &mut FullyIlluminatedSpriteRenderer) {
+    pub fn queue_draw(&self, config: &PlayerSystemConfig, full_light: &mut FullyIlluminatedSpriteRenderer) {
+        self.weapon.queue_draw(&config.bullet, full_light);
         if let Some(position) = self.position() {
-            self.collected_item_animations.queue_draw(config, position, full_light);
+            self.collected_item_animations.queue_draw(&config.item, position, full_light);
         }
     }
 

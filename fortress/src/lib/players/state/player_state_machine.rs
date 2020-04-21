@@ -107,8 +107,7 @@ impl PlayerStateMachine {
     }
 
     pub fn queue_draw(&self, config: &PlayerSystemConfig, player_state: &PlayerState, full_light: &mut FullyIlluminatedSpriteRenderer, light_dependent: &mut LightDependentSpriteRenderer) {
-        player_state.queue_draw_weapon(&config.bullet, full_light);
-        player_state.queue_draw_collected_items(&config.item, full_light);
+        player_state.queue_draw(config, full_light);
 
         if let Some(position) = player_state.position() {
             if let Some(hero_config) = config.hero.get(&player_state.hero()) {
