@@ -1,8 +1,5 @@
 use crate::{
-    app::{
-        RandGen,
-        StatusOr
-    },
+    app::StatusOr,
     audio::AudioPlayer,
     control::Controller,
     dimensions::time::DeltaTime,
@@ -14,6 +11,7 @@ use crate::{
     hud::Hud,
     items::ItemSystem,
     maps::Map,
+    math::RandGen,
     particles::ParticleSystem,
     physics::PhysicsSimulation,
     players::{

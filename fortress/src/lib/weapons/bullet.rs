@@ -1,5 +1,4 @@
 use crate::{
-    app::RandGen,
     dimensions::{
         Attack,
         Damage,
@@ -15,6 +14,7 @@ use crate::{
         RegisteredBody,
         RegisteredBodyBuilder,
     },
+    math::RandGen,
     physics::{
         collision_category,
         PhysicsSimulation

@@ -1,8 +1,5 @@
 use crate::{
-    app::{
-        RandGen,
-        StatusOr,
-    },
+    app::StatusOr,
     audio::{
         AudioPlayer,
         Sound
@@ -30,6 +27,7 @@ use crate::{
         ItemConfig,
         ItemPickup,
     },
+    math::RandGen,
     physics::PhysicsSimulation,
     particles::ParticleSystem,
     players::{

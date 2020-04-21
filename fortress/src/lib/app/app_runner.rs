@@ -3,7 +3,6 @@ use crate::{
         AppContext,
         AppRunnerConfig,
         Clock,
-        RandGen,
         StatusOr,
     },
     audio::AudioPlayer,
@@ -12,6 +11,7 @@ use crate::{
         ConfigWatcher,
         SimpleConfigManager,
     },
+    math::RandGen,
     render::BloomPipeline,
     world::WorldState,
 };

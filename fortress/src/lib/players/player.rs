@@ -1,5 +1,4 @@
 use crate::{
-    app::RandGen,
     audio::AudioPlayer,
     control::IdentifiedController,
     dimensions::{
@@ -10,6 +9,7 @@ use crate::{
         ItemConfig,
         ItemPickup,
     },
+    math::RandGen,
     particles::ParticleSystem,
     physics::PhysicsSimulation,
     players::{

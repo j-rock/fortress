@@ -1,4 +1,4 @@
-use crate::app::RandGen;
+use crate::math::RandGen;
 use nalgebra::{
     Point2,
     Vector2,

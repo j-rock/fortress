@@ -1,5 +1,4 @@
 use crate::{
-    app::RandGen,
     dimensions::{
         Attack,
         time::{
@@ -8,6 +7,7 @@ use crate::{
         }
     },
     entities::Entity,
+    math::RandGen,
     physics::PhysicsSimulation,
     players::{
         PlayerBulletConfig,

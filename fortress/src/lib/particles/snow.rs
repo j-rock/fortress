@@ -1,5 +1,4 @@
 use crate::{
-    app::RandGen,
     data::RingBufferView,
     dimensions::time::{
         DeltaTime,
@@ -7,6 +6,7 @@ use crate::{
     },
     math::{
         EasingFn,
+        RandGen,
         Rotations,
     },
     particles::{

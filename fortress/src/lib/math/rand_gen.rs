@@ -26,7 +26,7 @@ impl Default for RandGen {
 }
 
 impl RandGen {
-    pub fn new() -> RandGen {
+    pub fn new() -> Self {
         let seed = match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
             Ok(duration) => {
                 let secs = duration.as_secs();

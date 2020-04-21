@@ -1,14 +1,12 @@
 use crate::{
-    app::{
-        RandGen,
-        StatusOr,
-    },
+    app::StatusOr,
     dimensions::time::DeltaTime,
     file::{
         self,
         ConfigWatcher,
         SimpleConfigManager,
     },
+    math::RandGen,
     particles::{
         BloodParticles,
         ParticleConfig,

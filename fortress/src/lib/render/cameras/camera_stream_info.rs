@@ -1,9 +1,9 @@
 use crate::{
-    app::RandGen,
     dimensions::{
         BoundingSquircle,
         GridIndex,
-    }
+    },
+    math::RandGen,
 };
 use nalgebra::{
     Matrix2,

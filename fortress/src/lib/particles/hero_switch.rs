@@ -1,7 +1,7 @@
 use crate::{
-    app::RandGen,
     data::RingBufferView,
     dimensions::time::DeltaTime,
+    math::RandGen,
     particles::{
         ParticleRenderView,
         particle_render_view::{

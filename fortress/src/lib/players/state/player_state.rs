@@ -1,5 +1,4 @@
 use crate::{
-    app::RandGen,
     audio::{
         AudioPlayer,
         Sound,
@@ -17,6 +16,7 @@ use crate::{
         ItemConfig,
         ItemPickup,
     },
+    math::RandGen,
     particles::{
         ParticleEvent,
         ParticleSystem,

@@ -1,11 +1,13 @@
 use crate::{
-    app::RandGen,
     data::RingBufferView,
     dimensions::time::{
         DeltaTime,
         Timer,
     },
-    math::EasingFn,
+    math::{
+        EasingFn,
+        RandGen,
+    },
     particles::{
         BloodParticleConfig,
         BloodParticleEvent,
