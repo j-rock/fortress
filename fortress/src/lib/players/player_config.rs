@@ -32,9 +32,16 @@ pub struct PlayerHeroExtraRenderConfig {
 }
 
 #[derive(Clone, Deserialize)]
+pub struct FiringPeriodConfig {
+    pub baseline_micros: i64,
+    pub shortest_period_micros: i64,
+    pub per_level_decrease_micros: i64,
+}
+
+#[derive(Clone, Deserialize)]
 pub struct PlayerBulletConfig {
-    pub normal_firing_period_micros: i64,
-    pub special_firing_period_micros: i64,
+    pub normal_firing_period: FiringPeriodConfig,
+    pub special_firing_period: FiringPeriodConfig,
     pub special_spread_radians: f64,
     pub special_num_shots: usize,
     pub special_screen_shake_intensity: f32,

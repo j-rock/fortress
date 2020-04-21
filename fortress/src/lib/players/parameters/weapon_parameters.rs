@@ -1,10 +1,7 @@
 use crate::{
     dimensions::{
         Damage,
-        time::{
-            self,
-            Microseconds,
-        }
+        time::Microseconds,
     },
     players::PlayerBulletConfig,
 };
@@ -44,10 +41,22 @@ impl WeaponParameters {
     }
 
     pub fn normal_firing_period(&self, config: &PlayerBulletConfig) -> Microseconds {
-        config.normal_firing_period_micros - (self.normal_firing_speed_level as Microseconds) * time::milliseconds(5)
+        let level_speedup = self.normal_firing_speed_level as Microseconds * config.normal_firing_period.per_level_decrease_micros;
+        let firing_period = config.normal_firing_period.baseline_micros - level_speedup;
+        if firing_period < config.normal_firing_period.shortest_period_micros {
+            config.normal_firing_period.shortest_period_micros
+        } else {
+            firing_period
+        }
     }
 
     pub fn special_firing_period(&self, config: &PlayerBulletConfig) -> Microseconds {
-        config.special_firing_period_micros - (self.special_firing_speed_level as Microseconds) * time::milliseconds(5)
+        let level_speedup = self.special_firing_speed_level as Microseconds * config.special_firing_period.per_level_decrease_micros;
+        let firing_period = config.special_firing_period.baseline_micros - level_speedup;
+        if firing_period < config.special_firing_period.shortest_period_micros {
+            config.special_firing_period.shortest_period_micros
+        } else {
+            firing_period
+        }
     }
 }
