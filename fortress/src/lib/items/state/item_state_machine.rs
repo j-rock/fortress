@@ -18,8 +18,8 @@ pub enum ItemStateMachine {
 }
 
 impl Default for ItemStateMachine {
-    fn default() -> ItemStateMachine {
-        ItemStateMachine::AwaitingCollection
+    fn default() -> Self {
+        Self::AwaitingCollection
     }
 }
 
@@ -49,7 +49,7 @@ impl ItemStateMachine {
     }
 
     pub fn collect(&mut self) {
-        *self = ItemStateMachine::Collected;
+        *self = Self::Collected;
     }
 
     pub fn collected(&self) -> bool {

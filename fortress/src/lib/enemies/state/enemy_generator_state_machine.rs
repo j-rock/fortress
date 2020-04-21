@@ -45,8 +45,8 @@ pub enum EnemyGeneratorStateMachine {
 }
 
 impl Default for EnemyGeneratorStateMachine {
-    fn default() -> EnemyGeneratorStateMachine {
-        EnemyGeneratorStateMachine::ReadyToGenerate
+    fn default() -> Self {
+        Self::ReadyToGenerate
     }
 }
 
@@ -57,7 +57,7 @@ impl EnemyGeneratorStateMachine {
                       dt: DeltaTime,
                       generator_state: &mut EnemyGeneratorState,
                       enemies: &mut Slab<Enemy>,
-                      physics_sim: &mut PhysicsSimulation) -> Option<EnemyGeneratorStateMachine> {
+                      physics_sim: &mut PhysicsSimulation) -> Option<Self> {
         match self {
             Self::ReadyToGenerate => {
                 Self::new_enemy(config, player_locs, generator_state, enemies, physics_sim)?;
@@ -75,7 +75,7 @@ impl EnemyGeneratorStateMachine {
                        generator_state: &mut EnemyGeneratorState,
                        items: &mut ItemSystem,
                        shake: &mut ScreenShake,
-                       physics_sim: &mut PhysicsSimulation) -> Option<EnemyGeneratorStateMachine> {
+                       physics_sim: &mut PhysicsSimulation) -> Option<Self> {
         match self {
            Self::ReadyToGenerate | Self::Cooldown(_) if !generator_state.health().alive() => {
                if let Some(position) = generator_state.position() {

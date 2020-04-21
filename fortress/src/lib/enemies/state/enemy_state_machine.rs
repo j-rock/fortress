@@ -48,20 +48,24 @@ pub enum EnemyStateMachine {
 }
 
 impl EnemyStateMachine {
-    pub fn new(body: EnemyBody) -> EnemyStateMachine {
-        EnemyStateMachine::Base(body, 0)
+    pub fn new(body: EnemyBody) -> Self {
+        Self::Base(body, 0)
     }
 
-    pub fn pre_update(&mut self, config: &EnemyConfig, dt: DeltaTime, player_locs: &Vec<Point2<f64>>, enemy_state: &mut EnemyState) -> Option<EnemyStateMachine> {
+    pub fn pre_update(&mut self,
+                      config: &EnemyConfig,
+                      dt: DeltaTime,
+                      player_locs: &Vec<Point2<f64>>,
+                      enemy_state: &mut EnemyState) -> Option<Self> {
         match self {
-            EnemyStateMachine::Base(body, time_elapsed) => {
+            Self::Base(body, time_elapsed) => {
                 *time_elapsed += dt.as_microseconds();
                 body.move_to_target(config, player_locs);
                 if let Some(direction) = body.velocity() {
                     enemy_state.set_facing_dir(direction);
                 }
             },
-            EnemyStateMachine::Dying(_, time_elapsed) => {
+            Self::Dying(_, time_elapsed) => {
                 *time_elapsed += dt.as_microseconds();
             },
             _ => {},
@@ -76,7 +80,7 @@ impl EnemyStateMachine {
                        enemy_state: &mut EnemyState,
                        particles: &mut ParticleSystem,
                        damage_text: &mut DamageTextWriter) {
-        if let EnemyStateMachine::Base(body, _) = self {
+        if let Self::Base(body, _) = self {
             let damage = attack.damage;
             enemy_state.take_attack(attack);
             if let Some(position) = body.position() {
@@ -88,19 +92,24 @@ impl EnemyStateMachine {
         }
     }
 
-    pub fn post_update(&mut self, config: &EnemyConfig, audio: &AudioPlayer, enemy_state: &EnemyState, items: &mut ItemSystem, physics_sim: &mut PhysicsSimulation) -> Option<EnemyStateMachine> {
+    pub fn post_update(&mut self,
+                       config: &EnemyConfig,
+                       audio: &AudioPlayer,
+                       enemy_state: &EnemyState,
+                       items: &mut ItemSystem,
+                       physics_sim: &mut PhysicsSimulation) -> Option<Self> {
         match self {
-            EnemyStateMachine::Base(body, _) if !enemy_state.health().alive() => {
+            Self::Base(body, _) if !enemy_state.health().alive() => {
                 audio.play_sound(Sound::EnemyKilled);
                 let position = body.position();
-                Some(EnemyStateMachine::Dying(position, 0))
+                Some(Self::Dying(position, 0))
             },
-            EnemyStateMachine::Dying(position, time_elapsed) if *time_elapsed >= config.dying_duration_micros => {
+            Self::Dying(position, time_elapsed) if *time_elapsed >= config.dying_duration_micros => {
                 if let Some(position) = position {
                     let item_pickup = ItemPickup::new(ItemType::Skull, enemy_state.facing_dir());
                     items.spawn_item(item_pickup, position.clone(), physics_sim);
                 }
-                Some(EnemyStateMachine::Dead)
+                Some(Self::Dead)
             },
             _ => None
         }
@@ -108,13 +117,13 @@ impl EnemyStateMachine {
 
     pub fn queue_draw(&self, config: &EnemyConfig, enemy_state: &EnemyState, sprite_renderer: &mut LightDependentSpriteRenderer) {
         let image_name = match self {
-            EnemyStateMachine::Dying(_, _) => String::from("enemy1_dying.png"),
+            Self::Dying(_, _) => String::from("enemy1_dying.png"),
             _ => String::from("enemy1.png")
         };
 
         let frame = match self {
-            EnemyStateMachine::Base(_, time_elapsed) => (*time_elapsed / config.walk_frame_duration_micros) as usize,
-            EnemyStateMachine::Dying(_, time_elapsed) => (*time_elapsed / config.dying_frame_duration_micros) as usize,
+            Self::Base(_, time_elapsed) => (*time_elapsed / config.walk_frame_duration_micros) as usize,
+            Self::Dying(_, time_elapsed) => (*time_elapsed / config.dying_frame_duration_micros) as usize,
             _ => 0,
         };
 
@@ -140,17 +149,16 @@ impl EnemyStateMachine {
     }
 
     pub fn dead(&self) -> bool {
-        if let EnemyStateMachine::Dead = self {
-            true
-        } else {
-            false
+        match self {
+            Self::Dead => true,
+            _ => false,
         }
     }
 
     fn position(&self) -> Option<Point2<f64>> {
         match self {
-            EnemyStateMachine::Base(body, _) => body.position(),
-            EnemyStateMachine::Dying(position, _) => *position,
+            Self::Base(body, _) => body.position(),
+            Self::Dying(position, _) => *position,
             _ => None
         }
     }

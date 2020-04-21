@@ -48,8 +48,8 @@ pub enum PlayerStateMachine {
 }
 
 impl PlayerStateMachine {
-    pub fn new() -> PlayerStateMachine {
-        PlayerStateMachine::Idle(0)
+    pub fn new() -> Self {
+        Self::Idle(0)
     }
 
     pub fn pre_update<'a>(&mut self,
@@ -60,7 +60,7 @@ impl PlayerStateMachine {
                           particles: &mut ParticleSystem,
                           rng: &mut RandGen,
                           shake: &mut ScreenShake,
-                          player_state: &mut PlayerState) -> Option<PlayerStateMachine> {
+                          player_state: &mut PlayerState) -> Option<Self> {
         let move_direction = Self::compute_move_direction(controller);
         player_state.pre_update(dt);
         let velocity_was_set = player_state.try_set_velocity(config, move_direction);
@@ -93,7 +93,7 @@ impl PlayerStateMachine {
         None
     }
 
-    pub fn post_update(&self, player_state: &mut PlayerState) -> Option<PlayerStateMachine> {
+    pub fn post_update(&self, player_state: &mut PlayerState) -> Option<Self> {
         player_state.post_update();
         None
     }
@@ -123,13 +123,13 @@ impl PlayerStateMachine {
                 let world_center_position = glm::vec3(position.x as f32 + render_offset.x, world_half_size.y, -(position.y as f32 + render_offset.y));
 
                 let image_name = match self {
-                    PlayerStateMachine::Idle(_) => hero_config.idle_image_name.clone(),
-                    PlayerStateMachine::Walking(_) => hero_config.walking_image_name.clone(),
+                    Self::Idle(_) => hero_config.idle_image_name.clone(),
+                    Self::Walking(_) => hero_config.walking_image_name.clone(),
                 };
 
                 let frame = match self {
-                    PlayerStateMachine::Idle(time_elapsed) => (*time_elapsed / hero_config.idle_frame_duration_micros) as usize,
-                    PlayerStateMachine::Walking(time_elapsed) => (*time_elapsed / hero_config.walking_frame_duration_micros) as usize,
+                    Self::Idle(time_elapsed) => (*time_elapsed / hero_config.idle_frame_duration_micros) as usize,
+                    Self::Walking(time_elapsed) => (*time_elapsed / hero_config.walking_frame_duration_micros) as usize,
                 };
 
                 light_dependent.queue(LightDependentSpriteData {
@@ -143,8 +143,8 @@ impl PlayerStateMachine {
 
                 if let Some(ref render_extra_config) = hero_config.render_extra {
                     let image_extra_name = match self {
-                        PlayerStateMachine::Idle(_) => render_extra_config.idle_image_extra_name.clone(),
-                        PlayerStateMachine::Walking(_) => render_extra_config.walking_image_extra_name.clone(),
+                        Self::Idle(_) => render_extra_config.idle_image_extra_name.clone(),
+                        Self::Walking(_) => render_extra_config.walking_image_extra_name.clone(),
                     };
 
                     full_light.queue(Some(FullyIlluminatedSpriteData {
