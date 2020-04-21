@@ -167,8 +167,8 @@ impl PlayerStateMachine {
         player_state.bullet_hit(bullet_id)
     }
 
-    pub fn bullet_attack(&self, config: &PlayerBulletConfig, player_state: &PlayerState, bullet_id: BulletId) -> Option<Attack> {
-        player_state.bullet_attack(config, bullet_id)
+    pub fn bullet_attack(&self, config: &PlayerBulletConfig, player_state: &PlayerState, bullet_id: BulletId, rng: &mut RandGen) -> Option<Attack> {
+        player_state.bullet_attack(config, bullet_id, rng)
     }
 
     pub fn position(&self, player_state: &PlayerState) -> Option<Point2<f64>> {

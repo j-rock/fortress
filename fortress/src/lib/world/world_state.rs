@@ -134,6 +134,7 @@ impl WorldState {
                 enemies: &mut self.enemies,
                 items: &mut self.items,
                 particles: &mut self.particles,
+                rng,
                 dt
             });
         }

@@ -168,11 +168,11 @@ impl Weapon {
         bullet.direction()
     }
 
-    pub fn bullet_attack(&self, config: &PlayerBulletConfig, stats: &PlayerStats, bullet_id: BulletId) -> Option<Attack> {
+    pub fn bullet_attack(&self, config: &PlayerBulletConfig, stats: &PlayerStats, bullet_id: BulletId, rng: &mut RandGen) -> Option<Attack> {
         self.bullets
             .get(bullet_id.to_key())
             .and_then(|bullet| {
-                bullet.get_attack(stats.bullet_damage(config), stats.bullet_knockback(config))
+                bullet.get_attack(stats.bullet_damage(config, rng), stats.bullet_knockback(config))
             })
     }
 

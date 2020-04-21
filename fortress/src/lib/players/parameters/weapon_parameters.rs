@@ -3,6 +3,7 @@ use crate::{
         Damage,
         time::Microseconds,
     },
+    math::RandGen,
     players::PlayerBulletConfig,
 };
 
@@ -27,9 +28,10 @@ impl Default for WeaponParameters {
 }
 
 impl WeaponParameters {
-    pub fn bullet_damage(&self, config: &PlayerBulletConfig) -> Damage {
-        let value = self.bullet_damage_level as i64 * config.damage;
-        Damage::new(value)
+    pub fn bullet_damage(&self, config: &PlayerBulletConfig, rng: &mut RandGen) -> Damage {
+        let low_value = self.bullet_damage_level as i64 * config.base_damage_per_level;
+        let high_value = low_value * config.random_damage_multiplier;
+        Damage::new(rng.ranged_i64(low_value, high_value))
     }
 
     pub fn bullet_knockback(&self, config: &PlayerBulletConfig) -> f64 {

@@ -7,6 +7,7 @@ use crate::{
         ItemConfig,
         ItemType,
     },
+    math::RandGen,
     players::{
         parameters::{
             MovementParameters,
@@ -41,8 +42,8 @@ impl PlayerStats {
         }
     }
 
-    pub fn bullet_damage(&self, config: &PlayerBulletConfig) -> Damage {
-        self.weapon.bullet_damage(config)
+    pub fn bullet_damage(&self, config: &PlayerBulletConfig, rng: &mut RandGen) -> Damage {
+        self.weapon.bullet_damage(config, rng)
     }
 
     pub fn bullet_knockback(&self, config: &PlayerBulletConfig) -> f64 {

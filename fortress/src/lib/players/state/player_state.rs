@@ -188,8 +188,8 @@ impl PlayerState {
         self.weapon.bullet_hit(bullet_id)
     }
 
-    pub fn bullet_attack(&self, config: &PlayerBulletConfig, bullet_id: BulletId) -> Option<Attack> {
-        self.weapon.bullet_attack(config, &self.stats, bullet_id)
+    pub fn bullet_attack(&self, config: &PlayerBulletConfig, bullet_id: BulletId, rng: &mut RandGen) -> Option<Attack> {
+        self.weapon.bullet_attack(config, &self.stats, bullet_id, rng)
     }
 
     pub fn position(&self) -> Option<Point2<f64>> {
