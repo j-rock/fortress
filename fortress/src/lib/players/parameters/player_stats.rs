@@ -3,7 +3,10 @@ use crate::{
         Damage,
         time::Microseconds,
     },
-    items::ItemType,
+    items::{
+        ItemConfig,
+        ItemType,
+    },
     players::{
         parameters::{
             MovementParameters,
@@ -30,10 +33,10 @@ impl PlayerStats {
         }
     }
 
-    pub fn collect_item(&mut self, item_type: ItemType) {
+    pub fn collect_item(&mut self, config: &ItemConfig, item_type: ItemType) {
         match item_type {
             ItemType::Skull(skull_type) => {
-                self.skull.add_to_count(skull_type);
+                self.skull.add_to_count(config, skull_type);
             }
         }
     }

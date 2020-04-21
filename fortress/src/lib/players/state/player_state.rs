@@ -200,8 +200,8 @@ impl PlayerState {
         self.body.lr_direction()
     }
 
-    pub fn collect_item(&mut self, config: &PlayerItemConfig, item_pickup: ItemPickup) {
-        self.stats.collect_item(item_pickup.item_type());
+    pub fn collect_item(&mut self, config: &PlayerItemConfig, item_config: &ItemConfig, item_pickup: ItemPickup) {
+        self.stats.collect_item(item_config, item_pickup.item_type());
         self.collected_item_animations.add_animation(config, item_pickup);
     }
 

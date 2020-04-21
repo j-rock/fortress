@@ -175,8 +175,8 @@ impl PlayerStateMachine {
         player_state.position()
     }
 
-    pub fn collect_item(&self, config: &PlayerItemConfig, item_pickup: ItemPickup, player_state: &mut PlayerState) {
-        player_state.collect_item(config, item_pickup);
+    pub fn collect_item(&self, config: &PlayerItemConfig, item_config: &ItemConfig, item_pickup: ItemPickup, player_state: &mut PlayerState) {
+        player_state.collect_item(config, item_config, item_pickup);
     }
 
     fn compute_move_direction(controller: IdentifiedController) -> Option<OctoDirection> {

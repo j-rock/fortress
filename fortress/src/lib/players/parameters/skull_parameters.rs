@@ -1,4 +1,7 @@
-use crate::items::types::SkullType;
+use crate::items::{
+    ItemConfig,
+    types::SkullType,
+};
 
 pub struct SkullParameters {
     current_count: i64,
@@ -17,10 +20,8 @@ impl SkullParameters {
         self.current_count
     }
 
-    pub fn add_to_count(&mut self, skull: SkullType) {
-        self.current_count += match skull {
-            SkullType::Mega => 5,
-            SkullType::Regular => 1,
-        };
+    pub fn add_to_count(&mut self, config: &ItemConfig, skull: SkullType) {
+        let skull_value = config.skull_value.get(&skull).unwrap_or(&0);
+        self.current_count += *skull_value;
     }
 }

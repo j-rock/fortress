@@ -1,4 +1,7 @@
-use crate::items::ItemType;
+use crate::items::{
+    ItemType,
+    types::SkullType,
+};
 use std::collections::HashMap;
 
 #[derive(Deserialize)]
@@ -11,4 +14,5 @@ pub struct ItemConfig {
     pub light_elevation: f32,
     pub light_attenuation: (f32, f32, f32),
     pub item_type_light_color: HashMap<ItemType, (f32, f32, f32)>,
+    pub skull_value: HashMap<SkullType, i64>,
 }
