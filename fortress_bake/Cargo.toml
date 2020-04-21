@@ -13,10 +13,10 @@ memmap = "0.7"
 notify = "4.0"
 png = "0.16"
 rect_packer = "0.2"
+ron = "0.5"
 rusttype = "0.8"
 serde = "1.0"
 serde_derive = "1.0"
-serde_json = "1.0"
 
 [features]
 bake = []

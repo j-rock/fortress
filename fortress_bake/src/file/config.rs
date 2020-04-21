@@ -7,7 +7,6 @@ use notify::{
     Watcher,
 };
 use serde::de::DeserializeOwned;
-use serde_json;
 use std::{
     cell::RefCell,
     collections::HashMap,
@@ -25,7 +24,7 @@ pub trait Config: Sized {
 impl<T: DeserializeOwned> Config for T {
     fn from_path(path_buf: &PathBuf) -> StatusOr<T> {
         let reader = file::util::reader(path_buf)?;
-        serde_json::from_reader(reader)
+        ron::de::from_reader(reader)
             .map_err(|e| format!("Couldn't parse config {:?}: {}", path_buf, e))
     }
 }

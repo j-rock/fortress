@@ -1,7 +1,7 @@
 use crate::{
     app::StatusOr,
     file,
-    render::JsonBitmap,
+    render::SerializableBitmap,
     text::{
         CharRasterInfo,
         Font,
@@ -21,7 +21,7 @@ use std::{
 };
 
 pub struct PackedGlyphSheet {
-    pub image: JsonBitmap,
+    pub image: SerializableBitmap,
     pub mappings: HashMap<GlyphId, GlyphInfo>,
 }
 
@@ -29,7 +29,7 @@ impl PackedGlyphSheet {
     pub fn new(config: &TextConfig, fonts_dir: &PathBuf) -> StatusOr<Self> {
         let fonts = Self::load_all_fonts(fonts_dir)?;
 
-        let mut atlas = JsonBitmap::empty(config.texture_atlas_size.0, config.texture_atlas_size.1);
+        let mut atlas = SerializableBitmap::empty(config.texture_atlas_size.0, config.texture_atlas_size.1);
         let mut packer = DensePacker::new(config.texture_atlas_size.0 as i32, config.texture_atlas_size.1 as i32);
         let mut mappings = HashMap::with_capacity(config.all_glyph_id_count_guess);
 
@@ -89,17 +89,17 @@ impl PackedGlyphSheet {
         all.into_iter()
     }
 
-    fn first_successful_raster(fonts: &[Font], character: char, size: f32) -> StatusOr<(CharRasterInfo, JsonBitmap)> {
+    fn first_successful_raster(fonts: &[Font], character: char, size: f32) -> StatusOr<(CharRasterInfo, SerializableBitmap)> {
         for font in fonts.iter() {
             match character {
                 ' ' => {
                     if let Some((char_raster_info, _bitmap)) = font.render_char('-', size) {
-                        return Ok((char_raster_info, JsonBitmap::empty(3, 3)));
+                        return Ok((char_raster_info, SerializableBitmap::empty(3, 3)));
                     }
                 },
                 _ => {
                     if let Some((char_raster_info, bitmap)) = font.render_char(character, size) {
-                        return Ok((char_raster_info, JsonBitmap::from(bitmap)));
+                        return Ok((char_raster_info, SerializableBitmap::from(bitmap)));
                     }
                 },
             }

@@ -1,6 +1,6 @@
 use crate::{
     app::StatusOr,
-    render::JsonBitmap,
+    render::SerializableBitmap,
     text::CharRasterInfo,
 };
 use rusttype;
@@ -28,7 +28,7 @@ impl<'a> Font<'a> {
         })
     }
 
-    pub fn render_char(&self, character: char, scale: f32) -> Option<(CharRasterInfo, JsonBitmap)> {
+    pub fn render_char(&self, character: char, scale: f32) -> Option<(CharRasterInfo, SerializableBitmap)> {
         let scale= rusttype::Scale::uniform(scale);
         let glyph = self.font.glyph(character).scaled(scale);
         let h_metrics = glyph.h_metrics();
@@ -37,7 +37,7 @@ impl<'a> Font<'a> {
             y: 0.0,
         });
         let bb = glyph.pixel_bounding_box()?;
-        let mut bitmap = JsonBitmap::empty(bb.width() as usize, bb.height() as usize);
+        let mut bitmap = SerializableBitmap::empty(bb.width() as usize, bb.height() as usize);
         glyph.draw(|x, y, v| {
             bitmap.try_set_byte(x as usize, y as usize, (v * 255.0) as u8);
         });

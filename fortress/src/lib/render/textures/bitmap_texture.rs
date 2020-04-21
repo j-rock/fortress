@@ -1,6 +1,6 @@
 use crate::render::{
-    JsonBitmap,
     RawGlTexture,
+    SerializableBitmap,
     TextureStyle,
     TextureUnit,
 };
@@ -15,7 +15,7 @@ pub struct BitmapTexture {
 }
 
 impl BitmapTexture {
-    pub fn new(image: JsonBitmap, texture_style: TextureStyle, texture_unit: TextureUnit) -> Self {
+    pub fn new(image: SerializableBitmap, texture_style: TextureStyle, texture_unit: TextureUnit) -> Self {
         let (width, height) = image.size();
         let image_bytes = image.image_bytes();
 

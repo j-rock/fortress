@@ -6,10 +6,10 @@ extern crate memmap;
 extern crate notify;
 extern crate png;
 extern crate rect_packer;
+extern crate ron;
 extern crate rusttype;
 extern crate serde;
 #[macro_use] extern crate serde_derive;
-extern crate serde_json;
 
 pub mod app;
 pub mod bake;
