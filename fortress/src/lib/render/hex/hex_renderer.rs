@@ -1,7 +1,6 @@
 use crate::{
     app::StatusOr,
     dimensions::{
-        GridDirection,
         GridIndex,
         Reverse,
     },
@@ -11,7 +10,7 @@ use crate::{
         Attribute,
         AttributeProgram,
         CameraGeometry,
-        InstancedMesh,
+        HexMesh,
         NamedSpriteSheet,
         PointLights,
         ShaderProgram,
@@ -21,7 +20,6 @@ use crate::{
         TextureUnit,
     }
 };
-use gl::types::GLuint;
 use glm;
 use std::ffi::CString;
 
@@ -73,7 +71,7 @@ impl ShaderUniformKey for UniformKey {
 pub struct HexRenderer {
     shader_program: ShaderProgram<UniformKey>,
     // InstancedMesh should be destructed before AttributeProgram.
-    mesh: InstancedMesh,
+    mesh: HexMesh,
     attribute_program: AttributeProgram,
     attr_transform: Attribute<HexTransformAttr>,
     attr_scale: Attribute<HexScaleAttr>,
@@ -89,16 +87,14 @@ impl HexRenderer {
         let fragment = file::util::resource_path("shaders", "hex_frag.glsl");
         let shader_program = ShaderProgram::from_long_pipeline(&vertex, &geometry, &fragment)?;
 
-        // The InstancedMesh will take up the first vertex attrib slot.
+        // The HexMesh will take up the first vertex attrib slot.
         let mut attribute_program_builder = AttributeProgram::builder_with_offset(1);
+        // Important to create HexMesh while attribute program is active.
+        let mesh = HexMesh::new();
         let attr_transform = attribute_program_builder.add_attribute();
         let attr_scale = attribute_program_builder.add_attribute();
         let attr_alpha = attribute_program_builder.add_attribute();
         let attribute_program = attribute_program_builder.build();
-
-        let vertices = Self::compute_hexagon_vertices();
-        let faces = Self::compute_hexagon_faces();
-        let mesh = InstancedMesh::from_geometry(vertices, faces, &attribute_program);
 
         Ok(HexRenderer {
             shader_program,
@@ -166,40 +162,6 @@ impl HexRenderer {
 
     pub fn set_tile_scale(&mut self, tile_scale: glm::Vec2) {
         self.tile_scale = tile_scale;
-    }
-
-    fn compute_hexagon_vertices() -> Vec<glm::Vec3> {
-        let (vec2_0, vec2_1) = GridDirection::up().cartesian_offsets(1.0);
-        let (vec2_2, vec2_3) = GridDirection::down_right().cartesian_offsets(1.0);
-        let (vec2_4, vec2_5) = GridDirection::down_left().cartesian_offsets(1.0);
-
-        vec!(
-            glm::vec3(vec2_0.x as f32, 0.0,  -vec2_0.y as f32),
-            glm::vec3(vec2_1.x as f32, 0.0 , -vec2_1.y as f32),
-            glm::vec3(vec2_2.x as f32, 0.0 , -vec2_2.y as f32),
-            glm::vec3(vec2_3.x as f32, 0.0 , -vec2_3.y as f32),
-            glm::vec3(vec2_4.x as f32, 0.0 , -vec2_4.y as f32),
-            glm::vec3(vec2_5.x as f32, 0.0 , -vec2_5.y as f32),
-            glm::vec3(vec2_2.x as f32, -1.0, -vec2_2.y as f32),
-            glm::vec3(vec2_3.x as f32, -1.0, -vec2_3.y as f32),
-            glm::vec3(vec2_4.x as f32, -1.0, -vec2_4.y as f32),
-            glm::vec3(vec2_5.x as f32, -1.0, -vec2_5.y as f32),
-        )
-    }
-
-    fn compute_hexagon_faces() -> Vec<GLuint> {
-        vec!(
-            0, 3, 1,
-            0, 4, 3,
-            0, 5, 4,
-            1, 3, 2,
-            5, 9, 4,
-            4, 9, 8,
-            4, 8, 3,
-            3, 8, 7,
-            3, 7, 2,
-            2, 7, 6
-        )
     }
 }
 
