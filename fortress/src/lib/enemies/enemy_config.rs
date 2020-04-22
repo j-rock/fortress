@@ -1,4 +1,8 @@
-use crate::text::RasterSize;
+use crate::{
+    dimensions::Criticality,
+    text::RasterSize,
+};
+use std::collections::HashMap;
 
 #[derive(Deserialize)]
 pub struct EnemySystemConfig {
@@ -52,7 +56,7 @@ pub struct DamageTextConfig {
     pub vertical_acceleration: f32,
     pub text_expiry_duration_micros: i64,
     pub raster_size: RasterSize,
-    pub color: (f32, f32, f32),
+    pub color: HashMap<Criticality, (f32, f32, f32)>,
     pub shadow_color: (f32, f32, f32),
     pub shadow_offset: (f32, f32, f32),
 }

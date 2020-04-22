@@ -1,12 +1,29 @@
+#[derive(Copy, Clone, Deserialize, Eq, Hash, PartialEq)]
+pub enum Criticality {
+    Normal,
+    Crit,
+}
+
+
 #[derive(Copy, Clone)]
-pub struct Damage(i64);
+pub struct Damage {
+    value: i64,
+    criticality: Criticality,
+}
 
 impl Damage {
-    pub fn new(val: i64) -> Damage {
-        Damage(val)
+    pub fn new(value: i64, criticality: Criticality) -> Self {
+        Damage {
+            value,
+            criticality,
+        }
     }
 
     pub fn value(self) -> i64 {
-        self.0
+        self.value
+    }
+
+    pub fn criticality(self) -> Criticality {
+        self.criticality
     }
 }

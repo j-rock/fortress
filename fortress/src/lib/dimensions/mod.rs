@@ -10,6 +10,7 @@ pub mod up_down_left_right;
 
 pub use self::attack::Attack;
 pub use self::bounding_squircle::BoundingSquircle;
+pub use self::damage::Criticality;
 pub use self::damage::Damage;
 pub use self::grid_index::GridDirection;
 pub use self::grid_index::GridIndex;

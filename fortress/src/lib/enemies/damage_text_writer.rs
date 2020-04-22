@@ -74,27 +74,29 @@ impl DamageTextWriter {
     pub fn queue_draw(&self, config: &DamageTextConfig, text: &mut TextRenderer) {
         (0..self.damage.len())
             .for_each(|idx| {
-                let damage_value = self.damage[idx].value();
-                let content = [TextContent::Number(damage_value)];
-                let world_position = self.position[idx];
+                let damage = self.damage[idx];
+                if let Some(color) = config.color.get(&damage.criticality()) {
+                    let content = [TextContent::Number(damage.value())];
+                    let world_position = self.position[idx];
 
-                let alpha = {
-                    let t = self.timer[idx].as_completion_fraction_of(config.text_expiry_duration_micros);
-                    EasingFn::ease_out_quintic(1.0 - t)
-                };
+                    let alpha = {
+                        let t = self.timer[idx].as_completion_fraction_of(config.text_expiry_duration_micros);
+                        EasingFn::ease_out_quintic(1.0 - t)
+                    };
 
-                text.queue_world_text(content.iter().copied(), WorldTextRequest {
-                    world_position: world_position + glm::vec3(config.shadow_offset.0, config.shadow_offset.1, config.shadow_offset.2),
-                    raster_size: config.raster_size,
-                    color: glm::vec3(config.shadow_color.0, config.shadow_color.1, config.shadow_color.2),
-                    alpha,
-                });
-                text.queue_world_text(content.iter().copied(), WorldTextRequest {
-                    world_position,
-                    raster_size: config.raster_size,
-                    color: glm::vec3(config.color.0, config.color.1, config.color.2),
-                    alpha,
-                });
+                    text.queue_world_text(content.iter().copied(), WorldTextRequest {
+                        world_position: world_position + glm::vec3(config.shadow_offset.0, config.shadow_offset.1, config.shadow_offset.2),
+                        raster_size: config.raster_size,
+                        color: glm::vec3(config.shadow_color.0, config.shadow_color.1, config.shadow_color.2),
+                        alpha,
+                    });
+                    text.queue_world_text(content.iter().copied(), WorldTextRequest {
+                        world_position,
+                        raster_size: config.raster_size,
+                        color: glm::vec3(color.0, color.1, color.2),
+                        alpha,
+                    });
+                }
             });
     }
 

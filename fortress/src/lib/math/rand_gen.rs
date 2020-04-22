@@ -74,4 +74,8 @@ impl RandGen {
     pub fn ranged_i64(&mut self, low: i64, high: i64) -> i64 {
         self.rng.gen_range(low, high)
     }
+
+    pub fn flip_coin(&mut self, probability_heads: f64) -> bool {
+        self.rng.gen_bool(probability_heads)
+    }
 }
