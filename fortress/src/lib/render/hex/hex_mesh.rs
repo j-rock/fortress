@@ -9,6 +9,11 @@ use gl::{
 };
 use glm;
 
+struct MeshInfo {
+    vertices: Vec<glm::Vec3>,
+    faces: Vec<GLuint>,
+}
+
 pub struct HexMesh {
     vbo: GLuint,
     ebo: GLuint,
@@ -17,8 +22,7 @@ pub struct HexMesh {
 
 impl HexMesh {
     pub fn new() -> Self {
-        let vertices = Self::compute_hexagon_vertices();
-        let faces = Self::compute_hexagon_faces();
+        let mesh_info = Self::compute_mesh_info();
 
         let mut vbo: GLuint = 0;
         let mut ebo: GLuint = 0;
@@ -27,12 +31,12 @@ impl HexMesh {
             gl::GenBuffers(1, &mut ebo);
 
             gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
-            let vertex_array_byte_size = (vertices.len() * std::mem::size_of::<glm::Vec3>()) as isize;
-            gl::BufferData(gl::ARRAY_BUFFER, vertex_array_byte_size, vertices.as_ptr() as *const GLvoid, gl::STATIC_DRAW);
+            let vertex_array_byte_size = (mesh_info.vertices.len() * std::mem::size_of::<glm::Vec3>()) as isize;
+            gl::BufferData(gl::ARRAY_BUFFER, vertex_array_byte_size, mesh_info.vertices.as_ptr() as *const GLvoid, gl::STATIC_DRAW);
 
             gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ebo);
-            let faces_array_byte_size = (faces.len() * std::mem::size_of::<GLuint>()) as isize;
-            gl::BufferData(gl::ELEMENT_ARRAY_BUFFER, faces_array_byte_size, faces.as_ptr() as *const GLvoid, gl::STATIC_DRAW);
+            let faces_array_byte_size = (mesh_info.faces.len() * std::mem::size_of::<GLuint>()) as isize;
+            gl::BufferData(gl::ELEMENT_ARRAY_BUFFER, faces_array_byte_size, mesh_info.faces.as_ptr() as *const GLvoid, gl::STATIC_DRAW);
 
             let size_of_vec3_i32 = std::mem::size_of::<glm::Vec3>() as i32;
             gl::EnableVertexAttribArray(0);
@@ -44,7 +48,7 @@ impl HexMesh {
         HexMesh {
             vbo,
             ebo,
-            num_faces: faces.len(),
+            num_faces: mesh_info.faces.len(),
         }
     }
 
@@ -55,12 +59,12 @@ impl HexMesh {
         }
     }
 
-    fn compute_hexagon_vertices() -> Vec<glm::Vec3> {
+    fn compute_mesh_info() -> MeshInfo {
         let (vec2_0, vec2_1) = GridDirection::up().cartesian_offsets(1.0);
         let (vec2_2, vec2_3) = GridDirection::down_right().cartesian_offsets(1.0);
         let (vec2_4, vec2_5) = GridDirection::down_left().cartesian_offsets(1.0);
 
-        vec!(
+        let vertices = vec!(
             glm::vec3(vec2_0.x as f32, 0.0,  -vec2_0.y as f32),
             glm::vec3(vec2_1.x as f32, 0.0 , -vec2_1.y as f32),
             glm::vec3(vec2_2.x as f32, 0.0 , -vec2_2.y as f32),
@@ -70,12 +74,9 @@ impl HexMesh {
             glm::vec3(vec2_2.x as f32, -1.0, -vec2_2.y as f32),
             glm::vec3(vec2_3.x as f32, -1.0, -vec2_3.y as f32),
             glm::vec3(vec2_4.x as f32, -1.0, -vec2_4.y as f32),
-            glm::vec3(vec2_5.x as f32, -1.0, -vec2_5.y as f32),
-        )
-    }
+            glm::vec3(vec2_5.x as f32, -1.0, -vec2_5.y as f32));
 
-    fn compute_hexagon_faces() -> Vec<GLuint> {
-        vec!(
+        let faces = vec!(
             0, 3, 1,
             0, 4, 3,
             0, 5, 4,
@@ -85,8 +86,12 @@ impl HexMesh {
             4, 8, 3,
             3, 8, 7,
             3, 7, 2,
-            2, 7, 6
-        )
+            2, 7, 6);
+
+        MeshInfo {
+            vertices,
+            faces,
+        }
     }
 }
 
