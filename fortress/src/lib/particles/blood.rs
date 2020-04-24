@@ -64,7 +64,7 @@ impl BloodParticles {
                 }
 
                 let position = self.position[idx];
-                if position.y <= 0.0 {
+                if position.y <= config.min_height {
                     return;
                 }
 
@@ -74,8 +74,8 @@ impl BloodParticles {
                 self.velocity[idx] = new_velocity;
 
                 let mut new_pos = position + (new_velocity * float_dt);
-                if new_pos.y < 0.0 {
-                    new_pos.y = 0.0;
+                if new_pos.y < config.min_height {
+                    new_pos.y = config.min_height;
                 }
                 self.position[idx] = new_pos;
             });
@@ -111,11 +111,11 @@ impl BloodParticles {
             .for_each(|idx| {
                 let position = self.position[idx];
                 let color = self.color[idx];
-                let size = self.size[idx];
-                let alpha = {
-                    let t = self.timer[idx].as_completion_fraction_of(config.expiry_duration_micros);
-                    EasingFn::ease_out_quintic(1.0 - t)
-                };
+
+                let t = self.timer[idx].as_completion_fraction_of(config.expiry_duration_micros);
+                let drop_off = EasingFn::ease_out_quintic(1.0 - t);
+                let size = self.size[idx] * (0.5 * drop_off + 0.5);
+                let alpha = drop_off;
 
                 render_view.attr_pos.push(Vec3Attr::new(position));
                 render_view.attr_color.push(Vec3Attr::new(color));

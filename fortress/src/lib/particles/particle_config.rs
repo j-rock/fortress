@@ -5,6 +5,7 @@ pub struct BloodParticleConfig {
     pub gravity: f32,
     pub max_spread_speed: f32,
     pub start_height: f32,
+    pub min_height: f32,
     pub start_velocity_y: f32,
     pub start_position_radius: f32,
     pub expiry_duration_micros: i64,
