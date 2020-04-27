@@ -10,14 +10,16 @@ out VS_OUT {
 } vs_out;
 
 uniform mat4 projection_view;
+uniform float bevel_raise;
 
 void main() {
     vec2 translation = transform.xy;
     float height = transform.z;
     float elevation = transform.w;
 
-    vec3 scaled = hexagon_scale * vec3(local_vertex_position.x, local_vertex_position.y * height, local_vertex_position.z);
-    vec3 world_space_position = scaled + vec3(translation.x, elevation, translation.y);
+    vec2 xz_pos = hexagon_scale * local_vertex_position.xz + translation;
+    float y_pos = hexagon_scale * height * (local_vertex_position.y - bevel_raise) + elevation;
+    vec3 world_space_position = vec3(xz_pos.x, y_pos, xz_pos.y);
 
     gl_Position = projection_view * vec4(world_space_position, 1.0);
     vs_out.world_space_position = world_space_position;

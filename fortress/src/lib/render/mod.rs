@@ -1,6 +1,5 @@
 pub mod bloom;
 pub mod cameras;
-pub mod hex;
 pub mod opengl;
 pub mod point_light;
 pub mod renderer;
@@ -40,9 +39,6 @@ pub use self::cameras::CameraStreamBounds;
 pub use self::cameras::CameraStreamInfo;
 pub use self::cameras::ScreenShake;
 pub use self::cameras::ScreenShakeConfig;
-pub use self::hex::HexData;
-pub use self::hex::HexMesh;
-pub use self::hex::HexRenderer;
 pub use self::point_light::PointLight;
 pub use self::point_light::PointLights;
 pub use self::renderer::BackgroundRenderer;

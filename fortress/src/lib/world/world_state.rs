@@ -23,7 +23,6 @@ use crate::{
         Camera,
         CameraStreamInfo,
         FullyIlluminatedSpriteRenderer,
-        HexRenderer,
         LightDependentSpriteRenderer,
         PointLights,
         SpriteSheetTextureManager,
@@ -48,7 +47,6 @@ pub struct WorldState {
     textures: SpriteSheetTextureManager,
     text_renderer: TextRenderer,
     background_renderer: BackgroundRenderer,
-    hex_renderer: HexRenderer,
     full_light_sprite: FullyIlluminatedSpriteRenderer,
     light_dependent_sprite: LightDependentSpriteRenderer,
     lights: PointLights,
@@ -88,7 +86,6 @@ impl WorldState {
             textures: SpriteSheetTextureManager::new(config_watcher)?,
             text_renderer: TextRenderer::new(config_watcher)?,
             background_renderer: BackgroundRenderer::new(config_watcher)?,
-            hex_renderer: HexRenderer::new()?,
             full_light_sprite: FullyIlluminatedSpriteRenderer::new()?,
             light_dependent_sprite: LightDependentSpriteRenderer::new()?,
             lights,
@@ -180,7 +177,7 @@ impl WorldState {
         self.light_dependent_sprite.set_camera_stream_info(camera_stream_info.clone());
 
         self.hud.queue_draw(&mut self.text_renderer);
-        self.map.queue_draw(&camera_stream_info, &mut self.hex_renderer, &mut self.full_light_sprite);
+        self.map.queue_draw(&camera_stream_info, &mut self.full_light_sprite);
         self.players.queue_draw(&mut self.full_light_sprite, &mut self.light_dependent_sprite);
         self.enemies.queue_draw(&mut self.light_dependent_sprite, &mut self.text_renderer);
         self.items.queue_draw(&mut self.full_light_sprite);
@@ -188,7 +185,8 @@ impl WorldState {
         self.background_renderer.draw(&self.textures, &geometry);
         self.light_dependent_sprite.draw(&self.lights, &self.textures, &geometry);
         self.full_light_sprite.draw(&self.textures, &geometry);
-        self.hex_renderer.draw(&self.textures, &self.lights, &geometry);
+        self.map.draw_terrain(&self.textures, &self.lights, &geometry);
+
         // Draw particles after hex ground to not mess up transparency.
         self.particles.draw(&geometry);
         self.text_renderer.draw(&geometry);

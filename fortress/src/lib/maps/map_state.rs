@@ -6,6 +6,10 @@ use crate::{
     maps::{
         MapConfig,
         MapFile,
+        render::{
+            HexData,
+            HexRenderer,
+        },
         state::MapBody,
     },
     math::EasingFn,
@@ -15,8 +19,6 @@ use crate::{
         CameraStreamInfo,
         FullyIlluminatedSpriteData,
         FullyIlluminatedSpriteRenderer,
-        HexData,
-        HexRenderer,
         NamedSpriteSheet,
         PointLight,
         PointLights,

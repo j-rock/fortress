@@ -5,12 +5,15 @@ use crate::{
         Reverse,
     },
     file,
+    maps::{
+        MapConfig,
+        render::HexMesh
+    },
     render::{
         attribute,
         Attribute,
         AttributeProgram,
         CameraGeometry,
-        HexMesh,
         NamedSpriteSheet,
         PointLights,
         ShaderProgram,
@@ -32,6 +35,7 @@ pub struct HexData {
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 enum UniformKey {
+    BevelRaise,
     LightsPosition(usize),
     LightsColor(usize),
     LightsAttenuation(usize),
@@ -46,6 +50,7 @@ enum UniformKey {
 impl ShaderUniformKey for UniformKey {
     fn to_cstring(self) -> CString {
         match self {
+            UniformKey::BevelRaise => CString::new("bevel_raise").expect("Bad cstring"),
             UniformKey::LightsPosition(idx) => {
                 let s = format!("lights[{}].position", idx);
                 CString::new(s).expect("Bad cstring")
@@ -76,12 +81,10 @@ pub struct HexRenderer {
     attr_transform: Attribute<HexTransformAttr>,
     attr_scale: Attribute<HexScaleAttr>,
     attr_alpha: Attribute<HexAlphaAttr>,
-
-    tile_scale: glm::Vec2,
 }
 
 impl HexRenderer {
-    pub fn new() -> StatusOr<HexRenderer> {
+    pub fn new(config: &MapConfig) -> StatusOr<HexRenderer> {
         let vertex = file::util::resource_path("shaders", "hex_vert.glsl");
         let geometry = file::util::resource_path("shaders", "hex_geo.glsl");
         let fragment = file::util::resource_path("shaders", "hex_frag.glsl");
@@ -90,7 +93,7 @@ impl HexRenderer {
         // The HexMesh will take up the first vertex attrib slot.
         let mut attribute_program_builder = AttributeProgram::builder_with_offset(1);
         // Important to create HexMesh while attribute program is active.
-        let mesh = HexMesh::new();
+        let mesh = HexMesh::new(config);
         let attr_transform = attribute_program_builder.add_attribute();
         let attr_scale = attribute_program_builder.add_attribute();
         let attr_alpha = attribute_program_builder.add_attribute();
@@ -103,7 +106,6 @@ impl HexRenderer {
             attr_transform,
             attr_scale,
             attr_alpha,
-            tile_scale: glm::vec2(1.0, 1.0),
         })
     }
 
@@ -126,7 +128,7 @@ impl HexRenderer {
         }
     }
 
-    pub fn draw(&mut self, textures: &SpriteSheetTextureManager, lights: &PointLights, camera_geometry: &CameraGeometry) {
+    pub fn draw(&mut self, config: &MapConfig, textures: &SpriteSheetTextureManager, lights: &PointLights, camera_geometry: &CameraGeometry) {
         self.shader_program.activate();
         self.attribute_program.activate();
         self.attr_transform.prepare_buffer();
@@ -140,9 +142,10 @@ impl HexRenderer {
         let tile_frame_id = SpriteSheetFrameId::new(String::from("rock_texture.png"), NamedSpriteSheet::SpriteSheet1);
         let texel = textures.frame(&tile_frame_id, 0, Reverse::none());
 
+        self.shader_program.set_f32(UniformKey::BevelRaise, config.bevel_height);
         self.shader_program.set_vec2(UniformKey::TileBottomLeft, texel.bottom_left);
         self.shader_program.set_vec2(UniformKey::TileTopRight, texel.top_right);
-        self.shader_program.set_vec2(UniformKey::TileScale, self.tile_scale);
+        self.shader_program.set_vec2(UniformKey::TileScale, glm::vec2(config.tile_scale.0, config.tile_scale.1));
         self.shader_program.set_mat4(UniformKey::ProjectionView, &camera_geometry.projection_view);
         self.shader_program.set_i32(UniformKey::NumLights, lights.len() as i32);
         for (idx, point_light) in lights.iter().enumerate() {
@@ -158,10 +161,6 @@ impl HexRenderer {
         self.attr_transform.data.clear();
         self.attr_scale.data.clear();
         self.attr_alpha.data.clear();
-    }
-
-    pub fn set_tile_scale(&mut self, tile_scale: glm::Vec2) {
-        self.tile_scale = tile_scale;
     }
 }
 

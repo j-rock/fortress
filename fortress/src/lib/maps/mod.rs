@@ -2,6 +2,7 @@ pub mod map;
 pub mod map_config;
 pub mod map_file;
 pub mod map_state;
+pub mod render;
 pub mod state;
 
 pub use self::map::Map;
