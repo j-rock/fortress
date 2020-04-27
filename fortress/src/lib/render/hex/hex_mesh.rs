@@ -41,8 +41,6 @@ impl HexMesh {
             let size_of_vec3_i32 = std::mem::size_of::<glm::Vec3>() as i32;
             gl::EnableVertexAttribArray(0);
             gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, size_of_vec3_i32, std::ptr::null());
-
-            gl::BindBuffer(gl::ARRAY_BUFFER, 0);
         }
 
         HexMesh {
@@ -60,21 +58,28 @@ impl HexMesh {
     }
 
     fn compute_mesh_info() -> MeshInfo {
-        let (vec2_0, vec2_1) = GridDirection::up().cartesian_offsets(1.0);
-        let (vec2_2, vec2_3) = GridDirection::down_right().cartesian_offsets(1.0);
-        let (vec2_4, vec2_5) = GridDirection::down_left().cartesian_offsets(1.0);
+        let (back_left, back_right) = GridDirection::up().cartesian_offsets(1.0);
+        let (right, front_right) = GridDirection::down_right().cartesian_offsets(1.0);
+        let (front_left, left) = GridDirection::down_left().cartesian_offsets(1.0);
+
+        let back_left = glm::vec3(back_left.x as f32, 0.0, -back_left.y as f32);
+        let back_right = glm::vec3(back_right.x as f32, 0.0, -back_right.y as f32);
+        let front_left = glm::vec3(front_left.x as f32, 0.0, -front_left.y as f32);
+        let front_right = glm::vec3(front_right.x as f32, 0.0, -front_right.y as f32);
+        let left = glm::vec3(left.x as f32, 0.0, -left.y as f32);
+        let right = glm::vec3(right.x as f32, 0.0, -right.y as f32);
 
         let vertices = vec!(
-            glm::vec3(vec2_0.x as f32, 0.0,  -vec2_0.y as f32),
-            glm::vec3(vec2_1.x as f32, 0.0 , -vec2_1.y as f32),
-            glm::vec3(vec2_2.x as f32, 0.0 , -vec2_2.y as f32),
-            glm::vec3(vec2_3.x as f32, 0.0 , -vec2_3.y as f32),
-            glm::vec3(vec2_4.x as f32, 0.0 , -vec2_4.y as f32),
-            glm::vec3(vec2_5.x as f32, 0.0 , -vec2_5.y as f32),
-            glm::vec3(vec2_2.x as f32, -1.0, -vec2_2.y as f32),
-            glm::vec3(vec2_3.x as f32, -1.0, -vec2_3.y as f32),
-            glm::vec3(vec2_4.x as f32, -1.0, -vec2_4.y as f32),
-            glm::vec3(vec2_5.x as f32, -1.0, -vec2_5.y as f32));
+            back_left,
+            back_right,
+            right,
+            front_right,
+            front_left,
+            left,
+            glm::vec3(right.x, -1.0, right.z),
+            glm::vec3(front_right.x, -1.0, front_right.z),
+            glm::vec3(front_left.x, -1.0, front_left.z),
+            glm::vec3(left.x, -1.0, left.z));
 
         let faces = vec!(
             0, 3, 1,
