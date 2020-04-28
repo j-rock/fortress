@@ -76,7 +76,7 @@ impl Bullet {
             .sensor(true)
             .collision_groups(CollisionGroups::new()
                 .with_membership(&[collision_category::PLAYER_WEAPON])
-                .with_whitelist(&[collision_category::ENEMY_BODY, collision_category::ENEMY_GENERATOR]));
+                .with_whitelist(&[collision_category::BARREL, collision_category::ENEMY_BODY, collision_category::ENEMY_GENERATOR]));
 
         let body = RegisteredBodyBuilder::new()
             .rigid_body(rigid_body)

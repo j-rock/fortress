@@ -7,6 +7,7 @@ use crate::{
         ItemConfig,
         ItemType,
     },
+    math::RandGen,
     render::SpriteSheetFrameId,
 };
 use glm;
@@ -42,5 +43,10 @@ impl ItemPickup {
             .get(&self.item_type)
             .unwrap_or(&(1.0, 1.0, 1.0));
         glm::vec3(color.0, color.1, color.2)
+    }
+
+    pub fn random(rng: &mut RandGen) -> Self {
+        let direction = if rng.flip_coin(0.5) { LrDirection::Left } else { LrDirection::Right };
+        Self::new(ItemType::random(rng), direction)
     }
 }

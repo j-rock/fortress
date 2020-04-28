@@ -3,15 +3,17 @@ use crate::{
         EnemyGeneratorId,
         EnemyId,
     },
-    items::ItemId,
+    items::{
+        barrels::BarrelId,
+        ItemId,
+    },
     players::PlayerId,
     weapons::BulletId,
 };
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum Entity {
-    BuffBox,
-    BuffDrop,
+    Barrel(BarrelId),
     Bullet(PlayerId, BulletId),
     Enemy(EnemyId),
     EnemyGenerator(EnemyGeneratorId),

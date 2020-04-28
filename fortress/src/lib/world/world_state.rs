@@ -140,7 +140,7 @@ impl WorldState {
         {
             self.players.post_update();
             self.camera.post_update(self.players.player_locs(), dt);
-            self.items.post_update();
+            self.items.post_update(rng, &mut self.physics_sim);
             self.enemies.post_update(audio, &mut self.items, self.camera.mut_shake(), &mut self.physics_sim);
 
             let camera_stream_info = self.camera.stream_info(self.map.hex_cell_length());
@@ -180,7 +180,7 @@ impl WorldState {
         self.map.queue_draw(&camera_stream_info, &mut self.full_light_sprite);
         self.players.queue_draw(&mut self.full_light_sprite, &mut self.light_dependent_sprite);
         self.enemies.queue_draw(&mut self.light_dependent_sprite, &mut self.text_renderer);
-        self.items.queue_draw(&mut self.full_light_sprite);
+        self.items.queue_draw(&mut self.full_light_sprite, &mut self.light_dependent_sprite);
 
         self.background_renderer.draw(&self.textures, &geometry);
         self.light_dependent_sprite.draw(&self.lights, &self.textures, &geometry);

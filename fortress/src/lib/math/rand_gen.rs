@@ -78,4 +78,9 @@ impl RandGen {
     pub fn flip_coin(&mut self, probability_heads: f64) -> bool {
         self.rng.gen_bool(probability_heads)
     }
+
+    pub fn choose_uniformly<'a, T>(&mut self, slice: &'a [T]) -> &'a T {
+        let index: usize = self.rng.gen_range(0, slice.len());
+        &slice[index]
+    }
 }

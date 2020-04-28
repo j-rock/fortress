@@ -38,7 +38,10 @@ impl WeaponMatchers {
                 if let Some(attack) = world.players.bullet_attack(player_id, bullet_id, world.rng) {
                     world.enemies.enemy_hit(enemy_id, attack, bullet_direction, world.particles);
                 }
-            }
+            },
+            Entity::Barrel(barrel_id) => {
+                world.items.try_hit_barrel(barrel_id, world.particles, world.rng);
+            },
             _ => {}
         }
     }

@@ -5,6 +5,7 @@ pub const PLAYER_WEAPON: usize  = 2;
 pub const ENEMY_BODY: usize  = 3;
 pub const ENEMY_GENERATOR: usize  = 4;
 pub const ITEM: usize  = 5;
+pub const BARREL: usize = 6;
 
 pub static ALLOW_ALL_WHITELIST: &[usize] =
     &[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29];

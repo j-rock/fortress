@@ -89,7 +89,7 @@ impl Camera {
         }
 
         let config = self.config_manager.get();
-        let player_pos = player_locs[0];
+        let player_pos = player_locs[0].clone();
         let cam_planar_pos = Point2::new(self.world_position.x, self.world_position.z);
 
         let mut displacement = player_pos - cam_planar_pos;

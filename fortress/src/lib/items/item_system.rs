@@ -5,14 +5,21 @@ use crate::{
         SimpleConfigManager,
     },
     items::{
+        barrels::{
+            Barrel,
+            BarrelId,
+        },
         Item,
         ItemConfig,
         ItemId,
         ItemPickup,
     },
+    math::RandGen,
+    particles::ParticleSystem,
     physics::PhysicsSimulation,
     render::{
         FullyIlluminatedSpriteRenderer,
+        LightDependentSpriteRenderer,
         PointLights,
     },
 };
@@ -22,39 +29,76 @@ use nalgebra::Point2;
 pub struct ItemSystem {
     config_manager: SimpleConfigManager<ItemConfig>,
     items: Slab<Item>,
+    barrels: Slab<Barrel>,
 }
 
 impl ItemSystem {
     pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<ItemSystem> {
         let config_manager: SimpleConfigManager<ItemConfig> = SimpleConfigManager::from_config_resource(config_watcher, "item.conf")?;
-        let items = {
+        let (items, barrels) = {
             let config = config_manager.get();
-            Slab::with_capacity(config.system_initial_capacity)
+            let items = Slab::with_capacity(config.system_items_initial_capacity);
+            let barrels = Slab::with_capacity(config.system_barrels_initial_capacity);
+            (items, barrels)
         };
 
         Ok(ItemSystem {
             config_manager,
-            items
+            items,
+            barrels,
         })
     }
 
     pub fn pre_update(&mut self) {
         self.config_manager.update();
+        self.barrels
+            .iter_mut()
+            .for_each(|(_idx, barrel)| {
+                barrel.pre_update();
+            });
     }
 
-    pub fn post_update(&mut self) {
-        let collected_item_keys: Vec<_> = self.items
-            .iter_mut()
-            .filter_map(|(item_key, item)| {
-                if !item.collected() {
-                    return None;
-                }
-                Some(item_key)
-            })
-            .collect();
+    pub fn post_update(&mut self, rng: &mut RandGen, physics_sim: &mut PhysicsSimulation) {
+        {
+            let collected_item_keys: Vec<_> = self.items
+                .iter_mut()
+                .filter_map(|(item_key, item)| {
+                    if !item.collected() {
+                        return None;
+                    }
+                    Some(item_key)
+                })
+                .collect();
 
-        for item_key in collected_item_keys.into_iter() {
-            self.items.remove(item_key);
+            for item_key in collected_item_keys.into_iter() {
+                self.items.remove(item_key);
+            }
+        }
+
+        {
+            let collected_barrel_keys: Vec<_> = self.barrels
+                .iter_mut()
+                .filter_map(|(barrel_key, barrel)| {
+                    if !barrel.is_expired() {
+                        return None;
+                    }
+                    Some(barrel_key)
+                })
+                .collect();
+
+            for barrel_key in collected_barrel_keys.into_iter() {
+                self.barrels.remove(barrel_key);
+            }
+        }
+
+        // Fixme.
+        if self.barrels.is_empty() {
+            let config = self.config_manager.get();
+            let barrel_entry = self.barrels.vacant_entry();
+            let barrel_id = BarrelId::from_key(barrel_entry.key());
+            let pos = Point2::new(65.47, -260.62);
+            let barrel = Barrel::new(&config.barrel, barrel_id, pos, rng, physics_sim);
+            barrel_entry.insert(barrel);
         }
     }
 
@@ -68,10 +112,13 @@ impl ItemSystem {
         point_lights.append(lights);
     }
 
-    pub fn queue_draw(&self, renderer: &mut FullyIlluminatedSpriteRenderer) {
+    pub fn queue_draw(&self, full_light: &mut FullyIlluminatedSpriteRenderer, light_dep: &mut LightDependentSpriteRenderer) {
         let config = self.config_manager.get();
         for (_key, item) in self.items.iter() {
-            item.queue_draw(config, renderer);
+            item.queue_draw(config, full_light);
+        }
+        for (_key, barrel) in self.barrels.iter() {
+            barrel.queue_draw(&config.barrel, light_dep);
         }
     }
 
@@ -79,7 +126,7 @@ impl ItemSystem {
         let config = self.config_manager.get();
         let item_entry = self.items.vacant_entry();
         let item_id = ItemId::from_key(item_entry.key());
-        let item = Item::new(config, item_id, item_pickup, position, physics_sim);
+        let item = Item::new(config, item_id, item_pickup, position.clone(), physics_sim);
         item_entry.insert(item);
     }
 
@@ -92,6 +139,16 @@ impl ItemSystem {
                 item.collect();
                 Some(item.item_pickup())
             })
+    }
+
+    pub fn try_hit_barrel(&mut self,
+                          barrel_id: BarrelId,
+                          particles: &mut ParticleSystem,
+                          rng: &mut RandGen) {
+        if let Some(barrel) = self.barrels.get_mut(barrel_id.key()) {
+            let config = self.config_manager.get();
+            barrel.strike(&config.barrel, particles, rng);
+        }
     }
 
     pub fn respawn(&mut self) {

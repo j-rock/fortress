@@ -1,3 +1,4 @@
+pub mod barrels;
 pub mod item;
 pub mod item_config;
 pub mod item_id;

@@ -4,6 +4,7 @@ use crate::{
         Reverse,
     },
     items::types::SkullType,
+    math::RandGen,
     render::SpriteSheetFrameId,
 };
 
@@ -29,5 +30,13 @@ impl ItemType {
         match self {
             Self::Skull(skull_type) => skull_type.sprite_frame_id(),
         }
+    }
+
+    pub fn random(rng: &mut RandGen) -> Self {
+        let skull_type = {
+            let all_values: Vec<SkullType> = SkullType::all_values().collect();
+            rng.choose_uniformly(all_values.as_slice()).clone()
+        };
+        Self::Skull(skull_type)
     }
 }
