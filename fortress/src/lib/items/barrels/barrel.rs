@@ -18,8 +18,8 @@ use crate::{
     },
     physics::PhysicsSimulation,
     render::{
-        LightDependentSpriteData,
-        LightDependentSpriteRenderer,
+        FullyIlluminatedSpriteData,
+        FullyIlluminatedSpriteRenderer,
         NamedSpriteSheet,
         SpriteSheetFrameId,
     },
@@ -52,7 +52,7 @@ impl Barrel {
         self.strike.pre_update();
     }
 
-    pub fn queue_draw(&self, config: &BarrelConfig, renderer: &mut LightDependentSpriteRenderer) {
+    pub fn queue_draw(&self, config: &BarrelConfig, renderer: &mut FullyIlluminatedSpriteRenderer) {
         if let Some(position) = self.body.position() {
             let world_half_size = glm::vec2(
                 config.physical_radius as f32 * config.render_scale.0,
@@ -67,14 +67,15 @@ impl Barrel {
                 Reverse::horizontally()
             };
 
-            renderer.queue(LightDependentSpriteData {
+            renderer.queue(Some(FullyIlluminatedSpriteData {
                 world_center_position,
                 world_half_size,
                 sprite_frame_id: SpriteSheetFrameId::new(image_name, NamedSpriteSheet::SpriteSheet1),
                 frame,
                 unit_world_rotation: Vector2::new(0.0, 0.0),
                 reverse,
-            });
+                bloom_intensity: config.bloom_intensity,
+            }));
         }
     }
 

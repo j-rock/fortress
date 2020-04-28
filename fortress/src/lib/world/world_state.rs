@@ -180,7 +180,7 @@ impl WorldState {
         self.map.queue_draw(&camera_stream_info, &mut self.full_light_sprite);
         self.players.queue_draw(&mut self.full_light_sprite, &mut self.light_dependent_sprite);
         self.enemies.queue_draw(&mut self.light_dependent_sprite, &mut self.text_renderer);
-        self.items.queue_draw(&mut self.full_light_sprite, &mut self.light_dependent_sprite);
+        self.items.queue_draw(&mut self.full_light_sprite);
 
         self.background_renderer.draw(&self.textures, &geometry);
         self.light_dependent_sprite.draw(&self.lights, &self.textures, &geometry);

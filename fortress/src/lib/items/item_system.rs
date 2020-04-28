@@ -19,7 +19,6 @@ use crate::{
     physics::PhysicsSimulation,
     render::{
         FullyIlluminatedSpriteRenderer,
-        LightDependentSpriteRenderer,
         PointLights,
     },
 };
@@ -112,13 +111,13 @@ impl ItemSystem {
         point_lights.append(lights);
     }
 
-    pub fn queue_draw(&self, full_light: &mut FullyIlluminatedSpriteRenderer, light_dep: &mut LightDependentSpriteRenderer) {
+    pub fn queue_draw(&self, full_light: &mut FullyIlluminatedSpriteRenderer) {
         let config = self.config_manager.get();
         for (_key, item) in self.items.iter() {
             item.queue_draw(config, full_light);
         }
         for (_key, barrel) in self.barrels.iter() {
-            barrel.queue_draw(&config.barrel, light_dep);
+            barrel.queue_draw(&config.barrel, full_light);
         }
     }
 
