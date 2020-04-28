@@ -98,41 +98,24 @@ impl EnemySystem {
     pub fn post_update(&mut self, audio: &AudioPlayer, items: &mut ItemSystem, shake: &mut ScreenShake, physics_sim: &mut PhysicsSimulation) {
         let config = self.config_manager.get();
 
-        let dead_enemy_generator_keys: Vec<_> = self.generators
-            .iter_mut()
-            .filter_map(|(generator_key, generator)| {
-                generator.post_update(&config.generator, items, shake, physics_sim);
-                if !generator.dead() {
-                    return None;
-                }
-                Some(generator_key)
-            })
-            .collect();
+        self.generators.retain(|generator| {
+            generator.post_update(&config.generator, items, shake, physics_sim);
+            !generator.dead()
+        });
 
-        for generator_key in dead_enemy_generator_keys.into_iter() {
-            self.generators.remove(generator_key);
-        }
-
-        let dead_enemy_keys: Vec<_> = self.enemies
-            .iter_mut()
-            .filter_map(|(enemy_key, enemy)| {
-                enemy.post_update(&config.enemy, audio, items, physics_sim);
-                if !enemy.dead() {
-                    return None;
-                }
-                Some(enemy_key)
-            })
-            .collect();
-
-        for enemy_key in dead_enemy_keys.into_iter() {
-            if let Some(enemy) = self.enemies.remove(enemy_key) {
-                self.generators
+        let generators = &mut self.generators;
+        self.enemies.retain(|enemy| {
+            enemy.post_update(&config.enemy, audio, items, physics_sim);
+            let scheduled_for_deletion = enemy.dead();
+            if scheduled_for_deletion {
+                generators
                     .get_mut(enemy.generator_id().key())
                     .map(|generator| {
                         generator.tally_killed_enemy();
                     });
             }
-        }
+            !scheduled_for_deletion
+        });
     }
 
     pub fn populate_lights(&self, lights: &mut PointLights) {

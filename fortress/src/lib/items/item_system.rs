@@ -58,37 +58,13 @@ impl ItemSystem {
     }
 
     pub fn post_update(&mut self, rng: &mut RandGen, physics_sim: &mut PhysicsSimulation) {
-        {
-            let collected_item_keys: Vec<_> = self.items
-                .iter_mut()
-                .filter_map(|(item_key, item)| {
-                    if !item.collected() {
-                        return None;
-                    }
-                    Some(item_key)
-                })
-                .collect();
+        self.items.retain(|item| {
+            !item.collected()
+        });
 
-            for item_key in collected_item_keys.into_iter() {
-                self.items.remove(item_key);
-            }
-        }
-
-        {
-            let collected_barrel_keys: Vec<_> = self.barrels
-                .iter_mut()
-                .filter_map(|(barrel_key, barrel)| {
-                    if !barrel.is_expired() {
-                        return None;
-                    }
-                    Some(barrel_key)
-                })
-                .collect();
-
-            for barrel_key in collected_barrel_keys.into_iter() {
-                self.barrels.remove(barrel_key);
-            }
-        }
+        self.barrels.retain(|barrel| {
+            !barrel.is_expired()
+        });
 
         // Fixme.
         if self.barrels.is_empty() {

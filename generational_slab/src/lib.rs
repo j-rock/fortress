@@ -187,6 +187,19 @@ impl<T> Slab<T> {
         let need_add = self.len + additional - self.entries.len();
         self.entries.reserve(need_add);
     }
+
+    pub fn retain<F>(&mut self, mut should_keep: F) where F: FnMut(&mut T) -> bool {
+        for i in 0..self.entries.len() {
+            if let Entry::Occupied(ref mut v, gen) = self.entries[i] {
+                if !should_keep(v) {
+                    self.remove(Key {
+                        index: i,
+                        generation: gen,
+                    });
+                }
+            }
+        }
+    }
 }
 
 impl<T> IntoIterator for Slab<T> {
