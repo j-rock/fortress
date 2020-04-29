@@ -1,5 +1,6 @@
 use crate::{
     app::StatusOr,
+    audio::AudioPlayer,
     control::{
         ControlEvent,
         Controller,
@@ -127,10 +128,11 @@ impl ItemSystem {
 
     pub fn try_hit_barrel(&mut self,
                           barrel_id: BarrelId,
+                          audio: &AudioPlayer,
                           particles: &mut ParticleSystem) {
         if let Some(barrel) = self.barrels.get_mut(barrel_id.key()) {
             let config = self.config_manager.get();
-            barrel.strike(&config.barrel, particles);
+            barrel.strike(&config.barrel, audio, particles);
         }
     }
 

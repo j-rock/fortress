@@ -4,6 +4,8 @@ use std::path::PathBuf;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, IntoEnumIterator)]
 pub enum Sound {
+    BarrelDestroy,
+    BarrelHit,
     CollectItem,
     EnemyGeneratorHurt,
     EnemyGeneratorKilled,
@@ -17,6 +19,8 @@ pub enum Sound {
 impl Sound {
     pub fn to_path_buf(self) -> PathBuf {
         let filename = match self {
+            Sound::BarrelDestroy => "barrel_destroy.wav",
+            Sound::BarrelHit => "barrel_hit.wav",
             Sound::CollectItem => "collect_item.wav",
             Sound::EnemyGeneratorHurt => "enemy_generator_hurt.wav",
             Sound::EnemyGeneratorKilled => "enemy_generator_killed.wav",

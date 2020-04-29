@@ -1,4 +1,8 @@
 use crate::{
+    audio::{
+        AudioPlayer,
+        Sound,
+    },
     dimensions::Reverse,
     items::{
         barrels::{
@@ -65,10 +69,14 @@ impl Barrel {
         }
     }
 
-    pub fn strike(&mut self, config: &BarrelConfig, particles: &mut ParticleSystem) {
+    pub fn strike(&mut self, config: &BarrelConfig, audio: &AudioPlayer, particles: &mut ParticleSystem) {
         if !self.strike.strike() {
             return;
         }
+        if self.is_expired() {
+            audio.play_sound(Sound::BarrelDestroy);
+        }
+        audio.play_sound(Sound::BarrelHit);
 
         if let Some(position) = self.body.position() {
             let color = glm::vec3(config.blood_color.0, config.blood_color.1, config.blood_color.2);
