@@ -31,7 +31,10 @@ pub struct MapSystem {
 impl MapSystem {
     pub fn new(config_watcher: &mut ConfigWatcher, physics_sim: &mut PhysicsSimulation) -> StatusOr<MapSystem> {
         let map_config_manager = SimpleConfigManager::<MapConfig>::from_config_resource(config_watcher, "map.conf")?;
-        let map_file_manager = MapFileManager::new(config_watcher)?;
+        let map_file_manager = {
+            let config = map_config_manager.get();
+            MapFileManager::new(&config.map_file, config_watcher)?
+        };
 
         let (map_state, hex_renderer) = {
             let config = map_config_manager.get();
@@ -50,7 +53,7 @@ impl MapSystem {
     }
 
     pub fn pre_update(&mut self, physics_sim: &mut PhysicsSimulation) -> bool {
-        if self.map_config_manager.update() || self.map_file_manager.update() {
+        if self.map_config_manager.update() || self.map_file_manager.update(&self.map_config_manager.get().map_file) {
             self.redeploy(physics_sim).is_ok()
         } else {
             false
@@ -72,12 +75,16 @@ impl MapSystem {
         self.hex_renderer.draw(config, textures, lights, geometry);
     }
 
-    pub fn spawns(&self) -> &Vec<Point2<f64>> {
+    pub fn spawns(&self) -> &[Point2<f64>] {
         self.map_state.player_spawns()
     }
 
-    pub fn enemy_generators(&self) -> &Vec<Point2<f64>> {
+    pub fn enemy_generators(&self) -> &[Point2<f64>] {
         self.map_state.enemy_generators()
+    }
+
+    pub fn barrels(&self) -> &[Point2<f64>] {
+        self.map_state.barrels()
     }
 
     pub fn hex_cell_length(&self) -> f64 {

@@ -11,6 +11,16 @@ pub struct MapConfig {
     pub light_bloom_intensity: f32,
 
     pub tile_scale: (f32, f32),
+    pub stream_cell_min_elevation: f32,
+    pub map_file: MapFileConfig,
+}
 
-    pub stream_cell_min_elevation: f32
+#[derive(Clone, Deserialize)]
+pub struct MapFileConfig {
+    pub num_fragments: usize,
+    pub terrain_count_guess: usize,
+    pub spawn_count_guess: usize,
+    pub lights_count_guess: usize,
+    pub generators_count_guess: usize,
+    pub barrel_count_guess: usize,
 }

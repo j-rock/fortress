@@ -48,7 +48,7 @@ pub struct EnemySystem {
 }
 
 impl EnemySystem {
-    pub fn new(config_watcher: &mut ConfigWatcher, generator_spawns: &Vec<Point2<f64>>, physics_sim: &mut PhysicsSimulation) -> StatusOr<EnemySystem> {
+    pub fn new(config_watcher: &mut ConfigWatcher, generator_spawns: &[Point2<f64>], physics_sim: &mut PhysicsSimulation) -> StatusOr<EnemySystem> {
         let config_manager: SimpleConfigManager<EnemySystemConfig> = SimpleConfigManager::from_config_resource(config_watcher, "enemy.conf")?;
 
         let (generators, enemies, damage_text) = {
@@ -157,7 +157,7 @@ impl EnemySystem {
         }
     }
 
-    pub fn respawn(&mut self, generator_spawns: &Vec<Point2<f64>>, physics_sim: &mut PhysicsSimulation) {
+    pub fn respawn(&mut self, generator_spawns: &[Point2<f64>], physics_sim: &mut PhysicsSimulation) {
         self.generator_spawns = generator_spawns.iter()
             .map(|spawn| EnemyGeneratorSpawn {
                 position: (spawn.x, spawn.y),

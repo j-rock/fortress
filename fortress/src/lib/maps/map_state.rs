@@ -36,6 +36,7 @@ pub struct MapState {
     player_spawns: Vec<Point2<f64>>,
     lights: Vec<Point2<f32>>,
     enemy_generators: Vec<Point2<f64>>,
+    barrels: Vec<Point2<f64>>,
     _body: MapBody,
 }
 
@@ -70,6 +71,13 @@ impl MapState {
             })
             .collect();
 
+        let barrels: Vec<_> = map_file.barrels()
+            .iter()
+            .map(|grid_index| {
+                grid_index.index_center(&axial_to_cartesian)
+            })
+            .collect();
+
         let body = MapBody::new(config, &terrain, physics_sim);
 
         MapState {
@@ -77,16 +85,21 @@ impl MapState {
             player_spawns,
             lights,
             enemy_generators,
+            barrels,
             _body: body,
         }
     }
 
-    pub fn player_spawns(&self) -> &Vec<Point2<f64>> {
-        &self.player_spawns
+    pub fn player_spawns(&self) -> &[Point2<f64>] {
+        self.player_spawns.as_slice()
     }
 
-    pub fn enemy_generators(&self) -> &Vec<Point2<f64>> {
-        &self.enemy_generators
+    pub fn enemy_generators(&self) -> &[Point2<f64>] {
+        self.enemy_generators.as_slice()
+    }
+
+    pub fn barrels(&self) -> &[Point2<f64>] {
+        self.barrels.as_slice()
     }
 
     pub fn populate_lights(&self, config: &MapConfig, lights: &mut PointLights) {

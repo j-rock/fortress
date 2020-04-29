@@ -61,7 +61,7 @@ pub struct PlayerSystem {
 }
 
 impl PlayerSystem {
-    pub fn new(config_watcher: &mut ConfigWatcher, spawns: &Vec<Point2<f64>>) -> StatusOr<PlayerSystem> {
+    pub fn new(config_watcher: &mut ConfigWatcher, spawns: &[Point2<f64>]) -> StatusOr<PlayerSystem> {
         let config_manager = SimpleConfigManager::from_config_resource(config_watcher, "player.conf")?;
         Ok(PlayerSystem {
             config_manager,
@@ -69,7 +69,7 @@ impl PlayerSystem {
             player_needs_controller: Vec::with_capacity(players::MAX_PLAYERS),
             player_to_controller: Vec::with_capacity(players::MAX_PLAYERS),
             controller_to_player: HashMap::new(),
-            spawns: spawns.clone(),
+            spawns: spawns.iter().cloned().collect(),
         })
     }
 
@@ -169,10 +169,10 @@ impl PlayerSystem {
         }
     }
 
-    pub fn respawn(&mut self, spawns: &Vec<Point2<f64>>) {
-        self.spawns = spawns.clone();
+    pub fn respawn(&mut self, spawns: &[Point2<f64>]) {
+        self.spawns = spawns.iter().cloned().collect();
         for (_i, player) in self.players.iter_mut() {
-            let spawn = self.spawns[player.get_player_id().to_raw_usize()];
+            let spawn = self.spawns[player.get_player_id().to_raw_usize()].clone();
             player.respawn(spawn);
         }
     }

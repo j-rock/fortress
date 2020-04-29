@@ -32,7 +32,10 @@ pub struct ItemSystem {
 }
 
 impl ItemSystem {
-    pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<ItemSystem> {
+    pub fn new(config_watcher: &mut ConfigWatcher,
+               barrel_positions: &[Point2<f64>],
+               rng: &mut RandGen,
+               physics_sim: &mut PhysicsSimulation) -> StatusOr<Self> {
         let config_manager: SimpleConfigManager<ItemConfig> = SimpleConfigManager::from_config_resource(config_watcher, "item.conf")?;
         let (items, barrels) = {
             let config = config_manager.get();
@@ -41,11 +44,14 @@ impl ItemSystem {
             (items, barrels)
         };
 
-        Ok(ItemSystem {
+        let mut item_system = ItemSystem {
             config_manager,
             items,
             barrels,
-        })
+        };
+        item_system.respawn(barrel_positions, rng, physics_sim);
+
+        Ok(item_system)
     }
 
     pub fn pre_update(&mut self) {
@@ -57,7 +63,7 @@ impl ItemSystem {
             });
     }
 
-    pub fn post_update(&mut self, rng: &mut RandGen, physics_sim: &mut PhysicsSimulation) {
+    pub fn post_update(&mut self) {
         self.items.retain(|item| {
             !item.collected()
         });
@@ -65,16 +71,6 @@ impl ItemSystem {
         self.barrels.retain(|barrel| {
             !barrel.is_expired()
         });
-
-        // Fixme.
-        if self.barrels.is_empty() {
-            let config = self.config_manager.get();
-            let barrel_entry = self.barrels.vacant_entry();
-            let barrel_id = BarrelId::from_key(barrel_entry.key());
-            let pos = Point2::new(65.47, -260.62);
-            let barrel = Barrel::new(&config.barrel, barrel_id, pos, rng, physics_sim);
-            barrel_entry.insert(barrel);
-        }
     }
 
     pub fn populate_lights(&self, point_lights: &mut PointLights) {
@@ -105,6 +101,14 @@ impl ItemSystem {
         item_entry.insert(item);
     }
 
+    pub fn spawn_barrel(&mut self, position: Point2<f64>, rng: &mut RandGen, physics_sim: &mut PhysicsSimulation) {
+        let config = self.config_manager.get();
+        let barrel_entry = self.barrels.vacant_entry();
+        let barrel_id = BarrelId::from_key(barrel_entry.key());
+        let barrel = Barrel::new(&config.barrel, barrel_id, position, rng, physics_sim);
+        barrel_entry.insert(barrel);
+    }
+
     pub fn collect(&mut self, item_id: ItemId) -> Option<ItemPickup> {
         self.items.get_mut(item_id.key())
             .and_then(|item| {
@@ -126,8 +130,13 @@ impl ItemSystem {
         }
     }
 
-    pub fn respawn(&mut self) {
+    pub fn respawn(&mut self, barrel_positions: &[Point2<f64>], rng: &mut RandGen, physics_sim: &mut PhysicsSimulation) {
         self.items.clear();
+        self.barrels.clear();
+
+        barrel_positions.iter().for_each(|position| {
+            self.spawn_barrel(position.clone(), rng, physics_sim);
+        });
     }
 
     pub fn config(&self) -> &ItemConfig {
