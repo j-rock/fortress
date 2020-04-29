@@ -21,15 +21,15 @@ use crate::{
 };
 use nalgebra::Point2;
 
-pub struct Map {
+pub struct MapSystem {
     map_config_manager: SimpleConfigManager<MapConfig>,
     map_file_manager:  MapFileManager,
     map_state: MapState,
     hex_renderer: HexRenderer,
 }
 
-impl Map {
-    pub fn new(config_watcher: &mut ConfigWatcher, physics_sim: &mut PhysicsSimulation) -> StatusOr<Map> {
+impl MapSystem {
+    pub fn new(config_watcher: &mut ConfigWatcher, physics_sim: &mut PhysicsSimulation) -> StatusOr<MapSystem> {
         let map_config_manager = SimpleConfigManager::<MapConfig>::from_config_resource(config_watcher, "map.conf")?;
         let map_file_manager = MapFileManager::new(config_watcher)?;
 
@@ -41,7 +41,7 @@ impl Map {
             (map_state, hex_renderer)
         };
 
-        Ok(Map {
+        Ok(MapSystem {
             map_config_manager,
             map_file_manager,
             map_state,

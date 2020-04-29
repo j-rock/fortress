@@ -10,7 +10,7 @@ use crate::{
     },
     hud::Hud,
     items::ItemSystem,
-    maps::Map,
+    maps::MapSystem,
     math::RandGen,
     particles::ParticleSystem,
     physics::PhysicsSimulation,
@@ -51,7 +51,7 @@ pub struct WorldState {
     light_dependent_sprite: LightDependentSpriteRenderer,
     lights: PointLights,
 
-    map: Map,
+    map: MapSystem,
     players: PlayerSystem,
     enemies: EnemySystem,
     items: ItemSystem,
@@ -72,7 +72,7 @@ impl WorldState {
             PlayerMatchers::player_collected_item(),
         ));
 
-        let map = Map::new(config_watcher, &mut physics_sim)?;
+        let map = MapSystem::new(config_watcher, &mut physics_sim)?;
         let players = PlayerSystem::new(config_watcher, map.spawns())?;
         let enemies = EnemySystem::new(config_watcher, map.enemy_generators(), &mut physics_sim)?;
         let items = ItemSystem::new(config_watcher)?;
