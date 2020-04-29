@@ -38,7 +38,7 @@ pub struct Barrel {
 impl Barrel {
     pub fn new(config: &BarrelConfig, id: BarrelId, location: Point2<f64>, rng: &mut RandGen, physics_sim: &mut PhysicsSimulation) -> Self {
         let body = BarrelBody::new(config, id, location, physics_sim);
-        let direction = if rng.flip_coin(0.5) { LrDirection::Left } else { LrDirection::Right };
+        let direction = LrDirection::random(rng);
         let strike = StrikeInfo::new(config.num_strikes_health);
 
         Barrel {

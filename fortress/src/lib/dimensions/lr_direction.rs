@@ -1,9 +1,19 @@
+use crate::math::RandGen;
+
 #[derive(Copy, Clone)]
 pub enum LrDirection {
     Left, Right
 }
 
 impl LrDirection {
+    pub fn random(rng: &mut RandGen) -> Self {
+        if rng.flip_coin(0.5) {
+            Self::Left
+        } else {
+            Self::Right
+        }
+    }
+
     pub fn is_left(self) -> bool {
         match self {
             LrDirection::Left => true,

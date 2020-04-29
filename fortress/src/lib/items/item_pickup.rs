@@ -46,7 +46,7 @@ impl ItemPickup {
     }
 
     pub fn random(rng: &mut RandGen) -> Self {
-        let direction = if rng.flip_coin(0.5) { LrDirection::Left } else { LrDirection::Right };
+        let direction = LrDirection::random(rng);
         Self::new(ItemType::random(rng), direction)
     }
 }
