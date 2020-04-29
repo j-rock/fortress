@@ -1,8 +1,5 @@
 use crate::{
-    dimensions::{
-        LrDirection,
-        Reverse,
-    },
+    dimensions::Reverse,
     items::{
         barrels::{
             BarrelBody,
@@ -31,19 +28,16 @@ use nalgebra::{
 
 pub struct Barrel {
     body: BarrelBody,
-    direction: LrDirection,
     strike: StrikeInfo,
 }
 
 impl Barrel {
-    pub fn new(config: &BarrelConfig, id: BarrelId, location: Point2<f64>, rng: &mut RandGen, physics_sim: &mut PhysicsSimulation) -> Self {
+    pub fn new(config: &BarrelConfig, id: BarrelId, location: Point2<f64>, physics_sim: &mut PhysicsSimulation) -> Self {
         let body = BarrelBody::new(config, id, location, physics_sim);
-        let direction = LrDirection::random(rng);
         let strike = StrikeInfo::new(config.num_strikes_health);
 
         Barrel {
             body,
-            direction,
             strike,
         }
     }
@@ -59,45 +53,41 @@ impl Barrel {
                 config.physical_radius as f32 * config.render_scale.1);
             let world_center_position = glm::vec3(position.x as f32, world_half_size.y, -position.y as f32);
 
-            let image_name = String::from("barrel.png");
-            let frame = 0;
-            let reverse = if self.direction.is_left() {
-                Reverse::none()
-            } else {
-                Reverse::horizontally()
-            };
-
             renderer.queue(Some(FullyIlluminatedSpriteData {
                 world_center_position,
                 world_half_size,
-                sprite_frame_id: SpriteSheetFrameId::new(image_name, NamedSpriteSheet::SpriteSheet1),
-                frame,
+                sprite_frame_id: SpriteSheetFrameId::new(String::from("jar.png"), NamedSpriteSheet::SpriteSheet1),
+                frame: 0,
                 unit_world_rotation: Vector2::new(0.0, 0.0),
-                reverse,
+                reverse: Reverse::none(),
                 bloom_intensity: config.bloom_intensity,
             }));
         }
     }
 
-    pub fn strike(&mut self, config: &BarrelConfig, particles: &mut ParticleSystem, rng: &mut RandGen) -> Option<ItemPickup> {
+    pub fn strike(&mut self, config: &BarrelConfig, particles: &mut ParticleSystem) {
         if !self.strike.strike() {
-            return None;
+            return;
         }
 
         if let Some(position) = self.body.position() {
             let color = glm::vec3(config.blood_color.0, config.blood_color.1, config.blood_color.2);
             particles.queue_event(ParticleEvent::blood(position, color, config.num_blood_particles_per_hit));
         }
+    }
 
-        if self.is_expired() {
-            Some(ItemPickup::random(rng))
-        } else {
-            None
+    pub fn produce_item_on_death(&self, rng: &mut RandGen) -> Option<(ItemPickup, Point2<f64>)> {
+        if !self.is_expired() {
+            return None;
         }
+
+        let position = self.body.position()?;
+        let item_pickup = ItemPickup::random(rng);
+        Some((item_pickup, position))
     }
 
     pub fn is_expired(&self) -> bool {
-        self.strike.is_dead()
+    self.strike.is_dead()
     }
 
     pub fn position(&self) -> Option<Point2<f64>> {

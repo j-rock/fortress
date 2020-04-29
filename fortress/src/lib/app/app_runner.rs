@@ -50,8 +50,8 @@ impl AppRunner {
         };
         let audio = AudioPlayer::new(&mut config_watcher)?;
         let controller = Controller::new(&mut config_watcher)?;
-        let mut rng = RandGen::new();
-        let world = WorldState::new(&mut config_watcher, &mut rng)?;
+        let rng = RandGen::new();
+        let world = WorldState::new(&mut config_watcher)?;
 
         let bloom_render_pipeline = BloomPipeline::new(context.screen_size())?;
 

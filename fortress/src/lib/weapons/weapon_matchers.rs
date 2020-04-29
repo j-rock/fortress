@@ -40,7 +40,7 @@ impl WeaponMatchers {
                 }
             },
             Entity::Barrel(barrel_id) => {
-                world.items.try_hit_barrel(barrel_id, world.particles, world.rng);
+                world.items.try_hit_barrel(barrel_id, world.particles);
             },
             _ => {}
         }

@@ -62,7 +62,7 @@ pub struct WorldState {
 }
 
 impl WorldState {
-    pub fn new(config_watcher: &mut ConfigWatcher, rng: &mut RandGen) -> StatusOr<WorldState> {
+    pub fn new(config_watcher: &mut ConfigWatcher) -> StatusOr<WorldState> {
         let mut physics_sim = PhysicsSimulation::new(config_watcher)?;
 
         physics_sim.borrow_mut().add_contact_matchers(vec!(
@@ -75,7 +75,7 @@ impl WorldState {
         let map = MapSystem::new(config_watcher, &mut physics_sim)?;
         let players = PlayerSystem::new(config_watcher, map.spawns())?;
         let enemies = EnemySystem::new(config_watcher, map.enemy_generators(), &mut physics_sim)?;
-        let items = ItemSystem::new(config_watcher, map.barrels(), rng, &mut physics_sim)?;
+        let items = ItemSystem::new(config_watcher, map.barrels(), &mut physics_sim)?;
         let particles = ParticleSystem::new(config_watcher)?;
         let lights = PointLights::new()?;
 
@@ -112,13 +112,13 @@ impl WorldState {
             if self.map.pre_update(&mut self.physics_sim) {
                 self.players.respawn(self.map.spawns());
                 self.enemies.respawn(self.map.enemy_generators(), &mut self.physics_sim);
-                self.items.respawn(self.map.barrels(), rng, &mut self.physics_sim);
+                self.items.respawn(self.map.barrels(), &mut self.physics_sim);
                 self.particles.respawn();
             } else {
                 self.players.pre_update(audio, controller, &mut self.particles, rng, self.camera.mut_shake(), &mut self.physics_sim, dt);
                 let player_locs = self.players.player_locs();
                 self.enemies.pre_update(controller, dt, player_locs, &mut self.physics_sim);
-                self.items.pre_update();
+                self.items.pre_update(controller, self.map.barrels(), &mut self.physics_sim);
                 self.particles.pre_update(dt);
             }
         }
@@ -140,7 +140,7 @@ impl WorldState {
         {
             self.players.post_update();
             self.camera.post_update(self.players.player_locs(), dt);
-            self.items.post_update();
+            self.items.post_update(rng, &mut self.physics_sim);
             self.enemies.post_update(audio, &mut self.items, self.camera.mut_shake(), &mut self.physics_sim);
 
             let camera_stream_info = self.camera.stream_info(self.map.hex_cell_length());
