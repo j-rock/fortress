@@ -86,6 +86,12 @@ impl Weapon {
         self.bullets_to_remove.clear();
     }
 
+    pub fn redeploy(&mut self, config: &PlayerBulletConfig, physics_sim: &mut PhysicsSimulation) {
+        let bullet_element = self.bullet_element;
+        *self = Weapon::new(config, physics_sim);
+        self.bullet_element = bullet_element;
+    }
+
     pub fn try_fire_normal(&mut self,
                            config: &PlayerBulletConfig,
                            stats: &PlayerStats,

@@ -93,8 +93,7 @@ impl PlayerState {
 
     pub fn redeploy(&mut self, config: &PlayerSystemConfig, physics_sim: &mut PhysicsSimulation) {
         self.body.redeploy(&config.player, self.player_id,physics_sim);
-        self.stats = PlayerStats::new();
-        self.weapon = Weapon::new(&config.bullet, physics_sim);
+        self.weapon.redeploy(&config.bullet, physics_sim);
     }
 
     pub fn respawn(&mut self, spawn: Point2<f64>) {
