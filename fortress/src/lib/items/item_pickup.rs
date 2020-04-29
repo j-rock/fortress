@@ -38,11 +38,10 @@ impl ItemPickup {
         self.item_type.sprite_frame_id()
     }
 
-    pub fn light_color(&self, config: &ItemConfig) -> glm::Vec3 {
+    pub fn light_color(&self, config: &ItemConfig) -> Option<glm::Vec3> {
         let color = config.item_type_light_color
-            .get(&self.item_type)
-            .unwrap_or(&(1.0, 1.0, 1.0));
-        glm::vec3(color.0, color.1, color.2)
+            .get(&self.item_type)?;
+        Some(glm::vec3(color.0, color.1, color.2))
     }
 
     pub fn random(rng: &mut RandGen) -> Self {

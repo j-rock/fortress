@@ -26,7 +26,7 @@ impl ItemState {
         let position = self.position()?;
         Some(PointLight::new(
             glm::vec3(position.x as f32, config.light_elevation, -position.y as f32),
-            self.item_pickup.light_color(config),
+            self.item_pickup.light_color(config)?,
             glm::vec3(config.light_attenuation.0, config.light_attenuation.1, config.light_attenuation.2)))
     }
 

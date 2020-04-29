@@ -61,13 +61,13 @@ impl CollectedItemAnimation {
                            lights: &mut PointLights) {
         let queue_data =
             (0..self.item_pickup.len())
-                .map(|idx| {
+                .filter_map(|idx| {
                     let t = self.timer[idx].as_completion_fraction_of(config.collect_animation_duration_micros);
                     let light_strength = EasingFn::ease_out_quintic(t);
+                    let color = self.item_pickup[idx].light_color(item_config)? * light_strength;
                     let position = Self::world_center_position(config, player_center, t);
-                    let color = self.item_pickup[idx].light_color(item_config) * light_strength;
                     let attenuation = glm::vec3(config.collect_attenuation.0, config.collect_attenuation.1, config.collect_attenuation.2);
-                    PointLight::new(position, color, attenuation)
+                    Some(PointLight::new(position, color, attenuation))
                 });
 
         lights.append(queue_data);
