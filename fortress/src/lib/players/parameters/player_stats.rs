@@ -48,13 +48,19 @@ impl PlayerStats {
                     ItemTier1::CritChanceBoost => {
                         self.weapon.add_crit_chance_level();
                     },
+                    ItemTier1::NormalFiringSpeedBoost => {
+                        self.weapon.add_normal_firing_speed_level();
+                    },
                 }
             },
             ItemType::Tier2(tier2) => {
                 match tier2 {
                     ItemTier2::CritMultiplierBoost => {
                         self.weapon.add_crit_multiplier_level();
-                    }
+                    },
+                    ItemTier2::SpecialFiringPeriodBoost => {
+                        self.weapon.add_special_firing_speed_level();
+                    },
                 }
             }
         }

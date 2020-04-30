@@ -40,9 +40,9 @@ impl ItemType {
         if rng.flip_coin(0.75) {
             Self::Skull(SkullType::random(rng))
         } else if rng.flip_coin(0.75) {
-            Self::Tier1(ItemTier1::random())
+            Self::Tier1(ItemTier1::random(rng))
         } else {
-            Self::Tier2(ItemTier2::random())
+            Self::Tier2(ItemTier2::random(rng))
         }
     }
 }

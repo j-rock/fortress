@@ -41,6 +41,14 @@ impl WeaponParameters {
         self.crit_multiplier_level += 1;
     }
 
+    pub fn add_normal_firing_speed_level(&mut self) {
+        self.normal_firing_speed_level += 1;
+    }
+
+    pub fn add_special_firing_speed_level(&mut self) {
+        self.special_firing_speed_level += 1;
+    }
+
     pub fn bullet_damage(&self, config: &PlayerBulletConfig, rng: &mut RandGen) -> Damage {
         let low_value = self.damage_level as i64 * config.base_damage_per_level;
         let high_value = low_value * config.random_damage_multiplier;

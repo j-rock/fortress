@@ -3,6 +3,7 @@ use crate::{
         LrDirection,
         Reverse,
     },
+    math::RandGen,
     render::{
         NamedSpriteSheet,
         SpriteSheetFrameId,
@@ -12,6 +13,7 @@ use crate::{
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Deserialize)]
 pub enum ItemTier1 {
     CritChanceBoost,
+    NormalFiringSpeedBoost,
 }
 
 impl ItemTier1 {
@@ -26,11 +28,15 @@ impl ItemTier1 {
     pub fn sprite_frame_id(self) -> SpriteSheetFrameId {
         let image = match self {
             Self::CritChanceBoost => "mushroom.png",
+            Self::NormalFiringSpeedBoost => "normal_firing_speed_glove.png",
         };
         SpriteSheetFrameId::new(String::from(image), NamedSpriteSheet::SpriteSheet1)
     }
 
-    pub fn random() -> Self {
-        Self::CritChanceBoost
+    pub fn random(rng: &mut RandGen) -> Self {
+        match rng.ranged_i64(0, 2) {
+            0 => Self::CritChanceBoost,
+            _ => Self::NormalFiringSpeedBoost,
+        }
     }
 }
