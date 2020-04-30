@@ -48,11 +48,16 @@ pub struct PlayerBulletConfig {
     pub lifetime_duration_micros: i64,
     pub physical_radius: f64,
     pub speed: f64,
+
     pub base_damage_per_level: i64,
     pub random_damage_multiplier: i64,
     pub base_crit_chance: f64,
+    pub max_crit_chance: f64,
     pub crit_chance_per_level: f64,
-    pub on_crit_damage_multiplier: i64,
+    pub base_on_crit_damage_multiplier: i64,
+    pub max_on_crit_damage_multiplier: i64,
+    pub crit_multiplier_per_level: i64,
+
     pub knockback_strength: f64,
     pub render_width: f32,
     pub render_height: f32,

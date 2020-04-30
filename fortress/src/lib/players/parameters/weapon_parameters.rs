@@ -10,7 +10,8 @@ use crate::{
 
 pub struct WeaponParameters {
     bullet_speed_level: usize,
-    crit_level: usize,
+    crit_chance_level: usize,
+    crit_multiplier_level: usize,
     damage_level: usize,
     knockback_level: usize,
     normal_firing_speed_level: usize,
@@ -22,7 +23,8 @@ impl Default for WeaponParameters {
         WeaponParameters {
             bullet_speed_level: 1,
             damage_level: 1,
-            crit_level: 1,
+            crit_chance_level: 1,
+            crit_multiplier_level: 1,
             knockback_level: 1,
             normal_firing_speed_level: 1,
             special_firing_speed_level: 1,
@@ -31,21 +33,32 @@ impl Default for WeaponParameters {
 }
 
 impl WeaponParameters {
-    pub fn bullet_damage(&self, config: &PlayerBulletConfig, rng: &mut RandGen) -> Damage {
-        let crit_chance = config.base_crit_chance + config.crit_chance_per_level * self.crit_level as f64;
-        let apply_crit = if crit_chance < 1.0 {
-            rng.flip_coin(crit_chance)
-        } else {
-            true
-        };
+    pub fn add_crit_chance_level(&mut self) {
+        self.crit_chance_level += 1;
+    }
 
+    pub fn add_crit_multiplier_level(&mut self) {
+        self.crit_multiplier_level += 1;
+    }
+
+    pub fn bullet_damage(&self, config: &PlayerBulletConfig, rng: &mut RandGen) -> Damage {
         let low_value = self.damage_level as i64 * config.base_damage_per_level;
         let high_value = low_value * config.random_damage_multiplier;
-        let rand = rng.ranged_i64(low_value, high_value);
-        if apply_crit {
-            Damage::new(rand * config.on_crit_damage_multiplier, Criticality::Crit)
+        let damage = rng.ranged_i64(low_value, high_value);
+
+        let uncapped_crit_chance = config.base_crit_chance + config.crit_chance_per_level * self.crit_chance_level as f64;
+        let crit_chance = if uncapped_crit_chance < config.max_crit_chance { uncapped_crit_chance } else { config.max_crit_chance };
+
+        if rng.flip_coin(crit_chance) {
+            let uncapped_multiplier = config.base_on_crit_damage_multiplier + config.crit_multiplier_per_level * self.crit_multiplier_level as i64;
+            let multiplier = if uncapped_multiplier < config.max_on_crit_damage_multiplier {
+                uncapped_multiplier
+            } else {
+                config.max_on_crit_damage_multiplier
+            };
+            Damage::new(damage * multiplier, Criticality::Crit)
         } else {
-            Damage::new(rand, Criticality::Normal)
+            Damage::new(damage, Criticality::Normal)
         }
     }
 

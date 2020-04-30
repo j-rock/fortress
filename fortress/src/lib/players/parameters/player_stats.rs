@@ -6,6 +6,10 @@ use crate::{
     items::{
         ItemConfig,
         ItemType,
+        types::{
+            ItemTier1,
+            ItemTier2,
+        },
     },
     math::RandGen,
     players::{
@@ -38,6 +42,20 @@ impl PlayerStats {
         match item_type {
             ItemType::Skull(skull_type) => {
                 self.skull.add_to_count(config, skull_type);
+            },
+            ItemType::Tier1(tier1) => {
+                match tier1 {
+                    ItemTier1::CritChanceBoost => {
+                        self.weapon.add_crit_chance_level();
+                    },
+                }
+            },
+            ItemType::Tier2(tier2) => {
+                match tier2 {
+                    ItemTier2::CritMultiplierBoost => {
+                        self.weapon.add_crit_multiplier_level();
+                    }
+                }
             }
         }
     }
