@@ -11,8 +11,8 @@ pub struct Font<'a> {
 
 impl<'a> Font<'a> {
     pub fn from_bytes(bytes: &[u8]) -> StatusOr<Font> {
-        let font = rusttype::Font::from_bytes(bytes)
-            .map_err(|e| format!("Font: {:?}", e))?;
+        let font = rusttype::Font::try_from_bytes(bytes)
+            .ok_or_else(|| String::from("Bad font load"))?;
 
         Ok(Font {
             font,
@@ -20,8 +20,8 @@ impl<'a> Font<'a> {
     }
 
     pub fn from_vector(bytes: Vec<u8>) -> StatusOr<Font<'static>> {
-        let font = rusttype::Font::from_bytes(bytes)
-            .map_err(|e| format!("Font: {:?}", e))?;
+        let font = rusttype::Font::try_from_vec(bytes)
+            .ok_or_else(|| String::from("Bad font load"))?;
 
         Ok(Font {
             font,
