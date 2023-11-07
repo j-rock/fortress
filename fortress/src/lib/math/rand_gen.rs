@@ -60,7 +60,7 @@ impl RandGen {
     }
 
     pub fn ranged_f32(&mut self, low: f32, high: f32) -> f32 {
-        self.rng.gen_range(low, high)
+        self.rng.gen_range(low..high)
     }
 
     pub fn unit_f64(&mut self) -> f64 {
@@ -68,11 +68,11 @@ impl RandGen {
     }
 
     pub fn ranged_f64(&mut self, low: f64, high: f64) -> f64 {
-        self.rng.gen_range(low, high)
+        self.rng.gen_range(low..high)
     }
 
     pub fn ranged_i64(&mut self, low: i64, high: i64) -> i64 {
-        self.rng.gen_range(low, high)
+        self.rng.gen_range(low..high)
     }
 
     pub fn flip_coin(&mut self, probability_heads: f64) -> bool {
@@ -80,7 +80,7 @@ impl RandGen {
     }
 
     pub fn choose_uniformly<'a, T>(&mut self, slice: &'a [T]) -> &'a T {
-        let index: usize = self.rng.gen_range(0, slice.len());
+        let index: usize = self.rng.gen_range(0..slice.len());
         &slice[index]
     }
 }
