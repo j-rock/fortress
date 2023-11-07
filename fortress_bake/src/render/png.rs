@@ -34,16 +34,18 @@ impl Png {
 
     pub fn from_slice(slice: &[u8]) -> StatusOr<Png> {
         let decoder = png::Decoder::new(slice);
-        let (info, mut reader) = decoder.read_info()
+        let mut reader = decoder.read_info()
             .map_err(|err| format!("Couldn't read png file: {}", err))?;
-        let mut buf = vec![0; info.buffer_size()];
+        let (width, height) = reader.info().size();
+
+        let mut buf = vec![0; (width * height * 4) as usize];
         reader.next_frame(&mut buf)
             .map_err(|err| format!("Couldn't read next frame: {}", err))?;
 
         Ok(Png {
             img: buf,
-            width: info.width as usize,
-            height: info.height as usize,
+            width: width as usize,
+            height: height as usize,
         })
     }
 
@@ -66,7 +68,7 @@ impl Png {
         let w = BufWriter::new(file);
 
         let mut encoder = png::Encoder::new(w, self.width as u32, self.height as u32);
-        encoder.set_color(png::ColorType::RGBA);
+        encoder.set_color(png::ColorType::Rgba);
         encoder.set_depth(png::BitDepth::Eight);
 
         let mut writer =
