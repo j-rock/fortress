@@ -9,9 +9,8 @@ use crate::{
         SpriteSheetFrameId,
     },
 };
-use enum_iterator::IntoEnumIterator;
 
-#[derive(Copy, Clone, PartialEq, Eq, Hash, Deserialize, IntoEnumIterator)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Deserialize)]
 pub enum SkullType {
     Mega,
     Regular,
