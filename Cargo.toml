@@ -5,6 +5,8 @@ members = [
     "generational_slab",
 ]
 
+resolver = "2"
+
 # All dependencies (but not this crate itself or any workspace member)
 # will be compiled with -Copt-level=2.
 [profile.dev.package."*"]
@@ -12,3 +14,24 @@ opt-level = 2
 
 [profile.release]
 debug = true
+
+[workspace.dependencies]
+enum-iterator = "1.4"
+gl = "0.14"
+glm = "0.2"
+lazy_static = "1.4"
+memmap = "0.7"
+nalgebra = "0.29"
+ncollide2d = "0.32"
+notify = "4.0"
+nphysics2d = "0.24"
+png = "0.16"
+rand = "0.7"
+rand_distr = "0.2"
+rand_xorshift = "0.2"
+rect_packer = "0.2"
+ron = "0.5"
+rusttype = "0.8"
+serde = "1.0"
+serde_derive = "1.0"
+sdl2 = { version = "0.33", default-features = false, features = ["mixer"]}

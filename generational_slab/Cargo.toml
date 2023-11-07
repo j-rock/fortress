@@ -1,5 +1,6 @@
 [package]
 
+edition = "2021"
 name = "generational_slab"
 version = "0.5.0"
 license = "MIT"

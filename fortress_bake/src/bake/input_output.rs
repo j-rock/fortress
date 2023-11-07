@@ -55,8 +55,8 @@ impl OutputDirectories {
         let images = output_dir.join("images");
         let fonts = output_dir.join("fonts");
 
-        for directory in [&config, &images, &fonts].iter() {
-            std::fs::create_dir_all(directory.clone())
+        for directory in [&config, &images, &fonts].into_iter() {
+            std::fs::create_dir_all(directory)
                 .map_err(|e| format!("{:?}", e))?;
         }
 

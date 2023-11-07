@@ -2,28 +2,24 @@
 name = "fortress"
 version = "0.1.0"
 authors = ["Joseph <no@thanks.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-enum-iterator = "0.6"
+enum-iterator.workspace = true
 fortress_bake = { path = "../fortress_bake"}
 generational_slab = { path = "../generational_slab"}
-gl = "0.14"
-glm = "0.2"
-nalgebra = "0.20"
-ncollide2d = "0.22"
-nphysics2d = "0.14"
-rand = "0.7"
-rand_distr = "0.2"
-rand_xorshift = "0.2"
-ron = "0.5"
-serde = "1.0"
-serde_derive = "1.0"
-
-[dependencies.sdl2]
-version = "0.33"
-default-features = false
-features = ["mixer"]
+gl.workspace = true
+glm.workspace = true
+nalgebra.workspace = true
+ncollide2d.workspace = true
+nphysics2d.workspace = true
+rand.workspace = true
+rand_distr.workspace = true
+rand_xorshift.workspace = true
+ron.workspace = true
+sdl2.workspace = true
+serde.workspace = true
+serde_derive.workspace = true
 
 [features]
 bake = []

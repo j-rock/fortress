@@ -2,21 +2,21 @@
 name = "fortress_bake"
 version = "0.1.0"
 authors = ["Joseph <no@thanks.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-enum-iterator = "0.6"
-gl = "0.14"
-glm = "0.2"
-lazy_static = "1.4"
-memmap = "0.7"
-notify = "4.0"
-png = "0.16"
-rect_packer = "0.2"
-ron = "0.5"
-rusttype = "0.8"
-serde = "1.0"
-serde_derive = "1.0"
+enum-iterator.workspace = true
+gl.workspace = true
+glm.workspace = true
+lazy_static.workspace = true
+memmap.workspace = true
+notify.workspace = true
+png.workspace = true
+rect_packer.workspace = true
+ron.workspace = true
+rusttype.workspace = true
+serde.workspace = true
+serde_derive.workspace = true
 
 [features]
 bake = []
