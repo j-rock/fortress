@@ -1,8 +1,8 @@
 use crate::file;
-use enum_iterator::IntoEnumIterator;
+use enum_iterator::Sequence;
 use std::path::PathBuf;
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, IntoEnumIterator)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Sequence)]
 pub enum Sound {
     BarrelDestroy,
     BarrelHit,
@@ -33,7 +33,7 @@ impl Sound {
         file::util::resource_path("audio", filename)
     }
 
-    pub fn all_sounds() -> <Self as IntoEnumIterator>::Iterator {
-        Self::into_enum_iter()
+    pub fn all_sounds() -> impl Iterator<Item = Self> {
+        enum_iterator::all::<Self>()
     }
 }

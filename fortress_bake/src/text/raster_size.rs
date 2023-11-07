@@ -1,6 +1,6 @@
-use enum_iterator::IntoEnumIterator;
+use enum_iterator::Sequence;
 
-#[derive(Copy, Clone, Deserialize, Debug, PartialEq, Eq, PartialOrd, Hash, IntoEnumIterator)]
+#[derive(Copy, Clone, Deserialize, Debug, PartialEq, Eq, PartialOrd, Hash, Sequence)]
 pub enum RasterSize {
     Small,
     Medium,
@@ -9,6 +9,6 @@ pub enum RasterSize {
 
 impl RasterSize {
     pub fn all_values() -> impl Iterator<Item = Self> {
-        Self::into_enum_iter()
+        enum_iterator::all::<Self>()
     }
 }

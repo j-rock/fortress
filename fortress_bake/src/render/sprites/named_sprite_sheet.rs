@@ -1,6 +1,6 @@
-use enum_iterator::IntoEnumIterator;
+use enum_iterator::Sequence;
 
-#[derive(Copy, Clone, Debug, Serialize, Deserialize, Eq, PartialEq, Hash, IntoEnumIterator)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, Eq, PartialEq, Hash, Sequence)]
 pub enum NamedSpriteSheet {
     SpriteSheet1,
     GalaxyGround,
@@ -13,7 +13,7 @@ impl NamedSpriteSheet {
     }
 
     pub fn all_values() -> impl Iterator<Item=NamedSpriteSheet> {
-        Self::into_enum_iter()
+        enum_iterator::all::<Self>()
     }
 
     pub fn from_str(s: &str) -> Option<Self> {
